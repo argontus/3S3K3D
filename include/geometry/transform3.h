@@ -181,8 +181,8 @@ public:
 
     /**
      * Applies the inverse of this transform to a single point. The order of
-     * application is negative translation first, inverse scaling second and
-     * inverse rotation third.
+     * application is negative translation first, inverse rotation second and
+     * inverse scaling third.
      *
      * @param q The point to transform.
      *
@@ -209,7 +209,7 @@ public:
      * this transform is applied to all points in range [<code>first</code>,
      * <code>last</code>). Each transformed point is stored in the range
      * beginning at <code>result</code>. The order of application is negative
-     * translation first, inverse scaling second and inverse rotation third.
+     * translation first, inverse rotation second and inverse scaling third.
      *
      * @param first Input iterator, the first in source range.
      * @param last Input iterator, one beyond the last in source range.
@@ -238,7 +238,9 @@ private:
  * @param dst Destination space transformation.
  *
  * @return Transform that produces a conversion from local space of
- * <code>src</code> to local space of <code>dst</code>.
+ * <code>src</code> to local space of <code>dst</code>, that is, transform
+ * <code>t</code> such as <code>t.applyForward(v)</code> is equal to
+ * <code>dst.applyInverse(src.applyForward(v))</code>.
  */
 const Transform3 conversion(const Transform3& src, const Transform3& dst);
 
@@ -262,17 +264,6 @@ const Transform3 invert(const Transform3& t);
  */
 const Transform3 product(const Transform3& a, const Transform3& b);
 
-/**
- * Calculates a combined transform of two transforms.
- *
- * @param a The first transformation to apply.
- * @param b The transformation whose inverse is to be applied.
- *
- * @return Transform <code>t</code> such as <code>t.applyForward(v)</code> is
- * equal to <code>b.applyInverse(a.applyForward(v))</code>.
- */
-const Transform3 productI(const Transform3& a, const Transform3& b);
-
 template <class In, class Out>
 void Transform3::applyForward(In first, const In last, Out result) const
 {
@@ -294,7 +285,7 @@ void Transform3::applyInverse(In first, const In last, Out result) const
 
     while (first != last)
     {
-        *result = productT((*first - translation_) / scaling_, rotation_);
+        *result = productT(*first - translation_, rotation_) / scaling_;
 
         ++first;
         ++result;

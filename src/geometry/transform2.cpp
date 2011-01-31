@@ -120,7 +120,7 @@ const Vector2 Transform2::applyInverse(const Vector2& q) const
     GEOMETRY_RUNTIME_ASSERT(scaling_ > 0.0f);
 
     const Matrix2x2 rotation = Matrix2x2::rotation(rotation_);
-    return productT((q - translation_) / scaling_, rotation);
+    return productT(q - translation_, rotation) / scaling_;
 }
 
 void Transform2::swap(Transform2& other)
@@ -135,10 +135,8 @@ const Transform2 conversion(const Transform2& src, const Transform2& dst)
     GEOMETRY_RUNTIME_ASSERT(src.scaling() > 0.0f);
     GEOMETRY_RUNTIME_ASSERT(dst.scaling() > 0.0f);
 
-    const Matrix2x2 dstRotation = Matrix2x2::rotation(dst.rotation());
-
     return Transform2(
-        productT(src.translation() - dst.translation(), dstRotation) / dst.scaling(),
+        dst.applyInverse(src.translation()),
         src.rotation() - dst.rotation(),
         src.scaling() / dst.scaling()
     );
@@ -164,19 +162,5 @@ const Transform2 product(const Transform2& a, const Transform2& b)
         b.applyForward(a.translation()),
         a.rotation() + b.rotation(),
         a.scaling() * b.scaling()
-    );
-}
-
-const Transform2 productI(const Transform2& a, const Transform2& b)
-{
-    GEOMETRY_RUNTIME_ASSERT(a.scaling() > 0.0f);
-    GEOMETRY_RUNTIME_ASSERT(b.scaling() > 0.0f);
-
-    // TODO: not tested, does this work?
-
-    return Transform2(
-        b.applyInverse(a.translation()),
-        a.rotation() - b.rotation(),
-        a.scaling() / b.scaling()
     );
 }

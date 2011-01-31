@@ -162,7 +162,7 @@ const Vector3 Transform3::applyForward(const Vector3& q) const
 const Vector3 Transform3::applyInverse(const Vector3& q) const
 {
     GEOMETRY_RUNTIME_ASSERT(scaling_ > 0.0f);
-    return productT((q - translation_) / scaling_, rotation_);
+    return productT(q - translation_, rotation_) / scaling_;
 }
 
 void Transform3::swap(Transform3& other)
@@ -178,7 +178,7 @@ const Transform3 conversion(const Transform3& src, const Transform3& dst)
     GEOMETRY_RUNTIME_ASSERT(dst.scaling() > 0.0f);
 
     return Transform3(
-        productT(src.translation() - dst.translation(), dst.rotation()) / dst.scaling(),
+        dst.applyInverse(src.translation()),
         productT(src.rotation(), dst.rotation()),
         src.scaling() / dst.scaling()
     );
@@ -204,19 +204,5 @@ const Transform3 product(const Transform3& a, const Transform3& b)
         b.applyForward(a.translation()),
         product(a.rotation(), b.rotation()),
         a.scaling() * b.scaling()
-    );
-}
-
-const Transform3 productI(const Transform3& a, const Transform3& b)
-{
-    GEOMETRY_RUNTIME_ASSERT(a.scaling() > 0.0f);
-    GEOMETRY_RUNTIME_ASSERT(b.scaling() > 0.0f);
-
-    // TODO: not tested, does this work?
-
-    return Transform3(
-        b.applyInverse(a.translation()),
-        productT(a.rotation(), b.rotation()),
-        a.scaling() / b.scaling()
     );
 }
