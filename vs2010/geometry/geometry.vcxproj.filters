@@ -35,6 +35,54 @@
     <ClInclude Include="..\..\include\geometry\staticassert.h">
       <Filter>include\geometry</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\geometry\extents2.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\line2.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\linesegment2.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\ray2.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\interval.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\matrix4x4.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\transform2.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\vector2array.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\vector3.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\plane3.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\extents3.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\matrix3x3.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\transform3.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\ray3.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\line3.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\geometry\linesegment3.h">
+      <Filter>include\geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\geometry\vector2.cpp">
@@ -47,6 +95,60 @@
       <Filter>src\geometry</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\geometry\plane2.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\extents2.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\line2.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\linesegment2.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\ray2.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\interval.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\matrix4x4.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\transform2.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\vector2array.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\vector3.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\plane3.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\extents3.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\matrix3x3.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\transform3.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\geometry\vector3array.h">
+      <Filter>include\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\vector3array.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\ray3.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\line3.cpp">
+      <Filter>src\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\geometry\linesegment3.cpp">
       <Filter>src\geometry</Filter>
     </ClCompile>
   </ItemGroup>

@@ -11,18 +11,52 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\geometry\extents2.h" />
+    <ClInclude Include="..\..\include\geometry\extents3.h" />
+    <ClInclude Include="..\..\include\geometry\interval.h" />
+    <ClInclude Include="..\..\include\geometry\line2.h" />
+    <ClInclude Include="..\..\include\geometry\line3.h" />
+    <ClInclude Include="..\..\include\geometry\linesegment2.h" />
+    <ClInclude Include="..\..\include\geometry\linesegment3.h" />
     <ClInclude Include="..\..\include\geometry\math.h" />
     <ClInclude Include="..\..\include\geometry\matrix2x2.h" />
+    <ClInclude Include="..\..\include\geometry\matrix3x3.h" />
+    <ClInclude Include="..\..\include\geometry\matrix4x4.h" />
     <ClInclude Include="..\..\include\geometry\plane2.h" />
+    <ClInclude Include="..\..\include\geometry\plane3.h" />
+    <ClInclude Include="..\..\include\geometry\ray2.h" />
+    <ClInclude Include="..\..\include\geometry\ray3.h" />
     <ClInclude Include="..\..\include\geometry\runtimeassert.h" />
     <ClInclude Include="..\..\include\geometry\staticassert.h" />
+    <ClInclude Include="..\..\include\geometry\transform2.h" />
+    <ClInclude Include="..\..\include\geometry\transform3.h" />
     <ClInclude Include="..\..\include\geometry\vector2.h" />
+    <ClInclude Include="..\..\include\geometry\vector2array.h" />
+    <ClInclude Include="..\..\include\geometry\vector3.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\include\geometry\vector3array.h" />
+    <ClCompile Include="..\..\src\geometry\extents2.cpp" />
+    <ClCompile Include="..\..\src\geometry\extents3.cpp" />
+    <ClCompile Include="..\..\src\geometry\interval.cpp" />
+    <ClCompile Include="..\..\src\geometry\line2.cpp" />
+    <ClCompile Include="..\..\src\geometry\line3.cpp" />
+    <ClCompile Include="..\..\src\geometry\linesegment2.cpp" />
+    <ClCompile Include="..\..\src\geometry\linesegment3.cpp" />
     <ClCompile Include="..\..\src\geometry\math.cpp" />
     <ClCompile Include="..\..\src\geometry\matrix2x2.cpp" />
+    <ClCompile Include="..\..\src\geometry\matrix3x3.cpp" />
+    <ClCompile Include="..\..\src\geometry\matrix4x4.cpp" />
     <ClCompile Include="..\..\src\geometry\plane2.cpp" />
+    <ClCompile Include="..\..\src\geometry\plane3.cpp" />
+    <ClCompile Include="..\..\src\geometry\ray2.cpp" />
+    <ClCompile Include="..\..\src\geometry\ray3.cpp" />
+    <ClCompile Include="..\..\src\geometry\transform2.cpp" />
+    <ClCompile Include="..\..\src\geometry\transform3.cpp" />
     <ClCompile Include="..\..\src\geometry\vector2.cpp" />
+    <ClCompile Include="..\..\src\geometry\vector2array.cpp" />
+    <ClCompile Include="..\..\src\geometry\vector3.cpp" />
+    <ClCompile Include="..\..\src\geometry\vector3array.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FBCCA77B-448A-4885-B090-2CB67677960D}</ProjectGuid>
