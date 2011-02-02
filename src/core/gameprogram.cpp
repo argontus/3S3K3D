@@ -11,6 +11,7 @@
 
 #ifdef WIN32
 //todo: add #includes for windows as well!
+#include <gl/gl.h>
 #endif
 
 #include <iostream>
@@ -132,7 +133,7 @@ void GameProgram::render() {
     static float red = 0.0;
     static float green = 0.0;
     static float blue = 1.0;
-    static uint ticks = 0;
+    static Uint32 ticks = 0;
 
     ticks += deltaTicks;
 
