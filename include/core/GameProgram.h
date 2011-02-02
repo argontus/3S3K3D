@@ -19,8 +19,8 @@ public:
 	 * Initialize SDL, window and OpenGL.
 	 * Read configuration file at some point as well
 	 *
-	 * @return	bool returns true if initialization is successful, otherwise
-	 * 			return false.
+	 * @return bool returns true if initialization is successful, otherwise
+	 * 			    return false.
 	 */
 	bool init();
 
@@ -29,7 +29,7 @@ public:
 	 *
 	 * Starts executing the main loop of the program.
 	 *
-	 * @return	returns 0 on clean exit and non-zero on forced exit (eg. an
+	 * @return int returns 0 on clean exit and non-zero on forced exit (eg. an
 	 * 			error occured. )
 	 */
 	int execute();
@@ -64,7 +64,7 @@ public:
 	 *
 	 * handles key presses.
 	 *
-	 * @param SDL_keysym* keysym of the pressed key
+	 * @param keysym keysym of the pressed key
 	 */
 	void handleKeyPresses( SDL_keysym keysym );
 
@@ -72,10 +72,10 @@ public:
 	 * tick
 	 *
 	 * one 'tick' in the game simulation
-	 * @param float deltaTime frame independent modifier for movement of
+	 * @param deltaTime frame independent modifier for movement of
      *                        objects
 	 */
-	 virtual void tick( float deltaTime );
+	 virtual void tick( const float deltaTime );
 
 	 /**
 	  *
@@ -103,7 +103,7 @@ public:
 	 *
 	 * setter for member variable 'running'
 	 *
-	 * @param bool new value for the member variable.
+	 * @param value new value for the member variable.
 	 */
 	void setRunning( bool value ) { this->running = value; }
 
