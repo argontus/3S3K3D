@@ -68,7 +68,7 @@ bool GameProgram::init() {
 }
 
 
-void GameProgram::handleEvent( SDL_Event* event ) {
+void GameProgram::handleEvent( const SDL_Event* const event ) {
 	switch( event->type ) {
 		case SDL_QUIT:
 			running = false;
@@ -81,7 +81,7 @@ void GameProgram::handleEvent( SDL_Event* event ) {
 	}
 }
 
-void GameProgram::handleKeyPresses( SDL_keysym keysym ) {
+void GameProgram::handleKeyPresses( const SDL_keysym keysym ) {
 	switch( keysym.sym ) {
 	case SDLK_ESCAPE:
 		running = false;
@@ -168,7 +168,7 @@ void GameProgram::cleanup() {
 	SDL_Quit();
 }
 
-void GameProgram::tick( float deltaTime ) {
+void GameProgram::tick( const float deltaTime ) {
     /*
      * TODO: give this function some sort of basic functionality, or
      *       turn this function into a pure virtual function.

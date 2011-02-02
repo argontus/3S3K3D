@@ -57,7 +57,7 @@ public:
 	 *
 	 * @param event event to handle
 	 */
-	void handleEvent( SDL_Event* event );
+	void handleEvent( const SDL_Event* const event );
 
 	/**
 	 * handleKeyPresses
@@ -66,7 +66,7 @@ public:
 	 *
 	 * @param keysym keysym of the pressed key
 	 */
-	void handleKeyPresses( SDL_keysym keysym );
+	void handleKeyPresses( const SDL_keysym keysym );
 
 	/**
 	 * tick
