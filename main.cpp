@@ -1,11 +1,9 @@
-/*
- * main.cpp
+/**
+ * @file main.cpp
+ * @author Marko Silokunnas
  *
- *  Created on: Jan 24, 2011
- *      Author: marant
+ * Entry point of the program.
  */
-#include "SDL/SDL.h"
-#include "SDL/SDL_opengl.h"
 #include "include/core/GameProgram.h"
 
 /* Our program's entry point */
