@@ -3,7 +3,7 @@
  *  @author Marko Silokunnas
  */
 
-#include <core/GameProgram.h>
+#include <core/gameprogram.h>
 
 #ifdef __linux__
 #include "GL/glew.h"

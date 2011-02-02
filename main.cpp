@@ -4,7 +4,8 @@
  *
  * Entry point of the program.
  */
-#include "include/core/GameProgram.h"
+
+#include "include/core/gameprogram.h"
 
 int main(int argc, char *argv[])
 {
