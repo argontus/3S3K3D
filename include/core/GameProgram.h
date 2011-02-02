@@ -9,12 +9,16 @@
 
 #include <SDL/SDL.h>
 
+/**
+ * The 'main' class of the game. Contains initializations(window, OpenGL, SDL)
+ * and event handling for keyboard and mouse events. Contains the main loop
+ * of the game as well.
+ */
 class GameProgram {
 public:
 	GameProgram();
 
 	/**
-	 * init
 	 *
 	 * Initialize SDL, window and OpenGL.
 	 * Read configuration file at some point as well
@@ -25,7 +29,6 @@ public:
 	bool init();
 
 	/**
-	 * execute
 	 *
 	 * Starts executing the main loop of the program.
 	 *
@@ -35,7 +38,6 @@ public:
 	int execute();
 
 	/**
-	 * render
 	 *
 	 * Renders the scene
 	 *
@@ -43,7 +45,6 @@ public:
 	void render();
 
 	/**
-	 * cleanup
 	 *
 	 * This function is called before exiting the program. Makes sure that the
 	 * program frees all of it's memory etc.
@@ -51,7 +52,6 @@ public:
 	void cleanup();
 
 	/**
-	 * handleEvent
 	 *
 	 * Event handling. TODO: write a better comment :P
 	 *
@@ -60,7 +60,6 @@ public:
 	void handleEvent( const SDL_Event* const event );
 
 	/**
-	 * handleKeyPresses
 	 *
 	 * handles key presses.
 	 *
@@ -69,7 +68,6 @@ public:
 	void handleKeyPresses( const SDL_keysym keysym );
 
 	/**
-	 * tick
 	 *
 	 * one 'tick' in the game simulation
 	 * @param deltaTime frame independent modifier for movement of
@@ -83,14 +81,12 @@ public:
 	  */
 
 	/**
-	 * ~GameProgram
 	 *
 	 * destructor
 	 */
 	virtual ~GameProgram();
 
 	/**
-	 * isRunning
 	 *
 	 * getter for member variable 'running'
 	 *
@@ -99,7 +95,6 @@ public:
 	inline bool isRunning() const { return running; };
 
 	/**
-	 * setRunning
 	 *
 	 * setter for member variable 'running'
 	 *
