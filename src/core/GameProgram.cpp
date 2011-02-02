@@ -7,7 +7,6 @@
 
 #ifdef __linux__
 #include "GL/glew.h"
-#include "SDL/SDL.h"
 #endif
 
 #ifdef WIN32
@@ -100,8 +99,8 @@ int GameProgram::execute() {
 	SDL_Event event;
     deltaTicks          = 0;
     deltaTime           = 0;
-    uint currentTicks = 0;
-    uint lastTicks    = 0;
+    Uint32 currentTicks = 0;
+    Uint32 lastTicks    = 0;
 
     std::cout << "Entering main loop..." << std::endl;
 	while( running ) {
@@ -110,7 +109,7 @@ int GameProgram::execute() {
 	    deltaTicks = currentTicks-lastTicks;
 	    deltaTime = (float)deltaTicks/1000.0;
 
-        std::cout << "FPS: " << 1.0/((float)deltaTicks/1000.0) << std::endl;
+        std::cout << "FPS: " << 1.0/deltaTime << std::endl;
 
 		while( SDL_PollEvent( &event ) ) {
 			handleEvent( &event );

@@ -106,9 +106,9 @@ private:
 	bool running;
 	SDL_WindowID mainwindow; /* window handle */
 	SDL_GLContext maincontext; /* opengl context handle */
-	uint deltaTicks; /* ticks between last frame and current frame */
+	Uint32 deltaTicks; /* ticks between last frame and current frame */
 	float deltaTime;
-	static const uint ticksPerSecond = 1000;
+	static const Uint32 ticksPerSecond = 1000;
 };
 
 #endif /* GAMEPROGRAM_H_ */
