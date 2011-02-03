@@ -7,8 +7,8 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="../bin/Debug/3S3K3D" prefix_auto="1" extension_auto="1" />
-				<Option object_output="../obj/Debug/" />
+				<Option output="..\bin\Debug\3S3K3D" prefix_auto="1" extension_auto="1" />
+				<Option object_output="..\obj\Debug\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -17,12 +17,12 @@
 				</Compiler>
 				<Linker>
 					<Add library="SDL" />
-					<Add library="GL" />
+					<Add library="opengl32" />
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="../bin/Release/3S3K3D" prefix_auto="1" extension_auto="1" />
-				<Option object_output="../obj/Release/" />
+				<Option output="..\bin\Release\3S3K3D" prefix_auto="1" extension_auto="1" />
+				<Option object_output="..\obj\Release\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -32,59 +32,85 @@
 					<Add option="-s" />
 				</Linker>
 			</Target>
+			<Target title="Windows">
+				<Option output="..\bin\Windows\3S3K3D" prefix_auto="1" extension_auto="1" />
+				<Option object_output="..\obj\Windows\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add library="SDL" />
+					<Add library="opengl32" />
+				</Linker>
+			</Target>
+			<Target title="Linux">
+				<Option output="..\bin\Linux\3S3K3D" prefix_auto="1" extension_auto="1" />
+				<Option object_output="..\obj\Linux\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="include" />
+				</Compiler>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="include/core/gameprogram.h" />
-		<Unit filename="include/core/gamewindow.h" />
-		<Unit filename="include/geometry/extents2.h" />
-		<Unit filename="include/geometry/extents3.h" />
-		<Unit filename="include/geometry/interval.h" />
-		<Unit filename="include/geometry/line2.h" />
-		<Unit filename="include/geometry/line3.h" />
-		<Unit filename="include/geometry/linesegment2.h" />
-		<Unit filename="include/geometry/linesegment3.h" />
-		<Unit filename="include/geometry/math.h" />
-		<Unit filename="include/geometry/matrix2x2.h" />
-		<Unit filename="include/geometry/matrix3x3.h" />
-		<Unit filename="include/geometry/matrix4x4.h" />
-		<Unit filename="include/geometry/plane2.h" />
-		<Unit filename="include/geometry/plane3.h" />
-		<Unit filename="include/geometry/ray2.h" />
-		<Unit filename="include/geometry/ray3.h" />
-		<Unit filename="include/geometry/runtimeassert.h" />
-		<Unit filename="include/geometry/staticassert.h" />
-		<Unit filename="include/geometry/transform2.h" />
-		<Unit filename="include/geometry/transform3.h" />
-		<Unit filename="include/geometry/vector2.h" />
-		<Unit filename="include/geometry/vector2array.h" />
-		<Unit filename="include/geometry/vector3.h" />
-		<Unit filename="include/geometry/vector3array.h" />
+		<Unit filename="include\core\gameprogram.h" />
+		<Unit filename="include\core\gamewindow.h" />
+		<Unit filename="include\geometry\extents2.h" />
+		<Unit filename="include\geometry\extents3.h" />
+		<Unit filename="include\geometry\interval.h" />
+		<Unit filename="include\geometry\line2.h" />
+		<Unit filename="include\geometry\line3.h" />
+		<Unit filename="include\geometry\linesegment2.h" />
+		<Unit filename="include\geometry\linesegment3.h" />
+		<Unit filename="include\geometry\math.h" />
+		<Unit filename="include\geometry\matrix2x2.h" />
+		<Unit filename="include\geometry\matrix3x3.h" />
+		<Unit filename="include\geometry\matrix4x4.h" />
+		<Unit filename="include\geometry\plane2.h" />
+		<Unit filename="include\geometry\plane3.h" />
+		<Unit filename="include\geometry\ray2.h" />
+		<Unit filename="include\geometry\ray3.h" />
+		<Unit filename="include\geometry\runtimeassert.h" />
+		<Unit filename="include\geometry\staticassert.h" />
+		<Unit filename="include\geometry\transform2.h" />
+		<Unit filename="include\geometry\transform3.h" />
+		<Unit filename="include\geometry\vector2.h" />
+		<Unit filename="include\geometry\vector2array.h" />
+		<Unit filename="include\geometry\vector3.h" />
+		<Unit filename="include\geometry\vector3array.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="src/core/gameprogram.cpp" />
-		<Unit filename="src/core/gamewindow.cpp" />
-		<Unit filename="src/geometry/extents2.cpp" />
-		<Unit filename="src/geometry/extents3.cpp" />
-		<Unit filename="src/geometry/interval.cpp" />
-		<Unit filename="src/geometry/line2.cpp" />
-		<Unit filename="src/geometry/line3.cpp" />
-		<Unit filename="src/geometry/linesegment2.cpp" />
-		<Unit filename="src/geometry/linesegment3.cpp" />
-		<Unit filename="src/geometry/math.cpp" />
-		<Unit filename="src/geometry/matrix2x2.cpp" />
-		<Unit filename="src/geometry/matrix3x3.cpp" />
-		<Unit filename="src/geometry/matrix4x4.cpp" />
-		<Unit filename="src/geometry/plane2.cpp" />
-		<Unit filename="src/geometry/plane3.cpp" />
-		<Unit filename="src/geometry/ray2.cpp" />
-		<Unit filename="src/geometry/ray3.cpp" />
-		<Unit filename="src/geometry/transform2.cpp" />
-		<Unit filename="src/geometry/transform3.cpp" />
-		<Unit filename="src/geometry/vector2.cpp" />
-		<Unit filename="src/geometry/vector2array.cpp" />
-		<Unit filename="src/geometry/vector3.cpp" />
-		<Unit filename="src/geometry/vector3array.cpp" />
+		<Unit filename="src\core\gameprogram.cpp" />
+		<Unit filename="src\core\gamewindow.cpp" />
+		<Unit filename="src\geometry\extents2.cpp" />
+		<Unit filename="src\geometry\extents3.cpp" />
+		<Unit filename="src\geometry\interval.cpp" />
+		<Unit filename="src\geometry\line2.cpp" />
+		<Unit filename="src\geometry\line3.cpp" />
+		<Unit filename="src\geometry\linesegment2.cpp" />
+		<Unit filename="src\geometry\linesegment3.cpp" />
+		<Unit filename="src\geometry\math.cpp" />
+		<Unit filename="src\geometry\matrix2x2.cpp" />
+		<Unit filename="src\geometry\matrix3x3.cpp" />
+		<Unit filename="src\geometry\matrix4x4.cpp" />
+		<Unit filename="src\geometry\plane2.cpp" />
+		<Unit filename="src\geometry\plane3.cpp" />
+		<Unit filename="src\geometry\ray2.cpp" />
+		<Unit filename="src\geometry\ray3.cpp" />
+		<Unit filename="src\geometry\transform2.cpp" />
+		<Unit filename="src\geometry\transform3.cpp" />
+		<Unit filename="src\geometry\vector2.cpp" />
+		<Unit filename="src\geometry\vector2array.cpp" />
+		<Unit filename="src\geometry\vector3.cpp" />
+		<Unit filename="src\geometry\vector3array.cpp" />
 		<Extensions>
 			<envvars />
 			<code_completion />

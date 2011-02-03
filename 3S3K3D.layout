@@ -1,37 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
-	<ActiveTarget name="Debug" />
-	<File name="include/core/gameprogram.h" open="1" top="0" tabpos="1">
-		<Cursor position="1535" topLine="0" />
+	<ActiveTarget name="Windows" />
+	<File name="include\core\gameprogram.h" open="1" top="0" tabpos="3">
+		<Cursor position="1806" topLine="58" />
 	</File>
-	<File name="include/core/gamewindow.h" open="1" top="0" tabpos="3">
-		<Cursor position="881" topLine="0" />
+	<File name="include\core\gamewindow.h" open="1" top="0" tabpos="4">
+		<Cursor position="2247" topLine="65" />
 	</File>
-	<File name="include/geometry/extents2.h" open="0" top="0" tabpos="1">
+	<File name="include\geometry\extents2.h" open="0" top="0" tabpos="1">
 		<Cursor position="0" topLine="0" />
 	</File>
-	<File name="include/geometry/transform2.h" open="0" top="0" tabpos="3">
-		<Cursor position="0" topLine="0" />
+	<File name="src\core\gameprogram.cpp" open="1" top="1" tabpos="2">
+		<Cursor position="2188" topLine="80" />
 	</File>
-	<File name="include/geometry/transform3.h" open="0" top="0" tabpos="0">
-		<Cursor position="0" topLine="241" />
+	<File name="src\core\gamewindow.cpp" open="1" top="0" tabpos="1">
+		<Cursor position="2017" topLine="75" />
 	</File>
-	<File name="include/geometry/vector2.h" open="0" top="0" tabpos="0">
-		<Cursor position="0" topLine="138" />
-	</File>
-	<File name="main.cpp" open="0" top="0" tabpos="1">
-		<Cursor position="123" topLine="0" />
-	</File>
-	<File name="src/core/gameprogram.cpp" open="1" top="0" tabpos="2">
-		<Cursor position="569" topLine="6" />
-	</File>
-	<File name="src/core/gamewindow.cpp" open="1" top="1" tabpos="4">
-		<Cursor position="1651" topLine="23" />
-	</File>
-	<File name="src/geometry/extents3.cpp" open="0" top="0" tabpos="3">
-		<Cursor position="0" topLine="0" />
-	</File>
-	<File name="src/geometry/transform2.cpp" open="0" top="0" tabpos="2">
+	<File name="src\geometry\extents3.cpp" open="0" top="0" tabpos="3">
 		<Cursor position="0" topLine="0" />
 	</File>
 </CodeBlocks_layout_file>
