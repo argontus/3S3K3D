@@ -36,7 +36,8 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="include/core/GameProgram.h" />
+		<Unit filename="include/core/gameprogram.h" />
+		<Unit filename="include/core/gamewindow.h" />
 		<Unit filename="include/geometry/extents2.h" />
 		<Unit filename="include/geometry/extents3.h" />
 		<Unit filename="include/geometry/interval.h" />
@@ -61,7 +62,8 @@
 		<Unit filename="include/geometry/vector3.h" />
 		<Unit filename="include/geometry/vector3array.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="src/core/GameProgram.cpp" />
+		<Unit filename="src/core/gameprogram.cpp" />
+		<Unit filename="src/core/gamewindow.cpp" />
 		<Unit filename="src/geometry/extents2.cpp" />
 		<Unit filename="src/geometry/extents3.cpp" />
 		<Unit filename="src/geometry/interval.cpp" />

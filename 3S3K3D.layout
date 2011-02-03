@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
-	<File name="include/core/gameprogram.h" open="1" top="0" tabpos="2">
-		<Cursor position="0" topLine="0" />
+	<File name="include/core/gameprogram.h" open="1" top="0" tabpos="1">
+		<Cursor position="1535" topLine="0" />
+	</File>
+	<File name="include/core/gamewindow.h" open="1" top="0" tabpos="3">
+		<Cursor position="881" topLine="0" />
 	</File>
 	<File name="include/geometry/extents2.h" open="0" top="0" tabpos="1">
 		<Cursor position="0" topLine="0" />
@@ -19,8 +22,11 @@
 	<File name="main.cpp" open="0" top="0" tabpos="1">
 		<Cursor position="123" topLine="0" />
 	</File>
-	<File name="src/core/gameprogram.cpp" open="1" top="1" tabpos="1">
-		<Cursor position="1105" topLine="0" />
+	<File name="src/core/gameprogram.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="569" topLine="6" />
+	</File>
+	<File name="src/core/gamewindow.cpp" open="1" top="1" tabpos="4">
+		<Cursor position="1651" topLine="23" />
 	</File>
 	<File name="src/geometry/extents3.cpp" open="0" top="0" tabpos="3">
 		<Cursor position="0" topLine="0" />

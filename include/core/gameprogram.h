@@ -1,32 +1,21 @@
 /**
- *  @file core/GameProgram.h
+ *  @file core/gameprogram.h
  *  @author Marko Silokunnas
  *
  */
-
 #ifndef GAMEPROGRAM_H_
 #define GAMEPROGRAM_H_
 
 #include <SDL/SDL.h>
+#include <core/gamewindow.h>
 
 /**
- * The 'main' class of the game. Contains initializations(window, OpenGL, SDL)
- * and event handling for keyboard and mouse events. Contains the main loop
- * of the game as well.
+ * The 'main' class of the game. Does event handling for keyboard and mouse
+ * events. Contains the main loop of the game as well.
  */
-class GameProgram {
+class GameProgram : public GameWindow {
 public:
 	GameProgram();
-
-	/**
-	 *
-	 * Initialize SDL, window and OpenGL.
-	 * Read configuration file at some point as well
-	 *
-	 * @return bool returns true if initialization is successful, otherwise
-	 * 			    return false.
-	 */
-	bool init();
 
 	/**
 	 *
@@ -43,13 +32,6 @@ public:
 	 *
 	 */
 	void render();
-
-	/**
-	 *
-	 * This function is called before exiting the program. Makes sure that the
-	 * program frees all of it's memory etc.
-	 */
-	void cleanup();
 
 	/**
 	 *
@@ -75,11 +57,6 @@ public:
 	 */
 	 virtual void tick( const float deltaTime );
 
-	 /**
-	  *
-	  *
-	  */
-
 	/**
 	 *
 	 * destructor
@@ -102,10 +79,20 @@ public:
 	 */
 	void setRunning( bool value ) { this->running = value; }
 
+    /*
+     * Exits the main loop and calls SDL_Quit()
+     */
+	virtual void onQuit();
+
+	/*
+	 * Handles keyboard events
+	 *
+	 * @param keyboardEvent keyboard event to handle.
+	 */
+	virtual void onKeyboardEvent( const SDL_KeyboardEvent& keyboardEvent );
+
 private:
 	bool running;
-	SDL_WindowID mainwindow; /* window handle */
-	SDL_GLContext maincontext; /* opengl context handle */
 	Uint32 deltaTicks; /* ticks between last frame and current frame */
 	float deltaTime;
 	static const Uint32 ticksPerSecond = 1000;

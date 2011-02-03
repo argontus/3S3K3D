@@ -1,5 +1,5 @@
 /**
- *  @file core/GameProgram.cpp
+ *  @file core/gameprogram.cpp
  *  @author Marko Silokunnas
  */
 
@@ -10,7 +10,6 @@
 #endif
 
 #ifdef WIN32
-//todo: add #includes for windows as well!
 #include <gl/gl.h>
 #endif
 
@@ -22,77 +21,8 @@ GameProgram::GameProgram() {
     deltaTime       = 0;
 }
 
-bool GameProgram::init() {
-    std::cout << "Initializing game engine...";
-
-	//TODO: read these from a configuration file.
-	int width       = 800;
-	int height      = 600;
-	int flags       = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
-
-	//if( SDL_Init( SDL_INIT_VIDEO) < 0 ) {
-	if( SDL_VideoInit( NULL, 0 ) ) {
-		std::cerr << "Video initialization failed: " << SDL_GetError();
-		std::cerr << std::endl;
-		return false;
-	}
-
-	/* Request an OpenGL 3.3 context */
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-	//TODO: request the depth value from the driver instead of hardcoding it.
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-	/* create the window, don't give a crap about the window's position */
-	mainwindow = SDL_CreateWindow(	"TESTING",
-									SDL_WINDOWPOS_UNDEFINED,
-									SDL_WINDOWPOS_UNDEFINED,
-									width,
-									height,
-									flags );
-	if( !mainwindow ) {
-		std::cerr << "Unable to create window!" << std::endl;
-		std::cerr << SDL_GetError() << std::endl;
-		return false;
-	}
-
-	maincontext = SDL_GL_CreateContext(mainwindow);
-	SDL_GL_SetSwapInterval(1);
-
-    std::cout << "game engine initialization succesfull!" << std::endl;
-
-	return true;
-}
-
-
-void GameProgram::handleEvent( const SDL_Event* const event ) {
-	switch( event->type ) {
-		case SDL_QUIT:
-			running = false;
-		break;
-		case SDL_KEYDOWN:
-			handleKeyPresses( event->key.keysym );
-		break;
-		default:
-		break;
-	}
-}
-
-void GameProgram::handleKeyPresses( const SDL_keysym keysym ) {
-	switch( keysym.sym ) {
-	case SDLK_ESCAPE:
-		running = false;
-		break;
-	default:
-		break;
-	}
-}
-
-int GameProgram::execute() {
-
+int GameProgram::execute()
+{
 	if( init() == false ) {
 		return -1;
 	}
@@ -104,16 +34,17 @@ int GameProgram::execute() {
     Uint32 lastTicks    = 0;
 
     std::cout << "Entering main loop..." << std::endl;
+
 	while( running ) {
         currentTicks = SDL_GetTicks();
 
 	    deltaTicks = currentTicks-lastTicks;
 	    deltaTime = (float)deltaTicks/1000.0;
 
-        std::cout << "FPS: " << 1.0/deltaTime << std::endl;
+        //std::cout << "FPS: " << 1.0/deltaTime << std::endl;
 
 		while( SDL_PollEvent( &event ) ) {
-			handleEvent( &event );
+			onEvent( event );
 		}
 
 		tick( deltaTime );
@@ -121,6 +52,7 @@ int GameProgram::execute() {
 		render();
 		lastTicks = currentTicks;
 	}
+
     std::cout << "Leaving main loop." << std::endl;
 
 	cleanup();
@@ -129,7 +61,8 @@ int GameProgram::execute() {
 	return 0;
 }
 
-void GameProgram::render() {
+void GameProgram::render()
+{
     static float red = 0.0;
     static float green = 0.0;
     static float blue = 1.0;
@@ -162,19 +95,30 @@ void GameProgram::render() {
 	SDL_GL_SwapWindow(mainwindow);
 }
 
-void GameProgram::cleanup() {
-    SDL_GL_DeleteContext(maincontext);
-    SDL_DestroyWindow(mainwindow);
-	SDL_Quit();
+void GameProgram::tick( const float deltaTime )
+{
+    // does nothing for now
 }
 
-void GameProgram::tick( const float deltaTime ) {
-    /*
-     * TODO: give this function some sort of basic functionality, or
-     *       turn this function into a pure virtual function.
-     */
-
+void GameProgram::onQuit()
+{
+    running = false;
 }
 
-GameProgram::~GameProgram() {
+void GameProgram::onKeyboardEvent( const SDL_KeyboardEvent& keyboardEvent )
+{
+
+	switch( keyboardEvent.keysym.sym )
+	{
+        case SDLK_ESCAPE:
+            running = false;
+            break;
+        default:
+            break;
+	}
+}
+
+
+GameProgram::~GameProgram()
+{
 }
