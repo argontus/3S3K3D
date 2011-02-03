@@ -65,11 +65,20 @@ class GameWindow
         virtual void onWindowEvent( const SDL_WindowEvent& windowEvent );
 
         /**
-         * Called whenever a keyboard event occurs.
+         * Called whenever user presses a key down.
          *
-         * @param keyboardEvent keyboard event to process.
+         * @param keyboardEvent keyboard event to process. Contains info on
+         *        which key was pressed.
          */
-        virtual void onKeyboardEvent( const SDL_KeyboardEvent& keyboardEvent );
+        virtual void onKeyDown( const SDL_KeyboardEvent& keyboardEvent );
+
+        /**
+         * Called whenever user releases a key that is pressed down
+         *
+         * @param keyboardEvent keyboard event to process. Contains info on
+         *        on which key was released.
+         */
+         virtual void onKeyUp( const SDL_KeyboardEvent& keyboardEvent );
 
         /**
          * Pure virtual event handler for quit events.
@@ -96,8 +105,30 @@ class GameWindow
          */
         virtual void onWindowMaximized();
 
+        /**
+         * Called whenever mouse is moved
+         *
+         * @param mouseMotionEvent mouse movement event
+         */
         virtual void onMouseMoved(const SDL_MouseMotionEvent& mouseMotionEvent);
 
+        /**
+         * Called whenever one of the mouse buttons is pressed
+         *
+         * @param mouseButtonEvent mouse button event
+         */
+         virtual void onMouseButtonDown(
+                                const SDL_MouseButtonEvent& mouseButtonEvent
+                                       );
+
+        /**
+         * Called whenever one of the mouse buttons is released
+         *
+         * @param mouseButtonEvent mouse button event
+         */
+         virtual void onMouseButtonUp(
+                                const SDL_MouseButtonEvent& mouseButtonEvent
+                                     );
 
     protected:
         SDL_WindowID mainwindow; /* window handle */
