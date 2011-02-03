@@ -157,7 +157,7 @@ void Matrix3x3::multiplyByT(const Matrix3x3& m)
     m22 = m20 * m.m20 + m21 * m.m21 + m22 * m.m22;
 }
 
-void Matrix3x3::orthonormalize()
+void Matrix3x3::orthogonalize()
 {
     Vector3 x(m00, m01, m02);
     x.normalize();

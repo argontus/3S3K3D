@@ -121,7 +121,7 @@ void Matrix2x2::multiplyByT(const Matrix2x2& m)
     m11 = m10 * m.m10 + m11 * m.m11;
 }
 
-void Matrix2x2::orthonormalize()
+void Matrix2x2::orthogonalize()
 {
     Vector2 x(m00, m01);
     x.normalize();
