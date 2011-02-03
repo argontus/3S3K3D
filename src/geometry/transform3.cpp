@@ -70,6 +70,8 @@ const Transform3 Transform3::rotation(
 
 const Transform3 Transform3::scaling(const float scaling)
 {
+    GEOMETRY_RUNTIME_ASSERT(scaling > 0.0f);
+
     return Transform3(
         Vector3::zero(),
         Matrix3x3::identity(),

@@ -150,6 +150,8 @@ void Vector2Array::rotateBy(const Matrix2x2& rotation)
 
 void Vector2Array::scaleBy(const float scaling)
 {
+    GEOMETRY_RUNTIME_ASSERT(scaling > 0.0f);
+
     for (int i = 0; i < size_; ++i)
     {
         vertices_[i] *= scaling;

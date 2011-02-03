@@ -150,6 +150,8 @@ void Vector3Array::rotateBy(const Matrix3x3& rotation)
 
 void Vector3Array::scaleBy(const float scaling)
 {
+    GEOMETRY_RUNTIME_ASSERT(scaling > 0.0f);
+
     for (int i = 0; i < size_; ++i)
     {
         vertices_[i] *= scaling;
