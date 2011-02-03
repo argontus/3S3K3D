@@ -105,7 +105,7 @@ void GameProgram::onQuit()
     running = false;
 }
 
-void GameProgram::onKeyboardEvent( const SDL_KeyboardEvent& keyboardEvent )
+void GameProgram::onKeyDown( const SDL_KeyboardEvent& keyboardEvent )
 {
 
 	switch( keyboardEvent.keysym.sym )
@@ -117,7 +117,6 @@ void GameProgram::onKeyboardEvent( const SDL_KeyboardEvent& keyboardEvent )
             break;
 	}
 }
-
 
 GameProgram::~GameProgram()
 {

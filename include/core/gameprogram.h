@@ -85,11 +85,11 @@ public:
 	virtual void onQuit();
 
 	/*
-	 * Handles keyboard events
+	 * Called when user presses key on the keyboard.
 	 *
 	 * @param keyboardEvent keyboard event to handle.
 	 */
-	virtual void onKeyboardEvent( const SDL_KeyboardEvent& keyboardEvent );
+	virtual void onKeyDown( const SDL_KeyboardEvent& keyboardEvent );
 
 private:
 	bool running;
