@@ -6,7 +6,7 @@
 #ifndef GRAPHICS_STENCILTESTSETTINGS_H_INCLUDED
 #define GRAPHICS_STENCILTESTSETTINGS_H_INCLUDED
 
-#include <cstdint>
+#include <stdint.h>
 
 /**
  * Enumeration wrapper for possible stencil test comparison functions.

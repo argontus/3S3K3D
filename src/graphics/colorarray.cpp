@@ -6,6 +6,7 @@
 #include <graphics/colorarray.h>
 
 #include <algorithm>
+#include <cstring>
 
 #include <graphics/color.h>
 #include <graphics/runtimeassert.h>
