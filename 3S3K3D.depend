@@ -1,0 +1,259 @@
+# depslib dependency file v1.0
+1296675103 source:/home/marant/projects/3S3K3D/3S3K3D/main.cpp
+	"include/core/gameprogram.h"
+	<SDL/SDL.h>
+	<windows.h>
+
+1296628379 /home/marant/projects/3S3K3D/3S3K3D/include/core/GameProgram.h
+	<SDL/SDL.h>
+
+1296628384 source:/home/marant/projects/3S3K3D/3S3K3D/src/core/GameProgram.cpp
+	<core/GameProgram.h>
+	"GL/glew.h"
+	<iostream>
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/extents2.cpp
+	<geometry/extents2.h>
+	<limits>
+	<geometry/transform2.h>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/extents2.h
+	<geometry/vector2.h>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/vector2.h
+	<geometry/staticassert.h>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/staticassert.h
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/transform2.h
+	<geometry/matrix2x2.h>
+	<geometry/runtimeassert.h>
+	<geometry/vector2.h>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/matrix2x2.h
+	<geometry/staticassert.h>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/runtimeassert.h
+	<cassert>
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/extents3.cpp
+	<geometry/extents3.h>
+	<limits>
+	<geometry/transform3.h>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/extents3.h
+	<geometry/vector3.h>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/vector3.h
+	<geometry/staticassert.h>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/transform3.h
+	<geometry/matrix3x3.h>
+	<geometry/runtimeassert.h>
+	<geometry/vector3.h>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/matrix3x3.h
+	<geometry/staticassert.h>
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/interval.cpp
+	<geometry/interval.h>
+	<algorithm>
+	<limits>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/interval.h
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/line2.cpp
+	<geometry/line2.h>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/line2.h
+	<geometry/vector2.h>
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/line3.cpp
+	<geometry/line3.h>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/line3.h
+	<geometry/vector3.h>
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/linesegment2.cpp
+	<geometry/linesegment2.h>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/linesegment2.h
+	<geometry/vector2.h>
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/linesegment3.cpp
+	<geometry/linesegment3.h>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/linesegment3.h
+	<geometry/vector3.h>
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/math.cpp
+	<geometry/math.h>
+	<cmath>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/math.h
+	<geometry/runtimeassert.h>
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/matrix2x2.cpp
+	<geometry/matrix2x2.h>
+	<algorithm>
+	<geometry/math.h>
+	<geometry/vector2.h>
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/matrix3x3.cpp
+	<geometry/matrix3x3.h>
+	<algorithm>
+	<geometry/math.h>
+	<geometry/vector3.h>
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/matrix4x4.cpp
+	<geometry/matrix4x4.h>
+	<algorithm>
+	<geometry/math.h>
+	<geometry/transform2.h>
+	<geometry/transform3.h>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/matrix4x4.h
+	<geometry/staticassert.h>
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/plane2.cpp
+	<geometry/plane2.h>
+	<algorithm>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/plane2.h
+	<geometry/vector2.h>
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/plane3.cpp
+	<geometry/plane3.h>
+	<algorithm>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/plane3.h
+	<geometry/vector3.h>
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/ray2.cpp
+	<geometry/ray2.h>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/ray2.h
+	<geometry/vector2.h>
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/ray3.cpp
+	<geometry/ray3.h>
+
+1296587725 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/ray3.h
+	<geometry/vector3.h>
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/transform2.cpp
+	<geometry/transform2.h>
+	<algorithm>
+	<geometry/math.h>
+	<geometry/matrix2x2.h>
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/transform3.cpp
+	<geometry/transform3.h>
+	<algorithm>
+	<geometry/math.h>
+	<geometry/matrix3x3.h>
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/vector2.cpp
+	<algorithm>
+	<geometry/math.h>
+	<geometry/plane2.h>
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/vector2array.cpp
+	<geometry/vector2array.h>
+	<algorithm>
+	<cstring>
+	<geometry/transform2.h>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/vector2array.h
+	<geometry/extents2.h>
+
+1296587725 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/vector3.cpp
+	<algorithm>
+	<geometry/math.h>
+	<geometry/plane3.h>
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/geometry/vector3array.cpp
+	<geometry/vector3array.h>
+	<algorithm>
+	<cstring>
+	<geometry/transform3.h>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/geometry/vector3array.h
+	<geometry/extents3.h>
+
+1296892286 /home/marant/projects/3S3K3D/3S3K3D/include/core/gameprogram.h
+	<SDL/SDL.h>
+	<core/gamewindow.h>
+
+1296758177 /home/marant/projects/3S3K3D/3S3K3D/include/core/gamewindow.h
+	<SDL/SDL.h>
+
+1296758284 source:/home/marant/projects/3S3K3D/3S3K3D/src/core/gameprogram.cpp
+	<core/gameprogram.h>
+	"GL/glew.h"
+	<gl/gl.h>
+	<iostream>
+
+1296758227 source:/home/marant/projects/3S3K3D/3S3K3D/src/core/gamewindow.cpp
+	<core/gamewindow.h>
+	<SDL/SDL.h>
+	<GL/gl.h>
+	<iostream>
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/graphics/blendsettings.cpp
+	<graphics/blendsettings.h>
+	<algorithm>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/graphics/blendsettings.h
+	<graphics/color.h>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/graphics/color.h
+	<graphics/staticassert.h>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/graphics/staticassert.h
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/graphics/color.cpp
+	<graphics/color.h>
+	<algorithm>
+	<geometry/math.h>
+	<graphics/runtimeassert.h>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/graphics/runtimeassert.h
+	<cassert>
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/graphics/colorarray.cpp
+	<graphics/colorarray.h>
+	<algorithm>
+	<cstring>
+	<graphics/color.h>
+	<graphics/runtimeassert.h>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/graphics/colorarray.h
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/graphics/culltestsettings.cpp
+	<graphics/culltestsettings.h>
+	<algorithm>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/graphics/culltestsettings.h
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/graphics/depthtestsettings.cpp
+	<graphics/depthtestsettings.h>
+	<algorithm>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/graphics/depthtestsettings.h
+
+1296921441 source:/home/marant/projects/3S3K3D/3S3K3D/src/graphics/resourcemanager.cpp
+	"graphics/resourcemanager.h"
+	<utility>
+
+1296921112 /home/marant/projects/3S3K3D/3S3K3D/include/graphics/resourcemanager.h
+	<map>
+	<string>
+
+1296915536 source:/home/marant/projects/3S3K3D/3S3K3D/src/graphics/stenciltestsettings.cpp
+	<graphics/stenciltestsettings.h>
+	<algorithm>
+
+1296915536 /home/marant/projects/3S3K3D/3S3K3D/include/graphics/stenciltestsettings.h
+	<stdint.h>
+
