@@ -217,8 +217,9 @@ struct DstBlendFactor
 /**
  * Describes blend settings.
  */
-struct BlendSettings
+class BlendSettings
 {
+public:
     // compiler-generated destructor, copy constructor and copy assignment
     // operator are fine
 
