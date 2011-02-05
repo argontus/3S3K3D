@@ -29,7 +29,21 @@ template <class T> class ResourceManager
          *         otherwise.
          */
 
-         bool loadResource( const std::string resourceName , const T* resource );
+         bool loadResource( const std::string resourceName , T* resource )
+         {
+                /* sanity check */
+                if( resource == NULL || resourceName == "" )
+                    return false;
+
+                std::pair<std::string, T*> tmp;
+                tmp = resources.insert( std::pair<std::string, T*>( resourceName, resource) );
+
+                /* check if resource by that name already exists */
+                if( tmp.second == false )
+                    return false;
+
+                return true;
+         }
 
         /**
          * Releases resource specified by the parameter
@@ -38,7 +52,18 @@ template <class T> class ResourceManager
          * @return returns true if release of the resource is succesfull, false
          *         otherwise.
          */
-        bool releaseResource( const std::string resourceName );
+        bool releaseResource( const std::string resourceName )
+        {
+                typename std::map<std::string, T*>::iterator it = resources.find( resourceName );
+
+                if( it == resources.end() )
+                {
+                    return false;
+                }
+
+                delete it->second;
+                resources.erase( it );
+        }
 
         /**
          * Returns a pointer to a resource specified by the parameter
@@ -47,17 +72,38 @@ template <class T> class ResourceManager
          * @return returns a pointer to the resource if found, returns NULL
          *         otherwise
          */
-        T* getResource( const std::string resourceName );
+        T* getResource( const std::string resourceName )
+        {
+                typename std::map<std::string, T*>::iterator it = resources.find( resourceName );
+                if( it == resources.end() )
+                {
+                     return NULL;
+                }
+
+                return it->second;
+        }
 
         /**
          * Frees all resources that are currently owned by the manager
          */
-        void releaseResources();
+        void releaseResources()
+        {
+            typename std::map<std::string, T*>::iterator iter;
+
+            for( iter = resources.begin(); iter != resources.end(); iter++ )
+            {
+                releaseResource( iter->first );
+            }
+        }
+
 
         /**
          * Calls releaseResources()
          */
-        virtual ~ResourceManager();
+        virtual ~ResourceManager()
+        {
+            releaseResources();
+        }
 
     protected:
         std::map<std::string, T*> resources;
