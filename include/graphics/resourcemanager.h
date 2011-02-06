@@ -28,7 +28,6 @@ template <class T> class ResourceManager
          * @return returns true on succesfull loading of a resouce, false
          *         otherwise.
          */
-
          bool loadResource( const std::string resourceName , T* resource )
          {
                 /* sanity check */
@@ -36,7 +35,10 @@ template <class T> class ResourceManager
                     return false;
 
                 std::pair<std::string, T*> tmp;
-                tmp = resources.insert( std::pair<std::string, T*>( resourceName, resource) );
+                tmp = resources.insert( std::pair<std::string, T*>(
+                                                                   resourceName,
+                                                                   resource
+                                                                  ) );
 
                 /* check if resource by that name already exists */
                 if( tmp.second == false )
@@ -54,7 +56,8 @@ template <class T> class ResourceManager
          */
         bool releaseResource( const std::string resourceName )
         {
-                typename std::map<std::string, T*>::iterator it = resources.find( resourceName );
+                typename std::map<std::string, T*>::iterator it;
+                it = resources.find( resourceName );
 
                 if( it == resources.end() )
                 {
@@ -74,7 +77,9 @@ template <class T> class ResourceManager
          */
         T* getResource( const std::string resourceName )
         {
-                typename std::map<std::string, T*>::iterator it = resources.find( resourceName );
+                typename std::map<std::string, T*>::iterator it;
+                it = resources.find( resourceName );
+
                 if( it == resources.end() )
                 {
                      return NULL;
@@ -107,7 +112,6 @@ template <class T> class ResourceManager
 
     protected:
         std::map<std::string, T*> resources;
-    private:
 };
 
 #endif // RESOURCEMANAGER_H
