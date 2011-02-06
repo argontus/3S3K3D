@@ -16,7 +16,7 @@
 template <class T> class ResourceManager
 {
     public:
-        ResourceManager();
+        ResourceManager() { }
 
         /**
          * Loads a resource by specified by the parameter resource to a slot
@@ -35,14 +35,7 @@ template <class T> class ResourceManager
                 if( resource == NULL || resourceName == "" )
                     return false;
 
-                std::pair<std::string, T*> tmp;
-                tmp = resources.insert( std::pair<std::string, T*>( resourceName, resource) );
-
-                /* check if resource by that name already exists */
-                if( tmp.second == false )
-                    return false;
-
-                return true;
+                return resources.insert( std::pair<std::string, T*>( resourceName, resource) ).second;
          }
 
         /**
@@ -63,6 +56,8 @@ template <class T> class ResourceManager
 
                 delete it->second;
                 resources.erase( it );
+
+                return true;
         }
 
         /**
@@ -90,12 +85,13 @@ template <class T> class ResourceManager
         {
             typename std::map<std::string, T*>::iterator iter;
 
-            for( iter = resources.begin(); iter != resources.end(); iter++ )
+            for( iter = resources.begin(); iter != resources.end(); ++iter )
             {
-                releaseResource( iter->first );
+                delete iter->second;
             }
-        }
 
+            resources.clear();
+        }
 
         /**
          * Calls releaseResources()
