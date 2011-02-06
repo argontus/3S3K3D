@@ -135,6 +135,40 @@ public:
     const float* data() const;
 
     /**
+     * Sets the elements of a specified row.
+     *
+     * @param row Index of the row to set, between [0, 2].
+     * @param v Vector containing the elements to set.
+     */
+    void setRow(int row, const Vector3& v);
+
+    /**
+     * Gets a specified row as a vector.
+     *
+     * @param row Index of the row to return, between [0, 2].
+     *
+     * @return The specified row as a vector.
+     */
+    const Vector3 row(int row) const;
+
+    /**
+     * Sets the elements of a specified column.
+     *
+     * @param column Index of the column to set, between [0, 2].
+     * @param v Vector containing the elements to set.
+     */
+    void setColumn(int column, const Vector3& v);
+
+    /**
+     * Gets a specified column as a vector.
+     *
+     * @param column Index of the column to return, between [0, 2].
+     *
+     * @return The specified column as a vector.
+     */
+    const Vector3 column(int column) const;
+
+    /**
      * Sets <code>*this</code> to the product of <code>*this</code> and
      * <code>m</code>.
      *

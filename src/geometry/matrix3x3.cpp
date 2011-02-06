@@ -136,6 +136,40 @@ const float* Matrix3x3::data() const
     return &m00;
 }
 
+void Matrix3x3::setRow(const int row, const Vector3& v)
+{
+    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 2);
+    float* data = &m00 + row * 3;
+
+    data[0] = v.x;
+    data[1] = v.y;
+    data[2] = v.z;
+}
+
+const Vector3 Matrix3x3::row(const int row) const
+{
+    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 2);
+    const float* data = &m00 + row * 3;
+    return Vector3(data[0], data[1], data[2]);
+}
+
+void Matrix3x3::setColumn(const int column, const Vector3& v)
+{
+    GEOMETRY_RUNTIME_ASSERT(column >= 0 && column <= 2);
+    float* data = &m00 + column;
+
+    data[0] = v.x;
+    data[3] = v.y;
+    data[6] = v.z;
+}
+
+const Vector3 Matrix3x3::column(const int column) const
+{
+    GEOMETRY_RUNTIME_ASSERT(column >= 0 && column <= 2);
+    const float* data = &m00 + column;
+    return Vector3(data[0], data[3], data[6]);
+}
+
 void Matrix3x3::multiplyBy(const Matrix3x3& m)
 {
     *this = product(*this, m);
