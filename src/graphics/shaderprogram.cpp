@@ -130,7 +130,7 @@ const std::string ShaderProgram::infoLog() const
     return std::string(buffer.data());
 }
 
-int32_t ShaderProgram::getUniformLocation(const std::string& name) const
+int32_t ShaderProgram::uniformLocation(const std::string& name) const
 {
     return glGetUniformLocation(id_, name.c_str());
 }
@@ -139,7 +139,7 @@ void ShaderProgram::setUniform1f(
     const std::string& name,
     const float v0)
 {
-    glUniform1f(getUniformLocation(name), v0);
+    glUniform1f(uniformLocation(name), v0);
 }
 
 void ShaderProgram::setUniform2f(
@@ -147,7 +147,7 @@ void ShaderProgram::setUniform2f(
     const float v0,
     const float v1)
 {
-    glUniform2f(getUniformLocation(name), v0, v1);
+    glUniform2f(uniformLocation(name), v0, v1);
 }
 
 void ShaderProgram::setUniform3f(
@@ -156,7 +156,7 @@ void ShaderProgram::setUniform3f(
     const float v1,
     const float v2)
 {
-    glUniform3f(getUniformLocation(name), v0, v1, v2);
+    glUniform3f(uniformLocation(name), v0, v1, v2);
 }
 
 void ShaderProgram::setUniform4f(
@@ -166,7 +166,7 @@ void ShaderProgram::setUniform4f(
     const float v2,
     const float v3)
 {
-    glUniform4f(getUniformLocation(name), v0, v1, v2, v3);
+    glUniform4f(uniformLocation(name), v0, v1, v2, v3);
 }
 
 void ShaderProgram::setUniform1fv(
@@ -174,7 +174,7 @@ void ShaderProgram::setUniform1fv(
     const int count,
     const float* const src)
 {
-    glUniform1fv(getUniformLocation(name), count, src);
+    glUniform1fv(uniformLocation(name), count, src);
 }
 
 void ShaderProgram::setUniform2fv(
@@ -182,7 +182,7 @@ void ShaderProgram::setUniform2fv(
     const int count,
     const float* const src)
 {
-    glUniform2fv(getUniformLocation(name), count, src);
+    glUniform2fv(uniformLocation(name), count, src);
 }
 
 void ShaderProgram::setUniform3fv(
@@ -190,7 +190,7 @@ void ShaderProgram::setUniform3fv(
     const int count,
     const float* const src)
 {
-    glUniform3fv(getUniformLocation(name), count, src);
+    glUniform3fv(uniformLocation(name), count, src);
 }
 
 void ShaderProgram::setUniform4fv(
@@ -198,7 +198,7 @@ void ShaderProgram::setUniform4fv(
     const int count,
     const float* const src)
 {
-    glUniform4fv(getUniformLocation(name), count, src);
+    glUniform4fv(uniformLocation(name), count, src);
 }
 
 void ShaderProgram::setUniformMatrix2x2fv(
@@ -207,7 +207,7 @@ void ShaderProgram::setUniformMatrix2x2fv(
     const bool transpose,
     const float* const src)
 {
-    glUniformMatrix2fv(getUniformLocation(name), count, transpose, src);
+    glUniformMatrix2fv(uniformLocation(name), count, transpose, src);
 }
 
 void ShaderProgram::setUniformMatrix3x3fv(
@@ -216,7 +216,7 @@ void ShaderProgram::setUniformMatrix3x3fv(
     const bool transpose,
     const float* const src)
 {
-    glUniformMatrix3fv(getUniformLocation(name), count, transpose, src);
+    glUniformMatrix3fv(uniformLocation(name), count, transpose, src);
 }
 
 void ShaderProgram::setUniformMatrix4x4fv(
@@ -225,7 +225,7 @@ void ShaderProgram::setUniformMatrix4x4fv(
     const bool transpose,
     const float* const src)
 {
-    glUniformMatrix4fv(getUniformLocation(name), count, transpose, src);
+    glUniformMatrix4fv(uniformLocation(name), count, transpose, src);
 }
 
 void ShaderProgram::attachShaders()

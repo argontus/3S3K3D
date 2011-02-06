@@ -171,7 +171,7 @@ public:
      * @return Location Id of the uniform variable matching the given uniform
      * variable name.
      */
-    int32_t getUniformLocation(const std::string& name) const;
+    int32_t uniformLocation(const std::string& name) const;
 
     void setUniform1f(const std::string& name, float v0);
     void setUniform2f(const std::string& name, float v0, float v1);

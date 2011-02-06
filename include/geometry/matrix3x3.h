@@ -8,6 +8,7 @@
 
 #include <geometry/staticassert.h>
 
+class Matrix2x2;
 class Vector3;
 
 /**
@@ -94,6 +95,13 @@ public:
      * @param row2 Contains the elements of row 2.
      */
     Matrix3x3(const Vector3& row0, const Vector3& row1, const Vector3& row2);
+
+    /**
+     * Constructor, constructs a 3x3 matrix from a 2x2 matrix.
+     *
+     * @param m 2x2 matrix.
+     */
+    explicit Matrix3x3(const Matrix2x2& m);
 
     /**
      * Array access operator. Allows matrices to be accessed like 2D

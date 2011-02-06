@@ -245,15 +245,6 @@ private:
 const Transform3 conversion(const Transform3& src, const Transform3& dst);
 
 /**
- * Calculates the inverse transform of a given transform.
- *
- * @param t The transform whose inverse transform is to be calculated.
- *
- * @return The inverse transform of the given transform.
- */
-const Transform3 invert(const Transform3& t);
-
-/**
  * Calculates a combined transform of two transforms.
  *
  * @param a The first transformation to apply.

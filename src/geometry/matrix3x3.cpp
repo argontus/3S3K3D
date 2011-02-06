@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include <geometry/math.h>
+#include <geometry/matrix2x2.h>
 #include <geometry/vector3.h>
 
 const Matrix3x3& Matrix3x3::identity()
@@ -105,6 +106,14 @@ Matrix3x3::Matrix3x3(
     // ...
 }
 
+Matrix3x3::Matrix3x3(const Matrix2x2& m)
+:   m00(m.m00), m01(m.m01), m02(0.0f),
+    m10(m.m10), m11(m.m11), m12(0.0f),
+    m20(0.0f), m21(0.0f), m22(1.0f)
+{
+    // ...
+}
+
 float* Matrix3x3::operator [](const int row)
 {
     GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 2);
@@ -129,32 +138,12 @@ const float* Matrix3x3::data() const
 
 void Matrix3x3::multiplyBy(const Matrix3x3& m)
 {
-    m00 = m00 * m.m00 + m01 * m.m10 + m02 * m.m20;
-    m01 = m00 * m.m01 + m01 * m.m11 + m02 * m.m21;
-    m02 = m00 * m.m02 + m01 * m.m12 + m02 * m.m22;
-
-    m10 = m10 * m.m00 + m11 * m.m10 + m12 * m.m20;
-    m11 = m10 * m.m01 + m11 * m.m11 + m12 * m.m21;
-    m12 = m10 * m.m02 + m11 * m.m12 + m12 * m.m22;
-
-    m20 = m20 * m.m00 + m21 * m.m10 + m22 * m.m20;
-    m21 = m20 * m.m01 + m21 * m.m11 + m22 * m.m21;
-    m22 = m20 * m.m02 + m21 * m.m12 + m22 * m.m22;
+    *this = product(*this, m);
 }
 
 void Matrix3x3::multiplyByT(const Matrix3x3& m)
 {
-    m00 = m00 * m.m00 + m01 * m.m01 + m02 * m.m02;
-    m01 = m00 * m.m10 + m01 * m.m11 + m02 * m.m12;
-    m02 = m00 * m.m20 + m01 * m.m21 + m02 * m.m22;
-
-    m10 = m10 * m.m00 + m11 * m.m01 + m12 * m.m02;
-    m11 = m10 * m.m10 + m11 * m.m11 + m12 * m.m12;
-    m12 = m10 * m.m20 + m11 * m.m21 + m12 * m.m22;
-
-    m20 = m20 * m.m00 + m21 * m.m01 + m22 * m.m02;
-    m21 = m20 * m.m10 + m21 * m.m11 + m22 * m.m12;
-    m22 = m20 * m.m20 + m21 * m.m21 + m22 * m.m22;
+    *this = productT(*this, m);
 }
 
 void Matrix3x3::orthogonalize()
@@ -218,16 +207,36 @@ const Vector3 productT(const Vector3& v, const Matrix3x3& m)
 
 const Matrix3x3 product(const Matrix3x3& a, const Matrix3x3& b)
 {
-    Matrix3x3 m(a);
-    m.multiplyBy(b);
-    return m;
+    return Matrix3x3(
+        a.m00 * b.m00 + a.m01 * b.m10 + a.m02 * b.m20,
+        a.m00 * b.m01 + a.m01 * b.m11 + a.m02 * b.m21,
+        a.m00 * b.m02 + a.m01 * b.m12 + a.m02 * b.m22,
+
+        a.m10 * b.m00 + a.m11 * b.m10 + a.m12 * b.m20,
+        a.m10 * b.m01 + a.m11 * b.m11 + a.m12 * b.m21,
+        a.m10 * b.m02 + a.m11 * b.m12 + a.m12 * b.m22,
+
+        a.m20 * b.m00 + a.m21 * b.m10 + a.m22 * b.m20,
+        a.m20 * b.m01 + a.m21 * b.m11 + a.m22 * b.m21,
+        a.m20 * b.m02 + a.m21 * b.m12 + a.m22 * b.m22
+    );
 }
 
 const Matrix3x3 productT(const Matrix3x3& a, const Matrix3x3& b)
 {
-    Matrix3x3 m(a);
-    m.multiplyByT(b);
-    return m;
+    return Matrix3x3(
+        a.m00 * b.m00 + a.m01 * b.m01 + a.m02 * b.m02,
+        a.m00 * b.m10 + a.m01 * b.m11 + a.m02 * b.m12,
+        a.m00 * b.m20 + a.m01 * b.m21 + a.m02 * b.m22,
+
+        a.m10 * b.m00 + a.m11 * b.m01 + a.m12 * b.m02,
+        a.m10 * b.m10 + a.m11 * b.m11 + a.m12 * b.m12,
+        a.m10 * b.m20 + a.m11 * b.m21 + a.m12 * b.m22,
+
+        a.m20 * b.m00 + a.m21 * b.m01 + a.m22 * b.m02,
+        a.m20 * b.m10 + a.m21 * b.m11 + a.m22 * b.m12,
+        a.m20 * b.m20 + a.m21 * b.m21 + a.m22 * b.m22
+    );
 }
 
 const Matrix3x3 transpose(const Matrix3x3& m)

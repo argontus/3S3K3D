@@ -143,17 +143,6 @@ const Transform2 conversion(const Transform2& src, const Transform2& dst)
     );
 }
 
-const Transform2 invert(const Transform2& t)
-{
-    GEOMETRY_RUNTIME_ASSERT(t.scaling() > 0.0f);
-
-    return Transform2(
-        -t.translation(),
-        -t.rotation(),
-        1.0f / t.scaling()
-    );
-}
-
 const Transform2 product(const Transform2& a, const Transform2& b)
 {
     GEOMETRY_RUNTIME_ASSERT(a.scaling() > 0.0f);
