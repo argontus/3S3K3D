@@ -24,8 +24,8 @@ bool GameWindow::init()
     std::cout << "Initializing game engine...";
 
 	//TODO: read these from a configuration file.
-	int width       = 800;
-	int height      = 600;
+	int width       = 800;  // 1280
+	int height      = 600;  // 800
 	int flags       = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_RESIZABLE;
 
 	if( SDL_Init( SDL_INIT_VIDEO) < 0 ) {

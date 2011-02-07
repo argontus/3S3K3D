@@ -293,7 +293,7 @@ int GameProgram::execute()
 
     camera_ = new CameraNode();
     camera_->setTranslation(Vector3(0.0f, 0.0f, 32.0f));
-    camera_->setPerspectiveProjection(45.0f, 800.0f / 600.0f, 1.0f, 1000.0f);
+    camera_->setPerspectiveProjection(45.0f, aspectRatio, 1.0f, 1000.0f);
     //camera_->setTranslation(Vector3(512.0f, 0.0f, 512.0f));
     //camera_->rotateBy(Matrix3x3::yRotation(Math::pi() / 4.0f));
     //camera_->setOrthographicProjection(-400.0f, 400.0f, -300.0f, 300.0f, 0.0f, 1000.0f);
