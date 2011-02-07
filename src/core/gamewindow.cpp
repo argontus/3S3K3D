@@ -6,7 +6,7 @@
 #include <core/gamewindow.h>
 
 #include <SDL/SDL.h>
-#include <GL/gl.h>
+#include <GL/glew.h>
 #include <iostream>
 
 GameWindow::GameWindow()
@@ -28,8 +28,8 @@ bool GameWindow::init()
 	int height      = 600;
 	int flags       = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_RESIZABLE;
 
-	//if( SDL_Init( SDL_INIT_VIDEO) < 0 ) {
-	if( SDL_VideoInit( NULL, 0 ) ) {
+	if( SDL_Init( SDL_INIT_VIDEO) < 0 ) {
+	//if( SDL_VideoInit( NULL, 0 ) ) {
 		std::cerr << "Video initialization failed: " << SDL_GetError();
 		std::cerr << std::endl;
 		return false;

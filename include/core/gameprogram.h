@@ -9,6 +9,22 @@
 #include <SDL/SDL.h>
 #include <core/gamewindow.h>
 
+#include <graphics/resourcemanager.h>
+#include <graphics/vertexshader.h>
+#include <graphics/fragmentshader.h>
+#include <graphics/shaderprogram.h>
+
+// TODO: quick & dirty
+class CameraNode;
+class GroupNode;
+class Vector3Array;
+class ColorArray;
+class IndexArray;
+
+typedef ResourceManager<VertexShader> VertexShaderManager;
+typedef ResourceManager<FragmentShader> FragmentShaderManager;
+typedef ResourceManager<ShaderProgram> ShaderProgramManager;
+
 /**
  * The 'main' class of the game. Does event handling for keyboard and mouse
  * events. Contains the main loop of the game as well.
@@ -96,6 +112,21 @@ private:
 	Uint32 deltaTicks; /* ticks between last frame and current frame */
 	float deltaTime;
 	static const Uint32 ticksPerSecond = 1000;
+
+    // TODO: quick & dirty
+    CameraNode* camera_;
+    GroupNode* rootNode_;
+    Vector3Array* vertexArray_;
+    Vector3Array* normalArray_;
+    ColorArray* colorArray_;
+    ColorArray* redColorArray_;
+    ColorArray* blueColorArray_;
+    IndexArray* indexArray_;
+    bool drawExtents_;
+
+    VertexShaderManager vertexShaderManager_;
+    FragmentShaderManager fragmentShaderManager_;
+    ShaderProgramManager shaderProgramManager_;
 };
 
 #endif /* GAMEPROGRAM_H_ */

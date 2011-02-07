@@ -18,11 +18,17 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef WIN32
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <windows.h>
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPredInstance, LPSTR lpCmdLine, int nShowCmd)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
     GameProgram gameProgram;
 
     return gameProgram.execute();
 }
+
 #endif
