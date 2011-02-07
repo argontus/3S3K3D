@@ -8,7 +8,7 @@
 #include <fstream>
 #include <vector>
 
-#include <GL/glew.h>
+#include <graphics/opengl.h>
 
 #include <graphics/runtimeassert.h>
 

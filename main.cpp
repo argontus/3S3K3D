@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
 #endif
 
 #include <windows.h>
+
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
     GameProgram gameProgram;
