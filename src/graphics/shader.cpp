@@ -9,7 +9,6 @@
 #include <vector>
 
 #include <graphics/opengl.h>
-
 #include <graphics/runtimeassert.h>
 
 Shader::~Shader()

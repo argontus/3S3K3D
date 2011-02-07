@@ -7,9 +7,8 @@
 
 #include <vector>
 
-#include <graphics/opengl.h>
-
 #include <graphics/fragmentshader.h>
+#include <graphics/opengl.h>
 #include <graphics/vertexshader.h>
 
 ShaderProgram::~ShaderProgram()

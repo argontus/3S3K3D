@@ -5,8 +5,6 @@
 
 #include <graphics/meshnode.h>
 
-#include <graphics/opengl.h>
-
 #include <geometry/matrix4x4.h>
 #include <geometry/vector3array.h>
 
@@ -14,6 +12,7 @@
 #include <graphics/drawparams.h>
 #include <graphics/groupnode.h>
 #include <graphics/indexarray.h>
+#include <graphics/opengl.h>
 #include <graphics/runtimeassert.h>
 #include <graphics/shaderprogram.h>
 

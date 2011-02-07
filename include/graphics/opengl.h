@@ -1,3 +1,8 @@
+/**
+ * @file graphics/opengl.h
+ * @author Juhani Alanko
+ */
+
 #ifndef GRAPHICS_OPENGL_H_INCLUDED
 #define GRAPHICS_OPENGL_H_INCLUDED
 
@@ -6,8 +11,7 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#define _STDCALL_SUPPORTED
-#define _M_IX86
+
 #include <windows.h>
 
 #ifdef max
@@ -29,6 +33,5 @@
 #endif // #ifdef WIN32
 
 #include <GL/glew.h>
-#include <GL/wglew.h>
 
 #endif // #ifndef GRAPHICS_OPENGL_H_INCLUDED
