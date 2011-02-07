@@ -144,7 +144,7 @@ public:
     /**
      * Applies a Gram-Schmidt process to the rows.
      */
-    void orthonormalize();
+    void orthogonalize();
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.

@@ -8,6 +8,8 @@
 
 #include <geometry/staticassert.h>
 
+class Matrix2x2;
+class Matrix3x3;
 class Transform2;
 class Transform3;
 class Vector3;
@@ -24,26 +26,6 @@ public:
      * @return The identity matrix.
      */
     static const Matrix4x4& identity();
-
-    /**
-     * Gets a matrix that produces a 2D transform.
-     *
-     * @param transform 2D transform describing the transform matrix to
-     * construct.
-     *
-     * @return Matrix that produces a 2D transform.
-     */
-    static const Matrix4x4 transform(const Transform2& transform);
-
-    /**
-     * Gets a matrix that produces a 3D transform.
-     *
-     * @param transform 3D transform describing the transform matrix to
-     * construct.
-     *
-     * @return Matrix that produces a 3D transform.
-     */
-    static const Matrix4x4 transform(const Transform3& transform);
 
     /**
      * Gets a matrix that produces a translation.
@@ -144,6 +126,36 @@ public:
         float m10, float m11, float m12, float m13,
         float m20, float m21, float m22, float m23,
         float m30, float m31, float m32, float m33);
+
+    /**
+     * Constructor, constructs a 4x4 matrix from a 2x2 matrix.
+     *
+     * @param m 2x2 matrix.
+     */
+    explicit Matrix4x4(const Matrix2x2& m);
+
+    /**
+     * Constructor, constructs a 4x4 matrix from a 3x3 matrix.
+     *
+     * @param m 3x3 matrix.
+     */
+    explicit Matrix4x4(const Matrix3x3& m);
+
+    /**
+     * Constructor, constructs a matrix that produces a 2D transform.
+     *
+     * @param transform 2D transform describing the transform matrix to
+     * construct.
+     */
+    explicit Matrix4x4(const Transform2& transform);
+
+    /**
+     * Constructor, constructs a matrix that produces a 3D transform.
+     *
+     * @param transform 3D transform describing the transform matrix to
+     * construct.
+     */
+    explicit Matrix4x4(const Transform3& transform);
 
     /**
      * Array access operator. Allows matrices to be accessed like 2D

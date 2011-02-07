@@ -23,34 +23,6 @@ const Matrix4x4& Matrix4x4::identity()
     return m;
 }
 
-const Matrix4x4 Matrix4x4::transform(const Transform2& transform)
-{
-    const Vector2 t = transform.translation();
-    const Matrix2x2 r = Matrix2x2::rotation(transform.rotation());
-    const float s = transform.scaling();
-
-    return Matrix4x4(
-        r.m00 * s,  r.m01 * s,  0.0f,  0.0f,
-        r.m10 * s,  r.m11 * s,  0.0f,  0.0f,
-             0.0f,       0.0f,  1.0f,  0.0f,
-              t.x,        t.y,  0.0f,  1.0f
-    );
-}
-
-const Matrix4x4 Matrix4x4::transform(const Transform3& transform)
-{
-    const Vector3 t = transform.translation();
-    const Matrix3x3 r = transform.rotation();
-    const float s = transform.scaling();
-
-    return Matrix4x4(
-        r.m00 * s,  r.m01 * s,  r.m02 * s,  0.0f,
-        r.m10 * s,  r.m11 * s,  r.m12 * s,  0.0f,
-        r.m20 * s,  r.m21 * s,  r.m22 * s,  0.0f,
-              t.x,        t.y,        t.z,  1.0f
-    );
-}
-
 const Matrix4x4 Matrix4x4::translation(const Vector3& t)
 {
     return Matrix4x4(
@@ -163,6 +135,52 @@ Matrix4x4::Matrix4x4(
     // ...
 }
 
+Matrix4x4::Matrix4x4(const Matrix2x2& m)
+:   m00(m.m00), m01(m.m01), m02(0.0f), m03(0.0f),
+    m10(m.m10), m11(m.m11), m12(0.0f), m13(0.0f),
+    m20(0.0f), m21(0.0f), m22(1.0f), m23(0.0f),
+    m30(0.0f), m31(0.0f), m32(0.0f), m33(1.0f)
+{
+    // ...
+}
+
+Matrix4x4::Matrix4x4(const Matrix3x3& m)
+:   m00(m.m00), m01(m.m01), m02(m.m02), m03(0.0f),
+    m10(m.m10), m11(m.m11), m12(m.m12), m13(0.0f),
+    m20(m.m20), m21(m.m21), m22(m.m22), m23(0.0f),
+    m30(0.0f), m31(0.0f), m32(0.0f), m33(1.0f)
+{
+    // ...
+}
+
+Matrix4x4::Matrix4x4(const Transform2& transform)
+{
+    const Vector2 t = transform.translation();
+    const Matrix2x2 r = Matrix2x2::rotation(transform.rotation());
+    const float s = transform.scaling();
+
+    *this = Matrix4x4(
+        r.m00 * s,  r.m01 * s,  0.0f,  0.0f,
+        r.m10 * s,  r.m11 * s,  0.0f,  0.0f,
+             0.0f,       0.0f,  1.0f,  0.0f,
+              t.x,        t.y,  0.0f,  1.0f
+    );
+}
+
+Matrix4x4::Matrix4x4(const Transform3& transform)
+{
+    const Vector3 t = transform.translation();
+    const Matrix3x3 r = transform.rotation();
+    const float s = transform.scaling();
+
+    *this = Matrix4x4(
+        r.m00 * s,  r.m01 * s,  r.m02 * s,  0.0f,
+        r.m10 * s,  r.m11 * s,  r.m12 * s,  0.0f,
+        r.m20 * s,  r.m21 * s,  r.m22 * s,  0.0f,
+              t.x,        t.y,        t.z,  1.0f
+    );
+}
+
 float* Matrix4x4::operator [](const int row)
 {
     GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 3);
@@ -187,48 +205,12 @@ const float* Matrix4x4::data() const
 
 void Matrix4x4::multiplyBy(const Matrix4x4& m)
 {
-    m00 = m00 * m.m00 + m01 * m.m10 + m02 * m.m20 + m03 * m.m30;
-    m01 = m00 * m.m01 + m01 * m.m11 + m02 * m.m21 + m03 * m.m31;
-    m02 = m00 * m.m02 + m01 * m.m12 + m02 * m.m22 + m03 * m.m32;
-    m03 = m00 * m.m03 + m01 * m.m13 + m02 * m.m23 + m03 * m.m33;
-
-    m10 = m10 * m.m00 + m11 * m.m10 + m12 * m.m20 + m13 * m.m30;
-    m11 = m10 * m.m01 + m11 * m.m11 + m12 * m.m21 + m13 * m.m31;
-    m12 = m10 * m.m02 + m11 * m.m12 + m12 * m.m22 + m13 * m.m32;
-    m13 = m10 * m.m03 + m11 * m.m13 + m12 * m.m23 + m13 * m.m33;
-
-    m20 = m20 * m.m00 + m21 * m.m10 + m22 * m.m20 + m23 * m.m30;
-    m21 = m20 * m.m01 + m21 * m.m11 + m22 * m.m21 + m23 * m.m31;
-    m22 = m20 * m.m02 + m21 * m.m12 + m22 * m.m22 + m23 * m.m32;
-    m23 = m20 * m.m03 + m21 * m.m13 + m22 * m.m23 + m23 * m.m33;
-
-    m30 = m30 * m.m00 + m31 * m.m10 + m32 * m.m20 + m33 * m.m30;
-    m31 = m30 * m.m01 + m31 * m.m11 + m32 * m.m21 + m33 * m.m31;
-    m32 = m30 * m.m02 + m31 * m.m12 + m32 * m.m22 + m33 * m.m32;
-    m33 = m30 * m.m03 + m31 * m.m13 + m32 * m.m23 + m33 * m.m33;
+    *this = product(*this, m);
 }
 
 void Matrix4x4::multiplyByT(const Matrix4x4& m)
 {
-    m00 = m00 * m.m00 + m01 * m.m01 + m02 * m.m02 + m03 * m.m03;
-    m01 = m00 * m.m10 + m01 * m.m11 + m02 * m.m12 + m03 * m.m13;
-    m02 = m00 * m.m20 + m01 * m.m21 + m02 * m.m22 + m03 * m.m23;
-    m03 = m00 * m.m30 + m01 * m.m31 + m02 * m.m32 + m03 * m.m33;
-
-    m10 = m10 * m.m00 + m11 * m.m01 + m12 * m.m02 + m13 * m.m03;
-    m11 = m10 * m.m10 + m11 * m.m11 + m12 * m.m12 + m13 * m.m13;
-    m12 = m10 * m.m20 + m11 * m.m21 + m12 * m.m22 + m13 * m.m23;
-    m13 = m10 * m.m30 + m11 * m.m31 + m12 * m.m32 + m13 * m.m33;
-
-    m20 = m20 * m.m00 + m21 * m.m01 + m22 * m.m02 + m23 * m.m03;
-    m21 = m20 * m.m10 + m21 * m.m11 + m22 * m.m12 + m23 * m.m13;
-    m22 = m20 * m.m20 + m21 * m.m21 + m22 * m.m22 + m23 * m.m23;
-    m23 = m20 * m.m30 + m21 * m.m31 + m22 * m.m32 + m23 * m.m33;
-
-    m30 = m30 * m.m00 + m31 * m.m01 + m32 * m.m02 + m33 * m.m03;
-    m31 = m30 * m.m10 + m31 * m.m11 + m32 * m.m12 + m33 * m.m13;
-    m32 = m30 * m.m20 + m31 * m.m21 + m32 * m.m22 + m33 * m.m23;
-    m33 = m30 * m.m30 + m31 * m.m31 + m32 * m.m32 + m33 * m.m33;
+    *this = productT(*this, m);
 }
 
 void Matrix4x4::swap(Matrix4x4& other)
@@ -256,16 +238,52 @@ void Matrix4x4::swap(Matrix4x4& other)
 
 const Matrix4x4 product(const Matrix4x4& a, const Matrix4x4& b)
 {
-    Matrix4x4 m(a);
-    m.multiplyBy(b);
-    return m;
+    return Matrix4x4(
+        a.m00 * b.m00 + a.m01 * b.m10 + a.m02 * b.m20 + a.m03 * b.m30,
+        a.m00 * b.m01 + a.m01 * b.m11 + a.m02 * b.m21 + a.m03 * b.m31,
+        a.m00 * b.m02 + a.m01 * b.m12 + a.m02 * b.m22 + a.m03 * b.m32,
+        a.m00 * b.m03 + a.m01 * b.m13 + a.m02 * b.m23 + a.m03 * b.m33,
+
+        a.m10 * b.m00 + a.m11 * b.m10 + a.m12 * b.m20 + a.m13 * b.m30,
+        a.m10 * b.m01 + a.m11 * b.m11 + a.m12 * b.m21 + a.m13 * b.m31,
+        a.m10 * b.m02 + a.m11 * b.m12 + a.m12 * b.m22 + a.m13 * b.m32,
+        a.m10 * b.m03 + a.m11 * b.m13 + a.m12 * b.m23 + a.m13 * b.m33,
+
+        a.m20 * b.m00 + a.m21 * b.m10 + a.m22 * b.m20 + a.m23 * b.m30,
+        a.m20 * b.m01 + a.m21 * b.m11 + a.m22 * b.m21 + a.m23 * b.m31,
+        a.m20 * b.m02 + a.m21 * b.m12 + a.m22 * b.m22 + a.m23 * b.m32,
+        a.m20 * b.m03 + a.m21 * b.m13 + a.m22 * b.m23 + a.m23 * b.m33,
+
+        a.m30 * b.m00 + a.m31 * b.m10 + a.m32 * b.m20 + a.m33 * b.m30,
+        a.m30 * b.m01 + a.m31 * b.m11 + a.m32 * b.m21 + a.m33 * b.m31,
+        a.m30 * b.m02 + a.m31 * b.m12 + a.m32 * b.m22 + a.m33 * b.m32,
+        a.m30 * b.m03 + a.m31 * b.m13 + a.m32 * b.m23 + a.m33 * b.m33
+    );
 }
 
 const Matrix4x4 productT(const Matrix4x4& a, const Matrix4x4& b)
 {
-    Matrix4x4 m(a);
-    m.multiplyByT(b);
-    return m;
+    return Matrix4x4(
+        a.m00 * b.m00 + a.m01 * b.m01 + a.m02 * b.m02 + a.m03 * b.m03,
+        a.m00 * b.m10 + a.m01 * b.m11 + a.m02 * b.m12 + a.m03 * b.m13,
+        a.m00 * b.m20 + a.m01 * b.m21 + a.m02 * b.m22 + a.m03 * b.m23,
+        a.m00 * b.m30 + a.m01 * b.m31 + a.m02 * b.m32 + a.m03 * b.m33,
+
+        a.m10 * b.m00 + a.m11 * b.m01 + a.m12 * b.m02 + a.m13 * b.m03,
+        a.m10 * b.m10 + a.m11 * b.m11 + a.m12 * b.m12 + a.m13 * b.m13,
+        a.m10 * b.m20 + a.m11 * b.m21 + a.m12 * b.m22 + a.m13 * b.m23,
+        a.m10 * b.m30 + a.m11 * b.m31 + a.m12 * b.m32 + a.m13 * b.m33,
+
+        a.m20 * b.m00 + a.m21 * b.m01 + a.m22 * b.m02 + a.m23 * b.m03,
+        a.m20 * b.m10 + a.m21 * b.m11 + a.m22 * b.m12 + a.m23 * b.m13,
+        a.m20 * b.m20 + a.m21 * b.m21 + a.m22 * b.m22 + a.m23 * b.m23,
+        a.m20 * b.m30 + a.m21 * b.m31 + a.m22 * b.m32 + a.m23 * b.m33,
+
+        a.m30 * b.m00 + a.m31 * b.m01 + a.m32 * b.m02 + a.m33 * b.m03,
+        a.m30 * b.m10 + a.m31 * b.m11 + a.m32 * b.m12 + a.m33 * b.m13,
+        a.m30 * b.m20 + a.m31 * b.m21 + a.m32 * b.m22 + a.m33 * b.m23,
+        a.m30 * b.m30 + a.m31 * b.m31 + a.m32 * b.m32 + a.m33 * b.m33
+    );
 }
 
 const Matrix4x4 transpose(const Matrix4x4& m)

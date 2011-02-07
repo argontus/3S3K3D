@@ -105,23 +105,15 @@ const Vector2 Matrix2x2::column(const int column) const
 
 void Matrix2x2::multiplyBy(const Matrix2x2& m)
 {
-    m00 = m00 * m.m00 + m01 * m.m10;
-    m01 = m00 * m.m01 + m01 * m.m11;
-
-    m10 = m10 * m.m00 + m11 * m.m10;
-    m11 = m10 * m.m01 + m11 * m.m11;
+    *this = product(*this, m);
 }
 
 void Matrix2x2::multiplyByT(const Matrix2x2& m)
 {
-    m00 = m00 * m.m00 + m01 * m.m01;
-    m01 = m00 * m.m10 + m01 * m.m11;
-
-    m10 = m10 * m.m00 + m11 * m.m01;
-    m11 = m10 * m.m10 + m11 * m.m11;
+    *this = productT(*this, m);
 }
 
-void Matrix2x2::orthonormalize()
+void Matrix2x2::orthogonalize()
 {
     Vector2 x(m00, m01);
     x.normalize();
@@ -178,16 +170,24 @@ const Vector2 productT(const Vector2& v, const Matrix2x2& m)
 
 const Matrix2x2 product(const Matrix2x2& a, const Matrix2x2& b)
 {
-    Matrix2x2 m(a);
-    m.multiplyBy(b);
-    return m;
+    return Matrix2x2(
+        a.m00 * b.m00 + a.m01 * b.m10,
+        a.m00 * b.m01 + a.m01 * b.m11,
+
+        a.m10 * b.m00 + a.m11 * b.m10,
+        a.m10 * b.m01 + a.m11 * b.m11
+    );
 }
 
 const Matrix2x2 productT(const Matrix2x2& a, const Matrix2x2& b)
 {
-    Matrix2x2 m(a);
-    m.multiplyByT(b);
-    return m;
+    return Matrix2x2(
+        a.m00 * b.m00 + a.m01 * b.m01,
+        a.m00 * b.m10 + a.m01 * b.m11,
+
+        a.m10 * b.m00 + a.m11 * b.m01,
+        a.m10 * b.m10 + a.m11 * b.m11
+    );
 }
 
 const Matrix2x2 transpose(const Matrix2x2& m)

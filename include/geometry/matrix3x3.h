@@ -8,6 +8,7 @@
 
 #include <geometry/staticassert.h>
 
+class Matrix2x2;
 class Vector3;
 
 /**
@@ -96,6 +97,13 @@ public:
     Matrix3x3(const Vector3& row0, const Vector3& row1, const Vector3& row2);
 
     /**
+     * Constructor, constructs a 3x3 matrix from a 2x2 matrix.
+     *
+     * @param m 2x2 matrix.
+     */
+    explicit Matrix3x3(const Matrix2x2& m);
+
+    /**
      * Array access operator. Allows matrices to be accessed like 2D
      * arrays of <code>float</code>.
      *
@@ -127,6 +135,40 @@ public:
     const float* data() const;
 
     /**
+     * Sets the elements of a specified row.
+     *
+     * @param row Index of the row to set, between [0, 2].
+     * @param v Vector containing the elements to set.
+     */
+    void setRow(int row, const Vector3& v);
+
+    /**
+     * Gets a specified row as a vector.
+     *
+     * @param row Index of the row to return, between [0, 2].
+     *
+     * @return The specified row as a vector.
+     */
+    const Vector3 row(int row) const;
+
+    /**
+     * Sets the elements of a specified column.
+     *
+     * @param column Index of the column to set, between [0, 2].
+     * @param v Vector containing the elements to set.
+     */
+    void setColumn(int column, const Vector3& v);
+
+    /**
+     * Gets a specified column as a vector.
+     *
+     * @param column Index of the column to return, between [0, 2].
+     *
+     * @return The specified column as a vector.
+     */
+    const Vector3 column(int column) const;
+
+    /**
      * Sets <code>*this</code> to the product of <code>*this</code> and
      * <code>m</code>.
      *
@@ -145,7 +187,7 @@ public:
     /**
      * Applies a Gram-Schmidt process to the rows.
      */
-    void orthonormalize();
+    void orthogonalize();
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.

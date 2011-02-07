@@ -87,6 +87,14 @@
 		<Unit filename="include\geometry\vector2array.h" />
 		<Unit filename="include\geometry\vector3.h" />
 		<Unit filename="include\geometry\vector3array.h" />
+		<Unit filename="include\graphics\blendsettings.h" />
+		<Unit filename="include\graphics\color.h" />
+		<Unit filename="include\graphics\colorarray.h" />
+		<Unit filename="include\graphics\culltestsettings.h" />
+		<Unit filename="include\graphics\depthtestsettings.h" />
+		<Unit filename="include\graphics\runtimeassert.h" />
+		<Unit filename="include\graphics\staticassert.h" />
+		<Unit filename="include\graphics\stenciltestsettings.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src\core\gameprogram.cpp" />
 		<Unit filename="src\core\gamewindow.cpp" />
@@ -111,6 +119,12 @@
 		<Unit filename="src\geometry\vector2array.cpp" />
 		<Unit filename="src\geometry\vector3.cpp" />
 		<Unit filename="src\geometry\vector3array.cpp" />
+		<Unit filename="src\graphics\blendsettings.cpp" />
+		<Unit filename="src\graphics\color.cpp" />
+		<Unit filename="src\graphics\colorarray.cpp" />
+		<Unit filename="src\graphics\culltestsettings.cpp" />
+		<Unit filename="src\graphics\depthtestsettings.cpp" />
+		<Unit filename="src\graphics\stenciltestsettings.cpp" />
 		<Extensions>
 			<envvars />
 			<code_completion />

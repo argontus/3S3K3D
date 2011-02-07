@@ -188,7 +188,7 @@ public:
      * Applies a given scaling to all <code>Vector2</code> objects in this
      * array.
      *
-     * @param scaling The scaling to apply.
+     * @param scaling The scaling to apply, must be > 0.
      */
     void scaleBy(float scaling);
 

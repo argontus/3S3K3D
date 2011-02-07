@@ -161,6 +161,8 @@ void Extents2::rotateBy(const Matrix2x2& rotation)
 
 void Extents2::scaleBy(const float scaling)
 {
+    GEOMETRY_RUNTIME_ASSERT(scaling > 0.0f);
+
     if (isEmpty())
     {
         return;

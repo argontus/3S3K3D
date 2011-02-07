@@ -183,6 +183,8 @@ void Extents3::rotateBy(const Matrix3x3& rotation)
 
 void Extents3::scaleBy(const float scaling)
 {
+    GEOMETRY_RUNTIME_ASSERT(scaling > 0.0f);
+
     if (isEmpty())
     {
         return;

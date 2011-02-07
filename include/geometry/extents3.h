@@ -11,6 +11,7 @@
 class Matrix3x3;
 class Transform3;
 
+// TODO: better encapsulation?
 /**
  * Describes a 3D axis-aligned bounding box (AABB).
  */
@@ -170,7 +171,7 @@ public:
      * that wraps the scaled original AABB. If this AABB is empty, this member
      * function does nothing.
      *
-     * @param scaling The scaling to apply.
+     * @param scaling The scaling to apply, must be > 0.
      */
     void scaleBy(float scaling);
 

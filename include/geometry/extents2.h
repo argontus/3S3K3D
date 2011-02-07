@@ -11,6 +11,7 @@
 class Matrix2x2;
 class Transform2;
 
+// TODO: better encapsulation?
 /**
  * Describes a 2D axis-aligned bounding rectangle (AABR).
  */
@@ -158,7 +159,7 @@ public:
      * that wraps the scaled original AABR. If this AABR is empty, this member
      * function does nothing.
      *
-     * @param scaling The scaling to apply.
+     * @param scaling The scaling to apply, must be > 0.
      */
     void scaleBy(float scaling);
 

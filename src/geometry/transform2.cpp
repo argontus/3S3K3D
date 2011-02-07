@@ -28,6 +28,7 @@ const Transform2 Transform2::rotation(const float rotation)
 
 const Transform2 Transform2::scaling(const float scaling)
 {
+    GEOMETRY_RUNTIME_ASSERT(scaling > 0.0f);
     return Transform2(Vector2::zero(), 0.0f, scaling);
 }
 
@@ -139,17 +140,6 @@ const Transform2 conversion(const Transform2& src, const Transform2& dst)
         dst.applyInverse(src.translation()),
         src.rotation() - dst.rotation(),
         src.scaling() / dst.scaling()
-    );
-}
-
-const Transform2 invert(const Transform2& t)
-{
-    GEOMETRY_RUNTIME_ASSERT(t.scaling() > 0.0f);
-
-    return Transform2(
-        -t.translation(),
-        -t.rotation(),
-        1.0f / t.scaling()
     );
 }
 

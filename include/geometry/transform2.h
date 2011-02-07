@@ -45,7 +45,7 @@ public:
     /**
      * Gets a transform that produces a uniform scaling.
      *
-     * @param scaling Uniform scale factor.
+     * @param scaling Uniform scale factor, must be > 0.
      *
      * @return Transform that produces a uniform scaling.
      */
@@ -121,14 +121,14 @@ public:
     /**
      * Sets the scaling.
      *
-     * @param scaling The scaling to set.
+     * @param scaling The scaling to set, must be > 0.
      */
     void setScaling(float scaling);
 
     /**
      * Applies a scaling to this transform.
      *
-     * @param scaling The scaling to apply.
+     * @param scaling The scaling to apply, must be > 0.
      */
     void scaleBy(float scaling);
 
@@ -213,15 +213,6 @@ private:
  * <code>dst.applyInverse(src.applyForward(v))</code>.
  */
 const Transform2 conversion(const Transform2& src, const Transform2& dst);
-
-/**
- * Calculates the inverse transform of a given transform.
- *
- * @param t The transform whose inverse transform is to be calculated.
- *
- * @return The inverse transform of the given transform.
- */
-const Transform2 invert(const Transform2& t);
 
 /**
  * Calculates a combined transform of two transforms.

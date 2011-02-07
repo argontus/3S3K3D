@@ -6,7 +6,7 @@
 #include <core/gamewindow.h>
 
 #include <SDL/SDL.h>
-#include <GL/gl.h>
+#include <GL/glew.h>
 #include <iostream>
 
 GameWindow::GameWindow()
@@ -28,8 +28,8 @@ bool GameWindow::init()
 	int height      = 600;
 	int flags       = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_RESIZABLE;
 
-	//if( SDL_Init( SDL_INIT_VIDEO) < 0 ) {
-	if( SDL_VideoInit( NULL, 0 ) ) {
+	if( SDL_Init( SDL_INIT_VIDEO) < 0 ) {
+	//if( SDL_VideoInit( NULL, 0 ) ) {
 		std::cerr << "Video initialization failed: " << SDL_GetError();
 		std::cerr << std::endl;
 		return false;
@@ -89,7 +89,11 @@ void GameWindow::onEvent( const SDL_Event& event )
         break;
 
         case SDL_KEYDOWN:
-            onKeyboardEvent( event.key );
+            onKeyDown( event.key );
+        break;
+
+        case SDL_KEYUP:
+            onKeyUp( event.key );
         break;
 
         case SDL_MOUSEMOTION:
@@ -98,6 +102,14 @@ void GameWindow::onEvent( const SDL_Event& event )
 
         case SDL_WINDOWEVENT:
             onWindowEvent( event.window );
+        break;
+
+        case SDL_MOUSEBUTTONDOWN:
+            onMouseButtonDown( event.button );
+        break;
+
+        case SDL_MOUSEBUTTONUP:
+            onMouseButtonUp( event.button );
         break;
 	}
 }
@@ -150,7 +162,12 @@ void GameWindow::onFocusLost()
     // does nothing by default
 }
 
-void GameWindow::onKeyboardEvent( const SDL_KeyboardEvent& keyboardEvent )
+void GameWindow::onKeyDown( const SDL_KeyboardEvent& keyboardEvent )
+{
+    // does nothing by default
+}
+
+void GameWindow::onKeyUp( const SDL_KeyboardEvent& keyboardEvent )
 {
     // does nothing by default
 }
@@ -168,4 +185,14 @@ void GameWindow::onWindowMaximized()
 void GameWindow::onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent )
 {
    // does nothing by default
+}
+
+void GameWindow::onMouseButtonDown(const SDL_MouseButtonEvent& mouseButtonEvent)
+{
+   // does nothing by default
+}
+
+void GameWindow::onMouseButtonUp(const SDL_MouseButtonEvent& mouseButtonEvent)
+{
+    // does nothing by default
 }

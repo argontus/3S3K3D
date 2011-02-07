@@ -70,6 +70,8 @@ const Transform3 Transform3::rotation(
 
 const Transform3 Transform3::scaling(const float scaling)
 {
+    GEOMETRY_RUNTIME_ASSERT(scaling > 0.0f);
+
     return Transform3(
         Vector3::zero(),
         Matrix3x3::identity(),
@@ -181,17 +183,6 @@ const Transform3 conversion(const Transform3& src, const Transform3& dst)
         dst.applyInverse(src.translation()),
         productT(src.rotation(), dst.rotation()),
         src.scaling() / dst.scaling()
-    );
-}
-
-const Transform3 invert(const Transform3& t)
-{
-    GEOMETRY_RUNTIME_ASSERT(t.scaling() > 0.0f);
-
-    return Transform3(
-        -t.translation(),
-        transpose(t.rotation()),
-        1.0f / t.scaling()
     );
 }
 

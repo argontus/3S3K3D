@@ -6,6 +6,7 @@
 #ifndef GEOMETRY_INTERVAL_H_INCLUDED
 #define GEOMETRY_INTERVAL_H_INCLUDED
 
+// TODO: better encapsulation?
 /**
  * Represents a bounded interval.
  */
