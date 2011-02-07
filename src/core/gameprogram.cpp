@@ -588,7 +588,7 @@ void GameProgram::render()
 
     // ...
 
-	SDL_GL_SwapWindow(mainwindow);
+    SDL_GL_SwapBuffers();
 }
 
 // TODO: quick & dirty

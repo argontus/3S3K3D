@@ -26,18 +26,19 @@ bool GameWindow::init()
 	//TODO: read these from a configuration file.
 	int width       = 800;  // 1280
 	int height      = 600;  // 800
-	int flags       = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_RESIZABLE;
+	int flags       = SDL_HWACCEL | SDL_GL_DOUBLEBUFFER  | SDL_OPENGL;
 
-	if( SDL_Init( SDL_INIT_VIDEO) < 0 ) {
-	//if( SDL_VideoInit( NULL, 0 ) ) {
-		std::cerr << "Video initialization failed: " << SDL_GetError();
+	if( SDL_Init(SDL_INIT_EVERYTHING) < 0 ) {
+		std::cerr << "SDL initialization failed: " << SDL_GetError();
 		std::cerr << std::endl;
 		return false;
 	}
 
-	/* Request an OpenGL 3.3 context */
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    if( (mainwindow = SDL_SetVideoMode( width, height, 32, flags )) == NULL ) {
+		std::cerr << "SDL initialization failed: " << SDL_GetError();
+		std::cerr << std::endl;
+		return false;
+	}
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
@@ -46,22 +47,6 @@ bool GameWindow::init()
 
 	resizeWindow(width, height);
 
-	/* create the window, don't give a crap about the window's position */
-	mainwindow = SDL_CreateWindow(	"TESTING",
-									SDL_WINDOWPOS_UNDEFINED,
-									SDL_WINDOWPOS_UNDEFINED,
-									width,
-									height,
-									flags );
-	if( !mainwindow ) {
-		std::cerr << "Unable to create window!" << std::endl;
-		std::cerr << SDL_GetError() << std::endl;
-		return false;
-	}
-
-	maincontext = SDL_GL_CreateContext(mainwindow);
-	SDL_GL_SetSwapInterval(1);
-
     std::cout << "game engine initialization succesfull!" << std::endl;
 
 	return true;
@@ -69,8 +54,7 @@ bool GameWindow::init()
 
 void GameWindow::cleanup()
 {
-    SDL_GL_DeleteContext(maincontext);
-    SDL_DestroyWindow(mainwindow);
+    SDL_FreeSurface(mainwindow);
 	SDL_Quit();
 }
 
@@ -100,9 +84,9 @@ void GameWindow::onEvent( const SDL_Event& event )
             onMouseMoved( event.motion );
         break;
 
-        case SDL_WINDOWEVENT:
+/*        case SDL_WINDOWEVENT:
             onWindowEvent( event.window );
-        break;
+        break; */
 
         case SDL_MOUSEBUTTONDOWN:
             onMouseButtonDown( event.button );
@@ -119,6 +103,7 @@ void GameWindow::onWindowResize( const int width, const int height )
     resizeWindow( width, height );
 }
 
+/*
 void GameWindow::onWindowEvent( const SDL_WindowEvent& windowEvent )
 {
     switch( windowEvent.event  )
@@ -151,6 +136,7 @@ void GameWindow::onWindowEvent( const SDL_WindowEvent& windowEvent )
         break;
     }
 }
+*/
 
 void GameWindow::onFocusGained()
 {
