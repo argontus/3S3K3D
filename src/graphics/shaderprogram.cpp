@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include <GL/glew.h>
+#include <graphics/opengl.h>
 
 #include <graphics/fragmentshader.h>
 #include <graphics/vertexshader.h>

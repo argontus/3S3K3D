@@ -5,7 +5,7 @@
 
 #include <graphics/meshnode.h>
 
-#include <GL/glew.h>
+#include <graphics/opengl.h>
 
 #include <geometry/matrix4x4.h>
 #include <geometry/vector3array.h>

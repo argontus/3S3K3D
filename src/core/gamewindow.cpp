@@ -6,7 +6,7 @@
 #include <core/gamewindow.h>
 
 #include <SDL/SDL.h>
-#include <GL/glew.h>
+#include <graphics/opengl.h>
 #include <iostream>
 
 GameWindow::GameWindow()

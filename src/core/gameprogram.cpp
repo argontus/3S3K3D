@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include <GL/glew.h>
+#include <graphics/opengl.h>
 
 // TODO: REALLY quick & dirty
 #include <geometry/math.h>
