@@ -107,6 +107,8 @@ public:
 	 */
 	virtual void onKeyDown( const SDL_KeyboardEvent& keyboardEvent );
 
+	virtual void onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent );
+
 private:
 	bool running;
 	Uint32 deltaTicks; /* ticks between last frame and current frame */

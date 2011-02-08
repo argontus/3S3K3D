@@ -12,6 +12,8 @@
 GameWindow::GameWindow()
 {
     aspectRatio = 0;
+    width = 0;
+    height = 0;
 }
 
 GameWindow::~GameWindow()
@@ -24,8 +26,8 @@ bool GameWindow::init()
     std::cout << "Initializing game engine...";
 
 	//TODO: read these from a configuration file.
-	int width       = 800;  // 1280
-	int height      = 600;  // 800
+	width       = 1280;  // 1280
+	height      = 800;  // 800
 	int flags       = SDL_HWACCEL | SDL_GL_DOUBLEBUFFER  | SDL_OPENGL;
 
 	if( SDL_Init(SDL_INIT_EVERYTHING) < 0 ) {
@@ -45,6 +47,8 @@ bool GameWindow::init()
 	//TODO: request the depth value from the driver instead of hardcoding it.
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
+	SDL_ShowCursor( SDL_FALSE );
+
 	resizeWindow(width, height);
 
     std::cout << "game engine initialization succesfull!" << std::endl;
@@ -62,6 +66,8 @@ void GameWindow::resizeWindow( const int width, const int height )
 {
     glViewport( 0, 0, width, height );
     aspectRatio = (float)width/height;
+    this->width = width;
+    this->height = height;
 }
 
 void GameWindow::onEvent( const SDL_Event& event )
