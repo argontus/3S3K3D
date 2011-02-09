@@ -12,6 +12,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
+#define GLEW_STATIC
 #include <windows.h>
 
 #ifdef max
