@@ -622,7 +622,7 @@ void GameProgram::onKeyDown( const SDL_KeyboardEvent& keyboardEvent )
 
         case SDLK_a:
             //camera_->translateBy(deltaTime * translationFactor * -camera_->rotation().row(0));
-            cameraSpeedX = -cameraSpeed;
+            cameraSpeedX = -cameraSpeed ;
             break;
 
         case SDLK_s:
@@ -707,16 +707,16 @@ void GameProgram::onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent )
     int deltaX = mouseMotionEvent.x-width/2;
     int deltaY = mouseMotionEvent.y-height/2;
     const float translationFactor = 50.0f;
-    const float rotationFactor = 0.005;
+    const float rotationFactor = 0.1;
 
 
     if( deltaX != 0 )
     {
-        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(1), deltaX * -rotationFactor));
+        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(1), deltaX * -rotationFactor * deltaTime));
     }
 
     if( deltaY != 0 ) {
-        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor));
+        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor * deltaTime));
     }
 
 }
