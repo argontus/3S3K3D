@@ -707,16 +707,17 @@ void GameProgram::onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent )
     int deltaX = mouseMotionEvent.x-width/2;
     int deltaY = mouseMotionEvent.y-height/2;
     const float translationFactor = 50.0f;
-    const float rotationFactor = 0.1;
+    const float rotationFactor = 0.001;
 
 
     if( deltaX != 0 )
     {
-        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(1), deltaX * -rotationFactor * deltaTime));
+        //camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(1), deltaX * -rotationFactor * deltaTime));
+        camera_->rotateBy( Matrix3x3::yRotation( deltaX * -rotationFactor ));
     }
 
     if( deltaY != 0 ) {
-        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor * deltaTime));
+        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor ));
     }
 
 }
