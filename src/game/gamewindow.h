@@ -1,9 +1,8 @@
-
 /**
- *  @file core/gamwindow.h
- *  @author Marko Silokunnas
- *
+ * @file game/gamwindow.h
+ * @author Marko Silokunnas
  */
+
 #ifndef GAMEWINDOW_H
 #define GAMEWINDOW_H
 
@@ -62,7 +61,7 @@ class GameWindow
          *
          * @param windowEvent window event to handle
          */
-        virtual void onWindowEvent( const SDL_WindowEvent& windowEvent );
+        //virtual void onWindowEvent( const SDL_WindowEvent& windowEvent );
 
         /**
          * Called whenever user presses a key down.
@@ -131,8 +130,9 @@ class GameWindow
                                      );
 
     protected:
-        SDL_WindowID mainwindow; /* window handle */
-        SDL_GLContext maincontext; /* opengl context handle */
+        //SDL_WindowID mainwindow; /* window handle */
+        //SDL_GLContext maincontext; /* opengl context handle */
+        SDL_Surface* mainwindow;
         float aspectRatio;
 };
 

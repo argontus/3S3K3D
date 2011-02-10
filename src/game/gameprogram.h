@@ -1,13 +1,13 @@
 /**
- *  @file core/gameprogram.h
- *  @author Marko Silokunnas
- *
+ * @file game/gameprogram.h
+ * @author Marko Silokunnas
  */
+
 #ifndef GAMEPROGRAM_H_
 #define GAMEPROGRAM_H_
 
 #include <SDL/SDL.h>
-#include <core/gamewindow.h>
+#include "gamewindow.h"
 
 #include <graphics/resourcemanager.h>
 #include <graphics/vertexshader.h>

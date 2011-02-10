@@ -32,6 +32,6 @@
 
 #endif // #ifdef WIN32
 
-#include <GL/glew.h>
+#include <glew/glew.h>
 
 #endif // #ifndef GRAPHICS_OPENGL_H_INCLUDED
