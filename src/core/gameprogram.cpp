@@ -40,6 +40,9 @@ GameProgram::GameProgram()
     running         = true;
     deltaTicks      = 0;
     deltaTime       = 0;
+    cameraSpeedX    = 0;
+    cameraSpeedY    = 0;
+    cameraSpeedZ    = 0;
 }
 
 int GameProgram::execute()
@@ -103,73 +106,6 @@ int GameProgram::execute()
     shaderProgram->link();
     GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
     shaderProgramManager_.loadResource("extents", shaderProgram);
-
-
-    // init mesh stuff
-
-    //vertexArray_ = new Vector3Array(8);
-    //(*vertexArray_)[0].set(-1.0f, -1.0f,  1.0f);
-    //(*vertexArray_)[1].set( 1.0f, -1.0f,  1.0f);
-    //(*vertexArray_)[2].set( 1.0f,  1.0f,  1.0f);
-    //(*vertexArray_)[3].set(-1.0f,  1.0f,  1.0f);
-    //(*vertexArray_)[4].set( 1.0f, -1.0f, -1.0f);
-    //(*vertexArray_)[5].set(-1.0f, -1.0f, -1.0f);
-    //(*vertexArray_)[6].set(-1.0f,  1.0f, -1.0f);
-    //(*vertexArray_)[7].set( 1.0f,  1.0f, -1.0f);
-
-    //colorArray_ = new ColorArray(8);
-    //(*colorArray_)[0].set(0.0f, 0.0f, 1.0f, 1.0f);
-    //(*colorArray_)[1].set(1.0f, 0.0f, 1.0f, 1.0f);
-    //(*colorArray_)[2].set(1.0f, 1.0f, 1.0f, 1.0f);
-    //(*colorArray_)[3].set(0.0f, 1.0f, 1.0f, 1.0f);
-    //(*colorArray_)[4].set(1.0f, 0.0f, 0.0f, 1.0f);
-    //(*colorArray_)[5].set(0.0f, 0.0f, 0.0f, 1.0f);
-    //(*colorArray_)[6].set(0.0f, 1.0f, 0.0f, 1.0f);
-    //(*colorArray_)[7].set(1.0f, 1.0f, 0.0f, 1.0f);
-
-    //indexArray_ = new IndexArray(36);
-    //// front
-    //(*indexArray_)[ 0] = 0;
-    //(*indexArray_)[ 1] = 1;
-    //(*indexArray_)[ 2] = 2;
-    //(*indexArray_)[ 3] = 0;
-    //(*indexArray_)[ 4] = 2;
-    //(*indexArray_)[ 5] = 3;
-    //// back
-    //(*indexArray_)[ 6] = 4;
-    //(*indexArray_)[ 7] = 5;
-    //(*indexArray_)[ 8] = 6;
-    //(*indexArray_)[ 9] = 4;
-    //(*indexArray_)[10] = 6;
-    //(*indexArray_)[11] = 7;
-    //// bottom
-    //(*indexArray_)[12] = 1;
-    //(*indexArray_)[13] = 0;
-    //(*indexArray_)[14] = 5;
-    //(*indexArray_)[15] = 1;
-    //(*indexArray_)[16] = 5;
-    //(*indexArray_)[17] = 4;
-    //// top
-    //(*indexArray_)[18] = 3;
-    //(*indexArray_)[19] = 2;
-    //(*indexArray_)[20] = 7;
-    //(*indexArray_)[21] = 3;
-    //(*indexArray_)[22] = 7;
-    //(*indexArray_)[23] = 6;
-    //// left
-    //(*indexArray_)[24] = 5;
-    //(*indexArray_)[25] = 0;
-    //(*indexArray_)[26] = 3;
-    //(*indexArray_)[27] = 5;
-    //(*indexArray_)[28] = 3;
-    //(*indexArray_)[29] = 6;
-    //// right
-    //(*indexArray_)[30] = 1;
-    //(*indexArray_)[31] = 4;
-    //(*indexArray_)[32] = 7;
-    //(*indexArray_)[33] = 1;
-    //(*indexArray_)[34] = 7;
-    //(*indexArray_)[35] = 2;
 
     vertexArray_ = new Vector3Array(24);
     // front
@@ -646,7 +582,25 @@ void drawExtents(const Node* node, const DrawParams& params)
 
 void GameProgram::tick( const float deltaTime )
 {
-    SDL_WarpMouse( width/2, height/2 );
+    if( mouseBoundToScreen )
+    {
+        SDL_WarpMouse( width/2, height/2 );
+    }
+
+    if( cameraSpeedX != 0 )
+    {
+        camera_->translateBy( camera_->rotation().row(0) * cameraSpeedX );
+    }
+
+    if( cameraSpeedY != 0 )
+    {
+        camera_->translateBy( camera_->rotation().row(1) * cameraSpeedY );
+    }
+
+    if( cameraSpeedZ != 0 )
+    {
+        camera_->translateBy( camera_->rotation().row(2) * cameraSpeedZ );
+    }
 }
 
 void GameProgram::onQuit()
@@ -658,6 +612,7 @@ void GameProgram::onKeyDown( const SDL_KeyboardEvent& keyboardEvent )
 {
     const float translationFactor = 50.0f;
     const float rotationFactor = 1.0f;
+    const float cameraSpeed = 1.0f;
 
     switch( keyboardEvent.keysym.sym )
     {
@@ -666,45 +621,55 @@ void GameProgram::onKeyDown( const SDL_KeyboardEvent& keyboardEvent )
             break;
 
         case SDLK_a:
-            camera_->translateBy(deltaTime * translationFactor * -camera_->rotation().row(0));
+            //camera_->translateBy(deltaTime * translationFactor * -camera_->rotation().row(0));
+            cameraSpeedX = -cameraSpeed;
             break;
 
         case SDLK_s:
-            camera_->translateBy(deltaTime * translationFactor * camera_->rotation().row(2));
+            //camera_->translateBy(deltaTime * translationFactor * camera_->rotation().row(2));
+            cameraSpeedZ = cameraSpeed;
             break;
 
         case SDLK_d:
-            camera_->translateBy(deltaTime * translationFactor * camera_->rotation().row(0));
+            //camera_->translateBy(deltaTime * translationFactor * camera_->rotation().row(0));
+             cameraSpeedX = cameraSpeed;
             break;
 
         case SDLK_w:
-            camera_->translateBy(deltaTime * translationFactor * -camera_->rotation().row(2));
+            //camera_->translateBy(deltaTime * translationFactor * -camera_->rotation().row(2));
+            cameraSpeedZ = -cameraSpeed;
             break;
 
         case SDLK_q:
-            camera_->translateBy(deltaTime * translationFactor * -Vector3::yAxis());
+            //camera_->translateBy(deltaTime * translationFactor * -Vector3::yAxis());
             break;
 
         case SDLK_e:
-            camera_->translateBy(deltaTime * translationFactor * Vector3::yAxis());
+            //camera_->translateBy(deltaTime * translationFactor * Vector3::yAxis());
             break;
 
         case SDLK_LEFT:
-            camera_->rotateBy(Matrix3x3::yRotation(deltaTime * rotationFactor));
+            //camera_->rotateBy(Matrix3x3::yRotation(deltaTime * rotationFactor));
             break;
 
         case SDLK_RIGHT:
-            camera_->rotateBy(Matrix3x3::yRotation(deltaTime * -rotationFactor));
+            //camera_->rotateBy(Matrix3x3::yRotation(deltaTime * -rotationFactor));
             break;
 
         case SDLK_UP:
-            camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaTime * rotationFactor));
+            //camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaTime * rotationFactor));
             break;
 
         case SDLK_DOWN:
-            camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaTime * -rotationFactor));
+            //camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaTime * -rotationFactor));
             break;
+        case SDLK_F2:
+            if( mouseBoundToScreen )
+                releaseMouse();
+            else
+                bindMouse();
 
+            break;
         case SDLK_F1:
             drawExtents_ = !drawExtents_;
             break;
@@ -714,29 +679,46 @@ void GameProgram::onKeyDown( const SDL_KeyboardEvent& keyboardEvent )
     }
 }
 
+void GameProgram::onKeyUp( const SDL_KeyboardEvent& keyboardEvent )
+{
+ switch( keyboardEvent.keysym.sym )
+    {
+        case SDLK_ESCAPE:
+            running = false;
+            break;
+
+        case SDLK_a:
+        case SDLK_d:
+            cameraSpeedX = 0.0f;
+            break;
+
+        case SDLK_s:
+        case SDLK_w:
+            cameraSpeedZ = 0.0f;
+            break;
+        default:
+            break;
+    }
+
+}
+
 void GameProgram::onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent )
 {
     int deltaX = mouseMotionEvent.x-width/2;
     int deltaY = mouseMotionEvent.y-height/2;
     const float translationFactor = 50.0f;
-    const float rotationFactor = 1.0f;
+    const float rotationFactor = 0.005;
 
-    if( deltaX < 0 )
+
+    if( deltaX != 0 )
     {
-        camera_->rotateBy(Matrix3x3::yRotation(deltaTime * rotationFactor));
-    }
-    else if( deltaX > 0 )
-    {
-        camera_->rotateBy(Matrix3x3::yRotation(deltaTime * -rotationFactor));
+        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(1), deltaX * -rotationFactor));
     }
 
-    if( deltaY < 0 ) {
-        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaTime * rotationFactor));
+    if( deltaY != 0 ) {
+        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor));
     }
-    else if( deltaY > 0 )
-    {
-        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaTime * -rotationFactor));
-    }
+
 }
 
 GameProgram::~GameProgram()

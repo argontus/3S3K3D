@@ -13,6 +13,7 @@
 #include <graphics/vertexshader.h>
 #include <graphics/fragmentshader.h>
 #include <graphics/shaderprogram.h>
+#include <geometry/vector3.h>
 
 // TODO: quick & dirty
 class CameraNode;
@@ -107,6 +108,8 @@ public:
 	 */
 	virtual void onKeyDown( const SDL_KeyboardEvent& keyboardEvent );
 
+    virtual void onKeyUp( const SDL_KeyboardEvent& keyboardEvent );
+
 	virtual void onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent );
 
 private:
@@ -114,6 +117,10 @@ private:
 	Uint32 deltaTicks; /* ticks between last frame and current frame */
 	float deltaTime;
 	static const Uint32 ticksPerSecond = 1000;
+	Vector3 cameraVelocity;
+	float cameraSpeedX;
+	float cameraSpeedY;
+	float cameraSpeedZ;
 
     // TODO: quick & dirty
     CameraNode* camera_;

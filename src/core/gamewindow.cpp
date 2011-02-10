@@ -14,6 +14,8 @@ GameWindow::GameWindow()
     aspectRatio = 0;
     width = 0;
     height = 0;
+    mouseVisible = false;
+    mouseBoundToScreen = true;
 }
 
 GameWindow::~GameWindow()
@@ -47,7 +49,7 @@ bool GameWindow::init()
 	//TODO: request the depth value from the driver instead of hardcoding it.
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-	SDL_ShowCursor( SDL_FALSE );
+	SDL_ShowCursor( mouseVisible );
 
 	resizeWindow(width, height);
 
@@ -109,41 +111,6 @@ void GameWindow::onWindowResize( const int width, const int height )
     resizeWindow( width, height );
 }
 
-/*
-void GameWindow::onWindowEvent( const SDL_WindowEvent& windowEvent )
-{
-    switch( windowEvent.event  )
-    {
-        case SDL_WINDOWEVENT_RESIZED:
-            onWindowResize( windowEvent.data1, windowEvent.data2 );
-        break;
-
-        case SDL_WINDOWEVENT_FOCUS_GAINED:
-           onFocusGained();
-        break;
-
-        case SDL_WINDOWEVENT_FOCUS_LOST:
-            onFocusLost();
-        break;
-
-        case SDL_WINDOWEVENT_CLOSE:
-            onQuit();
-        break;
-
-        case SDL_WINDOWEVENT_MAXIMIZED:
-            onWindowMaximized();
-        break;
-
-        case SDL_WINDOWEVENT_MINIMIZED:
-            onWindowMinimized();
-        break;
-
-        default:
-        break;
-    }
-}
-*/
-
 void GameWindow::onFocusGained()
 {
     // does nothing by default
@@ -187,4 +154,18 @@ void GameWindow::onMouseButtonDown(const SDL_MouseButtonEvent& mouseButtonEvent)
 void GameWindow::onMouseButtonUp(const SDL_MouseButtonEvent& mouseButtonEvent)
 {
     // does nothing by default
+}
+
+void GameWindow::bindMouse()
+{
+    mouseBoundToScreen = true;
+    mouseVisible = false;
+    SDL_ShowCursor( mouseVisible );
+}
+
+void GameWindow::releaseMouse()
+{
+    mouseBoundToScreen = false;
+    mouseVisible = true;
+    SDL_ShowCursor( mouseVisible );
 }
