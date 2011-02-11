@@ -16,11 +16,11 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
+					<Add library="..\..\lib\libgeometryd.a" />
+					<Add library="..\..\lib\libgraphicsd.a" />
 					<Add library="GL" />
 					<Add library="GLEW" />
 					<Add library="SDL" />
-					<Add library="..\..\lib\libgeometryd.a" />
-					<Add library="..\..\lib\libgraphicsd.a" />
 				</Linker>
 			</Target>
 			<Target title="linux_release">
@@ -34,11 +34,11 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="..\..\lib\libgeometry.a" />
+					<Add library="..\..\lib\libgraphics.a" />
 					<Add library="GL" />
 					<Add library="GLEW" />
 					<Add library="SDL" />
-					<Add library="..\..\lib\libgeometry.a" />
-					<Add library="..\..\lib\libgraphics.a" />
 				</Linker>
 			</Target>
 			<Target title="mingw_debug">
@@ -51,11 +51,11 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add library="libopengl32.a" />
-					<Add library="..\..\lib\libglew.dll.a" />
-					<Add library="..\..\lib\libSDL.dll.a" />
 					<Add library="..\..\lib\libgeometryd.a" />
 					<Add library="..\..\lib\libgraphicsd.a" />
+					<Add library="..\..\lib\libglew.dll.a" />
+					<Add library="..\..\lib\libSDL.dll.a" />
+					<Add library="libopengl32.a" />
 				</Linker>
 			</Target>
 			<Target title="mingw_release">
@@ -69,11 +69,11 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="libopengl32.a" />
-					<Add library="..\..\lib\libglew.dll.a" />
-					<Add library="..\..\lib\libSDL.dll.a" />
 					<Add library="..\..\lib\libgeometry.a" />
 					<Add library="..\..\lib\libgraphics.a" />
+					<Add library="..\..\lib\libglew.dll.a" />
+					<Add library="..\..\lib\libSDL.dll.a" />
+					<Add library="libopengl32.a" />
 				</Linker>
 			</Target>
 		</Build>
@@ -90,8 +90,6 @@
 		<Unit filename="..\..\src\game\gamewindow.cpp" />
 		<Unit filename="..\..\src\game\gamewindow.h" />
 		<Unit filename="..\..\src\game\main.cpp" />
-		<Unit filename="..\..\src\graphics\shader.cpp" />
-		<Unit filename="..\..\src\graphics\shaderprogram.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />
