@@ -1,5 +1,6 @@
 bin/*.dll
 bin/*.exe
+bin/*.so
 codeblocks/*.cbTemp
 codeblocks/geometry/obj/
 codeblocks/geometry/*.depend
