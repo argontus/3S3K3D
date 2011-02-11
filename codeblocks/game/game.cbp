@@ -17,10 +17,10 @@
 				</Compiler>
 				<Linker>
 					<Add library="GL" />
+					<Add library="GLEW" />
+					<Add library="SDL" />
 					<Add library="..\..\lib\libgeometryd.a" />
-					<Add library="..\..\lib\libglew.dll.a" />
 					<Add library="..\..\lib\libgraphicsd.a" />
-					<Add library="..\..\lib\libSDL.dll.a" />
 				</Linker>
 			</Target>
 			<Target title="linux_release">
@@ -35,10 +35,10 @@
 				<Linker>
 					<Add option="-s" />
 					<Add library="GL" />
+					<Add library="GLEW" />
+					<Add library="SDL" />
 					<Add library="..\..\lib\libgeometry.a" />
-					<Add library="..\..\lib\libglew.dll.a" />
 					<Add library="..\..\lib\libgraphics.a" />
-					<Add library="..\..\lib\libSDL.dll.a" />
 				</Linker>
 			</Target>
 			<Target title="mingw_debug">
@@ -52,10 +52,10 @@
 				</Compiler>
 				<Linker>
 					<Add library="libopengl32.a" />
-					<Add library="..\..\lib\libgeometryd.a" />
 					<Add library="..\..\lib\libglew.dll.a" />
-					<Add library="..\..\lib\libgraphicsd.a" />
 					<Add library="..\..\lib\libSDL.dll.a" />
+					<Add library="..\..\lib\libgeometryd.a" />
+					<Add library="..\..\lib\libgraphicsd.a" />
 				</Linker>
 			</Target>
 			<Target title="mingw_release">
@@ -70,10 +70,10 @@
 				<Linker>
 					<Add option="-s" />
 					<Add library="libopengl32.a" />
-					<Add library="..\..\lib\libgeometry.a" />
 					<Add library="..\..\lib\libglew.dll.a" />
-					<Add library="..\..\lib\libgraphics.a" />
 					<Add library="..\..\lib\libSDL.dll.a" />
+					<Add library="..\..\lib\libgeometry.a" />
+					<Add library="..\..\lib\libgraphics.a" />
 				</Linker>
 			</Target>
 		</Build>
@@ -90,26 +90,8 @@
 		<Unit filename="..\..\src\game\gamewindow.cpp" />
 		<Unit filename="..\..\src\game\gamewindow.h" />
 		<Unit filename="..\..\src\game\main.cpp" />
-		<Unit filename="..\..\src\graphics\blendsettings.cpp" />
-		<Unit filename="..\..\src\graphics\cameranode.cpp" />
-		<Unit filename="..\..\src\graphics\color.cpp" />
-		<Unit filename="..\..\src\graphics\colorarray.cpp" />
-		<Unit filename="..\..\src\graphics\culltestsettings.cpp" />
-		<Unit filename="..\..\src\graphics\depthtestsettings.cpp" />
-		<Unit filename="..\..\src\graphics\drawparams.cpp" />
-		<Unit filename="..\..\src\graphics\fragmentshader.cpp" />
-		<Unit filename="..\..\src\graphics\geometrynode.cpp" />
-		<Unit filename="..\..\src\graphics\groupnode.cpp" />
-		<Unit filename="..\..\src\graphics\indexarray.cpp" />
-		<Unit filename="..\..\src\graphics\meshnode.cpp" />
-		<Unit filename="..\..\src\graphics\node.cpp" />
-		<Unit filename="..\..\src\graphics\predrawparams.cpp" />
-		<Unit filename="..\..\src\graphics\projectionsettings.cpp" />
-		<Unit filename="..\..\src\graphics\renderqueue.cpp" />
 		<Unit filename="..\..\src\graphics\shader.cpp" />
 		<Unit filename="..\..\src\graphics\shaderprogram.cpp" />
-		<Unit filename="..\..\src\graphics\stenciltestsettings.cpp" />
-		<Unit filename="..\..\src\graphics\vertexshader.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

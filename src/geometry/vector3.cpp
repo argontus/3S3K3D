@@ -190,6 +190,15 @@ const Vector3 operator /(const Vector3& v, const float k)
     );
 }
 
+float angleBetween(const Vector3& a, const Vector3& b)
+{
+    const Vector3 ua = normalize(a);
+    const Vector3 ub = normalize(b);
+
+    // dot(ua, ub) = cos(angle) -> angle = acos(dot(ua, ub))
+    return Math::acos(dot(ua, ub));
+}
+
 float distance(const Vector3& a, const Vector3& b)
 {
     return length(b - a);

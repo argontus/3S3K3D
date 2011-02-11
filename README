@@ -2,19 +2,29 @@
                           SUPER SPACE SHOOTER 3000 3D
 ===============================================================================
 
-SETTING UP THE DEVELOPMENT ENVIRONMENT
+== INSTALLING THE EXTERNAL LIBRARIES ON MINGW ==
 
-The Code::Blocks projects assume that the 'bin', 'include' and 'lib' folders
-contain all files needed for using the external libraries. To build and link
-the projects, you must:
+=== IN SHORT ===
+
+On MinGW, the easiest way to install the external libraries is to:
+
+* Download http://student.labranet.jamk.fi/~e6299/mingw_package.zip
+* Extract it to the repo root directory
+* That's it
+
+
+=== IN DETAIL ===
+
+The MinGW Code::Blocks projects assume that the 'bin', 'include' and 'lib'
+folders contain all files needed for using the external libraries. To build and
+link the projects, you must:
 
 * Add dynamically linked external library files under the 'bin' folder
 * Add external library header file folders under the 'include' folder
 * Add statically linked external library files under the 'lib' folder
 
-The 'mingw_package.zip' containing all files needed for using the external
-libraries on MinGW and the Code::Blocks project files needed for building the
-external libraries GLEW, LIB3DS and LUA can be downloaded from:
+The Code::Blocks project files needed for building the external libraries GLEW,
+LIB3DS and LUA can be downloaded from:
 
 http://student.labranet.jamk.fi/~e6299/
 
@@ -22,8 +32,8 @@ The prebuilt development libraries for SDL 1.2.14 can be downloaded from:
 
 http://www.libsdl.org/download-1.2.php
 
-After all external libraries have been successfully 'installed', on MinGW, the
-'bin', 'include' and 'lib' folder structures should look like:
+After all external libraries have been successfully installed, the 'bin',
+'include' and 'lib' folder structures should look like:
 
 /bin
     lib3ds.dll
@@ -50,6 +60,8 @@ After all external libraries have been successfully 'installed', on MinGW, the
     liblua.dll.a
     libSDL.dll.a
 
-TODO: What are the corresponding extensions of .dll and .dll.a files on linux?
 
-Happy coding!
+
+== INSTALLING THE EXTERNAL LIBRARIES ON LINUX ==
+
+TODO: ...

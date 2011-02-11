@@ -231,6 +231,7 @@ private:
     float scaling_;         ///< Uniform scale factor, must be > 0.
 };
 
+// TODO: is the documentation for this function understandable?
 /**
  * Calculates a conversion between local spaces of two transforms.
  *
@@ -254,6 +255,15 @@ const Transform3 conversion(const Transform3& src, const Transform3& dst);
  * equal to <code>b.applyForward(a.applyForward(v))</code>.
  */
 const Transform3 product(const Transform3& a, const Transform3& b);
+
+/**
+ * Calculates the inverse transform of a given transform.
+ *
+ * @param t The transform whose inverse transform is to be calculated.
+ *
+ * @return The inverse transform of <code>t</code>.
+ */
+const Transform3 invert(const Transform3& t);
 
 template <class In, class Out>
 void Transform3::applyForward(In first, const In last, Out result) const

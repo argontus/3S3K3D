@@ -33,7 +33,7 @@ const std::string Shader::sourceText() const
     GLint size = 0;
     glGetShaderiv(id_, GL_SHADER_SOURCE_LENGTH, &size);
 
-    // fetch the source text to a character buffer
+    // fetch the NUL-terminated source text to a character buffer
     std::vector<GLchar> buffer(size);
     glGetShaderSource(id_, size, 0, buffer.data());
 
@@ -60,7 +60,7 @@ const std::string Shader::infoLog() const
     GLint size = 0;
     glGetShaderiv(id_, GL_INFO_LOG_LENGTH, &size);
 
-    // fetch the info log to a character buffer
+    // fetch the NUL-terminated info log to a character buffer
     std::vector<GLchar> buffer(size);
     glGetShaderInfoLog(id_, size, 0, buffer.data());
 

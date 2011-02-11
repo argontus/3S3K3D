@@ -191,6 +191,15 @@ float angle(const Vector2& v)
     }
 }
 
+float angleBetween(const Vector2& a, const Vector2& b)
+{
+    const Vector2 ua = normalize(a);
+    const Vector2 ub = normalize(b);
+
+    // dot(ua, ub) = cos(angle) -> angle = acos(dot(ua, ub))
+    return Math::acos(dot(ua, ub));
+}
+
 float distance(const Vector2& a, const Vector2& b)
 {
     return length(b - a);

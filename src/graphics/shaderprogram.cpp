@@ -86,7 +86,8 @@ int32_t ShaderProgram::fragDataLocation(const std::string& name) const
 
 void ShaderProgram::link()
 {
-    // synchronize states of the stored OpenGL program object and this object
+    // synchronize states of the referenced OpenGL program object and this
+    // object
     detachShaders();
     attachShaders();
 
@@ -122,7 +123,7 @@ const std::string ShaderProgram::infoLog() const
     GLint size = 0;
     glGetProgramiv(id_, GL_INFO_LOG_LENGTH, &size);
 
-    // fetch the info log to a character buffer
+    // fetch the NUL-terminated info log to a character buffer
     std::vector<GLchar> buffer(size);
     glGetProgramInfoLog(id_, size, 0, buffer.data());
 
