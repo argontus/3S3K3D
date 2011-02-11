@@ -646,7 +646,7 @@ void drawExtents(const Node* node, const DrawParams& params)
 
 void GameProgram::tick( const float deltaTime )
 {
-    // does nothing for now
+    SDL_WarpMouse( width/2, height/2 );
 }
 
 void GameProgram::onQuit()
@@ -711,6 +711,22 @@ void GameProgram::onKeyDown( const SDL_KeyboardEvent& keyboardEvent )
 
         default:
             break;
+    }
+}
+
+void GameProgram::onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent )
+{
+    const int deltaX = mouseMotionEvent.x-width/2;
+    const int deltaY = mouseMotionEvent.y-height/2;
+    const float rotationFactor = 0.005f;
+
+    if( deltaX != 0 )
+    {
+        camera_->rotateBy(Matrix3x3::yRotation(deltaX * -rotationFactor));
+    }
+
+    if( deltaY != 0 ) {
+        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor));
     }
 }
 

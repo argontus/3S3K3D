@@ -134,6 +134,8 @@ class GameWindow
         //SDL_GLContext maincontext; /* opengl context handle */
         SDL_Surface* mainwindow;
         float aspectRatio;
+        int width;
+        int height;
 };
 
 #endif // GAMEWINDOW_H
