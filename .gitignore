@@ -1,5 +1,6 @@
 bin/*.dll
 bin/*.exe
+bin/gamed
 codeblocks/game/obj/
 codeblocks/game/*.cbTemp
 codeblocks/game/*.depend
@@ -12,6 +13,10 @@ codeblocks/graphics/obj/
 codeblocks/graphics/*.cbTemp
 codeblocks/graphics/*.depend
 codeblocks/graphics/*.layout
+codeblocks/input/obj/
+codeblocks/input/*.cbTemp
+codeblocks/input/*.depend
+codeblocks/input/*.layout
 codeblocks/*.cbTemp
 doc/doxygen/html/
 include/glew/
@@ -19,3 +24,6 @@ include/lib3ds/
 include/lua/
 include/SDL/
 lib/
+*.depend
+*.layout
+*.cbp
