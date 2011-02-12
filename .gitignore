@@ -2,6 +2,7 @@ bin/data/images/
 bin/data/models/
 bin/*.dll
 bin/*.exe
+bin/game
 bin/gamed
 codeblocks/game/obj/
 codeblocks/game/*.cbTemp
