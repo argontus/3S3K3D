@@ -30,15 +30,21 @@
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="../../include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="SDL" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add directory="../../include" />
 		</Compiler>
+		<Linker>
+			<Add library="SDL" />
+		</Linker>
 		<Unit filename="../../include/input/keyboard.h" />
 		<Unit filename="../../include/input/sdlkeyboard.h" />
 		<Unit filename="../../src/input/keyboard.cpp" />
