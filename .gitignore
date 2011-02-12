@@ -1,3 +1,5 @@
+bin/data/images/
+bin/data/models/
 bin/*.dll
 bin/*.exe
 codeblocks/game/obj/
