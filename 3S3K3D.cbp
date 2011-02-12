@@ -126,6 +126,7 @@
 		<Unit filename="include/graphics/stenciltestsettings.h" />
 		<Unit filename="include/graphics/vertexshader.h" />
 		<Unit filename="include/input/keyboard.h" />
+		<Unit filename="include/input/sdlkeyboard.h" />
 		<Unit filename="src/game/gameprogram.cpp" />
 		<Unit filename="src/game/gameprogram.h" />
 		<Unit filename="src/game/gamewindow.cpp" />
@@ -173,6 +174,7 @@
 		<Unit filename="src/graphics/stenciltestsettings.cpp" />
 		<Unit filename="src/graphics/vertexshader.cpp" />
 		<Unit filename="src/input/keyboard.cpp" />
+		<Unit filename="src/input/sdlkeyboard.cpp" />
 		<Extensions>
 			<envvars />
 			<code_completion />
