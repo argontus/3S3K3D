@@ -24,6 +24,3 @@ include/lib3ds/
 include/lua/
 include/SDL/
 lib/
-*.depend
-*.layout
-*.cbp
