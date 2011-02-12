@@ -8,11 +8,13 @@
 
 #include <SDL/SDL.h>
 #include "gamewindow.h"
+#include "input/sdlkeyboard.h"
 
 #include <graphics/resourcemanager.h>
 #include <graphics/vertexshader.h>
 #include <graphics/fragmentshader.h>
 #include <graphics/shaderprogram.h>
+#include <geometry/vector3.h>
 
 // TODO: quick & dirty
 class CameraNode;
@@ -105,7 +107,9 @@ public:
 	 *
 	 * @param keyboardEvent keyboard event to handle.
 	 */
-	virtual void onKeyDown( const SDL_KeyboardEvent& keyboardEvent );
+	//virtual void onKeyDown( const SDL_KeyboardEvent& keyboardEvent );
+
+    virtual void onKeyUp( const SDL_KeyboardEvent& keyboardEvent );
 
 	virtual void onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent );
 
@@ -114,6 +118,12 @@ private:
 	Uint32 deltaTicks; /* ticks between last frame and current frame */
 	float deltaTime;
 	static const Uint32 ticksPerSecond = 1000;
+	Vector3 cameraVelocity;
+	float cameraSpeedX;
+	float cameraSpeedY;
+	float cameraSpeedZ;
+	SDLKeyboard keyboard;
+
 
     // TODO: quick & dirty
     CameraNode* camera_;

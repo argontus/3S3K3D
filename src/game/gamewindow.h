@@ -129,6 +129,16 @@ class GameWindow
                                 const SDL_MouseButtonEvent& mouseButtonEvent
                                      );
 
+        /**
+         * Binds mouse to the window.
+         */
+         virtual void bindMouse();
+
+         /**
+          * Releases mouse binding from the window.
+          */
+         virtual void releaseMouse();
+
     protected:
         //SDL_WindowID mainwindow; /* window handle */
         //SDL_GLContext maincontext; /* opengl context handle */
@@ -136,6 +146,8 @@ class GameWindow
         float aspectRatio;
         int width;
         int height;
+        bool mouseVisible;
+        bool mouseBoundToScreen;
 };
 
 #endif // GAMEWINDOW_H
