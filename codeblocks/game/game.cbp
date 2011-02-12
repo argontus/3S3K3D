@@ -7,26 +7,26 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="linux_debug">
-				<Option output="..\..\bin\gamed" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="..\..\bin" />
-				<Option object_output="obj\linux_debug\" />
+				<Option output="../../bin/gamed" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../bin" />
+				<Option object_output="obj/linux_debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add library="..\..\lib\libgeometryd.a" />
-					<Add library="..\..\lib\libgraphicsd.a" />
+					<Add library="../../lib/libgeometryd.a" />
+					<Add library="../../lib/libgraphicsd.a" />
 					<Add library="GL" />
 					<Add library="GLEW" />
 					<Add library="SDL" />
 				</Linker>
 			</Target>
 			<Target title="linux_release">
-				<Option output="..\..\bin\game" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="..\..\bin" />
-				<Option object_output="obj\linux_release\" />
+				<Option output="../../bin/game" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../bin" />
+				<Option object_output="obj/linux_release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -34,34 +34,34 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="..\..\lib\libgeometry.a" />
-					<Add library="..\..\lib\libgraphics.a" />
+					<Add library="../../lib/libgeometry.a" />
+					<Add library="../../lib/libgraphics.a" />
 					<Add library="GL" />
 					<Add library="GLEW" />
 					<Add library="SDL" />
 				</Linker>
 			</Target>
 			<Target title="mingw_debug">
-				<Option output="..\..\bin\gamed" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="..\..\bin" />
-				<Option object_output="obj\mingw_debug\" />
+				<Option output="../../bin/gamed" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../bin" />
+				<Option object_output="obj/mingw_debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add library="..\..\lib\libgeometryd.a" />
-					<Add library="..\..\lib\libgraphicsd.a" />
-					<Add library="..\..\lib\libglew.dll.a" />
-					<Add library="..\..\lib\libSDL.dll.a" />
+					<Add library="../../lib/libgeometryd.a" />
+					<Add library="../../lib/libgraphicsd.a" />
+					<Add library="../../lib/libglew.dll.a" />
+					<Add library="../../lib/libSDL.dll.a" />
 					<Add library="libopengl32.a" />
 				</Linker>
 			</Target>
 			<Target title="mingw_release">
-				<Option output="..\..\bin\game" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="..\..\bin" />
-				<Option object_output="obj\mingw_release\" />
+				<Option output="../../bin/game" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../bin" />
+				<Option object_output="obj/mingw_release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -69,10 +69,10 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="..\..\lib\libgeometry.a" />
-					<Add library="..\..\lib\libgraphics.a" />
-					<Add library="..\..\lib\libglew.dll.a" />
-					<Add library="..\..\lib\libSDL.dll.a" />
+					<Add library="../../lib/libgeometry.a" />
+					<Add library="../../lib/libgraphics.a" />
+					<Add library="../../lib/libglew.dll.a" />
+					<Add library="../../lib/libSDL.dll.a" />
 					<Add library="libopengl32.a" />
 				</Linker>
 			</Target>
@@ -80,19 +80,110 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
-			<Add directory="..\..\include" />
+			<Add directory="../../include" />
 		</Compiler>
 		<Linker>
-			<Add directory="..\..\lib" />
+			<Add directory="../../lib" />
 		</Linker>
-		<Unit filename="..\..\src\game\gameprogram.cpp" />
-		<Unit filename="..\..\src\game\gameprogram.h" />
-		<Unit filename="..\..\src\game\gamewindow.cpp" />
-		<Unit filename="..\..\src\game\gamewindow.h" />
-		<Unit filename="..\..\src\game\main.cpp" />
+		<Unit filename="../../include/geometry/extents2.h" />
+		<Unit filename="../../include/geometry/extents3.h" />
+		<Unit filename="../../include/geometry/interval.h" />
+		<Unit filename="../../include/geometry/line2.h" />
+		<Unit filename="../../include/geometry/line3.h" />
+		<Unit filename="../../include/geometry/linesegment2.h" />
+		<Unit filename="../../include/geometry/linesegment3.h" />
+		<Unit filename="../../include/geometry/math.h" />
+		<Unit filename="../../include/geometry/matrix2x2.h" />
+		<Unit filename="../../include/geometry/matrix3x3.h" />
+		<Unit filename="../../include/geometry/matrix4x4.h" />
+		<Unit filename="../../include/geometry/plane2.h" />
+		<Unit filename="../../include/geometry/plane3.h" />
+		<Unit filename="../../include/geometry/ray2.h" />
+		<Unit filename="../../include/geometry/ray3.h" />
+		<Unit filename="../../include/geometry/runtimeassert.h" />
+		<Unit filename="../../include/geometry/staticassert.h" />
+		<Unit filename="../../include/geometry/transform2.h" />
+		<Unit filename="../../include/geometry/transform3.h" />
+		<Unit filename="../../include/geometry/vector2.h" />
+		<Unit filename="../../include/geometry/vector2array.h" />
+		<Unit filename="../../include/geometry/vector3.h" />
+		<Unit filename="../../include/geometry/vector3array.h" />
+		<Unit filename="../../include/graphics/blendsettings.h" />
+		<Unit filename="../../include/graphics/cameranode.h" />
+		<Unit filename="../../include/graphics/color.h" />
+		<Unit filename="../../include/graphics/colorarray.h" />
+		<Unit filename="../../include/graphics/culltestsettings.h" />
+		<Unit filename="../../include/graphics/depthtestsettings.h" />
+		<Unit filename="../../include/graphics/drawparams.h" />
+		<Unit filename="../../include/graphics/fragmentshader.h" />
+		<Unit filename="../../include/graphics/geometrynode.h" />
+		<Unit filename="../../include/graphics/groupnode.h" />
+		<Unit filename="../../include/graphics/indexarray.h" />
+		<Unit filename="../../include/graphics/meshnode.h" />
+		<Unit filename="../../include/graphics/node.h" />
+		<Unit filename="../../include/graphics/opengl.h" />
+		<Unit filename="../../include/graphics/predrawparams.h" />
+		<Unit filename="../../include/graphics/projectionsettings.h" />
+		<Unit filename="../../include/graphics/renderqueue.h" />
+		<Unit filename="../../include/graphics/resourcemanager.h" />
+		<Unit filename="../../include/graphics/runtimeassert.h" />
+		<Unit filename="../../include/graphics/shader.h" />
+		<Unit filename="../../include/graphics/shaderprogram.h" />
+		<Unit filename="../../include/graphics/staticassert.h" />
+		<Unit filename="../../include/graphics/stenciltestsettings.h" />
+		<Unit filename="../../include/graphics/vertexshader.h" />
+		<Unit filename="../../include/input/keyboard.h" />
+		<Unit filename="../../include/input/sdlkeyboard.h" />
+		<Unit filename="../../src/game/gameprogram.cpp" />
+		<Unit filename="../../src/game/gameprogram.h" />
+		<Unit filename="../../src/game/gamewindow.cpp" />
+		<Unit filename="../../src/game/gamewindow.h" />
+		<Unit filename="../../src/game/main.cpp" />
+		<Unit filename="../../src/geometry/extents2.cpp" />
+		<Unit filename="../../src/geometry/extents3.cpp" />
+		<Unit filename="../../src/geometry/interval.cpp" />
+		<Unit filename="../../src/geometry/line2.cpp" />
+		<Unit filename="../../src/geometry/line3.cpp" />
+		<Unit filename="../../src/geometry/linesegment2.cpp" />
+		<Unit filename="../../src/geometry/linesegment3.cpp" />
+		<Unit filename="../../src/geometry/math.cpp" />
+		<Unit filename="../../src/geometry/matrix2x2.cpp" />
+		<Unit filename="../../src/geometry/matrix3x3.cpp" />
+		<Unit filename="../../src/geometry/matrix4x4.cpp" />
+		<Unit filename="../../src/geometry/plane2.cpp" />
+		<Unit filename="../../src/geometry/plane3.cpp" />
+		<Unit filename="../../src/geometry/ray2.cpp" />
+		<Unit filename="../../src/geometry/ray3.cpp" />
+		<Unit filename="../../src/geometry/transform2.cpp" />
+		<Unit filename="../../src/geometry/transform3.cpp" />
+		<Unit filename="../../src/geometry/vector2.cpp" />
+		<Unit filename="../../src/geometry/vector2array.cpp" />
+		<Unit filename="../../src/geometry/vector3.cpp" />
+		<Unit filename="../../src/geometry/vector3array.cpp" />
+		<Unit filename="../../src/graphics/blendsettings.cpp" />
+		<Unit filename="../../src/graphics/cameranode.cpp" />
+		<Unit filename="../../src/graphics/color.cpp" />
+		<Unit filename="../../src/graphics/colorarray.cpp" />
+		<Unit filename="../../src/graphics/culltestsettings.cpp" />
+		<Unit filename="../../src/graphics/depthtestsettings.cpp" />
+		<Unit filename="../../src/graphics/drawparams.cpp" />
+		<Unit filename="../../src/graphics/fragmentshader.cpp" />
+		<Unit filename="../../src/graphics/geometrynode.cpp" />
+		<Unit filename="../../src/graphics/groupnode.cpp" />
+		<Unit filename="../../src/graphics/indexarray.cpp" />
+		<Unit filename="../../src/graphics/meshnode.cpp" />
+		<Unit filename="../../src/graphics/node.cpp" />
+		<Unit filename="../../src/graphics/predrawparams.cpp" />
+		<Unit filename="../../src/graphics/projectionsettings.cpp" />
+		<Unit filename="../../src/graphics/renderqueue.cpp" />
+		<Unit filename="../../src/graphics/shader.cpp" />
+		<Unit filename="../../src/graphics/shaderprogram.cpp" />
+		<Unit filename="../../src/graphics/stenciltestsettings.cpp" />
+		<Unit filename="../../src/graphics/vertexshader.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

@@ -4,10 +4,12 @@
 		<Project filename="game/game.cbp" active="1">
 			<Depends filename="geometry/geometry.cbp" />
 			<Depends filename="graphics/graphics.cbp" />
+			<Depends filename="input/input.cbp" />
 		</Project>
 		<Project filename="geometry/geometry.cbp" />
 		<Project filename="graphics/graphics.cbp">
 			<Depends filename="geometry/geometry.cbp" />
 		</Project>
+		<Project filename="input/input.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
