@@ -1,9 +1,8 @@
 bin/data/images/
 bin/data/models/
 bin/*.dll
-bin/*.exe
-bin/game
-bin/gamed
+bin/*.so
+bin/game*
 codeblocks/game_linux/obj/
 codeblocks/game_linux/*.cbTemp
 codeblocks/game_linux/*.depend
