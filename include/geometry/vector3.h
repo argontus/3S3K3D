@@ -224,6 +224,18 @@ const Vector3 operator *(const Vector3& v, float k);
 const Vector3 operator /(const Vector3& v, float k);
 
 /**
+ * Calculates the angle between two vectors in radians. The magnitude (length)
+ * of the given vectors cannot be zero.
+ *
+ * @param a The first vector.
+ * @param b The other vector.
+ *
+ * @return The angle between <code>a</code> and <code>b</code> in radians,
+ * between [0, pi].
+ */
+float angleBetween(const Vector3& a, const Vector3& b);
+
+/**
  * Calculates the distance between two points.
  *
  * @param a The first point.

@@ -1,9 +1,9 @@
 /**
- *  @file core/gameprogram.cpp
- *  @author Marko Silokunnas
+ * @file game/gameprogram.cpp
+ * @author Marko Silokunnas
  */
 
-#include <core/gameprogram.h>
+#include "gameprogram.h"
 
 #include <iostream>
 
@@ -383,16 +383,35 @@ int GameProgram::execute()
 	    deltaTicks = currentTicks - lastTicks;
 	    deltaTime = deltaTicks / 1000.0f;
 
-        //std::cout << "FPS: " << 1.0/deltaTime << std::endl;
-
 		while( SDL_PollEvent( &event ) ) {
 			onEvent( event );
 		}
+
+        // quick&dirty, write a function for these or something
+        static const float speed = 10.0f;
+		if( keyboard.keyIsDown( Keyboard::KEY_D ) )
+		{
+            camera_->translateBy( deltaTime * camera_->rotation().row(0) * speed );
+		}
+		else if( keyboard.keyIsDown( Keyboard::KEY_A ) )
+        {
+            camera_->translateBy( deltaTime * camera_->rotation().row(0) * -speed );
+        }
+
+        if( keyboard.keyIsDown( Keyboard::KEY_W) )
+        {
+            camera_->translateBy(deltaTime * -speed * camera_->rotation().row(2));
+        }
+        else if( keyboard.keyIsDown( Keyboard::KEY_S ) )
+        {
+            camera_->translateBy(deltaTime * speed * camera_->rotation().row(2));
+        }
 
 		tick( deltaTime );
 
 		render();
 		lastTicks = currentTicks;
+		keyboard.updateKeyboardState();
 	}
 
     std::cout << "Leaving main loop." << std::endl;
@@ -607,11 +626,9 @@ void GameProgram::onQuit()
 {
     running = false;
 }
-
+/*
 void GameProgram::onKeyDown( const SDL_KeyboardEvent& keyboardEvent )
 {
-    const float translationFactor = 50.0f;
-    const float rotationFactor = 1.0f;
     const float cameraSpeed = 1.0f;
 
     switch( keyboardEvent.keysym.sym )
@@ -678,6 +695,7 @@ void GameProgram::onKeyDown( const SDL_KeyboardEvent& keyboardEvent )
             break;
     }
 }
+*/
 
 void GameProgram::onKeyUp( const SDL_KeyboardEvent& keyboardEvent )
 {

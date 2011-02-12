@@ -1,9 +1,8 @@
-
 /**
- *  @file core/gamwindow.h
- *  @author Marko Silokunnas
- *
+ * @file game/gamwindow.h
+ * @author Marko Silokunnas
  */
+
 #ifndef GAMEWINDOW_H
 #define GAMEWINDOW_H
 

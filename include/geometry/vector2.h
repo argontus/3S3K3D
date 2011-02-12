@@ -228,9 +228,22 @@ const Vector2 operator /(const Vector2& v, float k);
  *
  * @param v The direction vector whose angle is to be calculated.
  *
- * @return Angle of direction vector <code>v</code> in radians.
+ * @return Angle of direction vector <code>v</code> in radians, between
+ * [0, 2*pi). The angle of x-axis is 0, and the angle of y-axis is pi/2.
  */
 float angle(const Vector2& v);
+
+/**
+ * Calculates the angle between two vectors in radians. The magnitude (length)
+ * of the given vectors cannot be zero.
+ *
+ * @param a The first vector.
+ * @param b The other vector.
+ *
+ * @return The angle between <code>a</code> and <code>b</code> in radians,
+ * between [0, pi].
+ */
+float angleBetween(const Vector2& a, const Vector2& b);
 
 /**
  * Calculates the distance between two points.

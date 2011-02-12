@@ -12,7 +12,6 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#define GLEW_STATIC
 #include <windows.h>
 
 #ifdef max
@@ -33,6 +32,6 @@
 
 #endif // #ifdef WIN32
 
-#include <GL/glew.h>
+#include <glew/glew.h>
 
 #endif // #ifndef GRAPHICS_OPENGL_H_INCLUDED

@@ -1,21 +1,13 @@
 /**
- * @file main.cpp
+ * @file game/main.cpp
  * @author Marko Silokunnas
  *
  * Entry point of the program.
  */
 
-#include "include/core/gameprogram.h"
 #include <SDL/SDL.h>
 
-#ifdef __linux__
-int main(int argc, char *argv[])
-{
-	GameProgram gameProgram;
-
-    return gameProgram.execute();
-}
-#endif
+#include "gameprogram.h"
 
 #ifdef WIN32
 
@@ -28,7 +20,14 @@ int main(int argc, char *argv[])
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
     GameProgram gameProgram;
+    return gameProgram.execute();
+}
 
+#else
+
+int main(int argc, char *argv[])
+{
+	GameProgram gameProgram;
     return gameProgram.execute();
 }
 

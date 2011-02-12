@@ -197,3 +197,18 @@ const Transform3 product(const Transform3& a, const Transform3& b)
         a.scaling() * b.scaling()
     );
 }
+
+const Transform3 invert(const Transform3& t)
+{
+    GEOMETRY_RUNTIME_ASSERT(t.scaling() > 0.0f);
+
+    // inverse rotation and scaling
+    const Matrix3x3 invRotation = transpose(t.rotation());
+    const float invScaling = 1.0f / t.scaling();
+
+    return Transform3(
+        product(-invScaling * t.translation(), invRotation),
+        invRotation,
+        invScaling
+    );
+}

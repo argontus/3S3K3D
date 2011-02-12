@@ -1,9 +1,9 @@
 /**
- *  @file core/gamewindow.cpp
- *  @author Marko Silokunnas
+ * @file game/gamewindow.cpp
+ * @author Marko Silokunnas
  */
 
-#include <core/gamewindow.h>
+#include "gamewindow.h"
 
 #include <SDL/SDL.h>
 #include <graphics/opengl.h>
@@ -30,7 +30,7 @@ bool GameWindow::init()
 	//TODO: read these from a configuration file.
 	width       = 800;  // 1280
 	height      = 600;  // 800
-	int flags       = SDL_HWACCEL | SDL_GL_DOUBLEBUFFER  | SDL_OPENGL;
+	int flags   = SDL_HWACCEL | SDL_GL_DOUBLEBUFFER | SDL_OPENGL;
 
 	if( SDL_Init(SDL_INIT_EVERYTHING) < 0 ) {
 		std::cerr << "SDL initialization failed: " << SDL_GetError();
@@ -110,6 +110,7 @@ void GameWindow::onWindowResize( const int width, const int height )
 {
     resizeWindow( width, height );
 }
+
 
 void GameWindow::onFocusGained()
 {

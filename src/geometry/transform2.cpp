@@ -154,3 +154,18 @@ const Transform2 product(const Transform2& a, const Transform2& b)
         a.scaling() * b.scaling()
     );
 }
+
+const Transform2 invert(const Transform2& t)
+{
+    GEOMETRY_RUNTIME_ASSERT(t.scaling() > 0.0f);
+
+    // inverse rotation and scaling
+    const Matrix2x2 invRotation = Matrix2x2::rotation(-t.rotation());
+    const float invScaling = 1.0f / t.scaling();
+
+    return Transform2(
+        product(-invScaling * t.translation(), invRotation),
+        -t.rotation(),
+        invScaling
+    );
+}
