@@ -30,8 +30,15 @@
 #undef far
 #endif
 
+#include <glew/glew.h>
+
 #endif // #ifdef WIN32
 
-#include <glew/glew.h>
+#ifdef __linux__
+
+#include <GL/glew.h>
+
+
+#endif
 
 #endif // #ifndef GRAPHICS_OPENGL_H_INCLUDED

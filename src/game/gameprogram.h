@@ -8,6 +8,7 @@
 
 #include <SDL/SDL.h>
 #include "gamewindow.h"
+#include "input/sdlkeyboard.h"
 
 #include <graphics/resourcemanager.h>
 #include <graphics/vertexshader.h>
@@ -106,7 +107,7 @@ public:
 	 *
 	 * @param keyboardEvent keyboard event to handle.
 	 */
-	virtual void onKeyDown( const SDL_KeyboardEvent& keyboardEvent );
+	//virtual void onKeyDown( const SDL_KeyboardEvent& keyboardEvent );
 
     virtual void onKeyUp( const SDL_KeyboardEvent& keyboardEvent );
 
@@ -121,6 +122,8 @@ private:
 	float cameraSpeedX;
 	float cameraSpeedY;
 	float cameraSpeedZ;
+	SDLKeyboard keyboard;
+
 
     // TODO: quick & dirty
     CameraNode* camera_;
