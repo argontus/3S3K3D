@@ -26,7 +26,7 @@ class SDLKeyboard : public Keyboard
         virtual bool keyWasPressedInThisFrame( KEYS key );
         virtual bool keyWasReleasedInThisFrame( KEYS key );
 
-        virtual bool updateKeyboardState();
+        virtual void updateKeyboardState();
 
     private:
         /**

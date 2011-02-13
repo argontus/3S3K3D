@@ -108,7 +108,7 @@ bool SDLKeyboard::keyWasReleasedInThisFrame( KEYS key )
     return false;
 }
 
-bool SDLKeyboard::updateKeyboardState() {
+void SDLKeyboard::updateKeyboardState() {
     ::memcpy(  keyboardStateInLastFrame,
                 keyboardState,
                 sizeof(Uint8)*keysOnKeyboard );

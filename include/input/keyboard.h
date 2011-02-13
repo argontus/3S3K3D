@@ -108,7 +108,7 @@ class Keyboard
          * Saves the current state of the keyboard as it's last state.
          * Should be called once in a frame.
          */
-        virtual bool updateKeyboardState() = 0;
+        virtual void updateKeyboardState() = 0;
 
     protected:
         static const int numberOfKeys = 47;
