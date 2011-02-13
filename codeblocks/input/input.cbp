@@ -46,9 +46,13 @@
 			<Add library="SDL" />
 		</Linker>
 		<Unit filename="../../include/input/keyboard.h" />
+		<Unit filename="../../include/input/mouse.h" />
 		<Unit filename="../../include/input/sdlkeyboard.h" />
+		<Unit filename="../../include/input/sdlmouse.h" />
 		<Unit filename="../../src/input/keyboard.cpp" />
+		<Unit filename="../../src/input/mouse.cpp" />
 		<Unit filename="../../src/input/sdlkeyboard.cpp" />
+		<Unit filename="../../src/input/sdlmouse.cpp" />
 		<Extensions>
 			<envvars />
 			<code_completion />
