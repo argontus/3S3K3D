@@ -2,6 +2,11 @@
                           SUPER SPACE SHOOTER 3000 3D
 ===============================================================================
 
+== INSTALLING THE EXTERNAL LIBRARIES ON LINUX ==
+
+TODO: ...
+
+
 == INSTALLING THE EXTERNAL LIBRARIES ON MINGW ==
 
 === IN SHORT ===
@@ -32,6 +37,8 @@ The prebuilt development libraries for SDL 1.2.14 can be downloaded from:
 
 http://www.libsdl.org/download-1.2.php
 
+OpenGL comes with MinGW and should already be installed on your system.
+
 After all external libraries have been successfully installed, the 'bin',
 'include' and 'lib' folder structures should look like:
 
@@ -59,9 +66,3 @@ After all external libraries have been successfully installed, the 'bin',
     libglew.dll.a
     liblua.dll.a
     libSDL.dll.a
-
-
-
-== INSTALLING THE EXTERNAL LIBRARIES ON LINUX ==
-
-TODO: ...
