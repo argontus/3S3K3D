@@ -377,6 +377,13 @@ int GameProgram::execute()
 
     std::cout << "Entering main loop..." << std::endl;
 
+    if( mouseBoundToScreen )
+    {
+        mouse.bindMouse();
+        mouse.setMouseBindPointX( width/2 );
+        mouse.setMouseBindPointY( height/2 );
+    }
+
 	while( running ) {
         currentTicks = SDL_GetTicks();
 
@@ -387,7 +394,7 @@ int GameProgram::execute()
 			onEvent( event );
 		}
 
-        // quick&dirty, write a function for these or something
+        // TODO: quick&dirty, write a function for these or something
         static const float speed = 10.0f;
 		if( keyboard.keyIsDown( Keyboard::KEY_D ) )
 		{
@@ -407,11 +414,46 @@ int GameProgram::execute()
             camera_->translateBy(deltaTime * speed * camera_->rotation().row(2));
         }
 
+        int deltaX;
+        int deltaY;
+
+        deltaX = mouse.getMouseDeltaX();
+        deltaY = mouse.getMouseDeltaY();
+
+        const float rotationFactor = 0.005;
+
+        if( deltaX != 0 )
+        {
+            camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(1), deltaX * -rotationFactor));
+
+        }
+
+        if( deltaY != 0 )
+        {
+            camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor));
+        }
+
+        if( mouse.mouseButtonPressedInThisFrame( Mouse::MOUSEBUTTON_LEFT ) )
+        {
+            std::cout << "left mouse button pressed!" << std::endl;
+        }
+        if( mouse.mouseButtonPressedInThisFrame( Mouse::MOUSEBUTTON_RIGHT ) )
+        {
+            std::cout << "ŕight mouse button pressed!" << std::endl;
+        }
+        if( mouse.mouseButtonPressedInThisFrame( Mouse::MOUSEBUTTON_MIDDLE ) )
+        {
+            std::cout << "middle mouse button pressed!" << std::endl;
+        }
+
 		tick( deltaTime );
+
+		keyboard.updateKeyboardState();
+		mouse.updateMouse();
 
 		render();
 		lastTicks = currentTicks;
-		keyboard.updateKeyboardState();
+
 	}
 
     std::cout << "Leaving main loop." << std::endl;
@@ -605,7 +647,7 @@ void GameProgram::tick( const float deltaTime )
     {
         SDL_WarpMouse( width/2, height/2 );
     }
-
+/*
     if( cameraSpeedX != 0 )
     {
         camera_->translateBy( camera_->rotation().row(0) * cameraSpeedX );
@@ -620,6 +662,7 @@ void GameProgram::tick( const float deltaTime )
     {
         camera_->translateBy( camera_->rotation().row(2) * cameraSpeedZ );
     }
+    */
 }
 
 void GameProgram::onQuit()
@@ -697,6 +740,7 @@ void GameProgram::onKeyDown( const SDL_KeyboardEvent& keyboardEvent )
 }
 */
 
+/*
 void GameProgram::onKeyUp( const SDL_KeyboardEvent& keyboardEvent )
 {
  switch( keyboardEvent.keysym.sym )
@@ -719,7 +763,9 @@ void GameProgram::onKeyUp( const SDL_KeyboardEvent& keyboardEvent )
     }
 
 }
+*/
 
+/*
 void GameProgram::onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent )
 {
     int deltaX = mouseMotionEvent.x-width/2;
@@ -738,6 +784,7 @@ void GameProgram::onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent )
     }
 
 }
+*/
 
 GameProgram::~GameProgram()
 {
