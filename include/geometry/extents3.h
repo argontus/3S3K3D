@@ -8,6 +8,7 @@
 
 #include <geometry/vector3.h>
 
+class Interval;
 class Matrix3x3;
 class Transform3;
 
@@ -138,6 +139,16 @@ public:
      * @param other The AABB to enclose.
      */
     void growToContain(const Extents3& other);
+
+    /**
+     * Calculates the interval of this AABB along a given axis. If this AABB is
+     * empty, the returned interval will be empty.
+     *
+     * @param axis The axis along which the interval is to be calculated.
+     *
+     * @return The calculated interval.
+     */
+    const Interval intervalAlong(const Vector3& axis) const;
 
     /**
      * Applies a tranform to this AABB. <code>*this</code> is set to an AABB

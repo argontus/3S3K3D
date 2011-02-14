@@ -7,6 +7,7 @@
 
 #include <limits>
 
+#include <geometry/interval.h>
 #include <geometry/transform2.h>
 
 Extents2::Extents2()
@@ -95,6 +96,45 @@ void Extents2::growToContain(const Extents2& other)
 
     if (other.min.y < min.y) min.y = other.min.y;
     if (max.y < other.max.y) max.y = other.max.y;
+}
+
+const Interval Extents2::intervalAlong(const Vector2& axis) const
+{
+    if (isEmpty())
+    {
+        // return an empty interval
+        return Interval();
+    }
+
+    // This optimization is based on the fact that if this AABR is not empty,
+    // then all minimum extents are less than or equal to their corresponding
+    // maximum extents.
+
+    Interval interval(0.0f, 0.0f);
+
+    if (axis.x >= 0.0f)
+    {
+        interval.min += axis.x * min.x;
+        interval.max += axis.x * max.x;
+    }
+    else
+    {
+        interval.min += axis.x * max.x;
+        interval.max += axis.x * min.x;
+    }
+
+    if (axis.y >= 0.0f)
+    {
+        interval.min += axis.y * min.y;
+        interval.max += axis.y * max.y;
+    }
+    else
+    {
+        interval.min += axis.y * max.y;
+        interval.max += axis.y * min.y;
+    }
+
+    return interval;
 }
 
 void Extents2::transformBy(const Transform2& transform)

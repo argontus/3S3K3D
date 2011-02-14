@@ -7,6 +7,7 @@
 
 #include <limits>
 
+#include <geometry/interval.h>
 #include <geometry/transform3.h>
 
 Extents3::Extents3()
@@ -109,6 +110,56 @@ void Extents3::growToContain(const Extents3& other)
 
     if (other.min.z < min.z) min.z = other.min.z;
     if (max.z < other.max.z) max.z = other.max.z;
+}
+
+const Interval Extents3::intervalAlong(const Vector3& axis) const
+{
+    if (isEmpty())
+    {
+        // return an empty interval
+        return Interval();
+    }
+
+    // This optimization is based on the fact that if this AABB is not empty,
+    // then all minimum extents are less than or equal to their corresponding
+    // maximum extents.
+
+    Interval interval(0.0f, 0.0f);
+
+    if (axis.x >= 0.0f)
+    {
+        interval.min += axis.x * min.x;
+        interval.max += axis.x * max.x;
+    }
+    else
+    {
+        interval.min += axis.x * max.x;
+        interval.max += axis.x * min.x;
+    }
+
+    if (axis.y >= 0.0f)
+    {
+        interval.min += axis.y * min.y;
+        interval.max += axis.y * max.y;
+    }
+    else
+    {
+        interval.min += axis.y * max.y;
+        interval.max += axis.y * min.y;
+    }
+
+    if (axis.z >= 0.0f)
+    {
+        interval.min += axis.z * min.z;
+        interval.max += axis.z * max.z;
+    }
+    else
+    {
+        interval.min += axis.z * max.z;
+        interval.max += axis.z * min.z;
+    }
+
+    return interval;
 }
 
 void Extents3::transformBy(const Transform3& transform)

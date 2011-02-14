@@ -8,6 +8,7 @@
 
 #include <geometry/vector2.h>
 
+class Interval;
 class Matrix2x2;
 class Transform2;
 
@@ -126,6 +127,16 @@ public:
      * @param other The AABR to enclose.
      */
     void growToContain(const Extents2& other);
+
+    /**
+     * Calculates the interval of this AABR along a given axis. If this AABR is
+     * empty, the returned interval will be empty.
+     *
+     * @param axis The axis along which the interval is to be calculated.
+     *
+     * @return The calculated interval.
+     */
+    const Interval intervalAlong(const Vector2& axis) const;
 
     /**
      * Applies a tranform to this AABR. <code>*this</code> is set to an AABR
