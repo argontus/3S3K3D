@@ -8,8 +8,11 @@
 
 #include <SDL/SDL.h>
 #include "gamewindow.h"
+
 #include "input/sdlkeyboard.h"
 #include "input/sdlmouse.h"
+
+#include "configuration/configuration.h"
 
 #include <graphics/resourcemanager.h>
 #include <graphics/vertexshader.h>
@@ -125,6 +128,7 @@ private:
 	float cameraSpeedZ;
 	SDLKeyboard keyboard;
 	SDLMouse mouse;
+	Configuration configuration;
 
 
     // TODO: quick & dirty

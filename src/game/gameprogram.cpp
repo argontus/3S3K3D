@@ -375,7 +375,7 @@ int GameProgram::execute()
     Uint32 currentTicks = 0;
     Uint32 lastTicks    = 0;
 
-    std::cout << "Entering main loop..." << std::endl;
+    configuration.readConfiguration("config.ini");
 
     if( mouseBoundToScreen )
     {
@@ -384,6 +384,7 @@ int GameProgram::execute()
         mouse.setMouseBindPointY( height/2 );
     }
 
+    std::cout << "Entering main loop..." << std::endl;
 	while( running ) {
         currentTicks = SDL_GetTicks();
 
