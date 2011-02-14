@@ -17,9 +17,10 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add library="..\..\lib\libgeometryd.a" />
 					<Add library="..\..\lib\libgraphicsd.a" />
+					<Add library="..\..\lib\libgeometryd.a" />
 					<Add library="..\..\lib\libinputd.a" />
+					<Add library="..\..\lib\lib3ds.dll.a" />
 					<Add library="..\..\lib\libglew.dll.a" />
 					<Add library="..\..\lib\libSDL.dll.a" />
 					<Add library="libopengl32.a" />
@@ -34,12 +35,14 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-Wall" />
+					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="..\..\lib\libgeometry.a" />
 					<Add library="..\..\lib\libgraphics.a" />
+					<Add library="..\..\lib\libgeometry.a" />
 					<Add library="..\..\lib\libinput.a" />
+					<Add library="..\..\lib\lib3ds.dll.a" />
 					<Add library="..\..\lib\libglew.dll.a" />
 					<Add library="..\..\lib\libSDL.dll.a" />
 					<Add library="libopengl32.a" />
