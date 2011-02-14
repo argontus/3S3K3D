@@ -14,6 +14,7 @@
 #include <graphics/vertexshader.h>
 #include <graphics/fragmentshader.h>
 #include <graphics/shaderprogram.h>
+#include <graphics/mesh.h>
 #include <geometry/vector3.h>
 
 // TODO: quick & dirty
@@ -26,6 +27,7 @@ class IndexArray;
 typedef ResourceManager<VertexShader> VertexShaderManager;
 typedef ResourceManager<FragmentShader> FragmentShaderManager;
 typedef ResourceManager<ShaderProgram> ShaderProgramManager;
+typedef ResourceManager<Mesh> MeshManager;
 
 /**
  * The 'main' class of the game. Does event handling for keyboard and mouse
@@ -114,6 +116,8 @@ public:
 	virtual void onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent );
 
 private:
+    void test();
+
 	bool running;
 	Uint32 deltaTicks; /* ticks between last frame and current frame */
 	float deltaTime;
@@ -128,17 +132,12 @@ private:
     // TODO: quick & dirty
     CameraNode* camera_;
     GroupNode* rootNode_;
-    Vector3Array* vertexArray_;
-    Vector3Array* normalArray_;
-    ColorArray* colorArray_;
-    ColorArray* redColorArray_;
-    ColorArray* blueColorArray_;
-    IndexArray* indexArray_;
     bool drawExtents_;
 
     VertexShaderManager vertexShaderManager_;
     FragmentShaderManager fragmentShaderManager_;
     ShaderProgramManager shaderProgramManager_;
+    MeshManager meshManager_;
 };
 
 #endif /* GAMEPROGRAM_H_ */

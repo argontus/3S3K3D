@@ -28,9 +28,10 @@ bool GameWindow::init()
     std::cout << "Initializing game engine...";
 
 	//TODO: read these from a configuration file.
-	width       = 800;  // 1280
-	height      = 600;  // 800
+	width       = 1280; // 1280
+	height      = 800;  // 800
 	int flags   = SDL_HWACCEL | SDL_GL_DOUBLEBUFFER | SDL_OPENGL;
+    //int flags   = SDL_HWACCEL | SDL_GL_DOUBLEBUFFER | SDL_OPENGL | SDL_FULLSCREEN;
 
 	if( SDL_Init(SDL_INIT_EVERYTHING) < 0 ) {
 		std::cerr << "SDL initialization failed: " << SDL_GetError();

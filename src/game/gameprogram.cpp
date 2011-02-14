@@ -23,19 +23,17 @@
 #include <graphics/predrawparams.h>
 #include <graphics/renderqueue.h>
 #include <graphics/runtimeassert.h>
+#include <graphics/modelreader.h>
+#include <graphics/visibilitytest.h>
 
 GameProgram::GameProgram()
 :   camera_(0),
     rootNode_(0),
-    vertexArray_(0),
-    colorArray_(0),
-    redColorArray_(0),
-    blueColorArray_(0),
-    indexArray_(0),
-    drawExtents_(false),
+    drawExtents_(true),
     vertexShaderManager_(),
     fragmentShaderManager_(),
-    shaderProgramManager_()
+    shaderProgramManager_(),
+    meshManager_()
 {
     running         = true;
     deltaTicks      = 0;
@@ -107,267 +105,32 @@ int GameProgram::execute()
     GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
     shaderProgramManager_.loadResource("extents", shaderProgram);
 
-    vertexArray_ = new Vector3Array(24);
-    // front
-    (*vertexArray_)[ 0].set(-1.0f, -1.0f,  1.0f);
-    (*vertexArray_)[ 1].set( 1.0f, -1.0f,  1.0f);
-    (*vertexArray_)[ 2].set( 1.0f,  1.0f,  1.0f);
-    (*vertexArray_)[ 3].set(-1.0f,  1.0f,  1.0f);
-    // back
-    (*vertexArray_)[ 4].set( 1.0f, -1.0f, -1.0f);
-    (*vertexArray_)[ 5].set(-1.0f, -1.0f, -1.0f);
-    (*vertexArray_)[ 6].set(-1.0f,  1.0f, -1.0f);
-    (*vertexArray_)[ 7].set( 1.0f,  1.0f, -1.0f);
-    // bottom
-    (*vertexArray_)[ 8] = (*vertexArray_)[5];
-    (*vertexArray_)[ 9] = (*vertexArray_)[4];
-    (*vertexArray_)[10] = (*vertexArray_)[1];
-    (*vertexArray_)[11] = (*vertexArray_)[0];
-    // top
-    (*vertexArray_)[12] = (*vertexArray_)[3];
-    (*vertexArray_)[13] = (*vertexArray_)[2];
-    (*vertexArray_)[14] = (*vertexArray_)[7];
-    (*vertexArray_)[15] = (*vertexArray_)[6];
-    // left
-    (*vertexArray_)[16] = (*vertexArray_)[5];
-    (*vertexArray_)[17] = (*vertexArray_)[0];
-    (*vertexArray_)[18] = (*vertexArray_)[3];
-    (*vertexArray_)[19] = (*vertexArray_)[6];
-    // right
-    (*vertexArray_)[20] = (*vertexArray_)[1];
-    (*vertexArray_)[21] = (*vertexArray_)[4];
-    (*vertexArray_)[22] = (*vertexArray_)[7];
-    (*vertexArray_)[23] = (*vertexArray_)[2];
-
-    normalArray_ = new Vector3Array(24);
-    // front
-    (*normalArray_)[ 0] =
-    (*normalArray_)[ 1] =
-    (*normalArray_)[ 2] =
-    (*normalArray_)[ 3] = Vector3::zAxis();
-    // back
-    (*normalArray_)[ 4] =
-    (*normalArray_)[ 5] =
-    (*normalArray_)[ 6] =
-    (*normalArray_)[ 7] = -Vector3::zAxis();
-    // bottom
-    (*normalArray_)[ 8] =
-    (*normalArray_)[ 9] =
-    (*normalArray_)[10] =
-    (*normalArray_)[11] = -Vector3::yAxis();
-    // top
-    (*normalArray_)[12] =
-    (*normalArray_)[13] =
-    (*normalArray_)[14] =
-    (*normalArray_)[15] = Vector3::yAxis();
-    // left
-    (*normalArray_)[16] =
-    (*normalArray_)[17] =
-    (*normalArray_)[18] =
-    (*normalArray_)[19] = -Vector3::xAxis();
-    // right
-    (*normalArray_)[20] =
-    (*normalArray_)[21] =
-    (*normalArray_)[22] =
-    (*normalArray_)[23] = Vector3::xAxis();
-
-    colorArray_ = new ColorArray(24);
-    colorArray_->fill(Color(1.0f, 1.0f, 1.0f, 1.0f));
-
-    redColorArray_ = new ColorArray(24);
-    redColorArray_->fill(Color(1.0f, 0.0f, 0.0f, 1.0f));
-
-    blueColorArray_ = new ColorArray(24);
-    blueColorArray_->fill(Color(0.0f, 0.0f, 1.0f, 1.0f));
-
-    indexArray_ = new IndexArray(36);
-    // front
-    (*indexArray_)[ 0] = 0;
-    (*indexArray_)[ 1] = 1;
-    (*indexArray_)[ 2] = 2;
-    (*indexArray_)[ 3] = 0;
-    (*indexArray_)[ 4] = 2;
-    (*indexArray_)[ 5] = 3;
-    // back
-    (*indexArray_)[ 6] = 4;
-    (*indexArray_)[ 7] = 5;
-    (*indexArray_)[ 8] = 6;
-    (*indexArray_)[ 9] = 4;
-    (*indexArray_)[10] = 6;
-    (*indexArray_)[11] = 7;
-    // bottom
-    (*indexArray_)[12] = 8;
-    (*indexArray_)[13] = 9;
-    (*indexArray_)[14] = 10;
-    (*indexArray_)[15] = 8;
-    (*indexArray_)[16] = 10;
-    (*indexArray_)[17] = 11;
-    // top
-    (*indexArray_)[18] = 12;
-    (*indexArray_)[19] = 13;
-    (*indexArray_)[20] = 14;
-    (*indexArray_)[21] = 12;
-    (*indexArray_)[22] = 14;
-    (*indexArray_)[23] = 15;
-    // left
-    (*indexArray_)[24] = 16;
-    (*indexArray_)[25] = 17;
-    (*indexArray_)[26] = 18;
-    (*indexArray_)[27] = 16;
-    (*indexArray_)[28] = 18;
-    (*indexArray_)[29] = 19;
-    // right
-    (*indexArray_)[30] = 20;
-    (*indexArray_)[31] = 21;
-    (*indexArray_)[32] = 22;
-    (*indexArray_)[33] = 20;
-    (*indexArray_)[34] = 22;
-    (*indexArray_)[35] = 23;
-
-
-    // init camera
-
-    camera_ = new CameraNode();
-    camera_->setTranslation(Vector3(0.0f, 0.0f, 32.0f));
-    camera_->setPerspectiveProjection(45.0f, aspectRatio, 1.0f, 1000.0f);
-    //camera_->setTranslation(Vector3(512.0f, 0.0f, 512.0f));
-    //camera_->rotateBy(Matrix3x3::yRotation(Math::pi() / 4.0f));
-    //camera_->setOrthographicProjection(-400.0f, 400.0f, -300.0f, 300.0f, 0.0f, 1000.0f);
-
 
     // init scene
 
     rootNode_ = new GroupNode();
 
-    GroupNode* group = new GroupNode();
+    // init camera
 
-    MeshNode* mesh = new MeshNode();
-    mesh->setVertexArray(vertexArray_);
-    mesh->setNormalArray(normalArray_);
-    mesh->setColorArray(redColorArray_);
-    mesh->setIndexArray(indexArray_);
-    mesh->updateModelExtents();
-    //mesh->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
-    //mesh->setRotation(Matrix3x3::identity());
-    mesh->setScaling(1.75f);
-    mesh->setRotationLocked(true);
-    //mesh->setScalingLocked(true);
-    group->attachChild(mesh);
+    camera_ = new CameraNode();
+    camera_->setPerspectiveProjection(45.0f, aspectRatio, 1.0f, 2000.0f);
 
-    mesh = mesh->clone();
-    mesh->setColorArray(colorArray_);
-    mesh->setTranslation(Vector3(-4.0f, 0.0f, 0.0f));
-    mesh->setScaling(1.0f);
-    mesh->setRotationLocked(false);
-    //mesh->setScalingLocked(false);
-    group->attachChild(mesh);
+//    camera_->setOrthographicProjection(
+//        -150.0f * aspectRatio, 150.0f * aspectRatio,
+//        -150.0f, 150.0f,
+//        -250.0f, 250.0f
+//    );
 
-    mesh = mesh->clone();
-    mesh->setTranslation(Vector3(4.0f, 0.0f, 0.0f));
-    group->attachChild(mesh);
+    // for testing the frustum culling
+//    ProjectionSettings s = camera_->projectionSettings();
+//    std::swap(s.left, s.right);
+//    std::swap(s.bottom, s.top);
+//    std::swap(s.near, s.far);
+//    camera_->setProjectionSettings(s);
 
-    mesh = mesh->clone();
-    mesh->setTranslation(Vector3(0.0f, -4.0f, 0.0f));
-    group->attachChild(mesh);
+    // TODO: quick & dirty
+    test();
 
-    mesh = mesh->clone();
-    mesh->setTranslation(Vector3(0.0f, 4.0f, 0.0f));
-    group->attachChild(mesh);
-
-    mesh = mesh->clone();
-    mesh->setColorArray(blueColorArray_);
-    mesh->setTranslation(Vector3(0.0f, 0.0f, -4.0f));
-    group->attachChild(mesh);
-
-    mesh = mesh->clone();
-    mesh->setTranslation(Vector3(0.0f, 0.0f, 4.0f));
-    group->attachChild(mesh);
-
-    GroupNode* bigGroup = new GroupNode();
-
-    group->setScaling(2.0f);
-    bigGroup->attachChild(group);
-
-    group = group->clone();
-    group->setTranslation(Vector3(-16.0f, 0.0f, 0.0f));
-    group->setScaling(1.0f);
-    bigGroup->attachChild(group);
-
-    group = group->clone();
-    group->setTranslation(Vector3(16.0f, 0.0f, 0.0f));
-    bigGroup->attachChild(group);
-
-    group = group->clone();
-    group->setTranslation(Vector3(0.0f, -16.0f, 0.0f));
-    bigGroup->attachChild(group);
-
-    group = group->clone();
-    group->setTranslation(Vector3(0.0f, 16.0f, 0.0f));
-    bigGroup->attachChild(group);
-
-    group = group->clone();
-    group->setTranslation(Vector3(0.0f, 0.0f, -16.0f));
-    bigGroup->attachChild(group);
-
-    group = group->clone();
-    group->setTranslation(Vector3(0.0f, 0.0f, 16.0f));
-    bigGroup->attachChild(group);
-
-    GroupNode* hugeGroup = new GroupNode();
-
-    bigGroup->setScaling(2.0f);
-    hugeGroup->attachChild(bigGroup);
-
-    bigGroup = bigGroup->clone();
-    bigGroup->setTranslation(Vector3(-64.0f, 0.0f, 0.0f));
-    bigGroup->setScaling(1.0f);
-    hugeGroup->attachChild(bigGroup);
-
-    bigGroup = bigGroup->clone();
-    bigGroup->setTranslation(Vector3(64.0f, 0.0f, 0.0f));
-    hugeGroup->attachChild(bigGroup);
-
-    bigGroup = bigGroup->clone();
-    bigGroup->setTranslation(Vector3(0.0f, -64.0f, 0.0f));
-    hugeGroup->attachChild(bigGroup);
-
-    bigGroup = bigGroup->clone();
-    bigGroup->setTranslation(Vector3(0.0f, 64.0f, 0.0f));
-    hugeGroup->attachChild(bigGroup);
-
-    bigGroup = bigGroup->clone();
-    bigGroup->setTranslation(Vector3(0.0f, 0.0f, -64.0f));
-    hugeGroup->attachChild(bigGroup);
-
-    bigGroup = bigGroup->clone();
-    bigGroup->setTranslation(Vector3(0.0f, 0.0f, 64.0f));
-    hugeGroup->attachChild(bigGroup);
-
-    rootNode_->attachChild(hugeGroup);
-
-    hugeGroup = hugeGroup->clone();
-    hugeGroup->setTranslation(Vector3(-256.0f, 0.0f, 0.0f));
-    rootNode_->attachChild(hugeGroup);
-
-    hugeGroup = hugeGroup->clone();
-    hugeGroup->setTranslation(Vector3(256.0f, 0.0f, 0.0f));
-    rootNode_->attachChild(hugeGroup);
-
-    hugeGroup = hugeGroup->clone();
-    hugeGroup->setTranslation(Vector3(0.0f, -256.0f, 0.0f));
-    rootNode_->attachChild(hugeGroup);
-
-    hugeGroup = hugeGroup->clone();
-    hugeGroup->setTranslation(Vector3(0.0f, 256.0f, 0.0f));
-    rootNode_->attachChild(hugeGroup);
-
-    hugeGroup = hugeGroup->clone();
-    hugeGroup->setTranslation(Vector3(0.0f, 0.0f, -256.0f));
-    rootNode_->attachChild(hugeGroup);
-
-    hugeGroup = hugeGroup->clone();
-    hugeGroup->setTranslation(Vector3(0.0f, 0.0f, 256.0f));
-    rootNode_->attachChild(hugeGroup);
 
 	SDL_Event event;
     deltaTicks          = 0;
@@ -387,8 +150,13 @@ int GameProgram::execute()
 			onEvent( event );
 		}
 
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F1))
+        {
+            drawExtents_ = !drawExtents_;
+        }
+
         // quick&dirty, write a function for these or something
-        static const float speed = 10.0f;
+        static const float speed = 40.0f;
 		if( keyboard.keyIsDown( Keyboard::KEY_D ) )
 		{
             camera_->translateBy( deltaTime * camera_->rotation().row(0) * speed );
@@ -396,6 +164,15 @@ int GameProgram::execute()
 		else if( keyboard.keyIsDown( Keyboard::KEY_A ) )
         {
             camera_->translateBy( deltaTime * camera_->rotation().row(0) * -speed );
+        }
+
+        if( keyboard.keyIsDown( Keyboard::KEY_Q) )
+        {
+            camera_->translateBy(deltaTime * -speed * camera_->rotation().row(1));
+        }
+        else if( keyboard.keyIsDown( Keyboard::KEY_E ) )
+        {
+            camera_->translateBy(deltaTime * speed * camera_->rotation().row(1));
         }
 
         if( keyboard.keyIsDown( Keyboard::KEY_W) )
@@ -436,117 +213,61 @@ void GameProgram::render()
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
     // TODO: REALLY quick & dirty
 
-    RenderQueue& renderQueue = RenderQueue::instance();
-    std::vector<const GroupNode*> visibleGroups;
+    static RenderQueue renderQueue;
+    static VisibilityTest visibilityTest;
 
-    PredrawParams predrawParams;
-    predrawParams.renderQueue = &renderQueue;
-    predrawParams.visibleGroups = &visibleGroups;
-
-    rootNode_->rotateBy(Matrix3x3::xRotation(deltaTime * 0.1f));
-    rootNode_->rotateBy(Matrix3x3::yRotation(deltaTime * 0.1f));
-    Matrix3x3 rotation = rootNode_->rotation();
-    rotation.orthogonalize();
-    rootNode_->setRotation(rotation);
-    //rootNode_->setRotation(Matrix3x3::xRotation(Math::pi() / 2.0f));
-    //rootNode_->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
-    //rootNode_->setScaling(1.0f);
-
-    for (int i = 1; i < rootNode_->numChildren(); ++i)
-    {
-        Node* const node = rootNode_->child(i);
-
-        switch (i)
-        {
-            case 1:
-                node->rotateBy(Matrix3x3::xRotation(deltaTime * 0.25f));
-                node->rotateBy(Matrix3x3::yRotation(deltaTime * 0.25f));
-                break;
-
-            case 2:
-                node->rotateBy(Matrix3x3::xRotation(deltaTime * -0.25f));
-                node->rotateBy(Matrix3x3::zRotation(deltaTime * 0.25f));
-                break;
-
-            case 3:
-                node->rotateBy(Matrix3x3::yRotation(deltaTime * 0.25f));
-                node->rotateBy(Matrix3x3::zRotation(deltaTime * 0.25f));
-                break;
-
-            case 4:
-                node->rotateBy(Matrix3x3::yRotation(deltaTime * -0.25f));
-                node->rotateBy(Matrix3x3::xRotation(deltaTime * 0.25f));
-                break;
-
-            case 5:
-                node->rotateBy(Matrix3x3::zRotation(deltaTime * 0.25f));
-                node->rotateBy(Matrix3x3::xRotation(deltaTime * 0.25f));
-                break;
-
-            case 6:
-                node->rotateBy(Matrix3x3::zRotation(deltaTime * -0.25f));
-                node->rotateBy(Matrix3x3::yRotation(deltaTime * 0.25f));
-                break;
-
-            default:
-                break;
-        }
-
-        Matrix3x3 rotation = node->rotation();
-        rotation.orthogonalize();
-        node->setRotation(rotation);
-    }
 
     // predraw step
-    rootNode_->predraw(predrawParams);
+
+    renderQueue.clear();
+    visibilityTest.init(*camera_);
+
+    PredrawParams predrawParams;
+    predrawParams.setRenderQueue(&renderQueue);
+    predrawParams.setVisibilityTest(&visibilityTest);
+
+    // setting the second parameter to false disables frustum culling
+    rootNode_->predraw(predrawParams, true);
 
     ShaderProgram* shaderProgram = shaderProgramManager_.getResource("default");
-
-    // TODO: make this a member of ShaderProgram?
     glUseProgram(shaderProgram->id());
 
     DrawParams drawParams;
     drawParams.viewMatrix = camera_->worldToViewMatrix();
     drawParams.projectionMatrix = camera_->projectionMatrix();
     drawParams.worldToViewRotation = transpose(camera_->worldTransform().rotation());
-    //drawParams.viewMatrix = Matrix4x4::identity();
-    //drawParams.projectionMatrix = Matrix4x4::identity();
     drawParams.shaderProgram = shaderProgram;
     drawParams.cameraToWorld = camera_->worldTransform();
 
-    // draw step
-    predrawParams.renderQueue->sort();
-    predrawParams.renderQueue->draw(drawParams);
 
-    //glUseProgram(shaderProgram2.id());
+    // draw step
+
+    renderQueue.sort();
+    renderQueue.draw(drawParams);
 
     if (drawExtents_)
     {
         drawParams.shaderProgram = shaderProgramManager_.getResource("extents");
         glUseProgram(drawParams.shaderProgram->id());
 
-        for (size_t i = 0; i < visibleGroups.size(); ++i)
+        for (int i = 0; i < renderQueue.numGeometryNodes(); ++i)
         {
-            //drawExtents(visibleGroups[i], drawParams);
-            drawExtents(visibleGroups[i], drawParams);
+            drawExtents(renderQueue.geometryNode(i), drawParams);
         }
 
-        for (int i = 0; i < renderQueue.size(); ++i)
+        for (int i = 0; i < renderQueue.numGroupNodes(); ++i)
         {
-            drawExtents(renderQueue[i], drawParams);
+            drawExtents(renderQueue.groupNode(i), drawParams);
         }
     }
-
-    predrawParams.renderQueue->clear();
-
-    // ...
 
     SDL_GL_SwapBuffers();
 }
 
-// TODO: quick & dirty
+// TODO: quick & dirty, this does not belong here
 void drawExtents(const Node* node, const DrawParams& params)
 {
     const Extents3 extents = node->worldExtents();
@@ -613,7 +334,7 @@ void GameProgram::tick( const float deltaTime )
 
     if( cameraSpeedY != 0 )
     {
-        camera_->translateBy( camera_->rotation().row(1) * cameraSpeedY );
+        camera_->translateBy( Vector3::yAxis() * cameraSpeedY );
     }
 
     if( cameraSpeedZ != 0 )
@@ -710,10 +431,16 @@ void GameProgram::onKeyUp( const SDL_KeyboardEvent& keyboardEvent )
             cameraSpeedX = 0.0f;
             break;
 
+        case SDLK_q:
+        case SDLK_e:
+            cameraSpeedY = 0.0f;
+            break;
+
         case SDLK_s:
         case SDLK_w:
             cameraSpeedZ = 0.0f;
             break;
+
         default:
             break;
     }
@@ -722,30 +449,64 @@ void GameProgram::onKeyUp( const SDL_KeyboardEvent& keyboardEvent )
 
 void GameProgram::onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent )
 {
-    int deltaX = mouseMotionEvent.x-width/2;
-    int deltaY = mouseMotionEvent.y-height/2;
-    const float translationFactor = 50.0f;
-    const float rotationFactor = 0.005;
-
+    const int deltaX = mouseMotionEvent.x-width/2;
+    const int deltaY = mouseMotionEvent.y-height/2;
+    const float rotationFactor = 0.0025;
 
     if( deltaX != 0 )
     {
-        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(1), deltaX * -rotationFactor));
+        camera_->rotateBy(Matrix3x3::yRotation(deltaX * -rotationFactor));
     }
 
     if( deltaY != 0 ) {
         camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor));
     }
+}
 
+void GameProgram::test()
+{
+    ModelReader modelReader;
+    modelReader.setMeshManager(&meshManager_);
+
+    Node* p = 0;
+
+
+    // heavy geometry with tanks
+
+    p = modelReader.read("data/models/abrams_tank.3ds");
+    p->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
+    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
+    p->setScaling(0.15f);
+
+    const int count = 6;
+    const float offset = 75.0f;
+    const float displacement = -(offset * (count - 1)) / 2.0f;
+
+    for (int i = 0; i < count; ++i)
+    {
+        for (int j = 0; j < count; ++j)
+        {
+            if (i != 0 || j != 0)
+            {
+                p = p->clone();
+            }
+
+            p->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
+            rootNode_->attachChild(p);
+        }
+    }
+
+    p = modelReader.read("data/models/platform.3ds");
+    p->setTranslation(Vector3(0.0f, -472.0f, 0.0f));
+    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
+    p->setScaling(3.0f);
+    rootNode_->attachChild(p);
+
+    camera_->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
 }
 
 GameProgram::~GameProgram()
 {
-    delete camera_;
     delete rootNode_;
-    delete vertexArray_;
-    delete colorArray_;
-    delete redColorArray_;
-    delete blueColorArray_;
-    delete indexArray_;
+    delete camera_;
 }
