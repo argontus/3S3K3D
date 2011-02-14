@@ -15,12 +15,14 @@
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-g" />
+					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add library="../../lib/libgeometryd.a" />
 					<Add library="../../lib/libgraphicsd.a" />
 					<Add library="../../lib/libinputd.a" />
 					<Add library="../../lib/libconfigurationd.a" />
+					<Add library="../../lib/lib3dsd.a" />
 					<Add library="GL" />
 					<Add library="GLEW" />
 					<Add library="SDL" />
@@ -41,6 +43,7 @@
 					<Add library="../../lib/libgeometry.a" />
 					<Add library="../../lib/libgraphics.a" />
 					<Add library="../../lib/libinput.a" />
+					<Add library="../../lib/lib3ds.a" />
 					<Add library="GL" />
 					<Add library="GLEW" />
 					<Add library="SDL" />
