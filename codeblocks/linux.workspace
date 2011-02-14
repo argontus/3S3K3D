@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="linux">
-		<Project filename="game_linux/game_linux.cbp" active="1">
+		<Project filename="game_linux/game_linux.cbp">
 			<Depends filename="geometry/geometry.cbp" />
 			<Depends filename="graphics/graphics.cbp" />
 			<Depends filename="input/input.cbp" />
@@ -11,5 +11,6 @@
 			<Depends filename="geometry/geometry.cbp" />
 		</Project>
 		<Project filename="input/input.cbp" />
+		<Project filename="configuration/configuration.cbp" active="1" />
 	</Workspace>
 </CodeBlocks_workspace_file>

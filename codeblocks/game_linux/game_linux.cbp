@@ -20,6 +20,7 @@
 					<Add library="../../lib/libgeometryd.a" />
 					<Add library="../../lib/libgraphicsd.a" />
 					<Add library="../../lib/libinputd.a" />
+					<Add library="../../lib/libconfigurationd.a" />
 					<Add library="GL" />
 					<Add library="GLEW" />
 					<Add library="SDL" />
