@@ -45,8 +45,13 @@ public:
      * <code>GroupNode</code> classes should override this member function.
      *
      * @param params Predraw parameters.
+     * @param testVisibility Use visibility test? If this is
+     * <code>false</code>, nodes are added to the render queue unconditionally
+     * without visibility testing.
      */
-    virtual void predraw(const PredrawParams& params) const = 0;
+    virtual void predraw(
+        const PredrawParams& params,
+        bool testVisibility) const = 0;
 
     /**
      * Gets the world extents.

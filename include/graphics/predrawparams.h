@@ -10,6 +10,7 @@
 
 class GroupNode;
 class RenderQueue;
+class VisibilityTest;
 
 /**
  * Describes predraw parameters.
@@ -26,17 +27,43 @@ public:
     PredrawParams();
 
     /**
+     * Sets the render queue pointer.
+     *
+     * @param p Render queue pointer to set.
+     */
+    void setRenderQueue(RenderQueue* p);
+
+    /**
+     * Gets the render queue pointer.
+     *
+     * @return The render queue pointer.
+     */
+    RenderQueue* renderQueue() const;
+
+    /**
+     * Sets the visibility test pointer.
+     *
+     * @param p Visibility test pointer to set.
+     */
+    void setVisibilityTest(VisibilityTest* p);
+
+    /**
+     * Gets the visibility test pointer.
+     *
+     * @return The visibility test pointer.
+     */
+    VisibilityTest* visibilityTest() const;
+
+    /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
      *
      * @param other The object to swap contents with.
      */
     void swap(PredrawParams& other);
 
-    RenderQueue* renderQueue;   ///< Render queue.
-
-    std::vector<const GroupNode*>* visibleGroups;
-
-    // TODO: add visibility test
+private:
+    RenderQueue* renderQueue_;          ///< Render queue.
+    VisibilityTest* visibilityTest_;    ///< Visibility test.
 };
 
 #endif // #ifndef GRAPHICS_PREDRAWPARAMS_H_INCLUDED

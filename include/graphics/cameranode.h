@@ -98,7 +98,7 @@ public:
      */
     //@{
     virtual CameraNode* clone() const;
-    virtual void predraw(const PredrawParams& params) const;
+    virtual void predraw(const PredrawParams&, bool) const;
     virtual const Extents3 worldExtents() const;
     //@}
 

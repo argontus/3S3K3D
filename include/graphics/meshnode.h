@@ -12,8 +12,7 @@
 
 class Vector3Array;
 
-class ColorArray;
-class IndexArray;
+class Mesh;
 
 /**
  * Represents a triangle mesh.
@@ -40,46 +39,25 @@ public:
 
     /**
      * Updates model extents. This memeber function must be called if the model
-     * geometry changes. The vertex and index array pointers must be pointing
-     * to valid arrays when this member function is called.
+     * geometry changes. The mesh pointer must be pointing to a valid mesh when
+     * this member function is called.
      */
     void updateModelExtents();
 
     /**
-     * Sets the vertex array pointer. This object does not take ownership of
-     * the object pointer by <code>p</code>.
+     * Sets the mesh pointer. This object does not take ownership of the object
+     * pointer by <code>p</code>.
      *
-     * @param p Vertex array pointer.
+     * @param p Mesh pointer.
      */
-    void setVertexArray(Vector3Array* p);
+    void setMesh(Mesh* p);
 
     /**
-     * Gets the vertex array pointer.
+     * Gets the mesh pointer.
      *
-     * @return Vertex array pointer.
+     * @return Mesh pointer.
      */
-    Vector3Array* vertexArray() const;
-
-    void setNormalArray(Vector3Array* p) { normalArray_ = p; }
-    Vector3Array* normalArray() const { return normalArray_; }
-
-    void setColorArray(ColorArray* p) { colorArray_ = p; }
-    ColorArray* colorArray() const { return colorArray_; }
-
-    /**
-     * Sets the index array pointer. This object does not take ownership of the
-     * object pointer by <code>p</code>.
-     *
-     * @param p Index array pointer.
-     */
-    void setIndexArray(IndexArray* p);
-
-    /**
-     * Gets the index array pointer.
-     *
-     * @return Index array pointer.
-     */
-    IndexArray* indexArray() const;
+    Mesh* mesh() const;
 
     /**
      * @name Node Interface
@@ -98,8 +76,8 @@ public:
      */
     //@{
     /**
-     * Draws this triangle mesh. The vertex and index array pointers must be
-     * pointing to valid arrays when this member function is called.
+     * Draws this triangle mesh. The mesh pointer must be pointing to a valid
+     * mesh when this member function is called.
      *
      * @param params Draw parameters.
      */
@@ -121,10 +99,7 @@ private:
     mutable bool worldExtentsValid_;    ///< Are world extents valid?
     mutable Extents3 worldExtents_;     ///< World extents.
     Extents3 modelExtents_;             ///< Model extents.
-    Vector3Array* vertexArray_;         ///< Vertex array pointer.
-    Vector3Array* normalArray_;         ///< Normal array pointer.
-    ColorArray* colorArray_;            ///< Color array pointer.
-    IndexArray* indexArray_;            ///< Index array pointer.
+    Mesh* mesh_;                        ///< Mesh pointer.
 
     // hide the copy assignment operator
     MeshNode& operator =(const MeshNode&);

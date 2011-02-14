@@ -39,7 +39,7 @@ const ProjectionSettings ProjectionSettings::perspective(
     GRAPHICS_RUNTIME_ASSERT(fovy > 0.0f && fovy < 180.0f);
     GRAPHICS_RUNTIME_ASSERT(aspectRatio > 0.0f);
     GRAPHICS_RUNTIME_ASSERT(near > 0.0f);
-    GRAPHICS_RUNTIME_ASSERT(far > near);
+    GRAPHICS_RUNTIME_ASSERT(near < far);
 
     const float angle = Math::degToRad(fovy / 2.0f);
 
@@ -110,6 +110,8 @@ const Matrix4x4 ProjectionSettings::projectionMatrix() const
     }
     else
     {
+        GRAPHICS_RUNTIME_ASSERT(type == ProjectionType::Perspective);
+
         // let the compiler take care of common sub-expressions
 
         const float sx = 2.0f * near / (right - left);

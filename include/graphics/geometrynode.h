@@ -33,7 +33,7 @@ public:
      */
     //@{
     virtual GeometryNode* clone() const = 0;
-    virtual void predraw(const PredrawParams& params) const;
+    virtual void predraw(const PredrawParams&, bool) const;
     //@}
 
 protected:

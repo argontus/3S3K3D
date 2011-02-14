@@ -8,10 +8,9 @@
 #include <geometry/matrix4x4.h>
 #include <geometry/vector3array.h>
 
-#include <graphics/colorarray.h>
 #include <graphics/drawparams.h>
 #include <graphics/groupnode.h>
-#include <graphics/indexarray.h>
+#include <graphics/mesh.h>
 #include <graphics/opengl.h>
 #include <graphics/runtimeassert.h>
 #include <graphics/shaderprogram.h>
@@ -26,10 +25,7 @@ MeshNode::MeshNode()
     worldExtentsValid_(false),
     worldExtents_(),
     modelExtents_(),
-    vertexArray_(0),
-    normalArray_(0),
-    colorArray_(0),
-    indexArray_(0)
+    mesh_(0)
 {
     // ...
 }
@@ -39,56 +35,26 @@ MeshNode::MeshNode(const MeshNode& other)
     worldExtentsValid_(false),
     worldExtents_(),
     modelExtents_(other.modelExtents_),
-    vertexArray_(other.vertexArray_),
-    normalArray_(other.normalArray_),
-    colorArray_(other.colorArray_),
-    indexArray_(other.indexArray_)
+    mesh_(other.mesh_)
 {
     // ...
 }
 
 void MeshNode::updateModelExtents()
 {
-    GRAPHICS_RUNTIME_ASSERT(vertexArray_ != 0);
-    GRAPHICS_RUNTIME_ASSERT(indexArray_ != 0);
-    GRAPHICS_RUNTIME_ASSERT(indexArray_->size() % 3 == 0);
-
-    modelExtents_.clear();
-
-    const Vector3* vertices = vertexArray_->data();
-    const uint32_t* indices = indexArray_->data();
-
-    for (int i = 0; i < indexArray_->size(); ++i)
-    {
-        const int index = indices[i];
-
-        // make sure index is not out of bounds
-        GRAPHICS_RUNTIME_ASSERT(index < vertexArray_->size());
-
-        modelExtents_.growToContain(vertices[index]);
-    }
-
+    GRAPHICS_RUNTIME_ASSERT(mesh_ != 0);
+    modelExtents_ = mesh_->vertices().extents();
     invalidateWorlExtents();
 }
 
-void MeshNode::setVertexArray(Vector3Array* const p)
+void MeshNode::setMesh(Mesh* const p)
 {
-    vertexArray_ = p;
+    mesh_ = p;
 }
 
-Vector3Array* MeshNode::vertexArray() const
+Mesh* MeshNode::mesh() const
 {
-    return vertexArray_;
-}
-
-void MeshNode::setIndexArray(IndexArray* const p)
-{
-    indexArray_ = p;
-}
-
-IndexArray* MeshNode::indexArray() const
-{
-    return indexArray_;
+    return mesh_;
 }
 
 MeshNode* MeshNode::clone() const
@@ -130,9 +96,12 @@ void MeshNode::invalidateWorlTransform() const
 
 void MeshNode::draw(const DrawParams& params) const
 {
-    GRAPHICS_RUNTIME_ASSERT(vertexArray_ != 0);
-    GRAPHICS_RUNTIME_ASSERT(indexArray_ != 0);
-    GRAPHICS_RUNTIME_ASSERT(indexArray_->size() % 3 == 0);
+    GRAPHICS_RUNTIME_ASSERT(mesh_ != 0);
+
+    const Vector3Array& vertices = mesh_->vertices();
+    const Vector3Array& normals = mesh_->normals();
+
+    GRAPHICS_RUNTIME_ASSERT(vertices.size() == normals.size());
 
     //const Matrix4x4 mMatrix = modelToWorldMatrix();
     //const Matrix4x4 mvMatrix = product(mMatrix, params.viewMatrix);
@@ -140,6 +109,7 @@ void MeshNode::draw(const DrawParams& params) const
     const Matrix4x4 mvpMatrix = product(mvMatrix, params.projectionMatrix);
     const Matrix3x3 normalMatrix = product(worldTransform().rotation(), params.worldToViewRotation);
 
+    // TODO: get rid of this
     // needed for lighting, quick & dirty
     const GLint viewMatrixLocation = params.shaderProgram->uniformLocation("view_matrix");
     glUniformMatrix4fv(viewMatrixLocation, 1, false, params.viewMatrix.data());
@@ -148,6 +118,7 @@ void MeshNode::draw(const DrawParams& params) const
     const GLint mvMatrixLocation = params.shaderProgram->uniformLocation("mv_matrix");
     glUniformMatrix4fv(mvMatrixLocation, 1, false, mvMatrix.data());
 
+    // needed for transforming vertex coordinates
     const GLint mvpMatrixLocation = params.shaderProgram->uniformLocation("mvp_matrix");
     glUniformMatrix4fv(mvpMatrixLocation, 1, false, mvpMatrix.data());
 
@@ -156,28 +127,18 @@ void MeshNode::draw(const DrawParams& params) const
     glUniformMatrix3fv(normalMatrixLocation, 1, false, normalMatrix.data());
 
     const GLint coordLocation = params.shaderProgram->attribLocation("coord");
-    glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, vertexArray_->componentData());
+    glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, vertices.componentData());
     glEnableVertexAttribArray(coordLocation);
 
     // needed for lighting
     const GLint normalLocation = params.shaderProgram->attribLocation("normal");
-    glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, 0, normalArray_->componentData());
+    glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, 0, normals.componentData());
     glEnableVertexAttribArray(normalLocation);
 
-    const GLint colorLocation = params.shaderProgram->attribLocation("color");
-    glVertexAttribPointer(colorLocation, 4, GL_FLOAT, false, 0, colorArray_->componentData());
-    glEnableVertexAttribArray(colorLocation);
-
-    glDrawElements(
-        GL_TRIANGLES,
-        indexArray_->size(),
-        GL_UNSIGNED_INT,
-        indexArray_->data()
-    );
+    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
     glDisableVertexAttribArray(coordLocation);
     glDisableVertexAttribArray(normalLocation);
-    glDisableVertexAttribArray(colorLocation);
 }
 
 void MeshNode::invalidateWorlExtents() const

@@ -10,77 +10,88 @@
 
 class DrawParams;
 class GeometryNode;
+class GroupNode;
 
-// TODO: no need to make this a singleton
 /**
- * Represents a sorted render queue. This class is a singleton for maintaining
- * the render queue capacity.
+ * Represents a sorted render queue.
  */
 class RenderQueue
 {
 public:
     /**
-     * Gets a reference to the <code>RenderQueue</code> singleton instance.
-     *
-     * @return Reference to the <code>RenderQueue</code> singleton instance.
-     */
-    static RenderQueue& instance();
-
-    /**
-     * A random access iterator.
-     */
-    typedef std::vector<const GeometryNode*>::iterator Iterator;
-
-    /**
-     * A random access constant iterator.
-     */
-    typedef std::vector<const GeometryNode*>::const_iterator ConstIterator;
-
-    /**
      * Destructor.
      */
     ~RenderQueue();
 
+    // TODO: initial capacity
     /**
-     * Array access operator.
-     *
-     * @param i Index of the render queue item object to return, between
-     * [0, <code>size()</code>).
-     *
-     * @return The specified render queue item.
+     * Default constructor.
      */
-    const GeometryNode* operator [](int index) const;
+    RenderQueue();
 
     /**
-     * Gets an iterator pointing to the first element.
+     * Adds a given geometry node to this render queue.
      *
-     * @return An iterator pointing to the first element.
+     * @param p The geometry node to add, cannot be a null pointer.
      */
-    Iterator begin();
+    void addGeometryNode(const GeometryNode* p);
 
     /**
-     * Provided for const-correctness.
+     * Gets a geometry node by index.
      *
-     * @see begin()
+     * @param index Index of the geometry node to return, must be between
+     * [<code>0</code>, numGeometryNodes()<code></code>).
+     *
+     * @return The specified geometry node.
+     *
+     * @see numGeometryNodes() const
      */
-    ConstIterator begin() const;
+    const GeometryNode* geometryNode(int index) const;
 
     /**
-     * Gets an iterator pointing one element beyond the the last element.
+     * Gets the number of geometry nodes in this render queue.
      *
-     * @return An iterator pointing one element beyond the the last element.
+     * @return The number of geometry nodes in this render queue.
      */
-    Iterator end();
+    int numGeometryNodes() const;
 
     /**
-     * Provided for const-correctness.
+     * Adds a given group node to this render queue. Visible group node
+     * tracking is needed for drawing the visible group node extents.
      *
-     * @see end()
+     * @param p The group node to add, cannot be a null pointer.
      */
-    ConstIterator end() const;
+    void addGroupNode(const GroupNode* p);
 
     /**
-     * Draws this render queue.
+     * Gets a group node by index.
+     *
+     * @param index Index of the group node to return, must be between
+     * [<code>0</code>, numGroupNodes()<code></code>).
+     *
+     * @return The specified group node.
+     *
+     * @see numGroupNodes() const
+     */
+    const GroupNode* groupNode(int index) const;
+
+    /**
+     * Gets the number of group nodes in this render queue.
+     *
+     * @return The number of group nodes in this render queue.
+     */
+    int numGroupNodes() const;
+
+    /**
+     * Clears the geometry node and group node lists of this render queue.
+     */
+    void clear();
+
+    /**
+     * Draws all geometry nodes in this render queue. The caller is responsible
+     * ensuring that this render queue has been sorted before this member
+     * function is called. Drawing an unsorted render queue may result in loss
+     * of performance and produce incorrect visual results.
      *
      * @param params Draw parameters.
      *
@@ -95,47 +106,12 @@ public:
      */
     void sort();
 
-    /**
-     * Gets the number of items in this render queue.
-     *
-     * @return The number of items in this render queue.
-     *
-     * @see isEmpty() const
-     */
-    int size() const;
-
-    /**
-     * Gets a boolean value indicating whether or not this render queue is
-     * empty.
-     *
-     * @return <code>true</code>, if this render queue is empty,
-     * <code>false</code> otherwise.
-     */
-    bool isEmpty() const;
-
-    /**
-     * Removes all items from this render queue.
-     */
-    void clear();
-
-    /**
-     * Appends a given geometry node to this render queue.
-     *
-     * @param p The geometry node to append, cannot be a null pointer.
-     */
-    void append(const GeometryNode* p);
-
 private:
     /**
-     * Default constructor.
-     */
-    RenderQueue();
-
-    /**
-     * Comparison function used for sorting the render queue.
+     * Comparison function used for sorting the render queue geometry nodes.
      *
-     * @param A render queue item.
-     * @param A render queue item.
+     * @param a Pointer to a geometry node.
+     * @param b Pointer to a geometry node.
      *
      * @return <code>true</code>, if <code></code> is strictly 'less' than
      * <code>b</code>, <code>false</code> otherwise.
@@ -143,8 +119,10 @@ private:
     static bool compare(const GeometryNode* a, const GeometryNode* b);
 
     typedef std::vector<const GeometryNode*> GeometryNodeVector;
+    typedef std::vector<const GroupNode*> GroupNodeVector;
 
-    GeometryNodeVector items_;  ///< Render queue items.
+    GeometryNodeVector geometryNodes_;  ///< Geometry nodes.
+    GroupNodeVector groupNodes_;        ///< Group nodes.
 
     // prevent copying
     RenderQueue(const RenderQueue&);

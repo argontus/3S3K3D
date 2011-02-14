@@ -6,7 +6,9 @@
 #include <graphics/groupnode.h>
 
 #include <graphics/predrawparams.h>
+#include <graphics/renderqueue.h>
 #include <graphics/runtimeassert.h>
+#include <graphics/visibilitytest.h>
 
 GroupNode::~GroupNode()
 {
@@ -118,17 +120,32 @@ GroupNode* GroupNode::clone() const
     return new GroupNode(*this);
 }
 
-void GroupNode::predraw(const PredrawParams& params) const
+void GroupNode::predraw(const PredrawParams& params, bool testVisibility) const
 {
-    // TODO: early out if the world extents are not visible
+    if (testVisibility)
+    {
+        const VisibilityState::Enum state = params.visibilityTest()->test(worldExtents());
+
+        if (state == VisibilityState::Invisible)
+        {
+            // early out
+            return;
+        }
+
+        if (state == VisibilityState::CompletelyVisible)
+        {
+            // all child nodes are completely visible
+            testVisibility = false;
+        }
+    }
 
     // propagate the call to all attached child nodes
     for (size_t i = 0; i < children_.size(); ++i)
     {
-        children_[i]->predraw(params);
+        children_[i]->predraw(params, testVisibility);
     }
 
-    params.visibleGroups->push_back(this);
+    params.renderQueue()->addGroupNode(this);
 }
 
 const Extents3 GroupNode::worldExtents() const

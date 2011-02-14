@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 
+// TODO: is is not used anywhere
 /**
  * Represents a fixed size array of <code>uint32_t</code> values.
  */

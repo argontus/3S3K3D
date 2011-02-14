@@ -5,19 +5,29 @@
 
 #include <graphics/geometrynode.h>
 
+#include <geometry/extents3.h>
+
 #include <graphics/predrawparams.h>
 #include <graphics/renderqueue.h>
+#include <graphics/visibilitytest.h>
 
 GeometryNode::~GeometryNode()
 {
     // ...
 }
 
-void GeometryNode::predraw(const PredrawParams& params) const
+void GeometryNode::predraw(
+    const PredrawParams& params,
+    const bool testVisibility) const
 {
-    // TODO: early out if the world extents are not visible
+    if (testVisibility
+    &&  params.visibilityTest()->test(worldExtents()) == VisibilityState::Invisible)
+    {
+        // early out
+        return;
+    }
 
-    params.renderQueue->append(this);
+    params.renderQueue()->addGeometryNode(this);
 }
 
 GeometryNode::GeometryNode()

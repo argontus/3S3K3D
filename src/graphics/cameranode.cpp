@@ -93,7 +93,7 @@ CameraNode* CameraNode::clone() const
     return new CameraNode(*this);
 }
 
-void CameraNode::predraw(const PredrawParams&) const
+void CameraNode::predraw(const PredrawParams&, const bool) const
 {
     // nothing to do
 }

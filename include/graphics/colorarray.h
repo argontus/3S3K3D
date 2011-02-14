@@ -8,6 +8,7 @@
 
 class Color;
 
+// TODO: is is not used anywhere
 /**
  * Represents a fixed size array of <code>Color</code> objects.
  */

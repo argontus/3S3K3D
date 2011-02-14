@@ -52,14 +52,14 @@ public:
      */
     //@{
     virtual GroupNode* clone() const;
-    virtual void predraw(const PredrawParams& params) const;
+    virtual void predraw(const PredrawParams&, bool) const;
     virtual const Extents3 worldExtents() const;
 
     // invalidates the world transform of this node and all direct and indirect
     // child nodes
     virtual void invalidateWorlTransform() const;
 
-    virtual void setScene(Scene* scene);
+    virtual void setScene(Scene*);
     //@}
 
 private:
