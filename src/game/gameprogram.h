@@ -8,7 +8,11 @@
 
 #include <SDL/SDL.h>
 #include "gamewindow.h"
+
 #include "input/sdlkeyboard.h"
+#include "input/sdlmouse.h"
+
+#include "configuration/configuration.h"
 
 #include <graphics/resourcemanager.h>
 #include <graphics/vertexshader.h>
@@ -111,9 +115,9 @@ public:
 	 */
 	//virtual void onKeyDown( const SDL_KeyboardEvent& keyboardEvent );
 
-    virtual void onKeyUp( const SDL_KeyboardEvent& keyboardEvent );
+    //virtual void onKeyUp( const SDL_KeyboardEvent& keyboardEvent );
 
-	virtual void onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent );
+	//virtual void onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent );
 
 private:
     void test();
@@ -127,6 +131,8 @@ private:
 	float cameraSpeedY;
 	float cameraSpeedZ;
 	SDLKeyboard keyboard;
+	SDLMouse mouse;
+	Configuration configuration;
 
 
     // TODO: quick & dirty

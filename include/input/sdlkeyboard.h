@@ -7,6 +7,12 @@
 
 #include <vector>
 
+/**
+ * @file input/sdlkeyboard.h
+ * @author Marko Silokunnas
+ *
+ * This class is an implementation of the 'Keyboard' pure virtual class for SDL.
+ */
 class SDLKeyboard : public Keyboard
 {
     public:
@@ -20,7 +26,7 @@ class SDLKeyboard : public Keyboard
         virtual bool keyWasPressedInThisFrame( KEYS key );
         virtual bool keyWasReleasedInThisFrame( KEYS key );
 
-        virtual bool updateKeyboardState();
+        virtual void updateKeyboardState();
 
     private:
         /**
@@ -28,7 +34,14 @@ class SDLKeyboard : public Keyboard
          */
         int keysOnKeyboard;
 
+        /**
+         * Current keyboard state. In other words, what buttons are down.
+         */
         Uint8* keyboardState;
+
+        /**
+         * State of the keyboard in previous frame.
+         */
         Uint8* keyboardStateInLastFrame;
 
         /**
