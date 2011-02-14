@@ -158,6 +158,11 @@ int GameProgram::execute()
 			onEvent( event );
 		}
 
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_ESCAPE))
+        {
+            running = false;
+        }
+
         if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F1))
         {
             drawExtents_ = !drawExtents_;
@@ -203,8 +208,7 @@ int GameProgram::execute()
 
         if( deltaX != 0 )
         {
-            camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(1), deltaX * -rotationFactor));
-
+            camera_->rotateBy(Matrix3x3::yRotation(deltaX * -rotationFactor));
         }
 
         if( deltaY != 0 )
