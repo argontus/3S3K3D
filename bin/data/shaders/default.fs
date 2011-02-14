@@ -2,7 +2,6 @@
 
 in vec3 coord_;     // fragment coordinate in view space
 in vec3 normal_;    // fragment normal in view space
-in vec4 color_;
 
 // quick & dirty
 in vec3 lightPosition_; // light position in view space
@@ -18,8 +17,9 @@ void main()
 
     // material lighting coefficients
     vec4 ambient  = vec4(0.05, 0.05, 0.05, 1.0);
-    vec4 diffuse  = vec4(0.35, 0.35, 0.35, 1.0);
+    vec4 diffuse  = vec4(0.50, 0.50, 0.50, 1.0);
     vec4 specular = vec4(0.90, 0.90, 0.90, 1.0);
+    float shininess = 128.0;
 
     // effect range radius for the light
     float range = 500.0;
@@ -44,17 +44,11 @@ void main()
     // light reflection direction
     vec3 reflection = normalize(-reflect(a, normal_));
 
-    // specular lighting sharpness
-    float sharpness = 75.0;
-
     // specular term
-    vec4 kSpecular = pow(max(dot(b, reflection), 0.0), 0.3 * sharpness) * specular;
+    vec4 kSpecular = pow(max(dot(b, reflection), 0.0), 0.3 + shininess) * specular;
     kSpecular = clamp(kSpecular, 0.0, 1.0);
 
-    //frag_color = color_;
-    //frag_color = kDistance * (ambient + kDiffuse + kSpecular) * color_;
-    frag_color = kDistance * (ambient + kDiffuse + kSpecular);
-    //frag_color = kSpecular;
+    frag_color = ambient + kDistance * (kDiffuse + kSpecular);
 
     gl_FragDepth = gl_FragCoord.z;
 }
