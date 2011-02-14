@@ -23,6 +23,10 @@ codeblocks/input/obj/
 codeblocks/input/*.cbTemp
 codeblocks/input/*.depend
 codeblocks/input/*.layout
+codeblocks/configuration/obj/
+codeblocks/configuration/*.cbTemp
+codeblocks/configuration/*.depend
+codeblocks/configuration/*.layout
 codeblocks/*.cbTemp
 doc/doxygen/html/
 include/glew/
