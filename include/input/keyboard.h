@@ -111,7 +111,7 @@ class Keyboard
         virtual void updateKeyboardState() = 0;
 
     protected:
-        static const int numberOfKeys = 47;
+        static const int numberOfKeys = 48;
         int keycodes[numberOfKeys];
 
         int* keyboardState;
