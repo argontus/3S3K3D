@@ -53,11 +53,11 @@ class Texture
                                 TextureFilter magfilter );
 
         /**
-         * Getter for textureHandler
+         * Getter for textureHandle
          *
          * @return GLuing texture handle for the texture
          */
-        inline GLuint getTextureHandler() const { return textureHandle; }
+        inline GLuint getTextureHandle() const { return textureHandle; }
 
     protected:
     private:
