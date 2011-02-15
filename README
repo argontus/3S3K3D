@@ -2,9 +2,25 @@
                           SUPER SPACE SHOOTER 3000 3D
 ===============================================================================
 
-== INSTALLING THE EXTERNAL LIBRARIES ON LINUX ==
+== INSTALLING THE EXTERNAL LIBRARIES ON GNU/LINUX ==
 
-TODO: ...
+=== IN SHORT ===
+
+To compile 3S3K3D you need to install the following libraries to your system.
+You may have to install 'dev' packages on some distros, like Ubuntu.
+ * SDL ( tested on 1.2.14 )
+ * SDLImage ( tested on 1.2.10 )
+ * SDLAudio ( ???? )
+
+ You should install these libraries using your distributions package 
+ management system.
+
+ For statically linked libraries (LUA and lib3ds) download the Code::Blocks
+ projects from 
+
+ http://student.labranet.jamk.fi/~e6299/
+
+ And add them to your workspace.
 
 
 == INSTALLING THE EXTERNAL LIBRARIES ON MINGW ==
