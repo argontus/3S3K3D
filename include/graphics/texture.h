@@ -25,6 +25,13 @@ class Texture
         FILTER_LINEAR_MIPMAP_LINEAR
     };
 
+    enum WrapMode {
+        WRAP_REPEAT,
+        WRAP_CLAMP,
+        WRAP_CLAMP_TO_EDGE,
+        WRAP_CLAMP_TO_BORDER
+    };
+
     public:
         Texture();
         virtual ~Texture();
@@ -49,8 +56,13 @@ class Texture
          * @param minfilter minification filter
          * @param magfilter magnification filter
          */
-        void setTextureFilters( TextureFilter minfilter,
+        void setFilters( TextureFilter minfilter,
                                 TextureFilter magfilter );
+
+        /**
+         * Sets texture wrap modes
+         */
+        void setWrapModes( WrapMode wrap_s, WrapMode wrap_t );
 
         /**
          * Getter for textureHandle
@@ -63,8 +75,10 @@ class Texture
     private:
         GLuint textureHandle;
         bool filtersSetManually;
+        bool wrapModesSetManually;
 
-        GLenum resolveFilter( Texture::TextureFilter filter );
+        GLenum resolveFilter( TextureFilter filter );
+        GLenum resolveWrapMode( WrapMode wrapmode );
 
 };
 

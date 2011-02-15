@@ -5,6 +5,7 @@ Texture::Texture()
 {
     glGenTextures( 1, &textureHandle );
     filtersSetManually = false;
+    wrapModesSetManually = false;
 }
 
 Texture::~Texture()
@@ -47,6 +48,9 @@ bool Texture::loadImage( std::string imagepath )
         default:
             std::cerr << "Not a true color image... something will go wrong"
                       << std::endl;
+            SDL_FreeSurface(tmp);
+
+            return false;
         break;
     }
 
@@ -59,6 +63,15 @@ bool Texture::loadImage( std::string imagepath )
     {
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    }
+
+    /**
+     * set GL_REPEAT as the default wrap mode
+     */
+    if( !wrapModesSetManually )
+    {
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
     }
 
     // copy the texture to the GPU
@@ -76,7 +89,7 @@ void Texture::bindTexture()
     glBindTexture( GL_TEXTURE_2D, textureHandle );
 }
 
-void Texture::setTextureFilters( Texture::TextureFilter minfilter,
+void Texture::setFilters( Texture::TextureFilter minfilter,
                                  Texture::TextureFilter magfilter )
 {
     bindTexture();
@@ -88,6 +101,19 @@ void Texture::setTextureFilters( Texture::TextureFilter minfilter,
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag );
 
     filtersSetManually = true;
+}
+
+void Texture::setWrapModes( Texture::WrapMode wrap_s, Texture::WrapMode wrap_t )
+{
+    bindTexture();
+
+    GLenum s = resolveWrapMode( wrap_s );
+    GLenum t = resolveWrapMode( wrap_t );
+
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, t );
+
+    wrapModesSetManually = true;
 }
 
 GLenum Texture::resolveFilter( Texture::TextureFilter filter )
@@ -114,6 +140,32 @@ GLenum Texture::resolveFilter( Texture::TextureFilter filter )
 
         default:
             return FILTER_NEAREST;
+    }
+}
+
+GLenum Texture::resolveWrapMode( Texture::WrapMode wrapmode )
+{
+    switch( wrapmode )
+    {
+        case WRAP_REPEAT:
+            return GL_REPEAT;
+        break;
+
+        case WRAP_CLAMP:
+            return GL_CLAMP;
+        break;
+
+        case WRAP_CLAMP_TO_EDGE:
+            return GL_CLAMP_TO_EDGE;
+        break;
+
+        case WRAP_CLAMP_TO_BORDER:
+            return GL_CLAMP_TO_BORDER;
+        break;
+
+        default:
+            return GL_REPEAT;
+        break;
     }
 }
 
