@@ -9,8 +9,8 @@
 To compile 3S3K3D you need to install the following libraries to your system.
 You may have to install 'dev' packages on some distros, like Ubuntu.
  * SDL ( tested on 1.2.14 )
- * SDLImage ( tested on 1.2.10 )
- * SDLAudio ( ???? )
+ * SDL_image ( tested on 1.2.10 )
+ * SDL_mixer( ???? )
 
  You should install these libraries using your distributions package 
  management system.
