@@ -18,14 +18,15 @@
 					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
-					<Add library="../../lib/libgeometryd.a" />
-					<Add library="../../lib/libgraphicsd.a" />
-					<Add library="../../lib/libinputd.a" />
 					<Add library="../../lib/libconfigurationd.a" />
+					<Add library="../../lib/libgraphicsd.a" />
+					<Add library="../../lib/libgeometryd.a" />
+					<Add library="../../lib/libinputd.a" />
 					<Add library="../../lib/lib3dsd.a" />
 					<Add library="GL" />
 					<Add library="GLEW" />
 					<Add library="SDL" />
+					<Add library="SDL_image" />
 				</Linker>
 			</Target>
 			<Target title="static_release">
