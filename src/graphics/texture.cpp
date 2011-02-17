@@ -26,6 +26,28 @@ bool Texture::loadImage( std::string imagepath )
         return false;
     }
 
+    // TODO: put this in a separate function
+
+    const size_t scanlineSize = tmp->pitch;
+    const int numSwaps = tmp->h / 2;
+
+    char* buffer = new char[scanlineSize];
+    char* top = (char*)tmp->pixels;
+    char* bottom = top + (tmp->h - 1) * scanlineSize;
+
+    // swap scanlines vertically
+    for (int i = 0; i < numSwaps; ++i)
+    {
+        ::memcpy(buffer, top, scanlineSize);
+        ::memcpy(top, bottom, scanlineSize);
+        ::memcpy(bottom, buffer, scanlineSize);
+
+        top += scanlineSize;
+        bottom -= scanlineSize;
+    }
+
+    delete [] buffer;
+
     GLint colorChannels = tmp->format->BytesPerPixel;
     GLenum textureFormat;
 

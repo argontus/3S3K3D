@@ -13,26 +13,26 @@
  */
 class Texture
 {
-    /**
-     * Supported texture filters.
-     */
-    enum TextureFilter {
-        FILTER_NEAREST,
-        FILTER_LINEAR,
-        FILTER_NEAREST_MIPMAP_NEAREST,
-        FILTER_NEAREST_MIPMAP_LINEAR,
-        FILTER_LINEAR_MIPMAP_NEAREST,
-        FILTER_LINEAR_MIPMAP_LINEAR
-    };
-
-    enum WrapMode {
-        WRAP_REPEAT,
-        WRAP_CLAMP,
-        WRAP_CLAMP_TO_EDGE,
-        WRAP_CLAMP_TO_BORDER
-    };
-
     public:
+        /**
+         * Supported texture filters.
+         */
+        enum TextureFilter {
+            FILTER_NEAREST,
+            FILTER_LINEAR,
+            FILTER_NEAREST_MIPMAP_NEAREST,
+            FILTER_NEAREST_MIPMAP_LINEAR,
+            FILTER_LINEAR_MIPMAP_NEAREST,
+            FILTER_LINEAR_MIPMAP_LINEAR
+        };
+
+        enum WrapMode {
+            WRAP_REPEAT,
+            WRAP_CLAMP,
+            WRAP_CLAMP_TO_EDGE,
+            WRAP_CLAMP_TO_BORDER
+        };
+
         Texture();
         virtual ~Texture();
 
