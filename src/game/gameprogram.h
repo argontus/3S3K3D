@@ -141,7 +141,11 @@ private:
     CameraNode* camera_;
     GroupNode* rootNode_;
     bool drawExtents_;
-    bool mipmappingOn;
+    bool diffuseMipmappingOn;
+    bool glowMipmappingOn;
+    bool normalMipmappingOn;
+    bool specularMipmappingOn;
+    bool rotateLights;
 
     VertexShaderManager vertexShaderManager_;
     FragmentShaderManager fragmentShaderManager_;

@@ -30,12 +30,16 @@ GameProgram::GameProgram()
 :   camera_(0),
     rootNode_(0),
     drawExtents_(true),
+    diffuseMipmappingOn(false),
+    glowMipmappingOn(false),
+    normalMipmappingOn(false),
+    specularMipmappingOn(false),
+    rotateLights(false),
     vertexShaderManager_(),
     fragmentShaderManager_(),
     shaderProgramManager_(),
     meshManager_(),
-    textureManager_(),
-    mipmappingOn(false)
+    textureManager_()
 {
     running         = true;
     deltaTicks      = 0;
@@ -134,18 +138,22 @@ int GameProgram::execute()
 
     Texture* texture = new Texture();
     texture->loadImage("data/textures/diffuse.tga");
+    texture->generateMipmap();
     textureManager_.loadResource("diffuse", texture);
 
     texture = new Texture();
     texture->loadImage("data/textures/specular.tga");
+    texture->generateMipmap();
     textureManager_.loadResource("specular", texture);
 
     texture = new Texture();
     texture->loadImage("data/textures/glow.tga");
+    texture->generateMipmap();
     textureManager_.loadResource("glow", texture);
 
     texture = new Texture();
     texture->loadImage("data/textures/normal.tga");
+    texture->generateMipmap();
     textureManager_.loadResource("normal", texture);
 
 
@@ -215,10 +223,27 @@ int GameProgram::execute()
 
         if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F2))
         {
-            if( mipmappingOn )
-                mipmappingOn = false;
-            else
-                mipmappingOn = true;
+            diffuseMipmappingOn = !diffuseMipmappingOn;
+        }
+
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F3))
+        {
+            glowMipmappingOn = !glowMipmappingOn;
+        }
+
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F4))
+        {
+            normalMipmappingOn = !normalMipmappingOn;
+        }
+
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F5))
+        {
+            specularMipmappingOn = !specularMipmappingOn;
+        }
+
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F6))
+        {
+            rotateLights = !rotateLights;
         }
 
         // quick&dirty, write a function for these or something
@@ -354,7 +379,11 @@ void GameProgram::render()
     };
 
     static float lightRotation = 0.0f;
-    lightRotation += deltaTime * 0.5f;
+
+    if (rotateLights)
+    {
+        lightRotation = Math::wrapTo2Pi(lightRotation + deltaTime * 0.5f);
+    }
 
     Transform3::yRotation(lightRotation).applyForward(lightPositions, lightPositions + 3, lightPositions);
     camera_->worldTransform().applyInverse(lightPositions, lightPositions + 3, lightPositions);
@@ -394,16 +423,44 @@ void GameProgram::render()
 
     // draw step
 
-    glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
-    if( mipmappingOn )
+    if( diffuseMipmappingOn )
     {
-        textureManager_.getResource("diffuse")->generateMipmap();
         textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
     }
-    else {
+    else
+    {
         textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
     }
+
+    if( glowMipmappingOn )
+    {
+        textureManager_.getResource("glow")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
+    }
+    else
+    {
+        textureManager_.getResource("glow")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+    }
+
+    if( normalMipmappingOn )
+    {
+        textureManager_.getResource("normal")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
+    }
+    else
+    {
+        textureManager_.getResource("normal")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+    }
+
+    if( specularMipmappingOn )
+    {
+        textureManager_.getResource("specular")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
+    }
+    else
+    {
+        textureManager_.getResource("specular")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+    }
+
+    glActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
     textureManager_.getResource("diffuse")->bindTexture();
 
 
