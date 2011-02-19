@@ -24,6 +24,7 @@
 					<Add library="..\..\lib\lib3ds.dll.a" />
 					<Add library="..\..\lib\libglew.dll.a" />
 					<Add library="..\..\lib\libSDL.dll.a" />
+					<Add library="..\..\lib\libSDL_image.dll.a" />
 					<Add library="libopengl32.a" />
 				</Linker>
 			</Target>
@@ -47,6 +48,7 @@
 					<Add library="..\..\lib\lib3ds.dll.a" />
 					<Add library="..\..\lib\libglew.dll.a" />
 					<Add library="..\..\lib\libSDL.dll.a" />
+					<Add library="..\..\lib\libSDL_image.dll.a" />
 					<Add library="libopengl32.a" />
 				</Linker>
 			</Target>

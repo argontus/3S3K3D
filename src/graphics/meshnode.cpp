@@ -98,47 +98,62 @@ void MeshNode::draw(const DrawParams& params) const
 {
     GRAPHICS_RUNTIME_ASSERT(mesh_ != 0);
 
-    const Vector3Array& vertices = mesh_->vertices();
+    const Vector3Array& coords = mesh_->vertices();
     const Vector3Array& normals = mesh_->normals();
+    const Vector3Array& tangents = mesh_->tangents();
+    const Vector2Array& texCoords = mesh_->texCoords();
 
-    GRAPHICS_RUNTIME_ASSERT(vertices.size() == normals.size());
+    GRAPHICS_RUNTIME_ASSERT(coords.size() == normals.size());
+    GRAPHICS_RUNTIME_ASSERT(coords.size() == tangents.size());
+    GRAPHICS_RUNTIME_ASSERT(coords.size() == texCoords.size());
 
-    //const Matrix4x4 mMatrix = modelToWorldMatrix();
-    //const Matrix4x4 mvMatrix = product(mMatrix, params.viewMatrix);
-    const Matrix4x4 mvMatrix(conversion(worldTransform(), params.cameraToWorld));
-    const Matrix4x4 mvpMatrix = product(mvMatrix, params.projectionMatrix);
-    const Matrix3x3 normalMatrix = product(worldTransform().rotation(), params.worldToViewRotation);
+    const Matrix4x4 modelViewMatrix(conversion(worldTransform(), params.cameraToWorld));
+    const Matrix3x3 normalMatrix(product(worldTransform().rotation(), params.worldToViewRotation));
 
-    // TODO: get rid of this
-    // needed for lighting, quick & dirty
-    const GLint viewMatrixLocation = params.shaderProgram->uniformLocation("view_matrix");
-    glUniformMatrix4fv(viewMatrixLocation, 1, false, params.viewMatrix.data());
+    params.shaderProgram->setUniformMatrix4x4fv(
+        "modelViewMatrix",
+        1,
+        false,
+        modelViewMatrix.data()
+    );
 
-    // needed for lighting
-    const GLint mvMatrixLocation = params.shaderProgram->uniformLocation("mv_matrix");
-    glUniformMatrix4fv(mvMatrixLocation, 1, false, mvMatrix.data());
+    // TODO: can be loaded in the draw initialization step
+    params.shaderProgram->setUniformMatrix4x4fv(
+        "projectionMatrix",
+        1,
+        false,
+        params.projectionMatrix.data()
+    );
 
-    // needed for transforming vertex coordinates
-    const GLint mvpMatrixLocation = params.shaderProgram->uniformLocation("mvp_matrix");
-    glUniformMatrix4fv(mvpMatrixLocation, 1, false, mvpMatrix.data());
-
-    // needed for lighting
-    const GLint normalMatrixLocation = params.shaderProgram->uniformLocation("normal_matrix");
-    glUniformMatrix3fv(normalMatrixLocation, 1, false, normalMatrix.data());
+    params.shaderProgram->setUniformMatrix3x3fv(
+        "normalMatrix",
+        1,
+        false,
+        normalMatrix.data()
+    );
 
     const GLint coordLocation = params.shaderProgram->attribLocation("coord");
-    glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, vertices.componentData());
+    glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords.componentData());
     glEnableVertexAttribArray(coordLocation);
 
-    // needed for lighting
     const GLint normalLocation = params.shaderProgram->attribLocation("normal");
     glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, 0, normals.componentData());
     glEnableVertexAttribArray(normalLocation);
 
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+    const GLint tangentLocation = params.shaderProgram->attribLocation("tangent");
+    glVertexAttribPointer(tangentLocation, 3, GL_FLOAT, false, 0, tangents.componentData());
+    glEnableVertexAttribArray(tangentLocation);
+
+    const GLint texCoordLocation = params.shaderProgram->attribLocation("texCoord");
+    glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, 0, texCoords.componentData());
+    glEnableVertexAttribArray(texCoordLocation);
+
+    glDrawArrays(GL_TRIANGLES, 0, coords.size());
 
     glDisableVertexAttribArray(coordLocation);
     glDisableVertexAttribArray(normalLocation);
+    glDisableVertexAttribArray(tangentLocation);
+    glDisableVertexAttribArray(texCoordLocation);
 }
 
 void MeshNode::invalidateWorlExtents() const

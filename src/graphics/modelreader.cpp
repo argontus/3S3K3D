@@ -122,13 +122,22 @@ void ModelReader::readMesh(const Lib3dsMesh* const p, const std::string& prefix)
         GRAPHICS_RUNTIME_ASSERT(i1 >= 0 && i1 < numVertices);
         GRAPHICS_RUNTIME_ASSERT(i2 >= 0 && i2 < numVertices);
 
-        const Vector3 v0(p->vertices[i0][0], p->vertices[i0][1], p->vertices[i0][2]);
-        const Vector3 v1(p->vertices[i1][0], p->vertices[i1][1], p->vertices[i1][2]);
-        const Vector3 v2(p->vertices[i2][0], p->vertices[i2][1], p->vertices[i2][2]);
+        mesh->vertices()[i * 3 + 0].set(p->vertices[i0][0], p->vertices[i0][1], p->vertices[i0][2]);
+        mesh->vertices()[i * 3 + 1].set(p->vertices[i1][0], p->vertices[i1][1], p->vertices[i1][2]);
+        mesh->vertices()[i * 3 + 2].set(p->vertices[i2][0], p->vertices[i2][1], p->vertices[i2][2]);
 
-        mesh->vertices()[i * 3 + 0] = v0;
-        mesh->vertices()[i * 3 + 1] = v1;
-        mesh->vertices()[i * 3 + 2] = v2;
+        if (p->texcos != 0)
+        {
+            mesh->texCoords()[i * 3 + 0].set(p->texcos[i0][0], p->texcos[i0][1]);
+            mesh->texCoords()[i * 3 + 1].set(p->texcos[i1][0], p->texcos[i1][1]);
+            mesh->texCoords()[i * 3 + 2].set(p->texcos[i2][0], p->texcos[i2][1]);
+        }
+        else
+        {
+            mesh->texCoords()[i * 3 + 0].set(0.0f, 0.0f);
+            mesh->texCoords()[i * 3 + 1].set(0.0f, 0.0f);
+            mesh->texCoords()[i * 3 + 2].set(0.0f, 0.0f);
+        }
     }
 
     // TODO: material, texture coordinates

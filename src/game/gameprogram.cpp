@@ -33,7 +33,8 @@ GameProgram::GameProgram()
     vertexShaderManager_(),
     fragmentShaderManager_(),
     shaderProgramManager_(),
-    meshManager_()
+    meshManager_(),
+    textureManager_()
 {
     running         = true;
     deltaTicks      = 0;
@@ -76,10 +77,17 @@ int GameProgram::execute()
     GRAPHICS_RUNTIME_ASSERT(vertexShader->compileStatus());
     vertexShaderManager_.loadResource("extents", vertexShader);
 
+    vertexShader = new VertexShader();
+    vertexShader->setSourceText(readSourceText("data/shaders/test.vs"));
+    vertexShader->compile();
+    //const std::string info = vertexShader->infoLog();
+    GRAPHICS_RUNTIME_ASSERT(vertexShader->compileStatus());
+    vertexShaderManager_.loadResource("test", vertexShader);
+
     FragmentShader* fragmentShader = new FragmentShader();
     fragmentShader->setSourceText(readSourceText("data/shaders/default.fs"));
     fragmentShader->compile();
-    const std::string info = fragmentShader->infoLog();
+    //const std::string info = fragmentShader->infoLog();
     GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
     fragmentShaderManager_.loadResource("default", fragmentShader);
 
@@ -88,6 +96,13 @@ int GameProgram::execute()
     fragmentShader->compile();
     GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
     fragmentShaderManager_.loadResource("extents", fragmentShader);
+
+    fragmentShader = new FragmentShader();
+    fragmentShader->setSourceText(readSourceText("data/shaders/test.fs"));
+    fragmentShader->compile();
+    //const std::string info = fragmentShader->infoLog();
+    GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
+    fragmentShaderManager_.loadResource("test", fragmentShader);
 
     // shader program for drawing mesh nodes
     ShaderProgram* shaderProgram = new ShaderProgram();
@@ -104,6 +119,33 @@ int GameProgram::execute()
     shaderProgram->link();
     GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
     shaderProgramManager_.loadResource("extents", shaderProgram);
+
+    // shader program for drawing node extents
+    shaderProgram = new ShaderProgram();
+    shaderProgram->setVertexShader(vertexShaderManager_.getResource("test"));
+    shaderProgram->setFragmentShader(fragmentShaderManager_.getResource("test"));
+    shaderProgram->link();
+    GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
+    shaderProgramManager_.loadResource("test", shaderProgram);
+
+
+    // init textures
+
+    Texture* texture = new Texture();
+    texture->loadImage("data/textures/diffuse.tga");
+    textureManager_.loadResource("diffuse", texture);
+
+    texture = new Texture();
+    texture->loadImage("data/textures/specular.tga");
+    textureManager_.loadResource("specular", texture);
+
+    texture = new Texture();
+    texture->loadImage("data/textures/glow.tga");
+    textureManager_.loadResource("glow", texture);
+
+    texture = new Texture();
+    texture->loadImage("data/textures/normal.tga");
+    textureManager_.loadResource("normal", texture);
 
 
     // init scene
@@ -169,7 +211,12 @@ int GameProgram::execute()
         }
 
         // quick&dirty, write a function for these or something
-        static const float speed = 40.0f;
+        static const float speed = 50.0f;
+
+//        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_SPACE ) )
+//        {
+//            camera_->setTransform(Transform3::identity());
+//        }
 
 		if( keyboard.keyIsDown( Keyboard::KEY_D ) )
 		{
@@ -280,11 +327,59 @@ void GameProgram::render()
     // setting the second parameter to false disables frustum culling
     rootNode_->predraw(predrawParams, true);
 
-    ShaderProgram* shaderProgram = shaderProgramManager_.getResource("default");
+    ShaderProgram* shaderProgram = shaderProgramManager_.getResource("test");
     glUseProgram(shaderProgram->id());
+
+    // ...
+
+    const GLint lightPositionsLocation = glGetUniformLocation(shaderProgram->id(), "lightPositions");
+    const GLint lightColorsLocation = glGetUniformLocation(shaderProgram->id(), "lightColors");
+    const GLint lightRangesLocation = glGetUniformLocation(shaderProgram->id(), "lightRanges");
+    const GLint numLightsLocation = glGetUniformLocation(shaderProgram->id(), "numLights");
+    const GLint diffuseMapLocation = glGetUniformLocation(shaderProgram->id(), "diffuseMap");
+    const GLint specularMapLocation = glGetUniformLocation(shaderProgram->id(), "specularMap");
+    const GLint glowMapLocation = glGetUniformLocation(shaderProgram->id(), "glowMap");
+    const GLint normalMapLocation = glGetUniformLocation(shaderProgram->id(), "normalMap");
+
+    Vector3 lightPositions[] = {
+        Vector3(150.0f * Math::cos(Math::degToRad(0.0f)), 0.0f, 150.0f * Math::sin(Math::degToRad(0.0f))),
+        Vector3(150.0f * Math::cos(Math::degToRad(120.0f)), 0.0f, 150.0f * Math::sin(Math::degToRad(120.0f))),
+        Vector3(150.0f * Math::cos(Math::degToRad(240.0f)), 0.0f, 150.0f * Math::sin(Math::degToRad(240.0f)))
+    };
+
+    static float lightRotation = 0.0f;
+    lightRotation += deltaTime * 0.5f;
+
+    Transform3::yRotation(lightRotation).applyForward(lightPositions, lightPositions + 3, lightPositions);
+    camera_->worldTransform().applyInverse(lightPositions, lightPositions + 3, lightPositions);
+
+    const Vector3 lightColors[] = {
+        Vector3(2.00f, 0.50f, 0.50f),
+        Vector3(0.50f, 2.00f, 0.50f),
+        Vector3(0.50f, 0.50f, 2.00f)
+    };
+
+    const float lightRanges[] = {
+        250.0f,
+        250.0f,
+        250.0f
+    };
+
+    glUniform3fv(lightPositionsLocation, 3, lightPositions->data());
+    glUniform3fv(lightColorsLocation, 3, lightColors->data());
+    glUniform1fv(lightRangesLocation, 3, lightRanges);
+    glUniform1i(numLightsLocation, 3);
+
+    glUniform1i(diffuseMapLocation, 0);
+    glUniform1i(specularMapLocation, 1);
+    glUniform1i(glowMapLocation, 2);
+    glUniform1i(normalMapLocation, 3);
+
+    // ...
 
     DrawParams drawParams;
     drawParams.viewMatrix = camera_->worldToViewMatrix();
+    // TODO: load projection matrix directly to the shader?
     drawParams.projectionMatrix = camera_->projectionMatrix();
     drawParams.worldToViewRotation = transpose(camera_->worldTransform().rotation());
     drawParams.shaderProgram = shaderProgram;
@@ -293,8 +388,36 @@ void GameProgram::render()
 
     // draw step
 
+    glActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+    textureManager_.getResource("diffuse")->bindTexture();
+
+    glActiveTexture(GL_TEXTURE1);
+    glEnable(GL_TEXTURE_2D);
+    textureManager_.getResource("specular")->bindTexture();
+
+    glActiveTexture(GL_TEXTURE2);
+    glEnable(GL_TEXTURE_2D);
+    textureManager_.getResource("glow")->bindTexture();
+
+    glActiveTexture(GL_TEXTURE3);
+    glEnable(GL_TEXTURE_2D);
+    textureManager_.getResource("normal")->bindTexture();
+
     renderQueue.sort();
     renderQueue.draw(drawParams);
+
+    glActiveTexture(GL_TEXTURE0);
+    glDisable(GL_TEXTURE_2D);
+
+    glActiveTexture(GL_TEXTURE1);
+    glDisable(GL_TEXTURE_2D);
+
+    glActiveTexture(GL_TEXTURE2);
+    glDisable(GL_TEXTURE_2D);
+
+    glActiveTexture(GL_TEXTURE3);
+    glDisable(GL_TEXTURE_2D);
 
     if (drawExtents_)
     {
@@ -516,23 +639,144 @@ void GameProgram::onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent )
 }
 */
 
+// dx, dy, and dz are half-widths on x-, y- and z-axes, respectively
+Mesh* createBox(const float dx, const float dy, const float dz)
+{
+    const Vector3 min(-dx, -dy, -dz);
+    const Vector3 max( dx,  dy,  dz);
+
+    Vector3 _coords[] = {
+        Vector3(min.x, min.y, max.z),
+        Vector3(max.x, min.y, max.z),
+        Vector3(max.x, max.y, max.z),
+        Vector3(min.x, max.y, max.z),
+        Vector3(min.x, min.y, min.z),
+        Vector3(max.x, min.y, min.z),
+        Vector3(max.x, max.y, min.z),
+        Vector3(min.x, max.y, min.z)
+    };
+
+    Vector2 _texCoords[] = {
+        Vector2(0.0f, 0.0f),
+        Vector2(1.0f, 0.0f),
+        Vector2(1.0f, 1.0f),
+        Vector2(0.0f, 1.0f)
+    };
+
+    Vector3Array coords(36);
+    // front
+    coords[ 0] = _coords[0];
+    coords[ 1] = _coords[1];
+    coords[ 2] = _coords[2];
+    coords[ 3] = _coords[0];
+    coords[ 4] = _coords[2];
+    coords[ 5] = _coords[3];
+    // back
+    coords[ 6] = _coords[5];
+    coords[ 7] = _coords[4];
+    coords[ 8] = _coords[7];
+    coords[ 9] = _coords[5];
+    coords[10] = _coords[7];
+    coords[11] = _coords[6];
+    // left
+    coords[12] = _coords[4];
+    coords[13] = _coords[0];
+    coords[14] = _coords[3];
+    coords[15] = _coords[4];
+    coords[16] = _coords[3];
+    coords[17] = _coords[7];
+    // right
+    coords[18] = _coords[1];
+    coords[19] = _coords[5];
+    coords[20] = _coords[6];
+    coords[21] = _coords[1];
+    coords[22] = _coords[6];
+    coords[23] = _coords[2];
+    // bottom
+    coords[24] = _coords[4];
+    coords[25] = _coords[5];
+    coords[26] = _coords[1];
+    coords[27] = _coords[4];
+    coords[28] = _coords[1];
+    coords[29] = _coords[0];
+    // top
+    coords[30] = _coords[3];
+    coords[31] = _coords[2];
+    coords[32] = _coords[6];
+    coords[33] = _coords[3];
+    coords[34] = _coords[6];
+    coords[35] = _coords[7];
+
+    Vector2Array texCoords(36);
+    // front
+    texCoords[ 0] = _texCoords[0];
+    texCoords[ 1] = _texCoords[1];
+    texCoords[ 2] = _texCoords[2];
+    texCoords[ 3] = _texCoords[0];
+    texCoords[ 4] = _texCoords[2];
+    texCoords[ 5] = _texCoords[3];
+    // back
+    texCoords[ 6] = _texCoords[0];
+    texCoords[ 7] = _texCoords[1];
+    texCoords[ 8] = _texCoords[2];
+    texCoords[ 9] = _texCoords[0];
+    texCoords[10] = _texCoords[2];
+    texCoords[11] = _texCoords[3];
+    // left
+    texCoords[12] = _texCoords[0];
+    texCoords[13] = _texCoords[1];
+    texCoords[14] = _texCoords[2];
+    texCoords[15] = _texCoords[0];
+    texCoords[16] = _texCoords[2];
+    texCoords[17] = _texCoords[3];
+    // right
+    texCoords[18] = _texCoords[0];
+    texCoords[19] = _texCoords[1];
+    texCoords[20] = _texCoords[2];
+    texCoords[21] = _texCoords[0];
+    texCoords[22] = _texCoords[2];
+    texCoords[23] = _texCoords[3];
+    // bottom
+    texCoords[24] = _texCoords[0];
+    texCoords[25] = _texCoords[1];
+    texCoords[26] = _texCoords[2];
+    texCoords[27] = _texCoords[0];
+    texCoords[28] = _texCoords[2];
+    texCoords[29] = _texCoords[3];
+    // top
+    texCoords[30] = _texCoords[0];
+    texCoords[31] = _texCoords[1];
+    texCoords[32] = _texCoords[2];
+    texCoords[33] = _texCoords[0];
+    texCoords[34] = _texCoords[2];
+    texCoords[35] = _texCoords[3];
+
+    // create a mesh with 12 faces
+    Mesh* p = new Mesh(12);
+
+    p->setVertices(coords);
+    p->setTexCoords(texCoords);
+    p->generateFlatNormals();
+
+    return p;
+}
+
 void GameProgram::test()
 {
-    ModelReader modelReader;
-    modelReader.setMeshManager(&meshManager_);
+    Mesh* const boxMesh = createBox(0.5f, 0.5f, 0.5f);
+    meshManager_.loadResource("box", boxMesh);
 
-    Node* p = 0;
+    GroupNode* groupNode = new GroupNode();
 
+    const float scaling = 10.0f;
 
-    // heavy geometry with tanks
+    MeshNode* meshNode = new MeshNode();
+    meshNode->setScaling(scaling);
+    meshNode->setMesh(boxMesh);
+    meshNode->updateModelExtents();
 
-    p = modelReader.read("data/models/abrams_tank.3ds");
-    p->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
-    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
-    p->setScaling(0.15f);
-
-    const int count = 6;
-    const float offset = 75.0f;
+    const int count = 10;
+    const float offset = 2.5f * scaling;
     const float displacement = -(offset * (count - 1)) / 2.0f;
 
     for (int i = 0; i < count; ++i)
@@ -541,21 +785,69 @@ void GameProgram::test()
         {
             if (i != 0 || j != 0)
             {
-                p = p->clone();
+                meshNode = meshNode->clone();
             }
 
-            p->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
-            rootNode_->attachChild(p);
+            meshNode->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
+            groupNode->attachChild(meshNode);
         }
     }
 
-    p = modelReader.read("data/models/platform.3ds");
-    p->setTranslation(Vector3(0.0f, -472.0f, 0.0f));
-    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
-    p->setScaling(3.0f);
-    rootNode_->attachChild(p);
+    for (int i = 0; i < count; ++i)
+    {
+        if (i != 0)
+        {
+            groupNode = groupNode->clone();
+        }
+
+        groupNode->setTranslation(Vector3(0.0f, displacement + i * offset, 0.0f));
+        rootNode_->attachChild(groupNode);
+    }
+
+//    ModelReader modelReader;
+//    modelReader.setMeshManager(&meshManager_);
+//
+//    Node* p = 0;
+//
+//    // heavy geometry with tanks
+//
+//    p = modelReader.read("data/models/abrams_tank.3ds");
+//    p->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
+//    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
+//    p->setScaling(0.15f);
+//
+//    const int count = 6;
+//    const float offset = 75.0f;
+//    const float displacement = -(offset * (count - 1)) / 2.0f;
+//
+//    for (int i = 0; i < count; ++i)
+//    {
+//        for (int j = 0; j < count; ++j)
+//        {
+//            if (i != 0 || j != 0)
+//            {
+//                p = p->clone();
+//            }
+//
+//            p->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
+//            rootNode_->attachChild(p);
+//        }
+//    }
+//
+//    p = modelReader.read("data/models/platform.3ds");
+//    p->setTranslation(Vector3(0.0f, -472.0f, 0.0f));
+//    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
+//    p->setScaling(3.0f);
+//    rootNode_->attachChild(p);
+//
+//    p = modelReader.read("data/models/ship2.3ds");
+//    p->setTranslation(Vector3(0.0f, 25.0f, 0.0f));
+//    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
+//    //p->setScaling(3.0f);
+//    rootNode_->attachChild(p);
 
     camera_->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
+    //camera_->setTranslation(Vector3(-0.5f * offset, -0.5f * offset, 0.0f));
 }
 
 GameProgram::~GameProgram()

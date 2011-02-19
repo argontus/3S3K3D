@@ -20,6 +20,7 @@
 #include <graphics/shaderprogram.h>
 #include <graphics/mesh.h>
 #include <geometry/vector3.h>
+#include <graphics/texture.h>
 
 // TODO: quick & dirty
 class CameraNode;
@@ -32,6 +33,7 @@ typedef ResourceManager<VertexShader> VertexShaderManager;
 typedef ResourceManager<FragmentShader> FragmentShaderManager;
 typedef ResourceManager<ShaderProgram> ShaderProgramManager;
 typedef ResourceManager<Mesh> MeshManager;
+typedef ResourceManager<Texture> TextureManager;
 
 /**
  * The 'main' class of the game. Does event handling for keyboard and mouse
@@ -144,6 +146,7 @@ private:
     FragmentShaderManager fragmentShaderManager_;
     ShaderProgramManager shaderProgramManager_;
     MeshManager meshManager_;
+    TextureManager textureManager_;
 };
 
 #endif /* GAMEPROGRAM_H_ */
