@@ -248,8 +248,6 @@ int GameProgram::execute()
         deltaX = mouse.getMouseDeltaX();
         deltaY = mouse.getMouseDeltaY();
 
-        std::cout << "deltaX: " << deltaX << " deltaY: " << deltaY << std::endl;
-
         const float rotationFactor = 0.005;
 
         if( deltaX != 0 )
