@@ -141,6 +141,7 @@ private:
     CameraNode* camera_;
     GroupNode* rootNode_;
     bool drawExtents_;
+    bool mipmappingOn;
 
     VertexShaderManager vertexShaderManager_;
     FragmentShaderManager fragmentShaderManager_;

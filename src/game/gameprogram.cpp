@@ -34,7 +34,8 @@ GameProgram::GameProgram()
     fragmentShaderManager_(),
     shaderProgramManager_(),
     meshManager_(),
-    textureManager_()
+    textureManager_(),
+    mipmappingOn(false)
 {
     running         = true;
     deltaTicks      = 0;
@@ -212,6 +213,14 @@ int GameProgram::execute()
             drawExtents_ = !drawExtents_;
         }
 
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F2))
+        {
+            if( mipmappingOn )
+                mipmappingOn = false;
+            else
+                mipmappingOn = true;
+        }
+
         // quick&dirty, write a function for these or something
         static const float speed = 50.0f;
 
@@ -387,10 +396,20 @@ void GameProgram::render()
 
     glActiveTexture(GL_TEXTURE0);
     glEnable(GL_TEXTURE_2D);
+    if( mipmappingOn )
+    {
+        textureManager_.getResource("diffuse")->generateMipmap();
+        textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
+    }
+    else {
+        textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+    }
     textureManager_.getResource("diffuse")->bindTexture();
+
 
     glActiveTexture(GL_TEXTURE1);
     glEnable(GL_TEXTURE_2D);
+    textureManager_.getResource("specular")->generateMipmap();
     textureManager_.getResource("specular")->bindTexture();
 
     glActiveTexture(GL_TEXTURE2);
