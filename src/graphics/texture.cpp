@@ -138,6 +138,12 @@ void Texture::setWrapModes( Texture::WrapMode wrap_s, Texture::WrapMode wrap_t )
     wrapModesSetManually = true;
 }
 
+void Texture::generateMipmap()
+{
+    bindTexture();
+    glGenerateMipmap( GL_TEXTURE_2D );
+}
+
 GLenum Texture::resolveFilter( Texture::TextureFilter filter )
 {
     switch( filter )

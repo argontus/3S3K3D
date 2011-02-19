@@ -71,6 +71,11 @@ class Texture
          */
         inline GLuint getTextureHandle() const { return textureHandle; }
 
+        /**
+         * Activates mipmapping for the texture
+         */
+         void generateMipmap();
+
     protected:
     private:
         GLuint textureHandle;
