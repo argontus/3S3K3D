@@ -15,6 +15,7 @@
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-g" />
+					<Add option="-O0" />
 				</Compiler>
 				<Linker>
 					<Add library="..\..\lib\libconfigurationd.a" />
