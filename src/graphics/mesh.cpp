@@ -153,19 +153,14 @@ void Mesh::generateFlatNormals()
             t0t1 = Vector2::xAxis();
         }
 
-        //const float vCoordAngle = 0.0f; // TODO: ...
         const float tCoordAngle = angle(t0t1);
 
         // normal
         const Vector3 n = faceNormal(i);
 
         // align tangent with the horizontal texture axis
-        //t = product(t, Matrix3x3::rotation(n, tCoordAngle - vCoordAngle));
         t = product(t, Matrix3x3::rotation(n, -tCoordAngle));
         t.normalize();
-
-        // binormal
-        //const Vector3 b = cross(t, n);
 
         normals_[i * 3 + 0] =
         normals_[i * 3 + 1] =
