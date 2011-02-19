@@ -171,3 +171,8 @@ void GameWindow::releaseMouse()
     mouseVisible = true;
     SDL_ShowCursor( mouseVisible );
 }
+
+void GameWindow::centerMouse()
+{
+    SDL_WarpMouse( width/2, height/2 );
+}

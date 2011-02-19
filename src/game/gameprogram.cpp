@@ -187,9 +187,11 @@ int GameProgram::execute()
         mouse.bindMouse();
         mouse.setMouseBindPointX( width/2 );
         mouse.setMouseBindPointY( height/2 );
+        centerMouse();
     }
 
     std::cout << "Entering main loop..." << std::endl;
+
 	while( running ) {
         currentTicks = SDL_GetTicks();
 
@@ -212,11 +214,6 @@ int GameProgram::execute()
 
         // quick&dirty, write a function for these or something
         static const float speed = 50.0f;
-
-//        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_SPACE ) )
-//        {
-//            camera_->setTransform(Transform3::identity());
-//        }
 
 		if( keyboard.keyIsDown( Keyboard::KEY_D ) )
 		{
@@ -250,6 +247,8 @@ int GameProgram::execute()
 
         deltaX = mouse.getMouseDeltaX();
         deltaY = mouse.getMouseDeltaY();
+
+        std::cout << "deltaX: " << deltaX << " deltaY: " << deltaY << std::endl;
 
         const float rotationFactor = 0.005;
 
@@ -495,149 +494,14 @@ void GameProgram::tick( const float deltaTime )
 {
     if( mouseBoundToScreen )
     {
-        SDL_WarpMouse( width/2, height/2 );
+        centerMouse();
     }
-/*
-    if( cameraSpeedX != 0 )
-    {
-        camera_->translateBy( camera_->rotation().row(0) * cameraSpeedX );
-    }
-
-    if( cameraSpeedY != 0 )
-    {
-        camera_->translateBy( Vector3::yAxis() * cameraSpeedY );
-    }
-
-    if( cameraSpeedZ != 0 )
-    {
-        camera_->translateBy( camera_->rotation().row(2) * cameraSpeedZ );
-    }
-    */
 }
 
 void GameProgram::onQuit()
 {
     running = false;
 }
-/*
-void GameProgram::onKeyDown( const SDL_KeyboardEvent& keyboardEvent )
-{
-    const float cameraSpeed = 1.0f;
-
-    switch( keyboardEvent.keysym.sym )
-    {
-        case SDLK_ESCAPE:
-            running = false;
-            break;
-
-        case SDLK_a:
-            //camera_->translateBy(deltaTime * translationFactor * -camera_->rotation().row(0));
-            cameraSpeedX = -cameraSpeed ;
-            break;
-
-        case SDLK_s:
-            //camera_->translateBy(deltaTime * translationFactor * camera_->rotation().row(2));
-            cameraSpeedZ = cameraSpeed;
-            break;
-
-        case SDLK_d:
-            //camera_->translateBy(deltaTime * translationFactor * camera_->rotation().row(0));
-             cameraSpeedX = cameraSpeed;
-            break;
-
-        case SDLK_w:
-            //camera_->translateBy(deltaTime * translationFactor * -camera_->rotation().row(2));
-            cameraSpeedZ = -cameraSpeed;
-            break;
-
-        case SDLK_q:
-            //camera_->translateBy(deltaTime * translationFactor * -Vector3::yAxis());
-            break;
-
-        case SDLK_e:
-            //camera_->translateBy(deltaTime * translationFactor * Vector3::yAxis());
-            break;
-
-        case SDLK_LEFT:
-            //camera_->rotateBy(Matrix3x3::yRotation(deltaTime * rotationFactor));
-            break;
-
-        case SDLK_RIGHT:
-            //camera_->rotateBy(Matrix3x3::yRotation(deltaTime * -rotationFactor));
-            break;
-
-        case SDLK_UP:
-            //camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaTime * rotationFactor));
-            break;
-
-        case SDLK_DOWN:
-            //camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaTime * -rotationFactor));
-            break;
-        case SDLK_F2:
-            if( mouseBoundToScreen )
-                releaseMouse();
-            else
-                bindMouse();
-
-            break;
-        case SDLK_F1:
-            drawExtents_ = !drawExtents_;
-            break;
-
-        default:
-            break;
-    }
-}
-*/
-
-/*
-void GameProgram::onKeyUp( const SDL_KeyboardEvent& keyboardEvent )
-{
- switch( keyboardEvent.keysym.sym )
-    {
-        case SDLK_ESCAPE:
-            running = false;
-            break;
-
-        case SDLK_a:
-        case SDLK_d:
-            cameraSpeedX = 0.0f;
-            break;
-
-        case SDLK_q:
-        case SDLK_e:
-            cameraSpeedY = 0.0f;
-            break;
-
-        case SDLK_s:
-        case SDLK_w:
-            cameraSpeedZ = 0.0f;
-            break;
-
-        default:
-            break;
-    }
-
-}
-*/
-
-/*
-void GameProgram::onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent )
-{
-    const int deltaX = mouseMotionEvent.x-width/2;
-    const int deltaY = mouseMotionEvent.y-height/2;
-    const float rotationFactor = 0.0025;
-
-    if( deltaX != 0 )
-    {
-        camera_->rotateBy(Matrix3x3::yRotation(deltaX * -rotationFactor));
-    }
-
-    if( deltaY != 0 ) {
-        camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor ));
-    }
-}
-*/
 
 // dx, dy, and dz are half-widths on x-, y- and z-axes, respectively
 Mesh* createBox(const float dx, const float dy, const float dz)

@@ -139,6 +139,11 @@ class GameWindow
           */
          virtual void releaseMouse();
 
+        /**
+         * Centers the mouse pointer to the center of the window
+         */
+        virtual void centerMouse();
+
     protected:
         //SDL_WindowID mainwindow; /* window handle */
         //SDL_GLContext maincontext; /* opengl context handle */
