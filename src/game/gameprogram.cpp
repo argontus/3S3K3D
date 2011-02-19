@@ -409,7 +409,6 @@ void GameProgram::render()
 
     glActiveTexture(GL_TEXTURE1);
     glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("specular")->generateMipmap();
     textureManager_.getResource("specular")->bindTexture();
 
     glActiveTexture(GL_TEXTURE2);
