@@ -89,6 +89,13 @@ int GameProgram::execute()
     GRAPHICS_RUNTIME_ASSERT(vertexShader->compileStatus());
     vertexShaderManager_.loadResource("test", vertexShader);
 
+    vertexShader = new VertexShader();
+    vertexShader->setSourceText(readSourceText("data/shaders/shadow.vs"));
+    vertexShader->compile();
+    //const std::string info = vertexShader->infoLog();
+    GRAPHICS_RUNTIME_ASSERT(vertexShader->compileStatus());
+    vertexShaderManager_.loadResource("shadow", vertexShader);
+
     FragmentShader* fragmentShader = new FragmentShader();
     fragmentShader->setSourceText(readSourceText("data/shaders/default.fs"));
     fragmentShader->compile();
@@ -108,6 +115,13 @@ int GameProgram::execute()
     //const std::string info = fragmentShader->infoLog();
     GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
     fragmentShaderManager_.loadResource("test", fragmentShader);
+
+    fragmentShader = new FragmentShader();
+    fragmentShader->setSourceText(readSourceText("data/shaders/shadow.fs"));
+    fragmentShader->compile();
+    //const std::string info = fragmentShader->infoLog();
+    GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
+    fragmentShaderManager_.loadResource("shadow", fragmentShader);
 
     // shader program for drawing mesh nodes
     ShaderProgram* shaderProgram = new ShaderProgram();
@@ -132,6 +146,14 @@ int GameProgram::execute()
     shaderProgram->link();
     GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
     shaderProgramManager_.loadResource("test", shaderProgram);
+
+    // shader program for shadow render passes
+    shaderProgram = new ShaderProgram();
+    shaderProgram->setVertexShader(vertexShaderManager_.getResource("shadow"));
+    shaderProgram->setFragmentShader(fragmentShaderManager_.getResource("shadow"));
+    shaderProgram->link();
+    GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
+    shaderProgramManager_.loadResource("shadow", shaderProgram);
 
 
     // init textures
@@ -491,6 +513,94 @@ void GameProgram::render()
     glActiveTexture(GL_TEXTURE3);
     glDisable(GL_TEXTURE_2D);
 
+    // shadow pass
+
+    //glDisable(GL_CULL_FACE);
+
+    // TODO: how do these work?
+    //glEnable(GL_POLYGON_OFFSET_FILL);
+    //glPolygonOffset(0.0f, -1000.0f);
+
+    drawParams.shaderProgram = shaderProgramManager_.getResource("shadow");
+    glUseProgram(drawParams.shaderProgram->id());
+
+    drawParams.shaderProgram->setUniformMatrix4x4fv(
+        "modelViewMatrix",
+        1,
+        false,
+        drawParams.viewMatrix.data()
+    );
+
+    drawParams.shaderProgram->setUniformMatrix4x4fv(
+        "projectionMatrix",
+        1,
+        false,
+        drawParams.projectionMatrix.data()
+    );
+
+    // use hard-coded light position
+    const Vector3 lightPosition(0.0f, 0.0f, 0.0f);
+
+    for (size_t i = 0; i < geometryNodes_.size(); ++i)
+    {
+        const Transform3 transform = geometryNodes_[i]->worldTransform();
+        const Mesh* mesh = static_cast<MeshNode*>(geometryNodes_[i])->mesh();
+
+        for (int iFace = 0; iFace < mesh->numFaces(); ++iFace)
+        {
+            const Vector3 n = product(mesh->normals()[3 * iFace], transform.rotation());
+
+            Vector3 v0 = transform.applyForward(mesh->vertices()[3 * iFace + 0]);
+            Vector3 v1 = transform.applyForward(mesh->vertices()[3 * iFace + 1]);
+            Vector3 v2 = transform.applyForward(mesh->vertices()[3 * iFace + 2]);
+
+            // TODO: these do not avoid division by zero
+            const Vector3 lightV0 = normalize(v0 - lightPosition);
+            const Vector3 lightV1 = normalize(v1 - lightPosition);
+            const Vector3 lightV2 = normalize(v2 - lightPosition);
+
+            // if the signs do not differ, this is not a front face
+            if (dot(lightV0, n) >= 0.0f)
+            {
+                continue;
+            }
+
+            // not quite but close enough
+            const float infinity = 250.0f;
+
+            const Vector3 s0 = v0 + infinity * lightV0;
+            const Vector3 s1 = v1 + infinity * lightV1;
+            const Vector3 s2 = v2 + infinity * lightV2;
+
+            const float offset = 0.1f;
+
+            v0 = v0 + offset * lightV0;
+            v1 = v1 + offset * lightV1;
+            v2 = v2 + offset * lightV2;
+
+            const Vector3 coords[] = {
+                v0, v1, v2, // front cap
+                s0, s2, s1, // back cap
+                v0, s0, s1,
+                v0, s1, v1,
+                v1, s1, s2,
+                v1, s2, v2,
+                v2, s2, s0,
+                v2, s0, v0
+            };
+
+            const GLint coordLocation = drawParams.shaderProgram->attribLocation("coord");
+            glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords->data());
+            glEnableVertexAttribArray(coordLocation);
+
+            glDrawArrays(GL_TRIANGLES, 0, 24);
+
+            glDisableVertexAttribArray(coordLocation);
+        }
+    }
+
+    // ...
+
     if (drawExtents_)
     {
         drawParams.shaderProgram = shaderProgramManager_.getResource("extents");
@@ -712,7 +822,7 @@ void GameProgram::test()
     meshNode->setMesh(boxMesh);
     meshNode->updateModelExtents();
 
-    const int count = 10;
+    const int count = 4;
     const float offset = 2.5f * scaling;
     const float displacement = -(offset * (count - 1)) / 2.0f;
 
@@ -727,6 +837,7 @@ void GameProgram::test()
 
             meshNode->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
             groupNode->attachChild(meshNode);
+            geometryNodes_.push_back(meshNode);
         }
     }
 
@@ -739,6 +850,11 @@ void GameProgram::test()
 
         groupNode->setTranslation(Vector3(0.0f, displacement + i * offset, 0.0f));
         rootNode_->attachChild(groupNode);
+
+        for (int j = 0; j < groupNode->numChildren(); ++j)
+        {
+            geometryNodes_.push_back(static_cast<GeometryNode*>(groupNode->child(j)));
+        }
     }
 
 //    ModelReader modelReader;

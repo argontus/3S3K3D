@@ -22,6 +22,8 @@
 #include <geometry/vector3.h>
 #include <graphics/texture.h>
 
+#include <graphics/geometrynode.h>
+
 // TODO: quick & dirty
 class CameraNode;
 class GroupNode;
@@ -146,6 +148,8 @@ private:
     bool normalMipmappingOn;
     bool specularMipmappingOn;
     bool rotateLights;
+
+    std::vector<GeometryNode*> geometryNodes_;
 
     VertexShaderManager vertexShaderManager_;
     FragmentShaderManager fragmentShaderManager_;
