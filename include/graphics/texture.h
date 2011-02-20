@@ -72,9 +72,19 @@ class Texture
         inline GLuint getTextureHandle() const { return textureHandle; }
 
         /**
-         * Activates mipmapping for the texture
+         * Generates mipmap for the texture
          */
-         void generateMipmap();
+        void generateMipmap();
+
+        /**
+         * Turns anisotropic filtering on for the texture.
+         */
+        void activateAnisotropicFiltering();
+
+        /**
+         * Disables anisotropic filtering ( sets anisotropy level to 1.0f ).
+         */
+        void disableAnisotropicFiltering();
 
     protected:
     private:
@@ -84,6 +94,22 @@ class Texture
 
         GLenum resolveFilter( TextureFilter filter );
         GLenum resolveWrapMode( WrapMode wrapmode );
+        /**
+         * Checks whether or not anisotropic filtering is supported by the
+         * driver.
+         *
+         * @return bool returns true if anisotropic filtering is supported,
+         *              false otherwise.
+         */
+        bool isAnisotropicFilteringSupported();
+
+        /**
+         * Returns the maximum anisotropy supported by the driver.
+         *
+         * @return float maximum anisotropy supported by the driver. Returns a
+         *               negative value if anisotropic filtering isn't supported
+         */
+        float getMaximumAnisotropy();
 
 };
 

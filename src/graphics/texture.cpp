@@ -1,5 +1,6 @@
 #include "graphics/texture.h"
 #include <algorithm> // needed for transform
+#include <cstring>
 
 Texture::Texture()
 {
@@ -142,6 +143,48 @@ void Texture::generateMipmap()
 {
     bindTexture();
     glGenerateMipmap( GL_TEXTURE_2D );
+}
+
+void Texture::activateAnisotropicFiltering()
+{
+    if( isAnisotropicFilteringSupported() )
+    {
+        float maxAnisotropy = getMaximumAnisotropy();
+
+        bindTexture();
+        glTexParameterf( GL_TEXTURE_2D,
+                         GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                         maxAnisotropy );
+    }
+}
+
+void Texture::disableAnisotropicFiltering()
+{
+    if ( isAnisotropicFilteringSupported() )
+    {
+        bindTexture();
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f );
+    }
+}
+
+bool Texture::isAnisotropicFilteringSupported()
+{
+    char* extensions = (char*)glGetString( GL_EXTENSIONS );
+
+    if( strstr(extensions, "GL_EXT_texture_filter_anisotropic") )
+    {
+        return true;
+    }
+    return false;
+}
+
+float Texture::getMaximumAnisotropy()
+{
+    float maximumAnisotropy;
+
+    glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maximumAnisotropy);
+
+    return maximumAnisotropy;
 }
 
 GLenum Texture::resolveFilter( Texture::TextureFilter filter )
