@@ -150,6 +150,8 @@ private:
     bool rotateLights;
     bool anisotropicFilteringOn;
 
+    Vector3 lightPosition_;
+
     std::vector<GeometryNode*> geometryNodes_;
 
     VertexShaderManager vertexShaderManager_;

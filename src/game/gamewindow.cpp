@@ -39,16 +39,19 @@ bool GameWindow::init()
 		return false;
 	}
 
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+	//TODO: request the depth value from the driver instead of hardcoding it.
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+    // this is needed for the depth fail shadow volume algorithm
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
     if( (mainwindow = SDL_SetVideoMode( width, height, 32, flags )) == NULL ) {
 		std::cerr << "SDL initialization failed: " << SDL_GetError();
 		std::cerr << std::endl;
 		return false;
 	}
-
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-	//TODO: request the depth value from the driver instead of hardcoding it.
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
 	SDL_ShowCursor( mouseVisible );
 
