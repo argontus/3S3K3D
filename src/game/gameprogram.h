@@ -146,6 +146,7 @@ private:
     bool normalMipmappingOn;
     bool specularMipmappingOn;
     bool rotateLights;
+    bool anisotropicFilteringOn;
 
     VertexShaderManager vertexShaderManager_;
     FragmentShaderManager fragmentShaderManager_;

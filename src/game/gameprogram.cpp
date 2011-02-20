@@ -34,6 +34,7 @@ GameProgram::GameProgram()
     glowMipmappingOn(false),
     normalMipmappingOn(false),
     specularMipmappingOn(false),
+    anisotropicFilteringOn(false),
     rotateLights(false),
     vertexShaderManager_(),
     fragmentShaderManager_(),
@@ -244,6 +245,11 @@ int GameProgram::execute()
         if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F6))
         {
             rotateLights = !rotateLights;
+        }
+
+        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F7 ) )
+        {
+            anisotropicFilteringOn = !anisotropicFilteringOn;
         }
 
         // quick&dirty, write a function for these or something
@@ -457,6 +463,14 @@ void GameProgram::render()
     else
     {
         textureManager_.getResource("specular")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+    }
+    if( anisotropicFilteringOn )
+    {
+        textureManager_.getResource("diffuse")->activateAnisotropicFiltering();
+    }
+    else
+    {
+        textureManager_.getResource("diffuse")->disableAnisotropicFiltering();
     }
 
     glActiveTexture(GL_TEXTURE0);
