@@ -1,7 +1,7 @@
 #version 150
 
 // hard-coded material lighting parameters
-const vec3 ambient = vec3(0.1, 0.1, 0.1);
+const vec3 ambient = vec3(0.05, 0.05, 0.05);
 const float specularExponent = 128.0;
 
 // hard-coded maximum number of lights
@@ -72,8 +72,7 @@ void main()
         vec3 lightDirection = normalize(lightPosition - coord_);
 
         // diffuse coefficient
-        float kDiffuse = max(0.0, dot(lightDirection, normal));
-        kDiffuse = clamp(kDiffuse, 0.0, 1.0);
+        float kDiffuse = clamp(dot(lightDirection, normal), 0.0, 1.0);
 
         // light reflection direction
         vec3 reflection = reflect(-lightDirection, normal);
@@ -82,7 +81,21 @@ void main()
         float kSpecular = max(0.0, dot(eyeDirection, reflection));
         kSpecular = pow(kSpecular, specularExponent);
 
-        color += kDistance * (kDiffuse * diffuseColor.rgb + kSpecular * specularColor.rgb) * lightColor;
+        // this is an attempt at fixing the shadow jumping problem
+        float kShadowFix = clamp(dot(lightDirection, n), 0.0, 1.0);
+        kShadowFix = pow(min(1.0, kShadowFix / 0.15), 2.0);
+        //kShadowFix = min(1.0, kShadowFix / 0.15);
+
+        color += kDistance * kShadowFix * (kDiffuse * diffuseColor.rgb + kSpecular * specularColor.rgb) * lightColor;
+
+        //if (kShadowFix < 1.0)
+        //{
+        //    color += vec3(kShadowFix, kShadowFix, kShadowFix);
+        //}
+        //else
+        //{
+        //    color += kDistance * (kDiffuse * diffuseColor.rgb + kSpecular * specularColor.rgb) * lightColor;
+        //}
     }
 
     // force alpha component to diffuse color alpha component

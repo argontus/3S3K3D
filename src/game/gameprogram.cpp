@@ -694,10 +694,10 @@ void GameProgram::render()
     glEnable(GL_TEXTURE_2D);
     textureManager_.getResource("normal")->bindTexture();
 
-    glDepthFunc(GL_EQUAL);
+    glDepthFunc(GL_LEQUAL);
 
-    GLint stencilBits;
-    glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+    //GLint stencilBits;
+    //glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
 
     glEnable(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 0x00, 0xFF);
@@ -727,6 +727,8 @@ void GameProgram::render()
 
     if (drawExtents_)
     {
+        glDepthFunc(GL_LEQUAL);
+
         drawParams.shaderProgram = shaderProgramManager_.getResource("extents");
         glUseProgram(drawParams.shaderProgram->id());
 
