@@ -22,11 +22,13 @@
 					<Add library="../../lib/libgraphicsd.a" />
 					<Add library="../../lib/libgeometryd.a" />
 					<Add library="../../lib/libinputd.a" />
+					<Add library="../../lib/libsoundd.a" />
 					<Add library="../../lib/lib3dsd.a" />
 					<Add library="GL" />
 					<Add library="GLEW" />
 					<Add library="SDL" />
 					<Add library="SDL_image" />
+					<Add library="SDL_mixer" />
 				</Linker>
 			</Target>
 			<Target title="static_release">
@@ -44,10 +46,13 @@
 					<Add library="../../lib/libgeometry.a" />
 					<Add library="../../lib/libgraphics.a" />
 					<Add library="../../lib/libinput.a" />
+					<Add library="../../lib/libsound.a" />
 					<Add library="../../lib/lib3ds.a" />
 					<Add library="GL" />
 					<Add library="GLEW" />
 					<Add library="SDL" />
+					<Add library="SDL_image" />
+					<Add library="SDL_mixer" />
 				</Linker>
 			</Target>
 		</Build>

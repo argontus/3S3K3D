@@ -34,6 +34,9 @@
 				</Linker>
 			</Target>
 		</Build>
+		<Compiler>
+			<Add directory="../../include" />
+		</Compiler>
 		<Unit filename="../../include/sound/mixer.h" />
 		<Unit filename="../../src/sound/mixer.cpp" />
 		<Extensions>

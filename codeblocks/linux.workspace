@@ -6,6 +6,7 @@
 			<Depends filename="input/input.cbp" />
 			<Depends filename="graphics/graphics.cbp" />
 			<Depends filename="configuration/configuration.cbp" />
+			<Depends filename="sound/sound.cbp" />
 		</Project>
 		<Project filename="geometry/geometry.cbp" />
 		<Project filename="input/input.cbp" />
