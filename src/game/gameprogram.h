@@ -148,6 +148,7 @@ private:
     bool normalMipmappingOn;
     bool specularMipmappingOn;
     bool rotateLights;
+    bool anisotropicFilteringOn;
 
     std::vector<GeometryNode*> geometryNodes_;
 
