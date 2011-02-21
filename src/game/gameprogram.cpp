@@ -207,8 +207,8 @@ int GameProgram::execute()
     // 2 for stereo channels
     // 1024 is a viable buffer size for 22kHz, tweak this if skippy / laggy
     mixer_.init( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024 );
-    int radio = mixer_.loadMusic( "data/sounds/radio.ogg" );
-    int tub = mixer_.loadChunk( "data/sounds/tub.ogg" );
+    mixer_.loadMusic( "data/sounds/radio.ogg", "radio" );
+    mixer_.loadChunk( "data/sounds/tub.ogg", "tub" );
 
     std::cout << "Entering main loop..." << std::endl;
 
@@ -266,7 +266,7 @@ int GameProgram::execute()
         {
             if( !mixer_.isMusicPlaying() )
             {
-                mixer_.playMusic( radio );
+                mixer_.playMusic( "radio" );
             }
             else
             {
@@ -276,8 +276,7 @@ int GameProgram::execute()
 
         if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_1 ) )
         {
-            int soundChannel = mixer_.playChunk( tub, 0 );
-            Mix_Volume( soundChannel, 64 );
+            mixer_.playChunk( "tub", 0 );
         }
 
         // quick&dirty, write a function for these or something
