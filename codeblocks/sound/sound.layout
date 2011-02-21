@@ -2,9 +2,9 @@
 <CodeBlocks_layout_file>
 	<ActiveTarget name="static_debug" />
 	<File name="../../include/sound/mixer.h" open="1" top="1" tabpos="1">
-		<Cursor position="1936" topLine="27" />
+		<Cursor position="491" topLine="64" />
 	</File>
 	<File name="../../src/sound/mixer.cpp" open="1" top="0" tabpos="2">
-		<Cursor position="1473" topLine="126" />
+		<Cursor position="1779" topLine="87" />
 	</File>
 </CodeBlocks_layout_file>
