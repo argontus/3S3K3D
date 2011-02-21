@@ -11,6 +11,27 @@
 #include <vector>
 
 /**
+ * Enumerations for chunk and music 'sound types', used internally
+ */
+enum
+{
+    MIXER_SOUNDTYPE_CHUNK,
+    MIXER_SOUNDTYPE_MUSIC
+};
+
+/**
+ * A struct for storing chunk and music data
+ */
+struct AudioData
+{
+    char*           filename;
+    std::string     friendlyname;
+    int             channel; // needed for chunks
+    Uint16          type;
+    void*           data_p;
+};
+
+/**
  * An interface class for sdl_mixer
  */
 class Mixer
@@ -47,31 +68,30 @@ public:
      * Avoid using large files, use loadMusic for music.
      * @param filename the name of the sound file
      * @param chunkname a name for the sound effect, needed for actual playback
-     * @return int -1 if failed, otherwise the index of the added chunk (needed for playback later)
+     * @return int -1 if failed, 0 if succeeded
      */
-    int loadChunk( std::string filename );
+    int loadChunk( char* filename, std::string friendlyname );
 
     /**
      * Loads a music file into the engine. Supports multiple audio formats.
      * @param filename the name of the music file
      * @param songname a name for the music piece, needed for actual playback
-     * @return int -1 if failed, otherwise the index of the added song (needed for playback later)
+     * @return int -1 if failed, 0 if succeeded
      */
-    int loadMusic( std::string filename );
+    int loadMusic( char* filename, std::string friendlyname );
 
     /**
      * Plays a sound effect.
-     * @param id the id of the sound effect that is to be played, returned by loadMusic()
+     * @param name the user-specified name of the sound effect that is to be played, assigned in loadChunk()
      * @param loops the number of loops, -1 for infinite loop
-     * @return int the channel number assigned to playing the chunk, -1 on error
      */
-    int playChunk( int id, int loops );
+    void playChunk( std::string name, int loops );
 
     /**
      * Plays music.
-     * @param id the id of the piece of music that is to be played, returned by loadChunk()
+     * @param name the user-specified name of the piece of music that is to be played, assigned in loadChunk()
      */
-    void playMusic( int id );
+    void playMusic( std::string name );
 
     /**
      * Stops music playback.
@@ -89,8 +109,10 @@ private:
      */
     void freeSounds();
 
-    std::vector<Mix_Chunk*>     chunkList_;
-    std::vector<Mix_Music*>     musicList_;
+    /**
+     * Contains both chunk and music data
+     */
+    std::vector<AudioData*>     soundList_;
 };
 
 #endif // MIXER_H

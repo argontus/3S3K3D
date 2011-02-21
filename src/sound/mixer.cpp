@@ -48,67 +48,91 @@ void Mixer::close()
 }
 
 
-int Mixer::loadChunk( std::string filename )
+int Mixer::loadChunk( char* filename, std::string friendlyname )
 {
-    Mix_Chunk* chunk = Mix_LoadWAV( (char*)filename.c_str() );
+    Mix_Chunk* chunk = Mix_LoadWAV( filename );
     if( chunk == NULL )
     {
         return -1;
     }
 
-    chunkList_.push_back(chunk);
+    AudioData* data;
+    data = new AudioData();
+    data->filename       = filename;
+    data->friendlyname   = friendlyname;
+    data->data_p         = chunk;
 
-    // return the index of the loaded chunk
-    return ( chunkList_.size() - 1 );
+    soundList_.push_back(data);
+    return 0;
 }
 
 
-int Mixer::loadMusic( std::string filename )
+int Mixer::loadMusic( char* filename, std::string friendlyname )
 {
-    Mix_Music* music = Mix_LoadMUS( (char*)filename.c_str() );
+    Mix_Music* music = Mix_LoadMUS( filename );
     if( music == NULL )
     {
         return -1;
     }
 
-    musicList_.push_back(music);
+    AudioData* data;
+    data = new AudioData();
+    data->filename          = filename;
+    data->friendlyname      = friendlyname;
+    data->data_p            = music;
+    data->type              = MIXER_SOUNDTYPE_MUSIC;
 
-    // return the index of the loaded music object
-    return ( musicList_.size() - 1);
+    soundList_.push_back(data);
+    return 0;
 }
 
 
-int Mixer::playChunk( int id, int loops=0 )
+void Mixer::playChunk( std::string name, int loops=0 )
 {
-    // sanity checks
-    if( id < 0 || id >= (int)chunkList_.size() )
-    {
-        return -1;
-    }
-
-    if( chunkList_[id] == NULL )
-    {
-        return -1;
-    }
-
-    return Mix_PlayChannel( -1, chunkList_[id], loops );
-}
-
-
-void Mixer::playMusic( int id )
-{
-    // sanity checks
-    if( id < 0 || id >= (int)musicList_.size() )
+    if( soundList_.size() < 1 )
     {
         return;
     }
 
-    if( musicList_[id] == NULL )
+    AudioData* data = NULL;
+
+    for ( int i = 0; i < soundList_.size(); ++i )
+    {
+    	if( soundList_[i]->friendlyname.compare( name ) == 0 )
+    	{
+    	    data = soundList_[i];
+
+    	    // check if the data exists
+    	    if( data->data_p == NULL ) return;
+    	}
+    }
+
+    // convert void pointer to more useful type
+    Mix_PlayChannel( -1, (Mix_Chunk*)data->data_p, loops );
+}
+
+
+void Mixer::playMusic( std::string name )
+{
+    if( soundList_.size() < 1 )
     {
         return;
     }
 
-    Mix_Music* music = musicList_[id];
+    AudioData* data = NULL;
+
+    for ( int i = 0; i < soundList_.size(); ++i )
+    {
+    	if( soundList_[i]->friendlyname.compare( name ) == 0 )
+    	{
+    	    data = soundList_[i];
+
+    	    // check if the data exists
+    	    if( data->data_p == NULL ) return;
+    	}
+    }
+
+    Mix_Music* music = (Mix_Music*)data->data_p;
 
     // check if there already is music playing
     // if this is the case, fade out & in
@@ -138,19 +162,19 @@ void Mixer::stopMusic()
 
 void Mixer::freeSounds()
 {
-    // free chunks...
-    for ( int i=0; i < (int)chunkList_.size(); ++i )
+    for ( int i=0; i < (int)soundList_.size(); ++i )
     {
-        Mix_FreeChunk( chunkList_[i] );
+        AudioData* data = soundList_[i];
+
+        if( data->type = MIXER_SOUNDTYPE_MUSIC )
+        {
+            Mix_FreeMusic( (Mix_Music*)data->data_p );
+        }
+        else
+        {
+            Mix_FreeChunk( (Mix_Chunk*)data->data_p );
+        }
     }
 
-    chunkList_.clear();
-
-    // ...and music
-    for ( int i=0; i < (int)musicList_.size(); ++i )
-    {
-        Mix_FreeMusic( musicList_[i] );
-    }
-
-    musicList_.clear();
+    soundList_.clear();
 }
