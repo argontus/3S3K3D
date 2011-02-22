@@ -65,7 +65,7 @@ public:
      * Invalidates the world transform. Only <code>GeometryNode</code> and
      * <code>GroupNode</code> classes should override this member function.
      */
-    virtual void invalidateWorlTransform() const;
+    virtual void invalidateWorldTransform() const;
 
     /**
      * Gets the world transform.

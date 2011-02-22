@@ -44,7 +44,7 @@ void MeshNode::updateModelExtents()
 {
     GRAPHICS_RUNTIME_ASSERT(mesh_ != 0);
     modelExtents_ = mesh_->vertices().extents();
-    invalidateWorlExtents();
+    invalidateWorldExtents();
 }
 
 void MeshNode::setMesh(Mesh* const p)
@@ -75,7 +75,7 @@ const Extents3 MeshNode::worldExtents() const
     return worldExtents_;
 }
 
-void MeshNode::invalidateWorlTransform() const
+void MeshNode::invalidateWorldTransform() const
 {
     if (isWorldTransformValid() == false)
     {
@@ -87,11 +87,11 @@ void MeshNode::invalidateWorlTransform() const
     }
 
     // call the base class version
-    GeometryNode::invalidateWorlTransform();
+    GeometryNode::invalidateWorldTransform();
 
     // transforming a geometry node invalidates its world extents and the world
     // extents of all anchestor nodes
-    invalidateWorlExtents();
+    invalidateWorldExtents();
 }
 
 void MeshNode::draw(const DrawParams& params) const
@@ -156,13 +156,13 @@ void MeshNode::draw(const DrawParams& params) const
     glDisableVertexAttribArray(texCoordLocation);
 }
 
-void MeshNode::invalidateWorlExtents() const
+void MeshNode::invalidateWorldExtents() const
 {
     worldExtentsValid_ = false;
 
     if (hasParent())
     {
-        parent()->invalidateWorlExtents();
+        parent()->invalidateWorldExtents();
     }
 }
 

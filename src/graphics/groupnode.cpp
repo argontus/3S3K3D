@@ -97,7 +97,7 @@ bool GroupNode::hasChildren() const
     return children_.empty() == false;
 }
 
-void GroupNode::invalidateWorlExtents() const
+void GroupNode::invalidateWorldExtents() const
 {
     if (worldExtentsValid_ == false)
     {
@@ -112,7 +112,7 @@ void GroupNode::invalidateWorlExtents() const
     if (hasParent())
     {
         // propagate the call to anchestor nodes
-        parent()->invalidateWorlExtents();
+        parent()->invalidateWorldExtents();
     }
 }
 
@@ -162,7 +162,7 @@ const Extents3 GroupNode::worldExtents() const
     return worldExtents_;
 }
 
-void GroupNode::invalidateWorlTransform() const
+void GroupNode::invalidateWorldTransform() const
 {
     if (isWorldTransformValid() == false)
     {
@@ -173,14 +173,14 @@ void GroupNode::invalidateWorlTransform() const
     }
 
     // call the base class version
-    Node::invalidateWorlTransform();
+    Node::invalidateWorldTransform();
 
     // propagate the call to all attached child nodes
     for (size_t i = 0; i < children_.size(); ++i)
     {
         // invalidates the world extents of this group node if any of the
         // direct or indirect child nodes is a geometry node
-        children_[i]->invalidateWorlTransform();
+        children_[i]->invalidateWorldTransform();
     }
 }
 
