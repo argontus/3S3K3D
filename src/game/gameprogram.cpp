@@ -252,6 +252,11 @@ int GameProgram::execute()
             anisotropicFilteringOn = !anisotropicFilteringOn;
         }
 
+        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F8 ) )
+        {
+            mouseBoundToScreen = !mouseBoundToScreen;
+        }
+
         // quick&dirty, write a function for these or something
         static const float speed = 50.0f;
 
@@ -282,6 +287,8 @@ int GameProgram::execute()
             camera_->translateBy(deltaTime * speed * camera_->rotation().row(2));
         }
 
+
+
         int deltaX;
         int deltaY;
 
@@ -290,12 +297,12 @@ int GameProgram::execute()
 
         const float rotationFactor = 0.005;
 
-        if( deltaX != 0 )
+        if( deltaX != 0 && mouseBoundToScreen )
         {
             camera_->rotateBy(Matrix3x3::yRotation(deltaX * -rotationFactor));
         }
 
-        if( deltaY != 0 )
+        if( deltaY != 0 && mouseBoundToScreen )
         {
             camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor));
         }
@@ -316,6 +323,17 @@ int GameProgram::execute()
 		tick( deltaTime );
 
 		keyboard.updateKeyboardState();
+
+		if( mouseBoundToScreen )
+		{
+		    bindMouse();
+		    mouse.bindMouse();
+		}
+		else
+		{
+		    releaseMouse();
+		    mouse.releaseMouse();
+		}
 		mouse.updateMouse();
 
 		render();
@@ -805,4 +823,18 @@ GameProgram::~GameProgram()
 {
     delete rootNode_;
     delete camera_;
+}
+
+void GameProgram::bindMouse()
+{
+    mouseBoundToScreen = true;
+    mouseVisible = false;
+    SDL_ShowCursor( mouseVisible );
+}
+
+void GameProgram::releaseMouse()
+{
+    mouseBoundToScreen = false;
+    mouseVisible = true;
+    SDL_ShowCursor( mouseVisible );
 }
