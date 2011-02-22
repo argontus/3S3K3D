@@ -123,6 +123,9 @@ public:
 
 	//virtual void onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent );
 
+	virtual void bindMouse();
+	virtual void releaseMouse();
+
 private:
     void test();
 
