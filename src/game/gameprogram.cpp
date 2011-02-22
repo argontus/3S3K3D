@@ -617,7 +617,7 @@ void GameProgram::render()
     };
 
     const float lightRanges[] = {
-        250.0f,
+        750.0f,
         250.0f,
         250.0f
     };
