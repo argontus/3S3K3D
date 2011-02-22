@@ -40,7 +40,8 @@ GameProgram::GameProgram()
     fragmentShaderManager_(),
     shaderProgramManager_(),
     meshManager_(),
-    textureManager_()
+    textureManager_(),
+    mixer_()
 {
     running         = true;
     deltaTicks      = 0;
@@ -244,6 +245,15 @@ int GameProgram::execute()
         centerMouse();
     }
 
+    // init audio
+    // default frequency is usually 22050 Hz
+    // default format is AUDIO_U16SYS
+    // 2 for stereo channels
+    // 1024 is a viable buffer size for 22kHz, tweak this if skippy / laggy
+    mixer_.init( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024 );
+    mixer_.loadMusic( "data/sounds/radio.ogg", "radio" );
+    mixer_.loadChunk( "data/sounds/tub.ogg", "tub" );
+
     std::cout << "Entering main loop..." << std::endl;
 
 	while( running ) {
@@ -294,6 +304,23 @@ int GameProgram::execute()
         if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F7 ) )
         {
             anisotropicFilteringOn = !anisotropicFilteringOn;
+        }
+
+        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_M ) )
+        {
+            if( !mixer_.isMusicPlaying() )
+            {
+                mixer_.playMusic( "radio" );
+            }
+            else
+            {
+                mixer_.stopMusic();
+            }
+        }
+
+        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_1 ) )
+        {
+            mixer_.playChunk( "tub", 0 );
         }
 
         // quick&dirty, write a function for these or something
@@ -369,6 +396,7 @@ int GameProgram::execute()
 
     std::cout << "Leaving main loop." << std::endl;
 
+    mixer_.close();
 	cleanup();
 	std::cout << "bye!" << std::endl;
 

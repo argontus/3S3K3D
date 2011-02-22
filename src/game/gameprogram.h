@@ -14,6 +14,8 @@
 
 #include "configuration/configuration.h"
 
+#include "sound/mixer.h"
+
 #include <graphics/resourcemanager.h>
 #include <graphics/vertexshader.h>
 #include <graphics/fragmentshader.h>
@@ -137,6 +139,8 @@ private:
 	SDLKeyboard keyboard;
 	SDLMouse mouse;
 	Configuration configuration;
+
+	Mixer mixer_;
 
 
     // TODO: quick & dirty
