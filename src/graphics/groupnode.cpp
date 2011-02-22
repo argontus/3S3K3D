@@ -70,6 +70,7 @@ void GroupNode::detachChild(Node* const p)
         {
             // detach, do not delete
             children_.erase(i);
+            p->setParent(0);
             return;
         }
 
