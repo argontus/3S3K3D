@@ -216,10 +216,7 @@ int GameProgram::execute()
 
     if( mouseBoundToScreen )
     {
-        mouse.bindMouse();
-        mouse.setMouseBindPointX( width/2 );
-        mouse.setMouseBindPointY( height/2 );
-        centerMouse();
+        bindMouse();
     }
 
     std::cout << "Entering main loop..." << std::endl;
@@ -234,37 +231,37 @@ int GameProgram::execute()
 			onEvent( event );
 		}
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_ESCAPE))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_ESCAPE))
         {
             running = false;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F1))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F1))
         {
             drawExtents_ = !drawExtents_;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F2))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F2))
         {
             diffuseMipmappingOn = !diffuseMipmappingOn;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F3))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F3))
         {
             glowMipmappingOn = !glowMipmappingOn;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F4))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F4))
         {
             normalMipmappingOn = !normalMipmappingOn;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F5))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F5))
         {
             specularMipmappingOn = !specularMipmappingOn;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F6))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F6))
         {
             rotateLights = !rotateLights;
         }
@@ -272,6 +269,16 @@ int GameProgram::execute()
         if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F7 ) )
         {
             anisotropicFilteringOn = !anisotropicFilteringOn;
+        }
+
+        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F8 ) )
+        {
+            mouseBoundToScreen = !mouseBoundToScreen;
+        }
+
+        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F9 ) )
+        {
+            mouseVisible = !mouseVisible;
         }
 
         // quick&dirty, write a function for these or something
@@ -312,12 +319,12 @@ int GameProgram::execute()
 
         const float rotationFactor = 0.005;
 
-        if( deltaX != 0 )
+        if( deltaX != 0 && mouseBoundToScreen )
         {
             camera_->rotateBy(Matrix3x3::yRotation(deltaX * -rotationFactor));
         }
 
-        if( deltaY != 0 )
+        if( deltaY != 0 && mouseBoundToScreen )
         {
             camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor));
         }
@@ -328,7 +335,7 @@ int GameProgram::execute()
         }
         if( mouse.mouseButtonPressedInThisFrame( Mouse::MOUSEBUTTON_RIGHT ) )
         {
-            std::cout << "ŕight mouse button pressed!" << std::endl;
+            std::cout << "right mouse button pressed!" << std::endl;
         }
         if( mouse.mouseButtonPressedInThisFrame( Mouse::MOUSEBUTTON_MIDDLE ) )
         {
@@ -338,11 +345,29 @@ int GameProgram::execute()
 		tick( deltaTime );
 
 		keyboard.updateKeyboardState();
+
+		if( mouseBoundToScreen )
+		{
+            bindMouse();
+		}
+		else
+		{
+            releaseMouse();
+		}
+
+        if( mouseVisible )
+        {
+            mouse.showMousePointer();
+        }
+        else
+        {
+            mouse.hideMousePointer();
+        }
+
 		mouse.updateMouse();
 
 		render();
 		lastTicks = currentTicks;
-
 	}
 
     std::cout << "Leaving main loop." << std::endl;
@@ -689,10 +714,7 @@ void drawExtents(const Node* node, const DrawParams& params)
 
 void GameProgram::tick( const float deltaTime )
 {
-    if( mouseBoundToScreen )
-    {
-        centerMouse();
-    }
+    // empty on purpose
 }
 
 void GameProgram::onQuit()
@@ -922,3 +944,4 @@ GameProgram::~GameProgram()
     delete rootNode_;
     delete camera_;
 }
+

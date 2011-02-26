@@ -31,6 +31,10 @@ class SDLMouse : public Mouse
                                             MOUSEBUTTONS mouseButton ) const;
 
         virtual void updateMouse();
+
+        virtual void showMousePointer();
+
+        virtual void hideMousePointer();
     protected:
 
     private:

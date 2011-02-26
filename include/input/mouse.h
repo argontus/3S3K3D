@@ -125,6 +125,16 @@ class Mouse
             return mouseBindPointY;
         }
 
+        /**
+         * Makes mouse pointer visible
+         */
+        virtual void showMousePointer() = 0;
+
+        /**
+         * Makes mouse pointer visible
+         */
+        virtual void hideMousePointer() = 0;
+
     protected:
         /**
          * Current X position of the mouse pointer.

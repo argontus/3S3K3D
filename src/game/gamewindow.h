@@ -7,6 +7,8 @@
 #define GAMEWINDOW_H
 
 #include <SDL/SDL.h>
+#include "input/sdlkeyboard.h"
+#include "input/sdlmouse.h"
 
 /**
  * Pure virtual class representing a game window. Contains basic functionality
@@ -116,7 +118,7 @@ class GameWindow
          *
          * @param mouseButtonEvent mouse button event
          */
-         virtual void onMouseButtonDown(
+        virtual void onMouseButtonDown(
                                 const SDL_MouseButtonEvent& mouseButtonEvent
                                        );
 
@@ -125,19 +127,19 @@ class GameWindow
          *
          * @param mouseButtonEvent mouse button event
          */
-         virtual void onMouseButtonUp(
+        virtual void onMouseButtonUp(
                                 const SDL_MouseButtonEvent& mouseButtonEvent
                                      );
 
         /**
          * Binds mouse to the window.
          */
-         virtual void bindMouse();
+        virtual void bindMouse();
 
-         /**
-          * Releases mouse binding from the window.
-          */
-         virtual void releaseMouse();
+        /**
+         * Releases mouse binding from the window.
+         */
+        virtual void releaseMouse();
 
         /**
          * Centers the mouse pointer to the center of the window
@@ -153,6 +155,9 @@ class GameWindow
         int height;
         bool mouseVisible;
         bool mouseBoundToScreen;
+        bool fullscreen;
+        SDLKeyboard keyboard;
+        SDLMouse mouse;
 };
 
 #endif // GAMEWINDOW_H

@@ -9,9 +9,6 @@
 #include <SDL/SDL.h>
 #include "gamewindow.h"
 
-#include "input/sdlkeyboard.h"
-#include "input/sdlmouse.h"
-
 #include "configuration/configuration.h"
 
 #include <graphics/resourcemanager.h>
@@ -123,6 +120,7 @@ public:
 
 	//virtual void onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent );
 
+
 private:
     void test();
 
@@ -134,8 +132,7 @@ private:
 	float cameraSpeedX;
 	float cameraSpeedY;
 	float cameraSpeedZ;
-	SDLKeyboard keyboard;
-	SDLMouse mouse;
+
 	Configuration configuration;
 
 
