@@ -1,5 +1,5 @@
 #include "input/sdlmouse.h"
-#include <iostream>
+
 
 SDLMouse::SDLMouse()
 {
@@ -86,19 +86,11 @@ void SDLMouse::updateMouse()
 
 void SDLMouse::showMousePointer()
 {
-    int x, y;
-
-    SDL_GetMouseState( &x, &y );
     SDL_ShowCursor( SDL_ENABLE );
-    SDL_WarpMouse( x, y );
 }
 
 void SDLMouse::hideMousePointer()
 {
-    int x, y;
-
-    SDL_GetMouseState( &x, &y );
     SDL_ShowCursor( SDL_DISABLE );
-    SDL_WarpMouse( x, y );
 }
 
