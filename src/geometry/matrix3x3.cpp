@@ -5,9 +5,6 @@
 
 #include <geometry/matrix3x3.h>
 
-// TODO: get rid of this #include
-#include <algorithm>
-
 #include <geometry/math.h>
 #include <geometry/vector3.h>
 
@@ -131,17 +128,17 @@ const float* Matrix3x3::data() const
 
 void Matrix3x3::swap(Matrix3x3& other)
 {
-    std::swap(m00, other.m00);
-    std::swap(m01, other.m01);
-    std::swap(m02, other.m02);
+    Math::swap(m00, other.m00);
+    Math::swap(m01, other.m01);
+    Math::swap(m02, other.m02);
 
-    std::swap(m10, other.m10);
-    std::swap(m11, other.m11);
-    std::swap(m12, other.m12);
+    Math::swap(m10, other.m10);
+    Math::swap(m11, other.m11);
+    Math::swap(m12, other.m12);
 
-    std::swap(m20, other.m20);
-    std::swap(m21, other.m21);
-    std::swap(m22, other.m22);
+    Math::swap(m20, other.m20);
+    Math::swap(m21, other.m21);
+    Math::swap(m22, other.m22);
 }
 
 const Vector3 product(const Vector3& v, const Matrix3x3& m)

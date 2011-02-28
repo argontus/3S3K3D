@@ -55,22 +55,22 @@ float twoPi();
  */
 //@{
 /**
- * Converts degrees to radians.
- *
- * @param value Angle in degrees.
- *
- * @return The given angle in radians.
- */
-float degToRad(float value);
-
-/**
  * Converts radians to degrees.
  *
- * @param value Angle in radians.
+ * @param radians Angle in radians.
  *
  * @return The given angle in degrees.
  */
-float radToDeg(float value);
+float degrees(float radians);
+
+/**
+ * Converts degrees to radians.
+ *
+ * @param degrees Angle in degrees.
+ *
+ * @return The given angle in radians.
+ */
+float radians(float degrees);
 //@}
 
 /**
@@ -80,29 +80,29 @@ float radToDeg(float value);
 /**
  * Calculates the cosine of a given angle.
  *
- * @param value Angle in radians.
+ * @param angle Angle in radians.
  *
  * @return Cosine of the given angle.
  */
-float cos(float value);
+float cos(float angle);
 
 /**
  * Calculates the sine of a given angle.
  *
- * @param value Angle in radians.
+ * @param angle Angle in radians.
  *
  * @return Sine of the given angle.
  */
-float sin(float value);
+float sin(float angle);
 
 /**
  * Calculates the tangent of a given angle.
  *
- * @param value Angle in radians. The cosine of this angle cannot be 0.
+ * @param angle Angle in radians. The cosine of this angle cannot be 0.
  *
  * @return Tangent of the given angle.
  */
-float tan(float value);
+float tan(float angle);
 
 /**
  * Calculates the arccosine of a given value.
@@ -178,7 +178,7 @@ float sqrt(float value);
  *
  * @return Inverse square root of the given value.
  */
-float invSqrt(float value);
+float inverseSqrt(float value);
 //@}
 
 /**
@@ -290,6 +290,10 @@ const T& max(const T& a, const T& b);
  */
 template <class T>
 const T& min(const T& a, const T& b);
+
+// TODO: comments
+template <class T>
+void swap(T& a, T& b);
 //@}
 
 } // namespace Math
@@ -314,6 +318,14 @@ inline const T& Math::min(const T& a, const T& b)
 {
     // intentionally relies only on the '<' comparison operator
     return b < a ? b : a;
+}
+
+template <class T>
+inline void Math::swap(T& a, T& b)
+{
+    const T t(a);
+    a = b;
+    b = t;
 }
 
 #endif // #ifndef GEOMETRY_MATH_H_INCLUDED

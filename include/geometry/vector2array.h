@@ -8,6 +8,7 @@
 
 #include <geometry/extents2.h>
 
+// TODO: get rid of this class
 /**
  * Represents a fixed size array of <code>Vector2</code> objects.
  */

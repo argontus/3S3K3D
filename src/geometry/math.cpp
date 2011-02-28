@@ -33,36 +33,36 @@ float twoPi()
     return k;
 }
 
-float degToRad(const float value)
-{
-    // constant pi/180
-    static const float k = static_cast<float>(std::atan(1.0) / 45.0);
-
-    return k * value;
-}
-
-float radToDeg(const float value)
+float degrees(const float radians)
 {
     // constant 180/pi
     static const float k = static_cast<float>(45.0 / std::atan(1.0));
 
-    return k * value;
+    return k * radians;
 }
 
-float cos(const float value)
+float radians(const float degrees)
 {
-    return std::cos(value);
+    // constant pi/180
+    static const float k = static_cast<float>(std::atan(1.0) / 45.0);
+
+    return k * degrees;
 }
 
-float sin(const float value)
+float cos(const float angle)
 {
-    return std::sin(value);
+    return std::cos(angle);
 }
 
-float tan(const float value)
+float sin(const float angle)
 {
-    GEOMETRY_RUNTIME_ASSERT(std::cos(value) != 0.0f);
-    return std::tan(value);
+    return std::sin(angle);
+}
+
+float tan(const float angle)
+{
+    GEOMETRY_RUNTIME_ASSERT(std::cos(angle) != 0.0f);
+    return std::tan(angle);
 }
 
 float acos(const float value)
@@ -116,7 +116,7 @@ float sqrt(const float value)
     return std::sqrt(value);
 }
 
-float invSqrt(const float value)
+float inverseSqrt(const float value)
 {
     GEOMETRY_RUNTIME_ASSERT(value > 0.0f);
     return 1.0f / std::sqrt(value);

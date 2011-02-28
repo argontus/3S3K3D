@@ -5,9 +5,6 @@
 
 #include <geometry/matrix4x4.h>
 
-// TODO: get rid of this #include
-#include <algorithm>
-
 #include <geometry/math.h>
 #include <geometry/vector3.h>
 #include <geometry/vector4.h>
@@ -179,25 +176,25 @@ const float* Matrix4x4::data() const
 
 void Matrix4x4::swap(Matrix4x4& other)
 {
-    std::swap(m00, other.m00);
-    std::swap(m01, other.m01);
-    std::swap(m02, other.m02);
-    std::swap(m03, other.m03);
+    Math::swap(m00, other.m00);
+    Math::swap(m01, other.m01);
+    Math::swap(m02, other.m02);
+    Math::swap(m03, other.m03);
 
-    std::swap(m10, other.m10);
-    std::swap(m11, other.m11);
-    std::swap(m12, other.m12);
-    std::swap(m13, other.m13);
+    Math::swap(m10, other.m10);
+    Math::swap(m11, other.m11);
+    Math::swap(m12, other.m12);
+    Math::swap(m13, other.m13);
 
-    std::swap(m20, other.m20);
-    std::swap(m21, other.m21);
-    std::swap(m22, other.m22);
-    std::swap(m23, other.m23);
+    Math::swap(m20, other.m20);
+    Math::swap(m21, other.m21);
+    Math::swap(m22, other.m22);
+    Math::swap(m23, other.m23);
 
-    std::swap(m30, other.m30);
-    std::swap(m31, other.m31);
-    std::swap(m32, other.m32);
-    std::swap(m33, other.m33);
+    Math::swap(m30, other.m30);
+    Math::swap(m31, other.m31);
+    Math::swap(m32, other.m32);
+    Math::swap(m33, other.m33);
 }
 
 const Vector4 product(const Vector4& v, const Matrix4x4& m)

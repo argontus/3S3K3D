@@ -398,4 +398,4 @@ const Vector4 normalize(const Vector4& v);
  */
 const Vector4 reflect(const Vector4& v, const Vector4& normal);
 
-#endif // #ifndef GEOMETRY_VECTOR3_H_INCLUDED
+#endif // #ifndef GEOMETRY_VECTOR4_H_INCLUDED

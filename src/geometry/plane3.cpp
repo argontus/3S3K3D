@@ -5,8 +5,7 @@
 
 #include <geometry/plane3.h>
 
-// TODO: get rid of this #include
-#include <algorithm>
+#include <geometry/math.h>
 
 Plane3::Plane3()
 {
@@ -48,7 +47,7 @@ float Plane3::distanceTo(const Vector3& q) const
 void Plane3::swap(Plane3& other)
 {
     normal.swap(other.normal);
-    std::swap(constant, other.constant);
+    Math::swap(constant, other.constant);
 }
 
 const Vector3 mirror(const Vector3& q, const Plane3& plane)

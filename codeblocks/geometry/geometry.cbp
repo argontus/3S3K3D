@@ -7,9 +7,9 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="static_debug">
-				<Option output="../../lib/libgeometryd" prefix_auto="1" extension_auto="1" />
+				<Option output="..\..\lib\libgeometryd" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="obj/static_debug/" />
+				<Option object_output="obj\static_debug\" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -19,9 +19,9 @@
 				</Compiler>
 			</Target>
 			<Target title="static_release">
-				<Option output="../../lib/libgeometry" prefix_auto="1" extension_auto="1" />
+				<Option output="..\..\lib\libgeometry" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="obj/static_release/" />
+				<Option object_output="obj\static_release\" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -35,52 +35,54 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add directory="../../include" />
+			<Add directory="..\..\include" />
 		</Compiler>
-		<Unit filename="../../include/geometry/extents2.h" />
-		<Unit filename="../../include/geometry/extents3.h" />
-		<Unit filename="../../include/geometry/interval.h" />
-		<Unit filename="../../include/geometry/line2.h" />
-		<Unit filename="../../include/geometry/line3.h" />
-		<Unit filename="../../include/geometry/linesegment2.h" />
-		<Unit filename="../../include/geometry/linesegment3.h" />
-		<Unit filename="../../include/geometry/math.h" />
-		<Unit filename="../../include/geometry/matrix2x2.h" />
-		<Unit filename="../../include/geometry/matrix3x3.h" />
-		<Unit filename="../../include/geometry/matrix4x4.h" />
-		<Unit filename="../../include/geometry/plane2.h" />
-		<Unit filename="../../include/geometry/plane3.h" />
-		<Unit filename="../../include/geometry/ray2.h" />
-		<Unit filename="../../include/geometry/ray3.h" />
-		<Unit filename="../../include/geometry/runtimeassert.h" />
-		<Unit filename="../../include/geometry/staticassert.h" />
-		<Unit filename="../../include/geometry/transform2.h" />
-		<Unit filename="../../include/geometry/transform3.h" />
-		<Unit filename="../../include/geometry/vector2.h" />
-		<Unit filename="../../include/geometry/vector2array.h" />
-		<Unit filename="../../include/geometry/vector3.h" />
-		<Unit filename="../../include/geometry/vector3array.h" />
-		<Unit filename="../../src/geometry/extents2.cpp" />
-		<Unit filename="../../src/geometry/extents3.cpp" />
-		<Unit filename="../../src/geometry/interval.cpp" />
-		<Unit filename="../../src/geometry/line2.cpp" />
-		<Unit filename="../../src/geometry/line3.cpp" />
-		<Unit filename="../../src/geometry/linesegment2.cpp" />
-		<Unit filename="../../src/geometry/linesegment3.cpp" />
-		<Unit filename="../../src/geometry/math.cpp" />
-		<Unit filename="../../src/geometry/matrix2x2.cpp" />
-		<Unit filename="../../src/geometry/matrix3x3.cpp" />
-		<Unit filename="../../src/geometry/matrix4x4.cpp" />
-		<Unit filename="../../src/geometry/plane2.cpp" />
-		<Unit filename="../../src/geometry/plane3.cpp" />
-		<Unit filename="../../src/geometry/ray2.cpp" />
-		<Unit filename="../../src/geometry/ray3.cpp" />
-		<Unit filename="../../src/geometry/transform2.cpp" />
-		<Unit filename="../../src/geometry/transform3.cpp" />
-		<Unit filename="../../src/geometry/vector2.cpp" />
-		<Unit filename="../../src/geometry/vector2array.cpp" />
-		<Unit filename="../../src/geometry/vector3.cpp" />
-		<Unit filename="../../src/geometry/vector3array.cpp" />
+		<Unit filename="..\..\include\geometry\extents2.h" />
+		<Unit filename="..\..\include\geometry\extents3.h" />
+		<Unit filename="..\..\include\geometry\interval.h" />
+		<Unit filename="..\..\include\geometry\line2.h" />
+		<Unit filename="..\..\include\geometry\line3.h" />
+		<Unit filename="..\..\include\geometry\linesegment2.h" />
+		<Unit filename="..\..\include\geometry\linesegment3.h" />
+		<Unit filename="..\..\include\geometry\math.h" />
+		<Unit filename="..\..\include\geometry\matrix2x2.h" />
+		<Unit filename="..\..\include\geometry\matrix3x3.h" />
+		<Unit filename="..\..\include\geometry\matrix4x4.h" />
+		<Unit filename="..\..\include\geometry\plane2.h" />
+		<Unit filename="..\..\include\geometry\plane3.h" />
+		<Unit filename="..\..\include\geometry\ray2.h" />
+		<Unit filename="..\..\include\geometry\ray3.h" />
+		<Unit filename="..\..\include\geometry\runtimeassert.h" />
+		<Unit filename="..\..\include\geometry\staticassert.h" />
+		<Unit filename="..\..\include\geometry\transform2.h" />
+		<Unit filename="..\..\include\geometry\transform3.h" />
+		<Unit filename="..\..\include\geometry\vector2.h" />
+		<Unit filename="..\..\include\geometry\vector2array.h" />
+		<Unit filename="..\..\include\geometry\vector3.h" />
+		<Unit filename="..\..\include\geometry\vector3array.h" />
+		<Unit filename="..\..\include\geometry\vector4.h" />
+		<Unit filename="..\..\src\geometry\extents2.cpp" />
+		<Unit filename="..\..\src\geometry\extents3.cpp" />
+		<Unit filename="..\..\src\geometry\interval.cpp" />
+		<Unit filename="..\..\src\geometry\line2.cpp" />
+		<Unit filename="..\..\src\geometry\line3.cpp" />
+		<Unit filename="..\..\src\geometry\linesegment2.cpp" />
+		<Unit filename="..\..\src\geometry\linesegment3.cpp" />
+		<Unit filename="..\..\src\geometry\math.cpp" />
+		<Unit filename="..\..\src\geometry\matrix2x2.cpp" />
+		<Unit filename="..\..\src\geometry\matrix3x3.cpp" />
+		<Unit filename="..\..\src\geometry\matrix4x4.cpp" />
+		<Unit filename="..\..\src\geometry\plane2.cpp" />
+		<Unit filename="..\..\src\geometry\plane3.cpp" />
+		<Unit filename="..\..\src\geometry\ray2.cpp" />
+		<Unit filename="..\..\src\geometry\ray3.cpp" />
+		<Unit filename="..\..\src\geometry\transform2.cpp" />
+		<Unit filename="..\..\src\geometry\transform3.cpp" />
+		<Unit filename="..\..\src\geometry\vector2.cpp" />
+		<Unit filename="..\..\src\geometry\vector2array.cpp" />
+		<Unit filename="..\..\src\geometry\vector3.cpp" />
+		<Unit filename="..\..\src\geometry\vector3array.cpp" />
+		<Unit filename="..\..\src\geometry\vector4.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

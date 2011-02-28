@@ -5,9 +5,6 @@
 
 #include <geometry/matrix2x2.h>
 
-// TODO: get rid of this #include
-#include <algorithm>
-
 #include <geometry/math.h>
 #include <geometry/vector2.h>
 
@@ -70,11 +67,11 @@ const float* Matrix2x2::data() const
 
 void Matrix2x2::swap(Matrix2x2& other)
 {
-    std::swap(m00, other.m00);
-    std::swap(m01, other.m01);
+    Math::swap(m00, other.m00);
+    Math::swap(m01, other.m01);
 
-    std::swap(m10, other.m10);
-    std::swap(m11, other.m11);
+    Math::swap(m10, other.m10);
+    Math::swap(m11, other.m11);
 }
 
 const Vector2 product(const Vector2& v, const Matrix2x2& m)

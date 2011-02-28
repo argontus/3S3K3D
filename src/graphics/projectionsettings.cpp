@@ -41,7 +41,7 @@ const ProjectionSettings ProjectionSettings::perspective(
     GRAPHICS_RUNTIME_ASSERT(near > 0.0f);
     GRAPHICS_RUNTIME_ASSERT(near < far);
 
-    const float angle = Math::degToRad(fovy / 2.0f);
+    const float angle = Math::radians(fovy / 2.0f);
 
     // k / near = tan(angle) -> k = tan(angle) * near
     const float k = Math::tan(angle) * near;

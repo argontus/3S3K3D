@@ -5,9 +5,6 @@
 
 #include <geometry/transform2.h>
 
-// TODO: get rid of this #include
-#include <algorithm>
-
 #include <geometry/math.h>
 #include <geometry/matrix2x2.h>
 #include <geometry/matrix4x4.h>
@@ -143,8 +140,8 @@ const Vector2 Transform2::applyInverse(const Vector2& q) const
 void Transform2::swap(Transform2& other)
 {
     translation_.swap(other.translation_);
-    std::swap(rotation_, other.rotation_);
-    std::swap(scaling_, other.scaling_);
+    Math::swap(rotation_, other.rotation_);
+    Math::swap(scaling_, other.scaling_);
 }
 
 const Transform2 conversion(const Transform2& src, const Transform2& dst)

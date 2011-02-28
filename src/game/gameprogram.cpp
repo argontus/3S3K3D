@@ -612,14 +612,14 @@ void GameProgram::render()
     const GLint glowMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "glowMap");
     const GLint normalMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "normalMap");
 
-    lightPosition_.x = 150.0f * Math::cos(Math::degToRad(0.0f));
+    lightPosition_.x = 150.0f * Math::cos(Math::radians(0.0f));
     lightPosition_.y = 0.0f;
-    lightPosition_.z = 150.0f * Math::sin(Math::degToRad(0.0f));
+    lightPosition_.z = 150.0f * Math::sin(Math::radians(0.0f));
 
     Vector3 lightPositions[] = {
-        Vector3(150.0f * Math::cos(Math::degToRad(0.0f)), 0.0f, 150.0f * Math::sin(Math::degToRad(0.0f))),
-        Vector3(150.0f * Math::cos(Math::degToRad(120.0f)), 0.0f, 150.0f * Math::sin(Math::degToRad(120.0f))),
-        Vector3(150.0f * Math::cos(Math::degToRad(240.0f)), 0.0f, 150.0f * Math::sin(Math::degToRad(240.0f)))
+        Vector3(150.0f * Math::cos(Math::radians(0.0f)), 0.0f, 150.0f * Math::sin(Math::radians(0.0f))),
+        Vector3(150.0f * Math::cos(Math::radians(120.0f)), 0.0f, 150.0f * Math::sin(Math::radians(120.0f))),
+        Vector3(150.0f * Math::cos(Math::radians(240.0f)), 0.0f, 150.0f * Math::sin(Math::radians(240.0f)))
     };
 
     static float lightRotation = 0.0f;

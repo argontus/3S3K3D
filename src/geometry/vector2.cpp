@@ -5,9 +5,6 @@
 
 #include <geometry/vector2.h>
 
-// TODO: get rid of this #include
-#include <algorithm>
-
 #include <geometry/math.h>
 
 const Vector2 Vector2::zero()
@@ -44,8 +41,8 @@ const float* Vector2::data() const
 
 void Vector2::swap(Vector2& other)
 {
-    std::swap(x, other.x);
-    std::swap(y, other.y);
+    Math::swap(x, other.x);
+    Math::swap(y, other.y);
 }
 
 Vector2& operator +=(Vector2& a, const Vector2& b)

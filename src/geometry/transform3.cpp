@@ -5,9 +5,6 @@
 
 #include <geometry/transform3.h>
 
-// TODO: get rid of this #include
-#include <algorithm>
-
 #include <geometry/math.h>
 #include <geometry/matrix3x3.h>
 #include <geometry/matrix4x4.h>
@@ -187,7 +184,7 @@ void Transform3::swap(Transform3& other)
 {
     translation_.swap(other.translation_);
     rotation_.swap(other.rotation_);
-    std::swap(scaling_, other.scaling_);
+    Math::swap(scaling_, other.scaling_);
 }
 
 const Transform3 conversion(const Transform3& src, const Transform3& dst)
