@@ -5,19 +5,18 @@
 
 #include <geometry/matrix2x2.h>
 
+// TODO: get rid of this #include
 #include <algorithm>
 
 #include <geometry/math.h>
 #include <geometry/vector2.h>
 
-const Matrix2x2& Matrix2x2::identity()
+const Matrix2x2 Matrix2x2::identity()
 {
-    static const Matrix2x2 m(
+    return Matrix2x2(
         1.0f, 0.0f,
         0.0f, 1.0f
     );
-
-    return m;
 }
 
 const Matrix2x2 Matrix2x2::rotation(const float rotation)
@@ -49,16 +48,14 @@ Matrix2x2::Matrix2x2(const Vector2& row0, const Vector2& row1)
     // ...
 }
 
-float* Matrix2x2::operator [](const int row)
+const Vector2 Matrix2x2::row0() const
 {
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 1);
-    return &m00 + row * 2;
+    return Vector2(m00, m01);
 }
 
-const float* Matrix2x2::operator [](const int row) const
+const Vector2 Matrix2x2::row1() const
 {
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 1);
-    return &m00 + row * 2;
+    return Vector2(m10, m11);
 }
 
 float* Matrix2x2::data()
@@ -71,64 +68,6 @@ const float* Matrix2x2::data() const
     return &m00;
 }
 
-void Matrix2x2::setRow(const int row, const Vector2& v)
-{
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 1);
-    float* data = &m00 + row * 2;
-
-    data[0] = v.x;
-    data[1] = v.y;
-}
-
-const Vector2 Matrix2x2::row(const int row) const
-{
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 1);
-    const float* data = &m00 + row * 2;
-    return Vector2(data[0], data[1]);
-}
-
-void Matrix2x2::setColumn(const int column, const Vector2& v)
-{
-    GEOMETRY_RUNTIME_ASSERT(column >= 0 && column <= 1);
-    float* data = &m00 + column;
-
-    data[0] = v.x;
-    data[2] = v.y;
-}
-
-const Vector2 Matrix2x2::column(const int column) const
-{
-    GEOMETRY_RUNTIME_ASSERT(column >= 0 && column <= 1);
-    const float* data = &m00 + column;
-    return Vector2(data[0], data[2]);
-}
-
-void Matrix2x2::multiplyBy(const Matrix2x2& m)
-{
-    *this = product(*this, m);
-}
-
-void Matrix2x2::multiplyByT(const Matrix2x2& m)
-{
-    *this = productT(*this, m);
-}
-
-void Matrix2x2::orthogonalize()
-{
-    Vector2 x(m00, m01);
-    x.normalize();
-
-    Vector2 y(m10, m11);
-    y -= x * dot(y, x);
-    y.normalize();
-
-    m00 = x.x;
-    m01 = x.y;
-
-    m10 = y.x;
-    m11 = y.y;
-}
-
 void Matrix2x2::swap(Matrix2x2& other)
 {
     std::swap(m00, other.m00);
@@ -136,20 +75,6 @@ void Matrix2x2::swap(Matrix2x2& other)
 
     std::swap(m10, other.m10);
     std::swap(m11, other.m11);
-}
-
-float angle(const Matrix2x2& m)
-{
-    const Vector2 xAxis = m.row(0);
-
-    if (xAxis.y >= 0.0f)
-    {
-        return Math::acos(xAxis.x);
-    }
-    else
-    {
-        return Math::twoPi() - Math::acos(xAxis.x);
-    }
 }
 
 const Vector2 product(const Vector2& v, const Matrix2x2& m)
@@ -166,6 +91,25 @@ const Vector2 productT(const Vector2& v, const Matrix2x2& m)
         v.x * m.m00 + v.y * m.m01,
         v.x * m.m10 + v.y * m.m11
     );
+}
+
+const Matrix2x2 orthogonalize(const Matrix2x2& m)
+{
+    // TODO: In the worst case scenario, this could construct a matrix where
+    // one or both rows are incorrectly set to Vector2(1.0f, 0.0f) because of
+    // how normalize(const Vector2&) is implemented. Should this function check
+    // for division by zero instead of relying on the default behavior of
+    // vector normalization?
+
+    const Vector2 x = normalize(m.row0());
+
+    Vector2 y = m.row1();
+
+    // extract the part that is parallel to x and normalize
+    y -= x * dot(y, x);
+    y = normalize(y);
+
+    return Matrix2x2(x, y);
 }
 
 const Matrix2x2 product(const Matrix2x2& a, const Matrix2x2& b)

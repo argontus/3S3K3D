@@ -79,4 +79,14 @@ public:
     float constant; ///< Plane constant.
 };
 
+/**
+ * Mirrors a point across a plane.
+ *
+ * @param q The point to mirror.
+ * @param plane The mirror plane.
+ *
+ * @return Mirrored <code>q</code>.
+ */
+const Vector3 mirror(const Vector3& q, const Plane3& plane);
+
 #endif // #ifndef GEOMETRY_PLANE3_H_INCLUDED

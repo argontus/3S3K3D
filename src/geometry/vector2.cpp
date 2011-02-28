@@ -3,34 +3,21 @@
  * @author Mika Haarahiltunen
  */
 
-// geometry/vector2.h is included via geometry/plane2.h
+#include <geometry/vector2.h>
 
+// TODO: get rid of this #include
 #include <algorithm>
 
 #include <geometry/math.h>
-#include <geometry/plane2.h>
 
-const Vector2& Vector2::zero()
+const Vector2 Vector2::zero()
 {
-    static const Vector2 v(0.0f, 0.0f);
-    return v;
+    return Vector2(0.0f, 0.0f);
 }
 
-const Vector2& Vector2::xAxis()
+const Vector2 Vector2::direction(const float angle)
 {
-    static const Vector2 v(1.0f, 0.0f);
-    return v;
-}
-
-const Vector2& Vector2::yAxis()
-{
-    static const Vector2 v(0.0f, 1.0f);
-    return v;
-}
-
-const Vector2 Vector2::direction(const float theta)
-{
-    return Vector2(Math::cos(theta), Math::sin(theta));
+    return Vector2(Math::cos(angle), Math::sin(angle));
 }
 
 Vector2::Vector2()
@@ -45,48 +32,6 @@ Vector2::Vector2(const float x, const float y)
     // ...
 }
 
-Vector2& Vector2::operator +=(const Vector2& v)
-{
-    x += v.x;
-    y += v.y;
-    return *this;
-}
-
-Vector2& Vector2::operator -=(const Vector2& v)
-{
-    x -= v.x;
-    y -= v.y;
-    return *this;
-}
-
-Vector2& Vector2::operator *=(const float k)
-{
-    x *= k;
-    y *= k;
-    return *this;
-}
-
-Vector2& Vector2::operator /=(const float k)
-{
-    GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
-
-    x /= k;
-    y /= k;
-    return *this;
-}
-
-float& Vector2::operator [](const int i)
-{
-    GEOMETRY_RUNTIME_ASSERT(i >= 0 && i <= 1);
-    return (&x)[i];
-}
-
-float Vector2::operator [](const int i) const
-{
-    GEOMETRY_RUNTIME_ASSERT(i >= 0 && i <= 1);
-    return (&x)[i];
-}
-
 float* Vector2::data()
 {
     return &x;
@@ -97,31 +42,59 @@ const float* Vector2::data() const
     return &x;
 }
 
-void Vector2::negate()
-{
-    x = -x;
-    y = -y;
-}
-
-void Vector2::normalize()
-{
-    const float k = length(*this);
-    GEOMETRY_RUNTIME_ASSERT(k > 0.0f);
-
-    x /= k;
-    y /= k;
-}
-
-void Vector2::set(const float x, const float y)
-{
-    this->x = x;
-    this->y = y;
-}
-
 void Vector2::swap(Vector2& other)
 {
     std::swap(x, other.x);
     std::swap(y, other.y);
+}
+
+Vector2& operator +=(Vector2& a, const Vector2& b)
+{
+    a.x += b.x;
+    a.y += b.y;
+    return a;
+}
+
+Vector2& operator -=(Vector2& a, const Vector2& b)
+{
+    a.x -= b.x;
+    a.y -= b.y;
+    return a;
+}
+
+Vector2& operator *=(Vector2& v, const float k)
+{
+    v.x *= k;
+    v.y *= k;
+    return v;
+}
+
+Vector2& operator *=(Vector2& a, const Vector2& b)
+{
+    a.x *= b.x;
+    a.y *= b.y;
+    return a;
+}
+
+Vector2& operator /=(Vector2& v, const float k)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
+
+    v.x /= k;
+    v.y /= k;
+    return v;
+}
+
+Vector2& operator /=(Vector2& a, const Vector2& b)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(b.x != 0.0f);
+    GEOMETRY_RUNTIME_ASSERT(b.y != 0.0f);
+
+    a.x /= b.x;
+    a.y /= b.y;
+    return a;
 }
 
 const Vector2 operator +(const Vector2& a, const Vector2& b)
@@ -132,19 +105,19 @@ const Vector2 operator +(const Vector2& a, const Vector2& b)
     );
 }
 
-const Vector2 operator -(const Vector2& a, const Vector2& b)
-{
-    return Vector2(
-        a.x - b.x,
-        a.y - b.y
-    );
-}
-
 const Vector2 operator -(const Vector2& v)
 {
     return Vector2(
         -v.x,
         -v.y
+    );
+}
+
+const Vector2 operator -(const Vector2& a, const Vector2& b)
+{
+    return Vector2(
+        a.x - b.x,
+        a.y - b.y
     );
 }
 
@@ -159,13 +132,22 @@ const Vector2 operator *(const float k, const Vector2& v)
 const Vector2 operator *(const Vector2& v, const float k)
 {
     return Vector2(
-        k * v.x,
-        k * v.y
+        v.x * k,
+        v.y * k
+    );
+}
+
+const Vector2 operator *(const Vector2& a, const Vector2& b)
+{
+    return Vector2(
+        a.x * b.x,
+        a.y * b.y
     );
 }
 
 const Vector2 operator /(const Vector2& v, const float k)
 {
+    // TODO: use tolerances instead of exact values?
     GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
 
     return Vector2(
@@ -174,20 +156,29 @@ const Vector2 operator /(const Vector2& v, const float k)
     );
 }
 
+const Vector2 operator /(const Vector2& a, const Vector2& b)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(b.x != 0.0f);
+    GEOMETRY_RUNTIME_ASSERT(b.y != 0.0f);
+
+    return Vector2(
+        a.x / b.x,
+        a.y / b.y
+    );
+}
+
 float angle(const Vector2& v)
 {
-    const float k = length(v);
-    GEOMETRY_RUNTIME_ASSERT(k > 0.0f);
-
-    const float c = v.x / k;
+    const Vector2 direction = normalize(v);
 
     if (v.y >= 0.0f)
     {
-        return Math::acos(c);
+        return Math::acos(v.x);
     }
     else
     {
-        return Math::twoPi() - Math::acos(c);
+        return Math::twoPi() - Math::acos(v.x);
     }
 }
 
@@ -205,14 +196,14 @@ float distance(const Vector2& a, const Vector2& b)
     return length(b - a);
 }
 
-float sqrDistance(const Vector2& a, const Vector2& b)
-{
-    return sqrLength(b - a);
-}
-
 float dot(const Vector2& a, const Vector2& b)
 {
     return a.x * b.x + a.y * b.y;
+}
+
+float length(const Vector2& v)
+{
+    return Math::sqrt(v.x * v.x + v.y * v.y);
 }
 
 float perpDot(const Vector2& a, const Vector2& b)
@@ -220,19 +211,92 @@ float perpDot(const Vector2& a, const Vector2& b)
     return a.x * b.y - a.y * b.x;
 }
 
-float length(const Vector2& v)
+float sqrDistance(const Vector2& a, const Vector2& b)
 {
-    return Math::sqrt(dot(v, v));
+    return sqrLength(b - a);
 }
 
 float sqrLength(const Vector2& v)
 {
-    return dot(v, v);
+    return v.x * v.x + v.y * v.y;
+}
+
+const Vector2 clamp(const Vector2& v, const float min, const float max)
+{
+    GEOMETRY_RUNTIME_ASSERT(min <= max);
+
+    return Vector2(
+        Math::clamp(v.x, min, max),
+        Math::clamp(v.y, min, max)
+    );
+}
+
+const Vector2 clamp(const Vector2& v, const Vector2& min, const Vector2& max)
+{
+    GEOMETRY_RUNTIME_ASSERT(min.x <= max.x);
+    GEOMETRY_RUNTIME_ASSERT(min.y <= max.y);
+
+    return Vector2(
+        Math::clamp(v.x, min.x, max.x),
+        Math::clamp(v.y, min.y, max.y)
+    );
+}
+
+const Vector2 max(const Vector2& v, const float k)
+{
+    return Vector2(
+        Math::max(v.x, k),
+        Math::max(v.y, k)
+    );
+}
+
+const Vector2 max(const Vector2& a, const Vector2& b)
+{
+    return Vector2(
+        Math::max(a.x, b.x),
+        Math::max(a.y, b.y)
+    );
+}
+
+const Vector2 min(const Vector2& v, const float k)
+{
+    return Vector2(
+        Math::min(v.x, k),
+        Math::min(v.y, k)
+    );
+}
+
+const Vector2 min(const Vector2& a, const Vector2& b)
+{
+    return Vector2(
+        Math::min(a.x, b.x),
+        Math::min(a.y, b.y)
+    );
 }
 
 const Vector2 mix(const Vector2& a, const Vector2& b, const float t)
 {
     return a + t * (b - a);
+}
+
+const Vector2 mix(const Vector2& a, const Vector2& b, const Vector2& t)
+{
+    return a + t * (b - a);
+}
+
+const Vector2 normalize(const Vector2& v)
+{
+    const float k = length(v);
+
+    // TODO: use tolerances instead of exact values?
+    if (k > 0.0f)
+    {
+        return v / k;
+    }
+    else
+    {
+        return Vector2(1.0f, 0.0f);
+    }
 }
 
 const Vector2 perp(const Vector2& v)
@@ -243,30 +307,20 @@ const Vector2 perp(const Vector2& v)
     );
 }
 
-const Vector2 normalize(const Vector2& v)
+const Vector2 polarPoint(const float angle, const float radius)
 {
-    const float k = length(v);
-    GEOMETRY_RUNTIME_ASSERT(k > 0.0f);
+    return radius * Vector2::direction(angle);
+}
 
-    return v / k;
+const Vector2 polarPoint(
+    const Vector2& origin,
+    const float angle,
+    const float radius)
+{
+    return origin + radius * Vector2::direction(angle);
 }
 
 const Vector2 reflect(const Vector2& v, const Vector2& normal)
 {
     return v - 2.0f * dot(v, normal) * normal;
-}
-
-const Vector2 reflect(const Vector2& q, const Plane2& plane)
-{
-    return q - 2.0f * plane.distanceTo(q) * plane.normal;
-}
-
-const Vector2 polarPoint(const float direction, const float distance)
-{
-    return distance * Vector2::direction(direction);
-}
-
-const Vector2 polarPoint(const Vector2& point, const float direction, const float distance)
-{
-    return point + distance * Vector2::direction(direction);
 }

@@ -306,29 +306,29 @@ int GameProgram::execute()
 
 		if( keyboard.keyIsDown( Keyboard::KEY_D ) )
 		{
-            camera_->translateBy( deltaTime * camera_->rotation().row(0) * speed );
+            camera_->translateBy( deltaTime * camera_->rotation().row0() * speed );
 		}
 		else if( keyboard.keyIsDown( Keyboard::KEY_A ) )
         {
-            camera_->translateBy( deltaTime * camera_->rotation().row(0) * -speed );
+            camera_->translateBy( deltaTime * camera_->rotation().row0() * -speed );
         }
 
         if( keyboard.keyIsDown( Keyboard::KEY_Q) )
         {
-            camera_->translateBy(deltaTime * -speed * camera_->rotation().row(1));
+            camera_->translateBy(deltaTime * -speed * camera_->rotation().row1());
         }
         else if( keyboard.keyIsDown( Keyboard::KEY_E ) )
         {
-            camera_->translateBy(deltaTime * speed * camera_->rotation().row(1));
+            camera_->translateBy(deltaTime * speed * camera_->rotation().row1());
         }
 
         if( keyboard.keyIsDown( Keyboard::KEY_W) )
         {
-            camera_->translateBy(deltaTime * -speed * camera_->rotation().row(2));
+            camera_->translateBy(deltaTime * -speed * camera_->rotation().row2());
         }
         else if( keyboard.keyIsDown( Keyboard::KEY_S ) )
         {
-            camera_->translateBy(deltaTime * speed * camera_->rotation().row(2));
+            camera_->translateBy(deltaTime * speed * camera_->rotation().row2());
         }
 
 
@@ -348,7 +348,7 @@ int GameProgram::execute()
 
         if( deltaY != 0 && mouseBoundToScreen )
         {
-            camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor));
+            camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row0(), deltaY * -rotationFactor));
         }
 
         if( mouse.mouseButtonPressedInThisFrame( Mouse::MOUSEBUTTON_LEFT ) )
@@ -612,7 +612,9 @@ void GameProgram::render()
     const GLint glowMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "glowMap");
     const GLint normalMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "normalMap");
 
-    lightPosition_.set(150.0f * Math::cos(Math::degToRad(0.0f)), 0.0f, 150.0f * Math::sin(Math::degToRad(0.0f)));
+    lightPosition_.x = 150.0f * Math::cos(Math::degToRad(0.0f));
+    lightPosition_.y = 0.0f;
+    lightPosition_.z = 150.0f * Math::sin(Math::degToRad(0.0f));
 
     Vector3 lightPositions[] = {
         Vector3(150.0f * Math::cos(Math::degToRad(0.0f)), 0.0f, 150.0f * Math::sin(Math::degToRad(0.0f))),

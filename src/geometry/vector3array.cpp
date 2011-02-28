@@ -5,7 +5,9 @@
 
 #include <geometry/vector3array.h>
 
+// TODO: get rid of this #include
 #include <algorithm>
+
 #include <cstring>
 
 #include <geometry/transform3.h>

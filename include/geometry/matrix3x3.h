@@ -8,7 +8,6 @@
 
 #include <geometry/staticassert.h>
 
-class Matrix2x2;
 class Vector3;
 
 /**
@@ -22,7 +21,7 @@ public:
      *
      * @return The identity matrix.
      */
-    static const Matrix3x3& identity();
+    static const Matrix3x3 identity();
 
     /**
      * Gets a matrix that produces a rotation about the x-axis.
@@ -90,36 +89,37 @@ public:
     /**
      * Constructor.
      *
-     * @param row0 Contains the elements of row 0.
-     * @param row1 Contains the elements of row 1.
-     * @param row2 Contains the elements of row 2.
+     * @param row0 Vector containing the elements of row 0.
+     * @param row1 Vector containing the elements of row 1.
+     * @param row2 Vector containing the elements of row 2.
      */
     Matrix3x3(const Vector3& row0, const Vector3& row1, const Vector3& row2);
 
+    // TODO: is this needed?
     /**
-     * Constructor, constructs a 3x3 matrix from a 2x2 matrix.
+     * Gets the first row as a vector.
      *
-     * @param m 2x2 matrix.
+     * @return The first row as a vector.
      */
-    explicit Matrix3x3(const Matrix2x2& m);
+    const Vector3 row0() const;
 
+    // TODO: is this needed?
     /**
-     * Array access operator. Allows matrices to be accessed like 2D
-     * arrays of <code>float</code>.
+     * Gets the second row as a vector.
      *
-     * @param row Index of the row to return, between [0, 2].
-     *
-     * @return Pointer to the first element of the specified row.
+     * @return The second row as a vector.
      */
-    float* operator [](int row);
+    const Vector3 row1() const;
 
+    // TODO: is this needed?
     /**
-     * Provided for const-correctness.
+     * Gets the third row as a vector.
      *
-     * @see operator [](int)
+     * @return The third row as a vector.
      */
-    const float* operator [](int row) const;
+    const Vector3 row2() const;
 
+    // TODO: should this be a member?
     /**
      * Gets the element array.
      *
@@ -127,6 +127,7 @@ public:
      */
     float* data();
 
+    // TODO: should this be a member?
     /**
      * Provided for const-correctness.
      *
@@ -134,61 +135,7 @@ public:
      */
     const float* data() const;
 
-    /**
-     * Sets the elements of a specified row.
-     *
-     * @param row Index of the row to set, between [0, 2].
-     * @param v Vector containing the elements to set.
-     */
-    void setRow(int row, const Vector3& v);
-
-    /**
-     * Gets a specified row as a vector.
-     *
-     * @param row Index of the row to return, between [0, 2].
-     *
-     * @return The specified row as a vector.
-     */
-    const Vector3 row(int row) const;
-
-    /**
-     * Sets the elements of a specified column.
-     *
-     * @param column Index of the column to set, between [0, 2].
-     * @param v Vector containing the elements to set.
-     */
-    void setColumn(int column, const Vector3& v);
-
-    /**
-     * Gets a specified column as a vector.
-     *
-     * @param column Index of the column to return, between [0, 2].
-     *
-     * @return The specified column as a vector.
-     */
-    const Vector3 column(int column) const;
-
-    /**
-     * Sets <code>*this</code> to the product of <code>*this</code> and
-     * <code>m</code>.
-     *
-     * @param m The matrix to multiply this matrix with.
-     */
-    void multiplyBy(const Matrix3x3& m);
-
-    /**
-     * Sets <code>*this</code> to the product of <code>*this</code> and the
-     * transpose of <code>m</code>.
-     *
-     * @param m The matrix by whose transpose this matrix is multiplied with.
-     */
-    void multiplyByT(const Matrix3x3& m);
-
-    /**
-     * Applies a Gram-Schmidt process to the rows.
-     */
-    void orthogonalize();
-
+    // TODO: should this be a member?
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
      *
@@ -225,7 +172,7 @@ GEOMETRY_STATIC_ASSERT(sizeof(Matrix3x3[2]) == sizeof(float) * 18);
 const Vector3 product(const Vector3& v, const Matrix3x3& m);
 
 /**
- * Same as <code>product(v, transpose(m))</code>.
+ * Equal to <code>product(v, transpose(m))</code>.
  *
  * @param v Vector to transform by the transpose of matrix <code>m</code>.
  * @param m Matrix by whose transpose vector <code>v</code> is to be
@@ -234,6 +181,15 @@ const Vector3 product(const Vector3& v, const Matrix3x3& m);
  * @return <code>v</code> transformed by the transpose of <code>m</code>.
  */
 const Vector3 productT(const Vector3& v, const Matrix3x3& m);
+
+/**
+ * Orthogonalizes a matrix by applying a Gram-Schmidt process to its rows.
+ *
+ * @param m The matrix to orthogonalize.
+ *
+ * @return Orthogonalized <code>m</code>.
+ */
+const Matrix3x3 orthogonalize(const Matrix3x3& m);
 
 /**
  * Matrix-matrix product.
@@ -246,7 +202,7 @@ const Vector3 productT(const Vector3& v, const Matrix3x3& m);
 const Matrix3x3 product(const Matrix3x3& a, const Matrix3x3& b);
 
 /**
- * Same as <code>product(a, transpose(b))</code>.
+ * Equal to <code>product(a, transpose(b))</code>.
  *
  * @param a Matrix to transform by the transpose of matrix <code>b</code>.
  * @param b Matrix by whose transpose matrix <code>a</code> is to be

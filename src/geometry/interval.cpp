@@ -5,6 +5,7 @@
 
 #include <geometry/interval.h>
 
+// TODO: get rid of these #includes
 #include <algorithm>
 #include <limits>
 

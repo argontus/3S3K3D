@@ -5,21 +5,19 @@
 
 #include <geometry/matrix3x3.h>
 
+// TODO: get rid of this #include
 #include <algorithm>
 
 #include <geometry/math.h>
-#include <geometry/matrix2x2.h>
 #include <geometry/vector3.h>
 
-const Matrix3x3& Matrix3x3::identity()
+const Matrix3x3 Matrix3x3::identity()
 {
-    static const Matrix3x3 m(
+    return Matrix3x3(
         1.0f,  0.0f,  0.0f,
         0.0f,  1.0f,  0.0f,
         0.0f,  0.0f,  1.0f
     );
-
-    return m;
 }
 
 const Matrix3x3 Matrix3x3::xRotation(const float rotation)
@@ -106,24 +104,19 @@ Matrix3x3::Matrix3x3(
     // ...
 }
 
-Matrix3x3::Matrix3x3(const Matrix2x2& m)
-:   m00(m.m00), m01(m.m01), m02(0.0f),
-    m10(m.m10), m11(m.m11), m12(0.0f),
-    m20(0.0f), m21(0.0f), m22(1.0f)
+const Vector3 Matrix3x3::row0() const
 {
-    // ...
+    return Vector3(m00, m01, m02);
 }
 
-float* Matrix3x3::operator [](const int row)
+const Vector3 Matrix3x3::row1() const
 {
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 2);
-    return &m00 + row * 3;
+    return Vector3(m10, m11, m12);
 }
 
-const float* Matrix3x3::operator [](const int row) const
+const Vector3 Matrix3x3::row2() const
 {
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 2);
-    return &m00 + row * 3;
+    return Vector3(m20, m21, m22);
 }
 
 float* Matrix3x3::data()
@@ -134,76 +127,6 @@ float* Matrix3x3::data()
 const float* Matrix3x3::data() const
 {
     return &m00;
-}
-
-void Matrix3x3::setRow(const int row, const Vector3& v)
-{
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 2);
-    float* data = &m00 + row * 3;
-
-    data[0] = v.x;
-    data[1] = v.y;
-    data[2] = v.z;
-}
-
-const Vector3 Matrix3x3::row(const int row) const
-{
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 2);
-    const float* data = &m00 + row * 3;
-    return Vector3(data[0], data[1], data[2]);
-}
-
-void Matrix3x3::setColumn(const int column, const Vector3& v)
-{
-    GEOMETRY_RUNTIME_ASSERT(column >= 0 && column <= 2);
-    float* data = &m00 + column;
-
-    data[0] = v.x;
-    data[3] = v.y;
-    data[6] = v.z;
-}
-
-const Vector3 Matrix3x3::column(const int column) const
-{
-    GEOMETRY_RUNTIME_ASSERT(column >= 0 && column <= 2);
-    const float* data = &m00 + column;
-    return Vector3(data[0], data[3], data[6]);
-}
-
-void Matrix3x3::multiplyBy(const Matrix3x3& m)
-{
-    *this = product(*this, m);
-}
-
-void Matrix3x3::multiplyByT(const Matrix3x3& m)
-{
-    *this = productT(*this, m);
-}
-
-void Matrix3x3::orthogonalize()
-{
-    Vector3 x(m00, m01, m02);
-    x.normalize();
-
-    Vector3 y(m10, m11, m12);
-    y -= x * dot(y, x);
-    y.normalize();
-
-    // cross(x, y) should produce a unit vector, normalize just in case
-    Vector3 z = cross(x, y);
-    z.normalize();
-
-    m00 = x.x;
-    m01 = x.y;
-    m02 = x.z;
-
-    m10 = y.x;
-    m11 = y.y;
-    m12 = y.z;
-
-    m20 = z.x;
-    m21 = z.y;
-    m22 = z.z;
 }
 
 void Matrix3x3::swap(Matrix3x3& other)
@@ -237,6 +160,32 @@ const Vector3 productT(const Vector3& v, const Matrix3x3& m)
         v.x * m.m10 + v.y * m.m11 + v.z * m.m12,
         v.x * m.m20 + v.y * m.m21 + v.z * m.m22
     );
+}
+
+const Matrix3x3 orthogonalize(const Matrix3x3& m)
+{
+    // TODO: In the worst case scenario, this could construct a matrix where
+    // one or more rows are incorrectly set to Vector3(1.0f, 0.0f, 0.0f)
+    // because of how normalize(const Vector3&) is implemented. Should this
+    // function check for division by zero instead of relying on the default
+    // behavior of vector normalization?
+
+    const Vector3 x = normalize(m.row0());
+
+    Vector3 y = m.row1();
+
+    // extract the part that is parallel to x and normalize
+    y -= x * dot(y, x);
+    y = normalize(y);
+
+    Vector3 z = m.row2();
+
+    // extract the parts that are parallel to x and y and normalize
+    z -= x * dot(z, x);
+    z -= y * dot(z, y);
+    z = normalize(z);
+
+    return Matrix3x3(x, y, z);
 }
 
 const Matrix3x3 product(const Matrix3x3& a, const Matrix3x3& b)

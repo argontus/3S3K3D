@@ -5,10 +5,12 @@
 
 #include <geometry/transform2.h>
 
+// TODO: get rid of this #include
 #include <algorithm>
 
 #include <geometry/math.h>
 #include <geometry/matrix2x2.h>
+#include <geometry/matrix4x4.h>
 
 const Transform2& Transform2::identity()
 {
@@ -106,6 +108,20 @@ void Transform2::scaleBy(const float scaling)
 float Transform2::scaling() const
 {
     return scaling_;
+}
+
+const Matrix4x4 Transform2::toMatrix4x4() const
+{
+    const Vector2 t = translation_;
+    const Matrix2x2 r = Matrix2x2::rotation(rotation_);
+    const float s = scaling_;
+
+    return Matrix4x4(
+        r.m00 * s,  r.m01 * s,  0.0f,  0.0f,
+        r.m10 * s,  r.m11 * s,  0.0f,  0.0f,
+             0.0f,       0.0f,  1.0f,  0.0f,
+              t.x,        t.y,  0.0f,  1.0f
+    );
 }
 
 const Vector2 Transform2::applyForward(const Vector2& q) const

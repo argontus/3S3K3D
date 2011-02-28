@@ -8,11 +8,8 @@
 
 #include <geometry/staticassert.h>
 
-class Matrix2x2;
-class Matrix3x3;
-class Transform2;
-class Transform3;
 class Vector3;
+class Vector4;
 
 /**
  * Represents a row-major 4x4 matrix.
@@ -25,7 +22,7 @@ public:
      *
      * @return The identity matrix.
      */
-    static const Matrix4x4& identity();
+    static const Matrix4x4 identity();
 
     /**
      * Gets a matrix that produces a translation.
@@ -128,52 +125,52 @@ public:
         float m30, float m31, float m32, float m33);
 
     /**
-     * Constructor, constructs a 4x4 matrix from a 2x2 matrix.
+     * Constructor.
      *
-     * @param m 2x2 matrix.
+     * @param row0 Vector containing the elements of row 0.
+     * @param row1 Vector containing the elements of row 1.
+     * @param row2 Vector containing the elements of row 2.
+     * @param row3 Vector containing the elements of row 3.
      */
-    explicit Matrix4x4(const Matrix2x2& m);
+    Matrix4x4(
+        const Vector4& row0,
+        const Vector4& row1,
+        const Vector4& row2,
+        const Vector4& row3);
 
+    // TODO: is this needed?
     /**
-     * Constructor, constructs a 4x4 matrix from a 3x3 matrix.
+     * Gets the first row as a vector.
      *
-     * @param m 3x3 matrix.
+     * @return The first row as a vector.
      */
-    explicit Matrix4x4(const Matrix3x3& m);
+    const Vector4 row0() const;
 
+    // TODO: is this needed?
     /**
-     * Constructor, constructs a matrix that produces a 2D transform.
+     * Gets the second row as a vector.
      *
-     * @param transform 2D transform describing the transform matrix to
-     * construct.
+     * @return The second row as a vector.
      */
-    explicit Matrix4x4(const Transform2& transform);
+    const Vector4 row1() const;
 
+    // TODO: is this needed?
     /**
-     * Constructor, constructs a matrix that produces a 3D transform.
+     * Gets the third row as a vector.
      *
-     * @param transform 3D transform describing the transform matrix to
-     * construct.
+     * @return The third row as a vector.
      */
-    explicit Matrix4x4(const Transform3& transform);
+    const Vector4 row2() const;
 
+    // TODO: is this needed?
     /**
-     * Array access operator. Allows matrices to be accessed like 2D
-     * arrays of <code>float</code>.
+     * Gets the fourth row as a vector.
      *
-     * @param row Index of the row to return, between [0, 3].
-     *
-     * @return Pointer to the first element of the specified row.
+     * @return The fourth row as a vector.
      */
-    float* operator [](int row);
+    const Vector4 row3() const;
 
-    /**
-     * Provided for const-correctness.
-     *
-     * @see operator [](int)
-     */
-    const float* operator [](int row) const;
-
+    // TODO: should this be a member?
     /**
      * Gets the element array.
      *
@@ -181,6 +178,7 @@ public:
      */
     float* data();
 
+    // TODO: should this be a member?
     /**
      * Provided for const-correctness.
      *
@@ -188,22 +186,7 @@ public:
      */
     const float* data() const;
 
-    /**
-     * Sets <code>*this</code> to the product of <code>*this</code> and
-     * <code>m</code>.
-     *
-     * @param m The matrix to multiply this matrix with.
-     */
-    void multiplyBy(const Matrix4x4& m);
-
-    /**
-     * Sets <code>*this</code> to the product of <code>*this</code> and the
-     * transpose of <code>m</code>.
-     *
-     * @param m The matrix by whose transpose this matrix is multiplied with.
-     */
-    void multiplyByT(const Matrix4x4& m);
-
+    // TODO: should this be a member?
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
      *
@@ -238,6 +221,36 @@ GEOMETRY_STATIC_ASSERT(sizeof(Matrix4x4[2]) == sizeof(float) * 32);
 /// @endcond
 
 /**
+ * Vector-matrix product.
+ *
+ * @param v Vector to transform by matrix <code>m</code>.
+ * @param m Matrix by which vector <code>v</code> is to be transformed.
+ *
+ * @return <code>v</code> transformed by <code>m</code>.
+ */
+const Vector4 product(const Vector4& v, const Matrix4x4& m);
+
+/**
+ * Equal to <code>product(v, transpose(m))</code>.
+ *
+ * @param v Vector to transform by the transpose of matrix <code>m</code>.
+ * @param m Matrix by whose transpose vector <code>v</code> is to be
+ * transformed.
+ *
+ * @return <code>v</code> transformed by the transpose of <code>m</code>.
+ */
+const Vector4 productT(const Vector4& v, const Matrix4x4& m);
+
+/**
+ * Orthogonalizes a matrix by applying a Gram-Schmidt process to its rows.
+ *
+ * @param m The matrix to orthogonalize.
+ *
+ * @return Orthogonalized <code>m</code>.
+ */
+const Matrix4x4 orthogonalize(const Matrix4x4& m);
+
+/**
  * Matrix-matrix product.
  *
  * @param a Matrix to transform by matrix <code>b</code>.
@@ -248,7 +261,7 @@ GEOMETRY_STATIC_ASSERT(sizeof(Matrix4x4[2]) == sizeof(float) * 32);
 const Matrix4x4 product(const Matrix4x4& a, const Matrix4x4& b);
 
 /**
- * Same as <code>product(a, transpose(b))</code>.
+ * Equal to <code>product(a, transpose(b))</code>.
  *
  * @param a Matrix to transform by the transpose of matrix <code>b</code>.
  * @param b Matrix by whose transpose matrix <code>a</code> is to be

@@ -3,35 +3,16 @@
  * @author Mika Haarahiltunen
  */
 
-// geometry/vector3.h is included via geometry/plane3.h
+#include <geometry/vector3.h>
 
+// TODO: get rid of this #include
 #include <algorithm>
 
 #include <geometry/math.h>
-#include <geometry/plane3.h>
 
-const Vector3& Vector3::zero()
+const Vector3 Vector3::zero()
 {
-    static const Vector3 v(0.0f, 0.0f, 0.0f);
-    return v;
-}
-
-const Vector3& Vector3::xAxis()
-{
-    static const Vector3 v(1.0f, 0.0f, 0.0f);
-    return v;
-}
-
-const Vector3& Vector3::yAxis()
-{
-    static const Vector3 v(0.0f, 1.0f, 0.0f);
-    return v;
-}
-
-const Vector3& Vector3::zAxis()
-{
-    static const Vector3 v(0.0f, 0.0f, 1.0f);
-    return v;
+    return Vector3(0.0f, 0.0f, 0.0f);
 }
 
 Vector3::Vector3()
@@ -47,52 +28,6 @@ Vector3::Vector3(const float x, const float y, const float z)
     // ...
 }
 
-Vector3& Vector3::operator +=(const Vector3& v)
-{
-    x += v.x;
-    y += v.y;
-    z += v.z;
-    return *this;
-}
-
-Vector3& Vector3::operator -=(const Vector3& v)
-{
-    x -= v.x;
-    y -= v.y;
-    z -= v.z;
-    return *this;
-}
-
-Vector3& Vector3::operator *=(const float k)
-{
-    x *= k;
-    y *= k;
-    z *= k;
-    return *this;
-}
-
-Vector3& Vector3::operator /=(const float k)
-{
-    GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
-
-    x /= k;
-    y /= k;
-    z /= k;
-    return *this;
-}
-
-float& Vector3::operator [](const int i)
-{
-    GEOMETRY_RUNTIME_ASSERT(i >= 0 && i <= 2);
-    return (&x)[i];
-}
-
-float Vector3::operator [](const int i) const
-{
-    GEOMETRY_RUNTIME_ASSERT(i >= 0 && i <= 2);
-    return (&x)[i];
-}
-
 float* Vector3::data()
 {
     return &x;
@@ -103,35 +38,67 @@ const float* Vector3::data() const
     return &x;
 }
 
-void Vector3::negate()
-{
-    x = -x;
-    y = -y;
-    z = -z;
-}
-
-void Vector3::normalize()
-{
-    const float k = length(*this);
-    GEOMETRY_RUNTIME_ASSERT(k > 0.0f);
-
-    x /= k;
-    y /= k;
-    z /= k;
-}
-
-void Vector3::set(const float x, const float y, const float z)
-{
-    this->x = x;
-    this->y = y;
-    this->z = z;
-}
-
 void Vector3::swap(Vector3& other)
 {
     std::swap(x, other.x);
     std::swap(y, other.y);
     std::swap(z, other.z);
+}
+
+Vector3& operator +=(Vector3& a, const Vector3& b)
+{
+    a.x += b.x;
+    a.y += b.y;
+    a.z += b.z;
+    return a;
+}
+
+Vector3& operator -=(Vector3& a, const Vector3& b)
+{
+    a.x -= b.x;
+    a.y -= b.y;
+    a.z -= b.z;
+    return a;
+}
+
+Vector3& operator *=(Vector3& v, const float k)
+{
+    v.x *= k;
+    v.y *= k;
+    v.z *= k;
+    return v;
+}
+
+Vector3& operator *=(Vector3& a, const Vector3& b)
+{
+    a.x *= b.x;
+    a.y *= b.y;
+    a.z *= b.z;
+    return a;
+}
+
+Vector3& operator /=(Vector3& v, const float k)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
+
+    v.x /= k;
+    v.y /= k;
+    v.z /= k;
+    return v;
+}
+
+Vector3& operator /=(Vector3& a, const Vector3& b)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(b.x != 0.0f);
+    GEOMETRY_RUNTIME_ASSERT(b.y != 0.0f);
+    GEOMETRY_RUNTIME_ASSERT(b.z != 0.0f);
+
+    a.x /= b.x;
+    a.y /= b.y;
+    a.z /= b.z;
+    return a;
 }
 
 const Vector3 operator +(const Vector3& a, const Vector3& b)
@@ -143,21 +110,21 @@ const Vector3 operator +(const Vector3& a, const Vector3& b)
     );
 }
 
-const Vector3 operator -(const Vector3& a, const Vector3& b)
-{
-    return Vector3(
-        a.x - b.x,
-        a.y - b.y,
-        a.z - b.z
-    );
-}
-
 const Vector3 operator -(const Vector3& v)
 {
     return Vector3(
         -v.x,
         -v.y,
         -v.z
+    );
+}
+
+const Vector3 operator -(const Vector3& a, const Vector3& b)
+{
+    return Vector3(
+        a.x - b.x,
+        a.y - b.y,
+        a.z - b.z
     );
 }
 
@@ -173,20 +140,44 @@ const Vector3 operator *(const float k, const Vector3& v)
 const Vector3 operator *(const Vector3& v, const float k)
 {
     return Vector3(
-        k * v.x,
-        k * v.y,
-        k * v.z
+        v.x * k,
+        v.y * k,
+        v.z * k
+    );
+}
+
+const Vector3 operator *(const Vector3& a, const Vector3& b)
+{
+    return Vector3(
+        a.x * b.x,
+        a.y * b.y,
+        a.z * b.z
     );
 }
 
 const Vector3 operator /(const Vector3& v, const float k)
 {
+    // TODO: use tolerances instead of exact values?
     GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
 
     return Vector3(
         v.x / k,
         v.y / k,
         v.z / k
+    );
+}
+
+const Vector3 operator /(const Vector3& a, const Vector3& b)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(b.x != 0.0f);
+    GEOMETRY_RUNTIME_ASSERT(b.y != 0.0f);
+    GEOMETRY_RUNTIME_ASSERT(b.z != 0.0f);
+
+    return Vector3(
+        a.x / b.x,
+        a.y / b.y,
+        a.z / b.z
     );
 }
 
@@ -204,14 +195,48 @@ float distance(const Vector3& a, const Vector3& b)
     return length(b - a);
 }
 
+float dot(const Vector3& a, const Vector3& b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+float length(const Vector3& v)
+{
+    return Math::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
 float sqrDistance(const Vector3& a, const Vector3& b)
 {
     return sqrLength(b - a);
 }
 
-float dot(const Vector3& a, const Vector3& b)
+float sqrLength(const Vector3& v)
 {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
+    return v.x * v.x + v.y * v.y + v.z * v.z;
+}
+
+const Vector3 clamp(const Vector3& v, const float min, const float max)
+{
+    GEOMETRY_RUNTIME_ASSERT(min <= max);
+
+    return Vector3(
+        Math::clamp(v.x, min, max),
+        Math::clamp(v.y, min, max),
+        Math::clamp(v.z, min, max)
+    );
+}
+
+const Vector3 clamp(const Vector3& v, const Vector3& min, const Vector3& max)
+{
+    GEOMETRY_RUNTIME_ASSERT(min.x <= max.x);
+    GEOMETRY_RUNTIME_ASSERT(min.y <= max.y);
+    GEOMETRY_RUNTIME_ASSERT(min.z <= max.z);
+
+    return Vector3(
+        Math::clamp(v.x, min.x, max.x),
+        Math::clamp(v.y, min.y, max.y),
+        Math::clamp(v.z, min.z, max.z)
+    );
 }
 
 const Vector3 cross(const Vector3& a, const Vector3& b)
@@ -223,14 +248,40 @@ const Vector3 cross(const Vector3& a, const Vector3& b)
     );
 }
 
-float length(const Vector3& v)
+const Vector3 max(const Vector3& v, const float k)
 {
-    return Math::sqrt(dot(v, v));
+    return Vector3(
+        Math::max(v.x, k),
+        Math::max(v.y, k),
+        Math::max(v.z, k)
+    );
 }
 
-float sqrLength(const Vector3& v)
+const Vector3 max(const Vector3& a, const Vector3& b)
 {
-    return dot(v, v);
+    return Vector3(
+        Math::max(a.x, b.x),
+        Math::max(a.y, b.y),
+        Math::max(a.z, b.z)
+    );
+}
+
+const Vector3 min(const Vector3& v, const float k)
+{
+    return Vector3(
+        Math::min(v.x, k),
+        Math::min(v.y, k),
+        Math::min(v.z, k)
+    );
+}
+
+const Vector3 min(const Vector3& a, const Vector3& b)
+{
+    return Vector3(
+        Math::min(a.x, b.x),
+        Math::min(a.y, b.y),
+        Math::min(a.z, b.z)
+    );
 }
 
 const Vector3 mix(const Vector3& a, const Vector3& b, const float t)
@@ -238,20 +289,27 @@ const Vector3 mix(const Vector3& a, const Vector3& b, const float t)
     return a + t * (b - a);
 }
 
+const Vector3 mix(const Vector3& a, const Vector3& b, const Vector3& t)
+{
+    return a + t * (b - a);
+}
+
 const Vector3 normalize(const Vector3& v)
 {
     const float k = length(v);
-    GEOMETRY_RUNTIME_ASSERT(k > 0.0f);
 
-    return v / k;
+    // TODO: use tolerances instead of exact values?
+    if (k > 0.0f)
+    {
+        return v / k;
+    }
+    else
+    {
+        return Vector3(1.0f, 0.0f, 0.0f);
+    }
 }
 
 const Vector3 reflect(const Vector3& v, const Vector3& normal)
 {
     return v - 2.0f * dot(v, normal) * normal;
-}
-
-const Vector3 reflect(const Vector3& q, const Plane3& plane)
-{
-    return q - 2.0f * plane.distanceTo(q) * plane.normal;
 }

@@ -107,8 +107,8 @@ void MeshNode::draw(const DrawParams& params) const
     GRAPHICS_RUNTIME_ASSERT(coords.size() == tangents.size());
     GRAPHICS_RUNTIME_ASSERT(coords.size() == texCoords.size());
 
-    const Matrix4x4 modelViewMatrix(conversion(worldTransform(), params.cameraToWorld));
-    const Matrix3x3 normalMatrix(product(worldTransform().rotation(), params.worldToViewRotation));
+    const Matrix4x4 modelViewMatrix = conversion(worldTransform(), params.cameraToWorld).toMatrix4x4();
+    const Matrix3x3 normalMatrix = product(worldTransform().rotation(), params.worldToViewRotation);
 
     params.shaderProgram->setUniformMatrix4x4fv(
         "modelViewMatrix",

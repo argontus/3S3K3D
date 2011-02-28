@@ -126,41 +126,21 @@ void Mesh::generateFlatNormals()
         const Vector3 v0 = vertices_[i * 3 + 0];
         const Vector3 v1 = vertices_[i * 3 + 1];
 
-        // unnormalized tangent vector
-        Vector3 t = v1 - v0;
-
-        const float k = length(t);
-
-        // avoid division by zero
-        if (k > 0.0f)
-        {
-            // normalize the tangent vector
-            t /= k;
-        }
-        else
-        {
-            // unable to normalize, use x-axis as the tangent vector
-            t = Vector3::xAxis();
-        }
-
         const Vector2 t0 = texCoords_[i * 3 + 0];
         const Vector2 t1 = texCoords_[i * 3 + 1];
 
         Vector2 t0t1 = t1 - t0;
-
-        if (length(t0t1) == 0.0f)
-        {
-            t0t1 = Vector2::xAxis();
-        }
 
         const float tCoordAngle = angle(t0t1);
 
         // normal
         const Vector3 n = faceNormal(i);
 
+        // normalized tangent vector
+        Vector3 t = normalize(v1 - v0);
+
         // align tangent with the horizontal texture axis
-        t = product(t, Matrix3x3::rotation(n, -tCoordAngle));
-        t.normalize();
+        t = normalize(product(t, Matrix3x3::rotation(n, -tCoordAngle)));
 
         normals_[i * 3 + 0] =
         normals_[i * 3 + 1] =
@@ -197,18 +177,5 @@ const Vector3 Mesh::faceNormal(const int index) const
 
     // TODO: suffers from loss of precision, use 64-bit precision for
     // calculating the normal vector?
-    const Vector3 n = cross(v1 - v0, v2 - v0);
-    const float k = length(n);
-
-    // avoid division by zero
-    if (k > 0.0f)
-    {
-        // return normalized n
-        return n / k;
-    }
-    else
-    {
-        // unable to normalize, return the x-axis
-        return Vector3::xAxis();
-    }
+    return normalize(cross(v1 - v0, v2 - v0));
 }

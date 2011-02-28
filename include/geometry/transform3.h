@@ -10,6 +10,8 @@
 #include <geometry/runtimeassert.h>
 #include <geometry/vector3.h>
 
+class Matrix4x4;
+
 /**
  * Represents a 3D transformation. Supports translation, rotation and uniform
  * scaling, where the scaling factor is greater than zero.
@@ -168,6 +170,13 @@ public:
      * @return Scaling.
      */
     float scaling() const;
+
+    /**
+     * Gets a 4x4 matrix that produces a transform equal to this.
+     *
+     * @return A 4x4 matrix that produces a transform equal to this.
+     */
+    const Matrix4x4 toMatrix4x4() const;
 
     /**
      * Applies this transform to a single point. The order of application is

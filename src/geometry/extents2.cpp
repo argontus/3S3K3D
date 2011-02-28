@@ -5,6 +5,7 @@
 
 #include <geometry/extents2.h>
 
+// TODO: get rid of this #include
 #include <limits>
 
 #include <geometry/interval.h>

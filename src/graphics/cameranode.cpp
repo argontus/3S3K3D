@@ -76,16 +76,11 @@ const Matrix4x4 CameraNode::projectionMatrix() const
 
 const Matrix4x4 CameraNode::worldToViewMatrix() const
 {
-    const Transform3 t = worldTransform();
+    // construct the world to view transform, reset scaling just in case
+    Transform3 t = invert(worldTransform());
+    t.setScaling(1.0f);
 
-    // TODO: the result could be initialized without matrix multiplications
-
-    const Matrix4x4 translation = Matrix4x4::translation(-t.translation());
-    const Matrix4x4 rotation = Matrix4x4(transpose(t.rotation()));
-
-    // the order of application is negative translation first, inverse rotation
-    // second
-    return product(translation, rotation);
+    return t.toMatrix4x4();
 }
 
 CameraNode* CameraNode::clone() const

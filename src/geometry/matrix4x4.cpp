@@ -5,22 +5,21 @@
 
 #include <geometry/matrix4x4.h>
 
+// TODO: get rid of this #include
 #include <algorithm>
 
 #include <geometry/math.h>
-#include <geometry/transform2.h>
-#include <geometry/transform3.h>
+#include <geometry/vector3.h>
+#include <geometry/vector4.h>
 
-const Matrix4x4& Matrix4x4::identity()
+const Matrix4x4 Matrix4x4::identity()
 {
-    static const Matrix4x4 m(
+    return Matrix4x4(
         1.0f,  0.0f,  0.0f,  0.0f,
         0.0f,  1.0f,  0.0f,  0.0f,
         0.0f,  0.0f,  1.0f,  0.0f,
         0.0f,  0.0f,  0.0f,  1.0f
     );
-
-    return m;
 }
 
 const Matrix4x4 Matrix4x4::translation(const Vector3& t)
@@ -135,62 +134,37 @@ Matrix4x4::Matrix4x4(
     // ...
 }
 
-Matrix4x4::Matrix4x4(const Matrix2x2& m)
-:   m00(m.m00), m01(m.m01), m02(0.0f), m03(0.0f),
-    m10(m.m10), m11(m.m11), m12(0.0f), m13(0.0f),
-    m20(0.0f), m21(0.0f), m22(1.0f), m23(0.0f),
-    m30(0.0f), m31(0.0f), m32(0.0f), m33(1.0f)
+Matrix4x4::Matrix4x4(
+    const Vector4& row0,
+    const Vector4& row1,
+    const Vector4& row2,
+    const Vector4& row3)
+:   m00(row0.x), m01(row0.y), m02(row0.z), m03(row0.w),
+    m10(row1.x), m11(row1.y), m12(row1.z), m13(row1.w),
+    m20(row2.x), m21(row2.y), m22(row2.z), m23(row2.w),
+    m30(row3.x), m31(row3.y), m32(row3.z), m33(row3.w)
 {
     // ...
 }
 
-Matrix4x4::Matrix4x4(const Matrix3x3& m)
-:   m00(m.m00), m01(m.m01), m02(m.m02), m03(0.0f),
-    m10(m.m10), m11(m.m11), m12(m.m12), m13(0.0f),
-    m20(m.m20), m21(m.m21), m22(m.m22), m23(0.0f),
-    m30(0.0f), m31(0.0f), m32(0.0f), m33(1.0f)
+const Vector4 Matrix4x4::row0() const
 {
-    // ...
+    return Vector4(m00, m01, m02, m03);
 }
 
-Matrix4x4::Matrix4x4(const Transform2& transform)
+const Vector4 Matrix4x4::row1() const
 {
-    const Vector2 t = transform.translation();
-    const Matrix2x2 r = Matrix2x2::rotation(transform.rotation());
-    const float s = transform.scaling();
-
-    *this = Matrix4x4(
-        r.m00 * s,  r.m01 * s,  0.0f,  0.0f,
-        r.m10 * s,  r.m11 * s,  0.0f,  0.0f,
-             0.0f,       0.0f,  1.0f,  0.0f,
-              t.x,        t.y,  0.0f,  1.0f
-    );
+    return Vector4(m10, m11, m12, m13);
 }
 
-Matrix4x4::Matrix4x4(const Transform3& transform)
+const Vector4 Matrix4x4::row2() const
 {
-    const Vector3 t = transform.translation();
-    const Matrix3x3 r = transform.rotation();
-    const float s = transform.scaling();
-
-    *this = Matrix4x4(
-        r.m00 * s,  r.m01 * s,  r.m02 * s,  0.0f,
-        r.m10 * s,  r.m11 * s,  r.m12 * s,  0.0f,
-        r.m20 * s,  r.m21 * s,  r.m22 * s,  0.0f,
-              t.x,        t.y,        t.z,  1.0f
-    );
+    return Vector4(m20, m21, m22, m23);
 }
 
-float* Matrix4x4::operator [](const int row)
+const Vector4 Matrix4x4::row3() const
 {
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 3);
-    return &m00 + row * 4;
-}
-
-const float* Matrix4x4::operator [](const int row) const
-{
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 3);
-    return &m00 + row * 4;
+    return Vector4(m30, m31, m32, m33);
 }
 
 float* Matrix4x4::data()
@@ -201,16 +175,6 @@ float* Matrix4x4::data()
 const float* Matrix4x4::data() const
 {
     return &m00;
-}
-
-void Matrix4x4::multiplyBy(const Matrix4x4& m)
-{
-    *this = product(*this, m);
-}
-
-void Matrix4x4::multiplyByT(const Matrix4x4& m)
-{
-    *this = productT(*this, m);
 }
 
 void Matrix4x4::swap(Matrix4x4& other)
@@ -234,6 +198,60 @@ void Matrix4x4::swap(Matrix4x4& other)
     std::swap(m31, other.m31);
     std::swap(m32, other.m32);
     std::swap(m33, other.m33);
+}
+
+const Vector4 product(const Vector4& v, const Matrix4x4& m)
+{
+    return Vector4(
+        v.x * m.m00 + v.y * m.m10 + v.z * m.m20 + v.w * m.m30,
+        v.x * m.m01 + v.y * m.m11 + v.z * m.m21 + v.w * m.m31,
+        v.x * m.m02 + v.y * m.m12 + v.z * m.m22 + v.w * m.m32,
+        v.x * m.m03 + v.y * m.m13 + v.z * m.m23 + v.w * m.m33
+    );
+}
+
+const Vector4 productT(const Vector4& v, const Matrix4x4& m)
+{
+    return Vector4(
+        v.x * m.m00 + v.y * m.m01 + v.z * m.m02 + v.w * m.m03,
+        v.x * m.m10 + v.y * m.m11 + v.z * m.m12 + v.w * m.m13,
+        v.x * m.m20 + v.y * m.m21 + v.z * m.m22 + v.w * m.m23,
+        v.x * m.m30 + v.y * m.m31 + v.z * m.m32 + v.w * m.m33
+    );
+}
+
+const Matrix4x4 orthogonalize(const Matrix4x4& m)
+{
+    // TODO: In the worst case scenario, this could construct a matrix where
+    // one or more rows are incorrectly set to Vector4(1.0f, 0.0f, 0.0f, 0.0f)
+    // because of how normalize(const Vector4&) is implemented. Should this
+    // function check for division by zero instead of relying on the default
+    // behavior of vector normalization?
+
+    const Vector4 x = normalize(m.row0());
+
+    Vector4 y = m.row1();
+
+    // extract the part that is parallel to x and normalize
+    y -= x * dot(y, x);
+    y = normalize(y);
+
+    Vector4 z = m.row2();
+
+    // extract the parts that are parallel to x and y and normalize
+    z -= x * dot(z, x);
+    z -= y * dot(z, y);
+    z = normalize(z);
+
+    Vector4 w = m.row3();
+
+    // extract the parts that are parallel to x, y and z and normalize
+    w -= x * dot(w, x);
+    w -= y * dot(w, y);
+    w -= z * dot(w, z);
+    w = normalize(w);
+
+    return Matrix4x4(x, y, z, w);
 }
 
 const Matrix4x4 product(const Matrix4x4& a, const Matrix4x4& b)

@@ -174,7 +174,7 @@ bool Node::isScalingLocked() const
 
 const Matrix4x4 Node::modelToWorldMatrix() const
 {
-    return Matrix4x4(worldTransform());
+    return worldTransform().toMatrix4x4();
 }
 
 void Node::setScene(Scene* const scene)

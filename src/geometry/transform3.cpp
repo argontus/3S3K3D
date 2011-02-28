@@ -5,10 +5,12 @@
 
 #include <geometry/transform3.h>
 
+// TODO: get rid of this #include
 #include <algorithm>
 
 #include <geometry/math.h>
 #include <geometry/matrix3x3.h>
+#include <geometry/matrix4x4.h>
 
 const Transform3& Transform3::identity()
 {
@@ -104,7 +106,7 @@ void Transform3::transformBy(const Transform3& transform)
     GEOMETRY_RUNTIME_ASSERT(transform.scaling_ > 0.0f);
 
     translation_ = transform.applyForward(translation_);
-    rotation_.multiplyBy(transform.rotation_);
+    rotation_ = product(rotation_, transform.rotation_);
     scaling_ *= transform.scaling_;
 }
 
@@ -130,7 +132,7 @@ void Transform3::setRotation(const Matrix3x3& rotation)
 
 void Transform3::rotateBy(const Matrix3x3& rotation)
 {
-    rotation_.multiplyBy(rotation);
+    rotation_ = product(rotation_, rotation);
 }
 
 const Matrix3x3 Transform3::rotation() const
@@ -153,6 +155,20 @@ void Transform3::scaleBy(const float scaling)
 float Transform3::scaling() const
 {
     return scaling_;
+}
+
+const Matrix4x4 Transform3::toMatrix4x4() const
+{
+    const Vector3 t = translation_;
+    const Matrix3x3 r = rotation_;
+    const float s = scaling_;
+
+    return Matrix4x4(
+        r.m00 * s,  r.m01 * s,  r.m02 * s,  0.0f,
+        r.m10 * s,  r.m11 * s,  r.m12 * s,  0.0f,
+        r.m20 * s,  r.m21 * s,  r.m22 * s,  0.0f,
+              t.x,        t.y,        t.z,  1.0f
+    );
 }
 
 const Vector3 Transform3::applyForward(const Vector3& q) const

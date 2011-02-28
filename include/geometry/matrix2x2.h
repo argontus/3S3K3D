@@ -21,7 +21,7 @@ public:
      *
      * @return The identity matrix.
      */
-    static const Matrix2x2& identity();
+    static const Matrix2x2 identity();
 
     /**
      * Gets a matrix that produces a rotation about the z-axis.
@@ -55,28 +55,28 @@ public:
     /**
      * Constructor.
      *
-     * @param row0 Contains the elements of row 0.
-     * @param row1 Contains the elements of row 1.
+     * @param row0 Vector containing the elements of row 0.
+     * @param row1 Vector containing the elements of row 1.
      */
     Matrix2x2(const Vector2& row0, const Vector2& row1);
 
+    // TODO: is this needed?
     /**
-     * Array access operator. Allows matrices to be accessed like 2D
-     * arrays of <code>float</code>.
+     * Gets the first row as a vector.
      *
-     * @param row Index of the row to return, between [0, 1].
-     *
-     * @return Pointer to the first element of the specified row.
+     * @return The first row as a vector.
      */
-    float* operator [](int row);
+    const Vector2 row0() const;
 
+    // TODO: is this needed?
     /**
-     * Provided for const-correctness.
+     * Gets the second row as a vector.
      *
-     * @see operator [](int)
+     * @return The second row as a vector.
      */
-    const float* operator [](int row) const;
+    const Vector2 row1() const;
 
+    // TODO: should this be a member?
     /**
      * Gets the element array.
      *
@@ -84,6 +84,7 @@ public:
      */
     float* data();
 
+    // TODO: should this be a member?
     /**
      * Provided for const-correctness.
      *
@@ -91,61 +92,7 @@ public:
      */
     const float* data() const;
 
-    /**
-     * Sets the elements of a specified row.
-     *
-     * @param row Index of the row to set, between [0, 1].
-     * @param v Vector containing the elements to set.
-     */
-    void setRow(int row, const Vector2& v);
-
-    /**
-     * Gets a specified row as a vector.
-     *
-     * @param row Index of the row to return, between [0, 1].
-     *
-     * @return The specified row as a vector.
-     */
-    const Vector2 row(int row) const;
-
-    /**
-     * Sets the elements of a specified column.
-     *
-     * @param column Index of the column to set, between [0, 1].
-     * @param v Vector containing the elements to set.
-     */
-    void setColumn(int column, const Vector2& v);
-
-    /**
-     * Gets a specified column as a vector.
-     *
-     * @param column Index of the column to return, between [0, 1].
-     *
-     * @return The specified column as a vector.
-     */
-    const Vector2 column(int column) const;
-
-    /**
-     * Sets <code>*this</code> to the product of <code>*this</code> and
-     * <code>m</code>.
-     *
-     * @param m The matrix to multiply this matrix with.
-     */
-    void multiplyBy(const Matrix2x2& m);
-
-    /**
-     * Sets <code>*this</code> to the product of <code>*this</code> and the
-     * transpose of <code>m</code>.
-     *
-     * @param m The matrix by whose transpose this matrix is multiplied with.
-     */
-    void multiplyByT(const Matrix2x2& m);
-
-    /**
-     * Applies a Gram-Schmidt process to the rows.
-     */
-    void orthogonalize();
-
+    // TODO: should this be a member?
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
      *
@@ -166,16 +113,6 @@ GEOMETRY_STATIC_ASSERT(sizeof(Matrix2x2[2]) == sizeof(float) * 8);
 /// @endcond
 
 /**
- * Calculates the rotation angle of a given rotation matrix radians. The given
- * matrix is assumed to be a valid rotation matrix.
- *
- * @param m The rotation matrix whose rotation angle is to be calculated.
- *
- * @return Rotation angle of rotation matrix <code>m</code> in radians.
- */
-float angle(const Matrix2x2& m);
-
-/**
  * Vector-matrix product.
  *
  * @param v Vector to transform by matrix <code>m</code>.
@@ -186,7 +123,7 @@ float angle(const Matrix2x2& m);
 const Vector2 product(const Vector2& v, const Matrix2x2& m);
 
 /**
- * Same as <code>product(v, transpose(m))</code>.
+ * Equal to <code>product(v, transpose(m))</code>.
  *
  * @param v Vector to transform by the transpose of matrix <code>m</code>.
  * @param m Matrix by whose transpose vector <code>v</code> is to be
@@ -195,6 +132,15 @@ const Vector2 product(const Vector2& v, const Matrix2x2& m);
  * @return <code>v</code> transformed by the transpose of <code>m</code>.
  */
 const Vector2 productT(const Vector2& v, const Matrix2x2& m);
+
+/**
+ * Orthogonalizes a matrix by applying a Gram-Schmidt process to its rows.
+ *
+ * @param m The matrix to orthogonalize.
+ *
+ * @return Orthogonalized <code>m</code>.
+ */
+const Matrix2x2 orthogonalize(const Matrix2x2& m);
 
 /**
  * Matrix-matrix product.
@@ -207,7 +153,7 @@ const Vector2 productT(const Vector2& v, const Matrix2x2& m);
 const Matrix2x2 product(const Matrix2x2& a, const Matrix2x2& b);
 
 /**
- * Same as <code>product(a, transpose(b))</code>.
+ * Equal to <code>product(a, transpose(b))</code>.
  *
  * @param a Matrix to transform by the transpose of matrix <code>b</code>.
  * @param b Matrix by whose transpose matrix <code>a</code> is to be
