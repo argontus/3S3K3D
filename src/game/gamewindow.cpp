@@ -10,13 +10,13 @@
 #include <iostream>
 
 GameWindow::GameWindow()
+ : aspectRatio(0),
+   width(0),
+   height(0),
+   mouseVisible(false),
+   fullscreen(true),
+   mouseBoundToScreen(true)
 {
-    aspectRatio = 0;
-    width = 0;
-    height = 0;
-    mouseVisible = true;
-    mouseBoundToScreen = true;
-    fullscreen = true;
 }
 
 GameWindow::~GameWindow()
@@ -159,18 +159,6 @@ void GameWindow::onMouseButtonDown(const SDL_MouseButtonEvent& mouseButtonEvent)
 void GameWindow::onMouseButtonUp(const SDL_MouseButtonEvent& mouseButtonEvent)
 {
     // does nothing by default
-}
-
-void GameWindow::bindMouse()
-{
-    mouse.setMouseBindPointX( width/2 );
-    mouse.setMouseBindPointY( height/2 );
-    mouse.bindMouse();
-}
-
-void GameWindow::releaseMouse()
-{
-    mouse.releaseMouse();
 }
 
 void GameWindow::centerMouse()

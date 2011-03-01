@@ -189,12 +189,16 @@ int GameProgram::execute()
     deltaTime           = 0;
     Uint32 currentTicks = 0;
     Uint32 lastTicks    = 0;
+    int deltaX          = 0;
+    int deltaY          = 0;
 
     configuration.readConfiguration("config.ini");
 
     if( mouseBoundToScreen )
     {
-        bindMouse();
+        mouse.setMouseMode( Mouse::MOUSE_BOUND );
+        mouse.setMouseBindPoint( width/2, height/2 );
+        mouse.moveMouse( width/2, height/2 );
     }
 
     std::cout << "Entering main loop..." << std::endl;
@@ -252,11 +256,29 @@ int GameProgram::execute()
         if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F8 ) )
         {
             mouseBoundToScreen = !mouseBoundToScreen;
+
+            if( mouseBoundToScreen && fullscreen )
+            {
+                mouse.setMouseMode( Mouse::MOUSE_RELATIVE );
+            }
+            else if ( mouseBoundToScreen )
+            {
+                mouse.setMouseMode( Mouse::MOUSE_BOUND );
+            }
+            else
+            {
+                mouse.setMouseMode( Mouse::MOUSE_NORMAL );
+            }
         }
 
         if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F9 ) )
         {
             mouseVisible = !mouseVisible;
+
+            if( mouseVisible )
+                mouse.showMousePointer();
+            else
+                mouse.hideMousePointer();
         }
 
         // quick&dirty, write a function for these or something
@@ -289,11 +311,9 @@ int GameProgram::execute()
             camera_->translateBy(deltaTime * speed * camera_->rotation().row(2));
         }
 
-        int deltaX;
-        int deltaY;
+        deltaX = mouse.getMouseX();
+        deltaY = mouse.getMouseY();
 
-        deltaX = mouse.getMouseDeltaX();
-        deltaY = mouse.getMouseDeltaY();
 
         const float rotationFactor = 0.005;
 
@@ -323,25 +343,6 @@ int GameProgram::execute()
 		tick( deltaTime );
 
 		keyboard.updateKeyboardState();
-
-		if( mouseBoundToScreen )
-		{
-            bindMouse();
-		}
-		else
-		{
-            releaseMouse();
-		}
-
-        if( mouseVisible )
-        {
-            mouse.showMousePointer();
-        }
-        else
-        {
-            mouse.hideMousePointer();
-        }
-
 		mouse.updateMouse();
 
 		render();

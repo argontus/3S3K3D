@@ -132,16 +132,6 @@ class GameWindow
                                      );
 
         /**
-         * Binds mouse to the window.
-         */
-        virtual void bindMouse();
-
-        /**
-         * Releases mouse binding from the window.
-         */
-        virtual void releaseMouse();
-
-        /**
          * Centers the mouse pointer to the center of the window
          */
         virtual void centerMouse();
