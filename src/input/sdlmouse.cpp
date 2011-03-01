@@ -1,5 +1,5 @@
 #include "input/sdlmouse.h"
-
+#include <iostream>
 
 SDLMouse::SDLMouse()
 {
@@ -9,7 +9,7 @@ SDLMouse::SDLMouse()
     mouseButtonCodes[ Mouse::MOUSEBUTTON_RIGHT ] = SDL_BUTTON(3);
 
     // initialize the states
-    mouseState = SDL_GetMouseState( &currentMouseX, &currentMouseY );
+    mouseState = SDL_GetMouseState( &mouseX, &mouseY );
     mouseStateInLastFrame = 0;
 }
 
@@ -17,14 +17,28 @@ SDLMouse::~SDLMouse()
 {
 }
 
-int SDLMouse::getMouseDeltaX() const
+int SDLMouse::getMouseX()
 {
-    return currentMouseX-previousMouseX;
+    if( mouseMode == Mouse::MOUSE_NORMAL || mouseMode == Mouse::MOUSE_RELATIVE )
+    {
+        return mouseX;
+    }
+    else if( mouseMode == Mouse::MOUSE_BOUND )
+    {
+        return mouseX-mouseBindPointX;
+    }
 }
 
-int SDLMouse::getMouseDeltaY() const
+int SDLMouse::getMouseY()
 {
-    return currentMouseY-previousMouseY;
+    if( mouseMode == Mouse::MOUSE_NORMAL || mouseMode == Mouse::MOUSE_RELATIVE )
+    {
+        return mouseY;
+    }
+    else if( mouseMode == Mouse::MOUSE_BOUND )
+    {
+         return mouseY-mouseBindPointY;
+    }
 }
 
 bool SDLMouse::mouseButtonIsDown( MOUSEBUTTONS mouseButton ) const
@@ -69,19 +83,19 @@ void SDLMouse::updateMouse()
 {
     mouseStateInLastFrame = mouseState;
 
-    if( isMouseBoundToPoint() )
+    if( mouseMode == Mouse::MOUSE_RELATIVE )
     {
-        previousMouseX = mouseBindPointX;
-        previousMouseY = mouseBindPointY;
+        mouseState = SDL_GetRelativeMouseState( &mouseX, &mouseY );
+    }
+    else if( mouseMode == Mouse::MOUSE_NORMAL)
+    {
+        mouseState = SDL_GetMouseState( &mouseX, &mouseY );
+    }
+    else if( mouseMode == Mouse::MOUSE_BOUND )
+    {
+        mouseState = SDL_GetMouseState( &mouseX, &mouseY );
         SDL_WarpMouse( mouseBindPointX, mouseBindPointY );
-
     }
-    else {
-        previousMouseX = currentMouseX;
-        previousMouseY = currentMouseY;
-    }
-
-    mouseState = SDL_GetMouseState( &currentMouseX, &currentMouseY );
 }
 
 void SDLMouse::showMousePointer()
@@ -92,5 +106,10 @@ void SDLMouse::showMousePointer()
 void SDLMouse::hideMousePointer()
 {
     SDL_ShowCursor( SDL_DISABLE );
+}
+
+void SDLMouse::moveMouse( int x, int y )
+{
+    SDL_WarpMouse( x, y );
 }
 

@@ -14,11 +14,9 @@ class SDLMouse : public Mouse
         SDLMouse();
         virtual ~SDLMouse();
 
-        virtual inline int getMouseY() const { return currentMouseX; }
-        virtual inline int getMouseX() const { return currentMouseY; }
+        virtual int getMouseX();
 
-        virtual int getMouseDeltaX() const;
-        virtual int getMouseDeltaY() const;
+        virtual int getMouseY();
 
         virtual bool mouseButtonIsDown( MOUSEBUTTONS mouseButton ) const;
 
@@ -35,6 +33,8 @@ class SDLMouse : public Mouse
         virtual void showMousePointer();
 
         virtual void hideMousePointer();
+
+        virtual void moveMouse( int x, int y );
     protected:
 
     private:
