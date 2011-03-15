@@ -40,7 +40,11 @@ GameProgram::GameProgram()
     fragmentShaderManager_(),
     shaderProgramManager_(),
     meshManager_(),
-    textureManager_()
+    textureManager_(),
+    boxX(0.0f),
+    boxY(0.0f),
+    boxZ(0.0f),
+    ship(NULL)
 {
     running         = true;
     deltaTicks      = 0;
@@ -138,7 +142,7 @@ int GameProgram::execute()
     // init textures
 
     Texture* texture = new Texture();
-    texture->loadImage("data/textures/diffuse.tga");
+    texture->loadImage("data/textures/ship2.tga");
     texture->generateMipmap();
     textureManager_.loadResource("diffuse", texture);
 
@@ -156,7 +160,6 @@ int GameProgram::execute()
     texture->loadImage("data/textures/normal.tga");
     texture->generateMipmap();
     textureManager_.loadResource("normal", texture);
-
 
     // init scene
 
@@ -262,32 +265,49 @@ int GameProgram::execute()
 
 		if( keyboard.keyIsDown( Keyboard::KEY_D ) )
 		{
-            camera_->translateBy( deltaTime * camera_->rotation().row(0) * speed );
+            //camera_->translateBy( deltaTime * camera_->rotation().row(0) * speed );
+            //ship->translateBy( Vector3(speed*deltaTime, 0.0f, 0.0f) );
+            ship->rotateBy( Matrix3x3::zRotation( -5.0f*deltaTime ) );
+
 		}
 		else if( keyboard.keyIsDown( Keyboard::KEY_A ) )
         {
-            camera_->translateBy( deltaTime * camera_->rotation().row(0) * -speed );
+            //camera_->translateBy( deltaTime * camera_->rotation().row(0) * -speed );
+            //ship->translateBy( Vector3(-speed*deltaTime, 0.0f, 0.0f) );
+            ship->rotateBy( Matrix3x3::zRotation( 5.0f*deltaTime ) );
         }
 
         if( keyboard.keyIsDown( Keyboard::KEY_Q) )
         {
-            camera_->translateBy(deltaTime * -speed * camera_->rotation().row(1));
+            //camera_->translateBy(deltaTime * -speed * camera_->rotation().row(1));
         }
         else if( keyboard.keyIsDown( Keyboard::KEY_E ) )
         {
-            camera_->translateBy(deltaTime * speed * camera_->rotation().row(1));
+            //camera_->translateBy(deltaTime * speed * camera_->rotation().row(1));
         }
 
         if( keyboard.keyIsDown( Keyboard::KEY_W) )
         {
-            camera_->translateBy(deltaTime * -speed * camera_->rotation().row(2));
+            //camera_->translateBy(deltaTime * -speed * camera_->rotation().row(2));
+            Vector3 direction = -ship->worldTransform().rotation().row(1);
+            ship->translateBy( direction*speed*deltaTime );
         }
         else if( keyboard.keyIsDown( Keyboard::KEY_S ) )
         {
-            camera_->translateBy(deltaTime * speed * camera_->rotation().row(2));
+            //camera_->translateBy(deltaTime * speed * camera_->rotation().row(2));
+            //boxY -= speed;
+            //ship->translateBy( Vector3(0.0f, -speed*deltaTime, 0.0f) );
+             Vector3 direction = -ship->worldTransform().rotation().row(1);
+             ship->translateBy( -direction*speed*deltaTime );
         }
-
-
+        else if( keyboard.keyIsDown( Keyboard::KEY_LEFT) )
+        {
+            ship->rotateBy( Matrix3x3::zRotation( 5.0f*deltaTime ) );
+        }
+        else if( keyboard.keyIsDown( Keyboard::KEY_RIGHT) )
+        {
+            ship->rotateBy( Matrix3x3::zRotation( -5.0f*deltaTime ) );
+        }
 
         int deltaX;
         int deltaY;
@@ -360,7 +380,8 @@ void GameProgram::render()
 
     glEnable(GL_CULL_FACE);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	//glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
@@ -732,46 +753,33 @@ Mesh* createBox(const float dx, const float dy, const float dz)
 
 void GameProgram::test()
 {
+    ModelReader modelReader;
+    modelReader.setMeshManager(&meshManager_);
+
     Mesh* const boxMesh = createBox(0.5f, 0.5f, 0.5f);
     meshManager_.loadResource("box", boxMesh);
 
     GroupNode* groupNode = new GroupNode();
 
-    const float scaling = 10.0f;
+    const float scaling = 0.1f;
 
-    MeshNode* meshNode = new MeshNode();
-    meshNode->setScaling(scaling);
-    meshNode->setMesh(boxMesh);
-    meshNode->updateModelExtents();
+    ship = modelReader.read("data/models/ship2.3DS");
+    ship->setScaling(scaling);
+    //ship->setMesh(boxMesh);
+    //ship->updateModelExtents();
 
     const int count = 10;
     const float offset = 2.5f * scaling;
     const float displacement = -(offset * (count - 1)) / 2.0f;
 
-    for (int i = 0; i < count; ++i)
-    {
-        for (int j = 0; j < count; ++j)
-        {
-            if (i != 0 || j != 0)
-            {
-                meshNode = meshNode->clone();
-            }
+    ship->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
+    groupNode->attachChild(ship);
+    rootNode_->attachChild(groupNode);
 
-            meshNode->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
-            groupNode->attachChild(meshNode);
-        }
-    }
-
-    for (int i = 0; i < count; ++i)
-    {
-        if (i != 0)
-        {
-            groupNode = groupNode->clone();
-        }
-
-        groupNode->setTranslation(Vector3(0.0f, displacement + i * offset, 0.0f));
-        rootNode_->attachChild(groupNode);
-    }
+//    MeshNode* meshNode = new MeshNode();
+//    meshNode->setMesh(boxMesh);
+//    meshNode->setTranslation(Vector3(0.0f, 0.0f, -50.0f));
+//    meshNode->setScaling(50.0f);
 
 //    ModelReader modelReader;
 //    modelReader.setMeshManager(&meshManager_);
@@ -815,7 +823,7 @@ void GameProgram::test()
 //    //p->setScaling(3.0f);
 //    rootNode_->attachChild(p);
 
-    camera_->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
+    camera_->setTranslation(Vector3(0.0f, 0.0f, 50.0f));
     //camera_->setTranslation(Vector3(-0.5f * offset, -0.5f * offset, 0.0f));
 }
 

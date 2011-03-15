@@ -28,6 +28,7 @@ class GroupNode;
 class Vector3Array;
 class ColorArray;
 class IndexArray;
+class Node;
 
 typedef ResourceManager<VertexShader> VertexShaderManager;
 typedef ResourceManager<FragmentShader> FragmentShaderManager;
@@ -138,6 +139,11 @@ private:
 	SDLKeyboard keyboard;
 	SDLMouse mouse;
 	Configuration configuration;
+
+	float boxX;
+	float boxY;
+	float boxZ;
+	Node* ship;
 
 
     // TODO: quick & dirty
