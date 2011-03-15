@@ -65,7 +65,11 @@ class Keyboard
             KEY_F9,
             KEY_SPACE,
             KEY_ENTER,
-            KEY_ESCAPE
+            KEY_ESCAPE,
+            KEY_LEFT,
+            KEY_RIGHT,
+            KEY_UP,
+            KEY_DOWN
         };
 
         Keyboard();
@@ -111,7 +115,7 @@ class Keyboard
         virtual void updateKeyboardState() = 0;
 
     protected:
-        static const int numberOfKeys = 48;
+        static const int numberOfKeys = 52;
         int keycodes[numberOfKeys];
 
         int* keyboardState;

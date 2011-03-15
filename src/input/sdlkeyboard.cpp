@@ -57,6 +57,10 @@ SDLKeyboard::SDLKeyboard()
     keycodes[KEY_ESCAPE] = SDLK_ESCAPE;
     keycodes[KEY_ENTER]  = SDLK_RETURN;
     keycodes[KEY_SPACE]  = SDLK_SPACE;
+    keycodes[KEY_LEFT]  = SDLK_LEFT;
+    keycodes[KEY_RIGHT]  = SDLK_RIGHT;
+    keycodes[KEY_UP]  = SDLK_UP;
+    keycodes[KEY_DOWN]  = SDLK_DOWN;
 }
 
 SDLKeyboard::~SDLKeyboard()
