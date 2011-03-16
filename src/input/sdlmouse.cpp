@@ -10,6 +10,9 @@ SDLMouse::SDLMouse()
 
     // initialize the states
     mouseState = SDL_GetMouseState( &mouseX, &mouseY );
+    mouseLastX = mouseX;
+    mouseLastY = mouseY;
+
     mouseStateInLastFrame = 0;
 }
 
@@ -27,6 +30,8 @@ int SDLMouse::getMouseX()
     {
         return mouseX-mouseBindPointX;
     }
+
+    return 0;
 }
 
 int SDLMouse::getMouseY()
@@ -39,6 +44,8 @@ int SDLMouse::getMouseY()
     {
          return mouseY-mouseBindPointY;
     }
+
+    return 0;
 }
 
 bool SDLMouse::mouseButtonIsDown( MOUSEBUTTONS mouseButton ) const
@@ -83,18 +90,19 @@ void SDLMouse::updateMouse()
 {
     mouseStateInLastFrame = mouseState;
 
-    if( mouseMode == Mouse::MOUSE_RELATIVE )
+    if( mouseMode == Mouse::MOUSE_RELATIVE || mouseState == Mouse::MOUSE_NORMAL)
     {
         mouseState = SDL_GetRelativeMouseState( &mouseX, &mouseY );
-    }
-    else if( mouseMode == Mouse::MOUSE_NORMAL)
-    {
-        mouseState = SDL_GetMouseState( &mouseX, &mouseY );
+        mouseLastX = mouseX;
+        mouseLastY = mouseY;
     }
     else if( mouseMode == Mouse::MOUSE_BOUND )
     {
         mouseState = SDL_GetMouseState( &mouseX, &mouseY );
+
         SDL_WarpMouse( mouseBindPointX, mouseBindPointY );
+        mouseLastX = mouseBindPointX;
+        mouseLastY = mouseBindPointY;
     }
 }
 

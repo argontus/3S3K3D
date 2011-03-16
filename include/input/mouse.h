@@ -110,7 +110,23 @@ class Mouse
 
         virtual void setMouseBindPoint(int x, int y );
 
+        /**
+         * Returns mouse delta X coordinate.
+         * @return int mouse delta X
+         */
+        virtual int getMouseDeltaX();
+
+        /**
+         * Returns mouse delta Y coordinate.
+         * @return int mouse delta Y
+         */
+        virtual int getMouseDeltaY();
+
     protected:
+
+        int mouseBindPointX;
+        int mouseBindPointY;
+
         /**
          * Current X position of the mouse pointer.
          */
@@ -121,8 +137,26 @@ class Mouse
          */
         int mouseY;
 
-        int mouseBindPointX;
-        int mouseBindPointY;
+        /**
+         * Delta for the x coordinate
+         */
+        int mouseDeltaX;
+
+        /**
+         * Delta for the y coordinate
+         */
+        int mouseDeltaY;
+
+        /**
+         * Mouse X coordinate in last frame
+         */
+        int mouseLastX;
+
+        /**
+         * Mouse X coordinate in last frame
+         */
+        int mouseLastY;
+
 
         /**
          * Current mode of the mouse
