@@ -6,6 +6,13 @@
 #include <SDL/SDL.h> // needed for SDL_Surface
 #include <SDL/SDL_image.h> // needed to load raw image data to a SDL_Surface
 
+/**
+ * @file resources/resourcecontainer.h
+ * @author Juha Sinkkonen
+ *
+ * Container for  Texture
+ */
+
 
 class Texture : public Resource
 {

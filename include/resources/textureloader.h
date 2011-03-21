@@ -15,6 +15,8 @@
  * @file input/textureloader.h
  * @author Juha Sinkkonen
  *
+ * Keppps tarck of the texturees in memory
+ *
  */
 
 class Textureloader

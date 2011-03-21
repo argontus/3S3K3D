@@ -3,6 +3,13 @@
 
 #include<string>
 
+/**
+ * @file resources/resource.h
+ * @author Juha Sinkkonen
+ *
+ */
+
+
 class Resource
 {
     public:
