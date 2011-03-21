@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="resources" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="static_debug">
+				<Option output="..\..\lib\libresourcesd" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj\static_debug" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wall" />
+				</Compiler>
+			</Target>
+			<Target title="static_release">
+				<Option output="..\..\lib\libresources" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj\static_release\" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-g" />
+			<Add directory="..\..\include" />
+		</Compiler>
+		<Unit filename="..\..\include\resources\resource.h" />
+		<Unit filename="..\..\include\resources\resourcecontainer.h" />
+		<Unit filename="..\..\include\resources\resourcemanager.h" />
+		<Unit filename="..\..\include\resources\texture.h" />
+		<Unit filename="..\..\include\resources\textureloader.h" />
+		<Unit filename="..\..\src\resources\resource.cpp" />
+		<Unit filename="..\..\src\resources\resourcecontainer.cpp" />
+		<Unit filename="..\..\src\resources\resourcemanager.cpp" />
+		<Unit filename="..\..\src\resources\texture.cpp" />
+		<Unit filename="..\..\src\resources\textureloader.cpp" />
+		<Extensions>
+			<envvars />
+			<code_completion />
+			<lib_finder disable_auto="1" />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

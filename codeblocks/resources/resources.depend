@@ -1,0 +1,42 @@
+# depslib dependency file v1.0
+1300677876 source:e:\koodaus\peli projekti\3s3k3d\src\resources\resourcecontainer.cpp
+	"resources/resourcecontainer.h"
+
+1300677855 e:\koodaus\peli projekti\3s3k3d\include\resources\resourcecontainer.h
+	<string>
+
+1300676989 source:e:\koodaus\peli projekti\3s3k3d\src\resources\resourceloader.cpp
+	"resources/resourceloader.h"
+
+1300677180 e:\koodaus\peli projekti\3s3k3d\include\resources\resourceloader.h
+	"resources/resourcecontainer.h"
+	<string>
+
+1300677511 source:e:\koodaus\peli projekti\3s3k3d\src\resources\textureloader.cpp
+	"resources/textureloader.h"
+
+1300677511 e:\koodaus\peli projekti\3s3k3d\include\resources\textureloader.h
+	<resources/texture.h>
+	<resources/resourcecontainer.h>
+	<map>
+	<string>
+	<vector>
+
+1300671554 source:e:\koodaus\peli projekti\3s3k3d\src\resources\resource.cpp
+	"resources/resource.h"
+
+1300672134 e:\koodaus\peli projekti\3s3k3d\include\resources\resource.h
+	<string>
+
+1300673220 source:e:\koodaus\peli projekti\3s3k3d\src\resources\texture.cpp
+	"resources/texture.h"
+
+1300676427 e:\koodaus\peli projekti\3s3k3d\include\resources\texture.h
+	<resources/resource.h>
+
+1300677088 source:e:\koodaus\peli projekti\3s3k3d\src\resources\resourcemanager.cpp
+	"resources/resourcemanager.h"
+
+1300677180 e:\koodaus\peli projekti\3s3k3d\include\resources\resourcemanager.h
+	<resources/textureloader.h>
+

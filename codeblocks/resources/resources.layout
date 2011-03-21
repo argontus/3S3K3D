@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="static_debug" />
+	<File name="..\..\include\resources\resource.h" open="0" top="0" tabpos="0">
+		<Cursor position="58" topLine="0" />
+	</File>
+	<File name="..\..\include\resources\resourcecontainer.h" open="0" top="0" tabpos="2">
+		<Cursor position="1086" topLine="20" />
+	</File>
+	<File name="..\..\include\resources\resourcemanager.h" open="1" top="0" tabpos="1">
+		<Cursor position="453" topLine="0" />
+	</File>
+	<File name="..\..\include\resources\texture.h" open="1" top="1" tabpos="5">
+		<Cursor position="966" topLine="10" />
+	</File>
+	<File name="..\..\include\resources\textureloader.h" open="1" top="0" tabpos="3">
+		<Cursor position="863" topLine="1" />
+	</File>
+	<File name="..\..\src\resources\resource.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="89" topLine="0" />
+	</File>
+	<File name="..\..\src\resources\resourcecontainer.cpp" open="0" top="0" tabpos="3">
+		<Cursor position="452" topLine="0" />
+	</File>
+	<File name="..\..\src\resources\resourcemanager.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="575" topLine="0" />
+	</File>
+	<File name="..\..\src\resources\texture.cpp" open="1" top="0" tabpos="6">
+		<Cursor position="431" topLine="0" />
+	</File>
+	<File name="..\..\src\resources\textureloader.cpp" open="1" top="0" tabpos="4">
+		<Cursor position="133" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>
