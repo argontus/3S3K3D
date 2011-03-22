@@ -37,14 +37,14 @@
 			<Add directory="..\..\include" />
 		</Compiler>
 		<Unit filename="..\..\include\resources\resource.h" />
-		<Unit filename="..\..\include\resources\resourcecontainer.h" />
+		<Unit filename="..\..\include\resources\resourceinfo.h" />
 		<Unit filename="..\..\include\resources\resourcemanager.h" />
-		<Unit filename="..\..\include\resources\texture.h" />
+		<Unit filename="..\..\include\resources\texturecontainer.h" />
 		<Unit filename="..\..\include\resources\textureloader.h" />
 		<Unit filename="..\..\src\resources\resource.cpp" />
-		<Unit filename="..\..\src\resources\resourcecontainer.cpp" />
+		<Unit filename="..\..\src\resources\resourceinfo.cpp" />
 		<Unit filename="..\..\src\resources\resourcemanager.cpp" />
-		<Unit filename="..\..\src\resources\texture.cpp" />
+		<Unit filename="..\..\src\resources\texturecontainer.cpp" />
 		<Unit filename="..\..\src\resources\textureloader.cpp" />
 		<Extensions>
 			<envvars />

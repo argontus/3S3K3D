@@ -1,21 +1,22 @@
-#ifndef TEXTURELOADER_H
-#define TEXTURELOADER_H
+#ifndef texturecontainerLOADER_H
+#define texturecontainerLOADER_H
 
-#include <resources/texture.h>
-#include <resources/resourcecontainer.h>
+#include <resources/texturecontainer.h>
+#include <resources/resourceinfo.h>
+
+#include <graphics/texture.h>
 
 #include <map>
 #include <string>
 
 #include<vector>
-#include <SDL/SDL.h> // needed for SDL_Surface
-#include <SDL/SDL_image.h> // needed to load raw image data to a SDL_Surface
+
 
 /**
  * @file input/textureloader.h
  * @author Juha Sinkkonen
  *
- * Keppps tarck of the texturees in memory
+ * Keppps tarck of the texturecontaineres in memory
  *
  */
 
@@ -26,22 +27,22 @@ class Textureloader
         virtual ~Textureloader();
 
         /**
-         * Load given textures to loaded textures map
+         * Load given texturecontainers to loaded texturecontainers map
          *
-         * @param textures List of textures to be loaded
+         * @param texturecontainers List of texturecontainers to be loaded
          */
-        bool loadTextures(std::vector<Resourcecontainer> textures);
+        bool loadtextures(std::vector<Resourceinfo> textures);
 
         /**
-         * Returns pointer to wanted texture
+         * Returns pointer to wanted texturecontainer
          *
-         * @param id ID tag of the wanted texture
+         * @param id ID tag of the wanted texturecontainer
          */
-        SDL_Surface* getTexture(std::string id);
+        Texture* gettexture(std::string id);
 
     protected:
     private:
-        std::map<std::string, Texture> loadedTextures;
+        std::map<std::string, texturecontainer> loadedtextures;
 };
 
-#endif // TEXTURELOADER_H
+#endif // texturecontainerLOADER_H

@@ -1,5 +1,5 @@
-#ifndef RESOURCECONTAINER_H
-#define RESOURCECONTAINER_H
+#ifndef RESOURCEINFO_H
+#define RESOURCEINFO_H
 
 #include <string>
 
@@ -10,13 +10,11 @@
  * Container for resources
  */
 
-class Resourcecontainer
+class Resourceinfo
 {
     public:
-        Resourcecontainer();
-        virtual ~Resourcecontainer();
-
-        /**
+        Resourceinfo();
+        virtual ~Resourceinfo();       /**
          * Sets ID tag for resource
          *
          * @param newid ID of the resource

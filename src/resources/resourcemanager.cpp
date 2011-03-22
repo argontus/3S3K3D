@@ -11,7 +11,7 @@ Resourcemanager::~Resourcemanager()
     //dtor
 }
 
-bool Resourcemanager::loadResources(std::vector<Resourcecontainer> resources)
+bool Resourcemanager::loadResources(std::vector<Resourceinfo> resources)
 {
     unsigned int i;
 
@@ -28,12 +28,12 @@ bool Resourcemanager::loadResources(std::vector<Resourcecontainer> resources)
         }
     }
 
-    tLoader.loadTextures(textures);
+    tLoader.loadtextures(textures);
 
     return true;
 }
 
-SDL_Surface* Resourcemanager::getTexture(std::string id)
+Texture* Resourcemanager::gettexture(std::string id)
 {
-    return tLoader.getTexture(id);
+    return tLoader.gettexture(id);
 }

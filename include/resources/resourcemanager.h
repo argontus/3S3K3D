@@ -2,10 +2,9 @@
 #define RESOURCEMANAGER_H
 
 #include <resources/textureloader.h>
-#include <resources/resourcecontainer.h>
+#include <resources/resourceinfo.h>
 
-#include <SDL/SDL.h> // needed for SDL_Surface
-#include <SDL/SDL_image.h> // needed to load raw image data to a SDL_Surface
+#include <graphics/texture.h>
 
 /**
  * @file resources/resourcemanager.h
@@ -22,23 +21,23 @@ class Resourcemanager
         virtual ~Resourcemanager();
 
         /**
-         * Setter for textures needed tag
+         * Setter for texturecontainers needed tag
          *
          * @param resources List of resources that are needed
          */
-        bool loadResources(std::vector<Resourcecontainer> resources);
+        bool loadResources(std::vector<Resourceinfo> resources);
 
         /**
-         * Returns pointer to texture file
+         * Returns pointer to texturecontainer file
          *
          */
-        SDL_Surface* getTexture(std::string id);
+        Texture* gettexture(std::string id);
 
     protected:
     private:
         Textureloader tLoader;
 
-        std::vector<Resourcecontainer> textures;
+        std::vector<Resourceinfo> textures;
 };
 
 #endif // RESOURCEMANAGER_H

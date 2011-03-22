@@ -8,44 +8,44 @@ Textureloader::~Textureloader()
 {
 }
 
-SDL_Surface* Textureloader::getTexture(std::string id)
+Texture* Textureloader::gettexture(std::string id)
 {
-    return loadedTextures.find(id)->second.getTexture();
+    return loadedtextures.find(id)->second.gettexture();
 }
 
-bool Textureloader::loadTextures(std::vector<Resourcecontainer> textures)
+bool Textureloader::loadtextures(std::vector<Resourceinfo> textures)
 {
-    for(std::map<std::string, Texture>::iterator ii=loadedTextures.begin(); ii!=loadedTextures.end(); ++ii)
+    for(std::map<std::string, texturecontainer>::iterator ii=loadedtextures.begin(); ii!=loadedtextures.end(); ++ii)
    {
        (*ii).second.setNeeded(false);
    }
 
     unsigned int i;
-    std::map<std::string, Texture>::iterator it;
+    std::map<std::string, texturecontainer>::iterator it;
 
     for(i=0;i<textures.size();i++)
     {
-        it=loadedTextures.find(textures[i].getID());
-        if(it!=loadedTextures.end())
+        it=loadedtextures.find(textures[i].getID());
+        if(it!=loadedtextures.end())
         {
             (*it).second.setNeeded(true);
         }
-        else if (it==loadedTextures.end())
+        else if (it==loadedtextures.end())
         {
-            Texture tmp;
+            texturecontainer tmp;
             tmp.load(textures[i].getFilename());
             tmp.setNeeded(true);
 
-            loadedTextures.insert ( std::pair<std::string, Texture>(textures[i].getID(),tmp));
+            loadedtextures.insert ( std::pair<std::string, texturecontainer>(textures[i].getID(),tmp));
         }
     }
 
-   for(std::map<std::string, Texture>::iterator ii=loadedTextures.begin(); ii!=loadedTextures.end(); ++ii)
+   for(std::map<std::string, texturecontainer>::iterator ii=loadedtextures.begin(); ii!=loadedtextures.end(); ++ii)
    {
        if(!(*ii).second.getNeeded())
        {
          (*ii).second.release();
-         loadedTextures.erase(ii);
+         loadedtextures.erase(ii);
        }
    }
 
