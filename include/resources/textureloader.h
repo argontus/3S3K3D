@@ -42,7 +42,7 @@ class Textureloader
 
     protected:
     private:
-        std::map<std::string, texturecontainer> loadedtextures;
+        std::map<std::string, Texturecontainer> loadedtextures;
 };
 
 #endif // texturecontainerLOADER_H

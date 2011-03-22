@@ -13,11 +13,11 @@
  */
 
 
-class texturecontainer : public Resource
+class Texturecontainer : public Resource
 {
     public:
-        texturecontainer();
-        virtual ~texturecontainer();
+        Texturecontainer();
+        virtual ~Texturecontainer();
 
         /**
          * Setter for texturecontainers needed tag
@@ -39,7 +39,7 @@ class texturecontainer : public Resource
         virtual void release();
 
         /**
-         * Load given texturecontainer file to memory
+         * Load given texture file to memory
          *
          * @param fileName texturecontainer filename
          */
@@ -49,7 +49,7 @@ class texturecontainer : public Resource
          * Returns pointer to texture file
          *
          */
-        texture* gettexture();
+        Texture* gettexture();
 
     protected:
     private:

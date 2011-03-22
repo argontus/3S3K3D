@@ -20,7 +20,6 @@ bool Resourcemanager::loadResources(std::vector<Resourceinfo> resources)
         switch(resources[i].getType())
         {
         case 0:
-
             textures.push_back(resources[i]);
             break;
         default:

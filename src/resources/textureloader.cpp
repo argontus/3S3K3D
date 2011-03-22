@@ -15,13 +15,13 @@ Texture* Textureloader::gettexture(std::string id)
 
 bool Textureloader::loadtextures(std::vector<Resourceinfo> textures)
 {
-    for(std::map<std::string, texturecontainer>::iterator ii=loadedtextures.begin(); ii!=loadedtextures.end(); ++ii)
+    for(std::map<std::string, Texturecontainer>::iterator ii=loadedtextures.begin(); ii!=loadedtextures.end(); ++ii)
    {
        (*ii).second.setNeeded(false);
    }
 
     unsigned int i;
-    std::map<std::string, texturecontainer>::iterator it;
+    std::map<std::string, Texturecontainer>::iterator it;
 
     for(i=0;i<textures.size();i++)
     {
@@ -32,15 +32,15 @@ bool Textureloader::loadtextures(std::vector<Resourceinfo> textures)
         }
         else if (it==loadedtextures.end())
         {
-            texturecontainer tmp;
+            Texturecontainer tmp;
             tmp.load(textures[i].getFilename());
             tmp.setNeeded(true);
 
-            loadedtextures.insert ( std::pair<std::string, texturecontainer>(textures[i].getID(),tmp));
+            loadedtextures.insert ( std::pair<std::string, Texturecontainer>(textures[i].getID(),tmp));
         }
     }
 
-   for(std::map<std::string, texturecontainer>::iterator ii=loadedtextures.begin(); ii!=loadedtextures.end(); ++ii)
+   for(std::map<std::string, Texturecontainer>::iterator ii=loadedtextures.begin(); ii!=loadedtextures.end(); ++ii)
    {
        if(!(*ii).second.getNeeded())
        {

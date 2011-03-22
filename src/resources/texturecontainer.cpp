@@ -1,34 +1,33 @@
 #include "resources/texturecontainer.h"
 
-texturecontainer::texturecontainer()
+Texturecontainer::Texturecontainer()
 {
 }
 
-texturecontainer::~texturecontainer()
+Texturecontainer::~Texturecontainer()
 {
 }
 
-void texturecontainer::setNeeded(bool need)
+void Texturecontainer::setNeeded(bool need)
 {
     needed = need;
 }
 
-bool texturecontainer::getNeeded()
+bool Texturecontainer::getNeeded()
 {
     return needed;
 }
 
-void texturecontainer::release()
+void Texturecontainer::release()
 {
-    //TODO
 }
 
-void texturecontainer::load(std::string fileName)
+void Texturecontainer::load(std::string fileName)
 {
-    //TODO
+    texture.loadImage(fileName);
 }
 
-texture* texturecontainer::gettexture()
+Texture* Texturecontainer::gettexture()
 {
     return &texture;
 }
