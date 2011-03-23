@@ -189,17 +189,17 @@ int GameProgram::execute()
     textureManager_.loadResource("diffuse", texture);
 
     texture = new Texture();
-    texture->loadImage("data/textures/specular.tga");
+    texture->loadImage("data/textures/ship2SpC.tga");
     texture->generateMipmap();
     textureManager_.loadResource("specular", texture);
 
     texture = new Texture();
-    texture->loadImage("data/textures/glow.tga");
+    texture->loadImage("data/textures/ship2SL.tga");
     texture->generateMipmap();
     textureManager_.loadResource("glow", texture);
 
     texture = new Texture();
-    texture->loadImage("data/textures/normal.tga");
+    texture->loadImage("data/textures/ship2Nor.tga");
     texture->generateMipmap();
     textureManager_.loadResource("normal", texture);
 
@@ -1019,7 +1019,7 @@ void GameProgram::test()
     const float displacement = -(offset * (count - 1)) / 2.0f;
 
 
-    ship->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
+    ship->setTranslation(Vector3(0.0f, 0.0f, -50.0f));
     groupNode->attachChild(ship);
     rootNode_->attachChild(groupNode);
 
