@@ -37,6 +37,7 @@
 		<Compiler>
 			<Add directory="..\..\include" />
 		</Compiler>
+		<Unit filename="..\..\include\geometry\circle.h" />
 		<Unit filename="..\..\include\geometry\extents2.h" />
 		<Unit filename="..\..\include\geometry\extents3.h" />
 		<Unit filename="..\..\include\geometry\interval.h" />
@@ -53,6 +54,13 @@
 		<Unit filename="..\..\include\geometry\ray2.h" />
 		<Unit filename="..\..\include\geometry\ray3.h" />
 		<Unit filename="..\..\include\geometry\runtimeassert.h" />
+		<Unit filename="..\..\include\geometry\shape\circleshape.h" />
+		<Unit filename="..\..\include\geometry\shape\compositeshape.h" />
+		<Unit filename="..\..\include\geometry\shape\intersectiontests.h" />
+		<Unit filename="..\..\include\geometry\shape\polygonshape.h" />
+		<Unit filename="..\..\include\geometry\shape\primitiveshape.h" />
+		<Unit filename="..\..\include\geometry\shape\shape.h" />
+		<Unit filename="..\..\include\geometry\sphere.h" />
 		<Unit filename="..\..\include\geometry\staticassert.h" />
 		<Unit filename="..\..\include\geometry\transform2.h" />
 		<Unit filename="..\..\include\geometry\transform3.h" />
@@ -61,6 +69,7 @@
 		<Unit filename="..\..\include\geometry\vector3.h" />
 		<Unit filename="..\..\include\geometry\vector3array.h" />
 		<Unit filename="..\..\include\geometry\vector4.h" />
+		<Unit filename="..\..\src\geometry\circle.cpp" />
 		<Unit filename="..\..\src\geometry\extents2.cpp" />
 		<Unit filename="..\..\src\geometry\extents3.cpp" />
 		<Unit filename="..\..\src\geometry\interval.cpp" />
@@ -76,6 +85,7 @@
 		<Unit filename="..\..\src\geometry\plane3.cpp" />
 		<Unit filename="..\..\src\geometry\ray2.cpp" />
 		<Unit filename="..\..\src\geometry\ray3.cpp" />
+		<Unit filename="..\..\src\geometry\sphere.cpp" />
 		<Unit filename="..\..\src\geometry\transform2.cpp" />
 		<Unit filename="..\..\src\geometry\transform3.cpp" />
 		<Unit filename="..\..\src\geometry\vector2.cpp" />
