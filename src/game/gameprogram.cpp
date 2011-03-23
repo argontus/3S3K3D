@@ -252,7 +252,9 @@ int GameProgram::execute()
     // 1024 is a viable buffer size for 22kHz, tweak this if skippy / laggy
     mixer_.init( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024 );
     mixer_.loadMusic( "data/sounds/radio.ogg", "radio" );
-    mixer_.loadChunk( "data/sounds/tub.ogg", "tub" );
+    int spurdo = mixer_.loadChunk( "data/sounds/tub.ogg", "tub" );
+
+    std::cout << "spurdo:" << Mix_GetError() << std::endl;
 
     std::cout << "Entering main loop..." << std::endl;
 

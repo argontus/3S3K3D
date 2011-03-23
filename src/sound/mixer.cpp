@@ -23,7 +23,7 @@ Mixer::~Mixer()
 bool Mixer::init( int frequency, Uint16 format, int channels, int chunksize )
 {
     SDL_InitSubSystem( SDL_INIT_AUDIO );
-    // TODO: hardcoded for OGG, might be a good idea to change this
+
     Mix_Init( MIX_INIT_OGG );
 
     if( Mix_OpenAudio(  frequency,
