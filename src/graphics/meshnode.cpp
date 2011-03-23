@@ -171,8 +171,10 @@ void MeshNode::updateWorldExtents() const
     // make sure we are not doing any unnecessary function calls
     GRAPHICS_RUNTIME_ASSERT(worldExtentsValid_ == false);
 
-    worldExtents_ = modelExtents_;
-    worldExtents_.transformBy(worldTransform());
+    // TODO: make sure this still works
+    //worldExtents_ = modelExtents_;
+    //worldExtents_.transformBy(worldTransform());
+    worldExtents_ = ::transform(modelExtents_, worldTransform());
 
     worldExtentsValid_ = true;
 }

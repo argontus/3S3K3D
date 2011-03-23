@@ -106,14 +106,7 @@ int Vector2Array::size() const
 
 const Extents2 Vector2Array::extents() const
 {
-    Extents2 extents;
-
-    for (int i = 0; i < size_; ++i)
-    {
-        extents.growToContain(vertices_[i]);
-    }
-
-    return extents;
+    return Extents2(begin(), end());
 }
 
 const Extents2 Vector2Array::extents(const Transform2& transform) const
@@ -123,7 +116,7 @@ const Extents2 Vector2Array::extents(const Transform2& transform) const
     for (int i = 0; i < size_; ++i)
     {
         const Vector2 p = transform.applyForward(vertices_[i]);
-        extents.growToContain(p);
+        extents.enclose(p);
     }
 
     return extents;

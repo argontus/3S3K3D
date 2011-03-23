@@ -106,14 +106,7 @@ int Vector3Array::size() const
 
 const Extents3 Vector3Array::extents() const
 {
-    Extents3 extents;
-
-    for (int i = 0; i < size_; ++i)
-    {
-        extents.growToContain(vertices_[i]);
-    }
-
-    return extents;
+    return Extents3(begin(), end());
 }
 
 const Extents3 Vector3Array::extents(const Transform3& transform) const
@@ -123,7 +116,7 @@ const Extents3 Vector3Array::extents(const Transform3& transform) const
     for (int i = 0; i < size_; ++i)
     {
         const Vector3 p = transform.applyForward(vertices_[i]);
-        extents.growToContain(p);
+        extents.enclose(p);
     }
 
     return extents;

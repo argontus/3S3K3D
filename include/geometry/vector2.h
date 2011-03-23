@@ -62,7 +62,6 @@ public:
      */
     const float* data() const;
 
-    // TODO: should this be a member?
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
      *

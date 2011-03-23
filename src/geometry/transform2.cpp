@@ -44,7 +44,7 @@ Transform2::Transform2(
     const float rotation,
     const float scaling)
 :   translation_(translation),
-    rotation_(Math::wrapTo2Pi(rotation)),
+    rotation_(Math::mod(rotation, 2.0f * Math::pi())),
     scaling_(scaling)
 {
     GEOMETRY_RUNTIME_ASSERT(scaling_ > 0.0f);
@@ -56,7 +56,7 @@ void Transform2::transformBy(const Transform2& transform)
     GEOMETRY_RUNTIME_ASSERT(transform.scaling_ > 0.0f);
 
     translation_ = transform.applyForward(translation_);
-    rotation_ = Math::wrapTo2Pi(rotation_ + transform.rotation_);
+    rotation_ = Math::mod(rotation_ + transform.rotation_, 2.0f * Math::pi());
     scaling_ *= transform.scaling_;
 }
 
@@ -77,12 +77,14 @@ const Vector2 Transform2::translation() const
 
 void Transform2::setRotation(const float rotation)
 {
-    rotation_ = Math::wrapTo2Pi(rotation);
+    // wrap between [0, 2*pi)
+    rotation_ = Math::mod(rotation, 2.0f * Math::pi());
 }
 
 void Transform2::rotateBy(const float rotation)
 {
-    rotation_ = Math::wrapTo2Pi(rotation_ + rotation);
+    // wrap between [0, 2*pi)
+    rotation_ = Math::mod(rotation_ + rotation, 2.0f * Math::pi());
 }
 
 float Transform2::rotation() const

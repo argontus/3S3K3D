@@ -26,23 +26,23 @@ Plane2::Plane2(const Vector2& normal, const Vector2& q)
     // ...
 }
 
-const Vector2 Plane2::closestPointTo(const Vector2& q) const
-{
-    return q - distanceTo(q) * normal;
-}
-
-float Plane2::distanceTo(const Vector2& q) const
-{
-    return dot(q, normal) - constant;
-}
-
 void Plane2::swap(Plane2& other)
 {
     normal.swap(other.normal);
     Math::swap(constant, other.constant);
 }
 
-const Vector2 mirror(const Vector2& q, const Plane2& plane)
+float separation(const Plane2& x, const Vector2& q)
 {
-    return q - 2.0f * plane.distanceTo(q) * plane.normal;
+    return dot(q, x.normal) - x.constant;
+}
+
+const Vector2 closestPoint(const Plane2& x, const Vector2& q)
+{
+    return q - separation(x, q) * x.normal;
+}
+
+const Vector2 mirror(const Vector2& q, const Plane2& x)
+{
+    return q - 2.0f * separation(x, q) * x.normal;
 }

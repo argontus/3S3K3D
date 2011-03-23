@@ -175,7 +175,7 @@ float angle(const Vector2& v)
     }
     else
     {
-        return Math::twoPi() - Math::acos(v.x);
+        return 2.0f * Math::pi() - Math::acos(v.x);
     }
 }
 

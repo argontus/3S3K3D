@@ -5,15 +5,11 @@
 
 #include <geometry/interval.h>
 
-// TODO: get rid of these #includes
-#include <algorithm>
-#include <limits>
+#include <geometry/math.h>
 
 Interval::Interval()
-:   min(std::numeric_limits<float>::max()),
-    max(-std::numeric_limits<float>::max())
 {
-    // ...
+    clear();
 }
 
 Interval::Interval(const float min, const float max)
@@ -25,8 +21,37 @@ Interval::Interval(const float min, const float max)
 
 void Interval::clear()
 {
-    min = std::numeric_limits<float>::max();
-    max = -std::numeric_limits<float>::max();
+    min = 1.0f;
+    max = 0.0f;
+}
+
+void Interval::enclose(const float k)
+{
+    if (isEmpty())
+    {
+        min = max = k;
+        return;
+    }
+
+    if (k < min) min = k;
+    if (max < k) max = k;
+}
+
+void Interval::enclose(const Interval& other)
+{
+    if (other.isEmpty())
+    {
+        return;
+    }
+
+    if (isEmpty())
+    {
+        *this = other;
+        return;
+    }
+
+    if (other.min < min) min = other.min;
+    if (max < other.max) max = other.max;
 }
 
 bool Interval::isEmpty() const
@@ -34,64 +59,8 @@ bool Interval::isEmpty() const
     return max < min;
 }
 
-float Interval::length() const
-{
-    return max - min;
-}
-
-bool Interval::contains(const float value) const
-{
-    return min <= value && value <= max;
-}
-
-bool Interval::contains(const Interval& other) const
-{
-    if (isEmpty() || other.isEmpty())
-    {
-        return false;
-    }
-
-    return min <= other.min && other.max <= max;
-}
-
-bool Interval::intersects(const Interval& other) const
-{
-    if (isEmpty() || other.isEmpty())
-    {
-        return false;
-    }
-
-    return other.min < max && min < other.max;
-}
-
-void Interval::growToContain(const float value)
-{
-    if (value < min)
-    {
-        min = value;
-    }
-
-    if (max < value)
-    {
-        max = value;
-    }
-}
-
-void Interval::growToContain(const Interval& other)
-{
-    if (other.min < min)
-    {
-        min = other.min;
-    }
-
-    if (max < other.max)
-    {
-        max = other.max;
-    }
-}
-
 void Interval::swap(Interval& other)
 {
-    std::swap(min, other.min);
-    std::swap(max, other.max);
+    Math::swap(min, other.min);
+    Math::swap(max, other.max);
 }

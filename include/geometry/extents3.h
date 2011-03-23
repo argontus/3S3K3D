@@ -9,39 +9,22 @@
 #include <geometry/vector3.h>
 
 class Interval;
-class Matrix3x3;
+class Sphere;
 class Transform3;
 
-// TODO: better encapsulation?
 /**
- * Describes a 3D axis-aligned bounding box (AABB).
+ * Describes 3D extents.
  */
 class Extents3
 {
 public:
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
-     * Default constructor, constructs an empty AABB. The minimum extents are
-     * set to <code>std::numeric_limits<float>::max()</code> and the maximum
-     * extents are set to <code>-std::numeric_limits<float>::max()</code>.
+     * Default constructor, constructs empty extents.
      */
     Extents3();
-
-    /**
-     * Constructor.
-     *
-     * @param xMin Minimum x-coordinate extent.
-     * @param yMin Minimum y-coordinate extent.
-     * @param zMin Minimum z-coordinate extent.
-     * @param xMax Maximum x-coordinate extent.
-     * @param yMax Maximum y-coordinate extent.
-     * @param zMax Maximum z-coordinate extent.
-     */
-    Extents3(
-        float xMin, float yMin, float zMin,
-        float xMax, float yMax, float zMax);
 
     /**
      * Constructor.
@@ -51,140 +34,57 @@ public:
      */
     Extents3(const Vector3& min, const Vector3& max);
 
+    // TODO: type of *In can be Vector3 or Extents3, document it
     /**
-     * Makes <code>*this</code> empty. The minimum extents are set to
-     * <code>std::numeric_limits<float>::max()</code> and the maximum extents
-     * are set to <code>-std::numeric_limits<float>::max()</code>.
+     * Constructor, constructs extents containing all items in the range
+     * [<code>first</code>, <code>last</code>).
+     *
+     * @param first Iterator pointing to the first item to enclose.
+     * @param last Iterator pointing one beyond the last item to enclose.
+     */
+    template <class In>
+    Extents3(In first, In last);
+
+    /**
+     * Makes <code>*this</code> empty.
      */
     void clear();
 
     /**
-     * Tests if <code>*this</code> is empty. An AABB is considered empty if its
-     * maximum extents are less than its minimum extents on one or more axes.
+     * Grows the extents to enclose point <code>q</code>.
+     *
+     * @param q The point to enclose.
+     */
+    void enclose(const Vector3& q);
+
+    /**
+     * Grows the extents to enclose <code>other</code>. If <code>other</code>
+     * is empty, this member function does nothing.
+     *
+     * @param other The extents to enclose.
+     */
+    void enclose(const Extents3& other);
+
+    // TODO: type of *In can be Vector3 or Extents3, document it
+    /**
+     * Grows the extents to enclose all items in the range [<code>first</code>,
+     * <code>last</code>).
+     *
+     * @param first Iterator pointing to the first item to enclose.
+     * @param last Iterator pointing one beyond the last item to enclose.
+     */
+    template <class In>
+    void enclose(In first, In last);
+
+    /**
+     * Tests if <code>*this</code> is empty. <code>*this</code> is considered
+     * empty if the maximum extent is less than the minimum extent on at least
+     * one axis.
      *
      * @return <code>true</code>, if <code>*this</code> is empty,
      * <code>false</code> otherwise.
      */
     bool isEmpty() const;
-
-    /**
-     * Gets the AABB length along x-axis. The return value is equivalent to
-     * <code>max.x - min.x</code>.
-     *
-     * @return AABB length along x-axis.
-     */
-    float xLength() const;
-
-    /**
-     * Gets the AABB length along y-axis. The return value is equivalent to
-     * <code>max.y - min.y</code>.
-     *
-     * @return AABB length along y-axis.
-     */
-    float yLength() const;
-
-    /**
-     * Gets the AABB length along z-axis. The return value is equivalent to
-     * <code>max.z - min.z</code>.
-     *
-     * @return AABB length along z-axis.
-     */
-    float zLength() const;
-
-    /**
-     * Tests if this AABB contains a given point.
-     *
-     * @param point The point to test.
-     *
-     * @return <code>true</code>, if <code>*this</code> contains the given
-     * point, <code>false</code> otherwise. If this AABB is empty, the return
-     * value is <code>false</code>.
-     */
-    bool contains(const Vector3& point) const;
-
-    /**
-     * Tests if this AABB contains a given AABB.
-     *
-     * @param other The AABB to test.
-     *
-     * @return <code>true</code>, if <code>*this</code> contains
-     * <code>other</code>, <code>false</code> otherwise. If one or both AABBs
-     * are empty, the return value is <code>false</code>.
-     */
-    bool contains(const Extents3& other) const;
-
-    /**
-     * Tests if this AABB intersects a given AABB. Two AABBs are considered
-     * intersecting when their penetration depth is greater than zero.
-     *
-     * @param other The AABB to test.
-     *
-     * @return <code>true</code>, if <code>*this</code> intersects
-     * <code>other</code>, <code>false</code> otherwise. If one or both AABBs
-     * are empty, the return value is <code>false</code>.
-     */
-    bool intersects(const Extents3& other) const;
-
-    /**
-     * Grows the extents of this AABB to enclose a given point.
-     *
-     * @param point The point to enclose.
-     */
-    void growToContain(const Vector3& point);
-
-    /**
-     * Grows the extents of this AABB to enclose a given AABB. If the given
-     * AABB is empty, this member function does nothing.
-     *
-     * @param other The AABB to enclose.
-     */
-    void growToContain(const Extents3& other);
-
-    /**
-     * Calculates the interval of this AABB along a given axis. If this AABB is
-     * empty, the returned interval will be empty.
-     *
-     * @param axis The axis along which the interval is to be calculated.
-     *
-     * @return The calculated interval.
-     */
-    const Interval intervalAlong(const Vector3& axis) const;
-
-    /**
-     * Applies a tranform to this AABB. <code>*this</code> is set to an AABB
-     * that wraps the transformed original AABB. If this AABB is empty, this
-     * member function does nothing.
-     *
-     * @param transform The transform to apply.
-     */
-    void transformBy(const Transform3& transform);
-
-    /**
-     * Applies a translation to this AABB. <code>*this</code> is set to an AABB
-     * that wraps the translated original AABB. If this AABB is empty, this
-     * member function does nothing.
-     *
-     * @param translation The translation to apply.
-     */
-    void translateBy(const Vector3& translation);
-
-    /**
-     * Applies a rotation to this AABB. <code>*this</code> is set to an AABB
-     * that wraps the rotated original AABB. If this AABB is empty, this member
-     * function does nothing.
-     *
-     * @param rotation The rotation to apply, must be a valid rotation matrix.
-     */
-    void rotateBy(const Matrix3x3& rotation);
-
-    /**
-     * Applies a scaling to this AABB. <code>*this</code> is set to an AABB
-     * that wraps the scaled original AABB. If this AABB is empty, this member
-     * function does nothing.
-     *
-     * @param scaling The scaling to apply, must be > 0.
-     */
-    void scaleBy(float scaling);
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
@@ -196,5 +96,81 @@ public:
     Vector3 min;    ///< The minimum extents.
     Vector3 max;    ///< The maximum extents.
 };
+
+/**
+ * Tests if <code>a</code> and <code>b</code> intersect.
+ *
+ * @param a Extents.
+ * @param b Extents.
+ *
+ * @return <code>true</code>, if <code>a</code> and <code>b</code> intersect,
+ * <code>false</code> otherwise. If <code>a</code>, <code>b</code> or both are
+ * empty, the return value is <code>false</code>.
+ */
+bool intersect(const Extents3& a, const Extents3& b);
+
+/**
+ * Tests if <code>a</code> and <code>b</code> intersect.
+ *
+ * @param a Extents.
+ * @param b A sphere.
+ *
+ * @return <code>true</code>, if <code>a</code> and <code>b</code> intersect,
+ * <code>false</code> otherwise. If <code>a</code> is empty, the return value
+ * is <code>false</code>.
+ */
+bool intersect(const Extents3& a, const Sphere& b);
+
+/**
+ * Calculates the point on or in extents <code>x</code> that is closest to
+ * point <code>q</code>.
+ *
+ * @param x Extents, cannot be empty.
+ * @param q A point.
+ *
+ * @return The point on or in extents <code>x</code> that is closest to point
+ * <code>q</code>.
+ */
+const Vector3 closestPoint(const Extents3& x, const Vector3& q);
+
+/**
+ * Calculates the interval of <code>x</code> along <code>axis</code>. If
+ * <code>x</code> is empty, the returned interval will be empty.
+ *
+ * @param x The extents whose interval is to be calculated.
+ * @param axis The axis along which the interval is to be calculated.
+ *
+ * @return The calculated interval.
+ */
+const Interval interval(const Extents3& x, const Vector3& axis);
+
+/**
+ * Transforms <code>x</code> by <code>t</code>. The returned extents wraps the
+ * transformed <code>x</code>. If <code>x</code> is empty, the return value is
+ * equivalent to <code>x</code>.
+ *
+ * @param x The extents to transform.
+ * @param t The transform to apply.
+ *
+ * @return The transformed extents.
+ */
+const Extents3 transform(const Extents3& x, const Transform3& t);
+
+template <class In>
+Extents3::Extents3(const In first, const In last)
+{
+    clear();
+    enclose(first, last);
+}
+
+template <class In>
+void Extents3::enclose(In first, const In last)
+{
+    while (first != last)
+    {
+        enclose(*first);
+        ++first;
+    }
+}
 
 #endif // #ifndef GEOMETRY_EXTENTS3_H_INCLUDED

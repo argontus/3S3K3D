@@ -215,7 +215,7 @@ void GroupNode::updateWorldExtents() const
 
     for (size_t i = 0; i < children_.size(); ++i)
     {
-        worldExtents_.growToContain(children_[i]->worldExtents());
+        worldExtents_.enclose(children_[i]->worldExtents());
     }
 
     worldExtentsValid_ = true;

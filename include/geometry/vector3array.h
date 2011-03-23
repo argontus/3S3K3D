@@ -8,6 +8,8 @@
 
 #include <geometry/extents3.h>
 
+class Matrix3x3;
+
 // TODO: get rid of this class
 /**
  * Represents a fixed size array of <code>Vector3</code> objects.

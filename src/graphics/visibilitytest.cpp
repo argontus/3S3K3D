@@ -39,7 +39,8 @@ VisibilityState::Enum VisibilityTest::test(const Extents3& extents) const
     // for each frustum plane
     for (int i = 0; i < 6; ++i)
     {
-        const Interval interval = extents.intervalAlong(planes_[i].normal);
+        //const Interval interval = extents.intervalAlong(planes_[i].normal);
+        const Interval interval = ::interval(extents, planes_[i].normal);
 
         if (interval.max < planes_[i].constant)
         {
