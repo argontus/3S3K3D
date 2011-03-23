@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="static_release" />
+	<File name="..\..\include\sound\mixer.h" open="0" top="0" tabpos="1">
+		<Cursor position="2106" topLine="64" />
+	</File>
+	<File name="..\..\src\sound\mixer.cpp" open="1" top="1" tabpos="0">
+		<Cursor position="348" topLine="42" />
+	</File>
+</CodeBlocks_layout_file>

@@ -22,10 +22,12 @@
 					<Add library="..\..\lib\libgraphicsd.a" />
 					<Add library="..\..\lib\libgeometryd.a" />
 					<Add library="..\..\lib\libinputd.a" />
+					<Add library="..\..\lib\libsoundd.a" />
 					<Add library="..\..\lib\lib3ds.dll.a" />
 					<Add library="..\..\lib\libglew.dll.a" />
 					<Add library="..\..\lib\libSDL.dll.a" />
 					<Add library="..\..\lib\libSDL_image.dll.a" />
+					<Add library="..\..\lib\libSDL_mixer.dll.a" />
 					<Add library="libopengl32.a" />
 				</Linker>
 			</Target>
@@ -46,10 +48,12 @@
 					<Add library="..\..\lib\libgraphics.a" />
 					<Add library="..\..\lib\libgeometry.a" />
 					<Add library="..\..\lib\libinput.a" />
+					<Add library="..\..\lib\libsound.a" />
 					<Add library="..\..\lib\lib3ds.dll.a" />
 					<Add library="..\..\lib\libglew.dll.a" />
 					<Add library="..\..\lib\libSDL.dll.a" />
 					<Add library="..\..\lib\libSDL_image.dll.a" />
+					<Add library="..\..\lib\libSDL_mixer.dll.a" />
 					<Add library="libopengl32.a" />
 				</Linker>
 			</Target>

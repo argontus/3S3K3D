@@ -34,16 +34,14 @@ GameProgram::GameProgram()
     glowMipmappingOn(false),
     normalMipmappingOn(false),
     specularMipmappingOn(false),
-    anisotropicFilteringOn(false),
     rotateLights(false),
+    anisotropicFilteringOn(false),
     vertexShaderManager_(),
     fragmentShaderManager_(),
     shaderProgramManager_(),
     meshManager_(),
     textureManager_(),
-    boxX(0.0f),
-    boxY(0.0f),
-    boxZ(0.0f),
+    mixer_(),
     ship(NULL)
 {
     running         = true;
@@ -94,6 +92,20 @@ int GameProgram::execute()
     GRAPHICS_RUNTIME_ASSERT(vertexShader->compileStatus());
     vertexShaderManager_.loadResource("test", vertexShader);
 
+    vertexShader = new VertexShader();
+    vertexShader->setSourceText(readSourceText("data/shaders/unlit.vs"));
+    vertexShader->compile();
+    //const std::string info = vertexShader->infoLog();
+    GRAPHICS_RUNTIME_ASSERT(vertexShader->compileStatus());
+    vertexShaderManager_.loadResource("unlit", vertexShader);
+
+    vertexShader = new VertexShader();
+    vertexShader->setSourceText(readSourceText("data/shaders/shadow.vs"));
+    vertexShader->compile();
+    //const std::string info = vertexShader->infoLog();
+    GRAPHICS_RUNTIME_ASSERT(vertexShader->compileStatus());
+    vertexShaderManager_.loadResource("shadow", vertexShader);
+
     FragmentShader* fragmentShader = new FragmentShader();
     fragmentShader->setSourceText(readSourceText("data/shaders/default.fs"));
     fragmentShader->compile();
@@ -113,6 +125,20 @@ int GameProgram::execute()
     //const std::string info = fragmentShader->infoLog();
     GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
     fragmentShaderManager_.loadResource("test", fragmentShader);
+
+    fragmentShader = new FragmentShader();
+    fragmentShader->setSourceText(readSourceText("data/shaders/unlit.fs"));
+    fragmentShader->compile();
+    //const std::string info = fragmentShader->infoLog();
+    GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
+    fragmentShaderManager_.loadResource("unlit", fragmentShader);
+
+    fragmentShader = new FragmentShader();
+    fragmentShader->setSourceText(readSourceText("data/shaders/shadow.fs"));
+    fragmentShader->compile();
+    //const std::string info = fragmentShader->infoLog();
+    GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
+    fragmentShaderManager_.loadResource("shadow", fragmentShader);
 
     // shader program for drawing mesh nodes
     ShaderProgram* shaderProgram = new ShaderProgram();
@@ -137,6 +163,22 @@ int GameProgram::execute()
     shaderProgram->link();
     GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
     shaderProgramManager_.loadResource("test", shaderProgram);
+
+    // shader program for unlit render passes
+    shaderProgram = new ShaderProgram();
+    shaderProgram->setVertexShader(vertexShaderManager_.getResource("unlit"));
+    shaderProgram->setFragmentShader(fragmentShaderManager_.getResource("unlit"));
+    shaderProgram->link();
+    GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
+    shaderProgramManager_.loadResource("unlit", shaderProgram);
+
+    // shader program for shadow render passes
+    shaderProgram = new ShaderProgram();
+    shaderProgram->setVertexShader(vertexShaderManager_.getResource("shadow"));
+    shaderProgram->setFragmentShader(fragmentShaderManager_.getResource("shadow"));
+    shaderProgram->link();
+    GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
+    shaderProgramManager_.loadResource("shadow", shaderProgram);
 
 
     // init textures
@@ -203,6 +245,15 @@ int GameProgram::execute()
         centerMouse();
     }
 
+    // init audio
+    // default frequency is usually 22050 Hz
+    // default format is AUDIO_U16SYS
+    // 2 for stereo channels
+    // 1024 is a viable buffer size for 22kHz, tweak this if skippy / laggy
+    mixer_.init( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024 );
+    mixer_.loadMusic( "data/sounds/radio.ogg", "radio" );
+    mixer_.loadChunk( "data/sounds/tub.ogg", "tub" );
+
     std::cout << "Entering main loop..." << std::endl;
 
 	while( running ) {
@@ -255,9 +306,27 @@ int GameProgram::execute()
             anisotropicFilteringOn = !anisotropicFilteringOn;
         }
 
+
         if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F8 ) )
         {
             mouseBoundToScreen = !mouseBoundToScreen;
+        }
+
+        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_M ) )
+        {
+            if( !mixer_.isMusicPlaying() )
+            {
+                mixer_.playMusic( "radio" );
+            }
+            else
+            {
+                mixer_.stopMusic();
+            }
+        }
+
+        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_1 ) )
+        {
+            mixer_.playChunk( "tub", 0 );
         }
 
         // quick&dirty, write a function for these or something
@@ -363,6 +432,7 @@ int GameProgram::execute()
 
     std::cout << "Leaving main loop." << std::endl;
 
+    mixer_.close();
 	cleanup();
 	std::cout << "bye!" << std::endl;
 
@@ -402,20 +472,192 @@ void GameProgram::render()
 
     // setting the second parameter to false disables frustum culling
     rootNode_->predraw(predrawParams, true);
+    renderQueue.sort();
 
-    ShaderProgram* shaderProgram = shaderProgramManager_.getResource("test");
-    glUseProgram(shaderProgram->id());
+
+    // unlit render pass
+
+    DrawParams drawParams;
+    drawParams.viewMatrix = camera_->worldToViewMatrix();
+    // TODO: load projection matrix directly to the shader?
+    drawParams.projectionMatrix = camera_->projectionMatrix();
+    drawParams.worldToViewRotation = transpose(camera_->worldTransform().rotation());
+    drawParams.cameraToWorld = camera_->worldTransform();
+
+    drawParams.shaderProgram = shaderProgramManager_.getResource("unlit");
+    glUseProgram(drawParams.shaderProgram->id());
+
+    const GLint _diffuseMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "diffuseMap");
+    const GLint _specularMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "specularMap");
+    const GLint _glowMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "glowMap");
+    const GLint _normalMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "normalMap");
+
+    glUniform1i(_diffuseMapLocation, 0);
+    glUniform1i(_specularMapLocation, 1);
+    glUniform1i(_glowMapLocation, 2);
+    glUniform1i(_normalMapLocation, 3);
+
+    glActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+    textureManager_.getResource("diffuse")->bindTexture();
+
+    glActiveTexture(GL_TEXTURE1);
+    glEnable(GL_TEXTURE_2D);
+    textureManager_.getResource("specular")->bindTexture();
+
+    glActiveTexture(GL_TEXTURE2);
+    glEnable(GL_TEXTURE_2D);
+    textureManager_.getResource("glow")->bindTexture();
+
+    glActiveTexture(GL_TEXTURE3);
+    glEnable(GL_TEXTURE_2D);
+    textureManager_.getResource("normal")->bindTexture();
+
+    // unlit render pass
+    renderQueue.draw(drawParams);
+
+    glActiveTexture(GL_TEXTURE0);
+    glDisable(GL_TEXTURE_2D);
+
+    glActiveTexture(GL_TEXTURE1);
+    glDisable(GL_TEXTURE_2D);
+
+    glActiveTexture(GL_TEXTURE2);
+    glDisable(GL_TEXTURE_2D);
+
+    glActiveTexture(GL_TEXTURE3);
+    glDisable(GL_TEXTURE_2D);
 
     // ...
 
-    const GLint lightPositionsLocation = glGetUniformLocation(shaderProgram->id(), "lightPositions");
-    const GLint lightColorsLocation = glGetUniformLocation(shaderProgram->id(), "lightColors");
-    const GLint lightRangesLocation = glGetUniformLocation(shaderProgram->id(), "lightRanges");
-    const GLint numLightsLocation = glGetUniformLocation(shaderProgram->id(), "numLights");
-    const GLint diffuseMapLocation = glGetUniformLocation(shaderProgram->id(), "diffuseMap");
-    const GLint specularMapLocation = glGetUniformLocation(shaderProgram->id(), "specularMap");
-    const GLint glowMapLocation = glGetUniformLocation(shaderProgram->id(), "glowMap");
-    const GLint normalMapLocation = glGetUniformLocation(shaderProgram->id(), "normalMap");
+
+    // shadow pass
+
+    drawParams.shaderProgram = shaderProgramManager_.getResource("shadow");
+    glUseProgram(drawParams.shaderProgram->id());
+
+    drawParams.shaderProgram->setUniformMatrix4x4fv(
+        "modelViewMatrix",
+        1,
+        false,
+        drawParams.viewMatrix.data()
+    );
+
+    drawParams.shaderProgram->setUniformMatrix4x4fv(
+        "projectionMatrix",
+        1,
+        false,
+        drawParams.projectionMatrix.data()
+    );
+
+    for (size_t i = 0; i < geometryNodes_.size(); ++i)
+    {
+        const Transform3 transform = geometryNodes_[i]->worldTransform();
+        const Mesh* mesh = static_cast<MeshNode*>(geometryNodes_[i])->mesh();
+
+        for (int iFace = 0; iFace < mesh->numFaces(); ++iFace)
+        {
+            const Vector3 n = product(mesh->normals()[3 * iFace], transform.rotation());
+
+            Vector3 v0 = transform.applyForward(mesh->vertices()[3 * iFace + 0]);
+            Vector3 v1 = transform.applyForward(mesh->vertices()[3 * iFace + 1]);
+            Vector3 v2 = transform.applyForward(mesh->vertices()[3 * iFace + 2]);
+
+            // TODO: these do not avoid division by zero
+            const Vector3 lightV0 = normalize(v0 - lightPosition_);
+            const Vector3 lightV1 = normalize(v1 - lightPosition_);
+            const Vector3 lightV2 = normalize(v2 - lightPosition_);
+
+            // if the signs do not differ, this is not a front face
+            if (dot(lightV0, n) >= 0.0f)
+            {
+                continue;
+            }
+
+            // not quite but close enough
+            const float infinity = 250.0f;
+
+            const Vector3 s0 = v0 + infinity * lightV0;
+            const Vector3 s1 = v1 + infinity * lightV1;
+            const Vector3 s2 = v2 + infinity * lightV2;
+
+            const float offset = 0.1f;
+
+            v0 = v0 + offset * lightV0;
+            v1 = v1 + offset * lightV1;
+            v2 = v2 + offset * lightV2;
+
+            const Vector3 coords[] = {
+                v0, v1, v2, // front cap
+                s0, s2, s1, // back cap
+                v0, s0, s1,
+                v0, s1, v1,
+                v1, s1, s2,
+                v1, s2, v2,
+                v2, s2, s0,
+                v2, s0, v0
+            };
+
+            const GLint coordLocation = drawParams.shaderProgram->attribLocation("coord");
+            glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords->data());
+            glEnableVertexAttribArray(coordLocation);
+
+            // disable color and depth buffer writes
+            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+            glDepthMask(GL_FALSE);
+
+            //glDisable(GL_CULL_FACE);
+
+            glEnable(GL_STENCIL_TEST);
+            glStencilFunc(GL_ALWAYS, 0x00, 0xFF);
+
+            glStencilOpSeparate(
+                GL_BACK,    // set stencil settings for back-facing polygons
+                GL_KEEP,    // stencil fail operation, has no effect
+                GL_INCR,    // depth fail operation, increment stencil value
+                GL_KEEP     // depth pass operation, do nothing
+            );
+
+            glStencilOpSeparate(
+                GL_FRONT,   // set stencil settings for front-facing polygons
+                GL_KEEP,    // stencil fail operation, has no effect
+                GL_DECR,    // depth fail operation, decrement stencil value
+                GL_KEEP     // depth pass operation, do nothing
+            );
+
+            glCullFace(GL_FRONT);
+            glDrawArrays(GL_TRIANGLES, 0, 24);
+
+            glCullFace(GL_BACK);
+            glDrawArrays(GL_TRIANGLES, 0, 24);
+
+            // restore render state
+            glDisable(GL_STENCIL_TEST);
+            //glEnable(GL_CULL_FACE);
+            glDepthMask(GL_TRUE);
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+            glDisableVertexAttribArray(coordLocation);
+        }
+    }
+
+    // ...
+
+    drawParams.shaderProgram = shaderProgramManager_.getResource("test");
+    glUseProgram(drawParams.shaderProgram->id());
+
+    // ...
+
+    const GLint lightPositionsLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "lightPositions");
+    const GLint lightColorsLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "lightColors");
+    const GLint lightRangesLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "lightRanges");
+    const GLint numLightsLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "numLights");
+    const GLint diffuseMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "diffuseMap");
+    const GLint specularMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "specularMap");
+    const GLint glowMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "glowMap");
+    const GLint normalMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "normalMap");
+
+    lightPosition_.set(150.0f * Math::cos(Math::degToRad(0.0f)), 0.0f, 150.0f * Math::sin(Math::degToRad(0.0f)));
 
     Vector3 lightPositions[] = {
         Vector3(150.0f * Math::cos(Math::degToRad(0.0f)), 0.0f, 150.0f * Math::sin(Math::degToRad(0.0f))),
@@ -425,16 +667,14 @@ void GameProgram::render()
 
     static float lightRotation = 0.0f;
 
-    if (rotateLights)
-    {
-        lightRotation = Math::wrapTo2Pi(lightRotation + deltaTime * 0.5f);
-    }
-
     Transform3::yRotation(lightRotation).applyForward(lightPositions, lightPositions + 3, lightPositions);
+
+    lightPosition_ = lightPositions[0];
+
     camera_->worldTransform().applyInverse(lightPositions, lightPositions + 3, lightPositions);
 
     const Vector3 lightColors[] = {
-        Vector3(2.00f, 0.50f, 0.50f),
+        Vector3(2.00f, 2.00f, 2.00f),
         Vector3(0.50f, 2.00f, 0.50f),
         Vector3(0.50f, 0.50f, 2.00f)
     };
@@ -448,7 +688,7 @@ void GameProgram::render()
     glUniform3fv(lightPositionsLocation, 3, lightPositions->data());
     glUniform3fv(lightColorsLocation, 3, lightColors->data());
     glUniform1fv(lightRangesLocation, 3, lightRanges);
-    glUniform1i(numLightsLocation, 3);
+    glUniform1i(numLightsLocation, 1);  // number of active lights
 
     glUniform1i(diffuseMapLocation, 0);
     glUniform1i(specularMapLocation, 1);
@@ -456,17 +696,6 @@ void GameProgram::render()
     glUniform1i(normalMapLocation, 3);
 
     // ...
-
-    DrawParams drawParams;
-    drawParams.viewMatrix = camera_->worldToViewMatrix();
-    // TODO: load projection matrix directly to the shader?
-    drawParams.projectionMatrix = camera_->projectionMatrix();
-    drawParams.worldToViewRotation = transpose(camera_->worldTransform().rotation());
-    drawParams.shaderProgram = shaderProgram;
-    drawParams.cameraToWorld = camera_->worldTransform();
-
-
-    // draw step
 
     if( diffuseMipmappingOn )
     {
@@ -516,7 +745,6 @@ void GameProgram::render()
     glEnable(GL_TEXTURE_2D);
     textureManager_.getResource("diffuse")->bindTexture();
 
-
     glActiveTexture(GL_TEXTURE1);
     glEnable(GL_TEXTURE_2D);
     textureManager_.getResource("specular")->bindTexture();
@@ -529,8 +757,19 @@ void GameProgram::render()
     glEnable(GL_TEXTURE_2D);
     textureManager_.getResource("normal")->bindTexture();
 
-    renderQueue.sort();
+    glDepthFunc(GL_LEQUAL);
+
+    //GLint stencilBits;
+    //glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_EQUAL, 0x00, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+    // lit render pass, should be done for each light source
     renderQueue.draw(drawParams);
+
+    glDisable(GL_STENCIL_TEST);
 
     glActiveTexture(GL_TEXTURE0);
     glDisable(GL_TEXTURE_2D);
@@ -544,8 +783,15 @@ void GameProgram::render()
     glActiveTexture(GL_TEXTURE3);
     glDisable(GL_TEXTURE_2D);
 
+    if (rotateLights)
+    {
+        lightRotation = Math::wrapTo2Pi(lightRotation + deltaTime * 0.125f);
+    }
+
     if (drawExtents_)
     {
+        glDepthFunc(GL_LEQUAL);
+
         drawParams.shaderProgram = shaderProgramManager_.getResource("extents");
         glUseProgram(drawParams.shaderProgram->id());
 
@@ -768,9 +1014,10 @@ void GameProgram::test()
     //ship->setMesh(boxMesh);
     //ship->updateModelExtents();
 
-    const int count = 10;
+    const int count = 6;
     const float offset = 2.5f * scaling;
     const float displacement = -(offset * (count - 1)) / 2.0f;
+
 
     ship->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
     groupNode->attachChild(ship);

@@ -14,6 +14,8 @@
 
 #include "configuration/configuration.h"
 
+#include "sound/mixer.h"
+
 #include <graphics/resourcemanager.h>
 #include <graphics/vertexshader.h>
 #include <graphics/fragmentshader.h>
@@ -21,6 +23,8 @@
 #include <graphics/mesh.h>
 #include <geometry/vector3.h>
 #include <graphics/texture.h>
+
+#include <graphics/geometrynode.h>
 
 // TODO: quick & dirty
 class CameraNode;
@@ -139,11 +143,9 @@ private:
 	SDLKeyboard keyboard;
 	SDLMouse mouse;
 	Configuration configuration;
-
-	float boxX;
-	float boxY;
-	float boxZ;
+	Mixer mixer_;
 	Node* ship;
+
 
 
     // TODO: quick & dirty
@@ -156,6 +158,10 @@ private:
     bool specularMipmappingOn;
     bool rotateLights;
     bool anisotropicFilteringOn;
+
+    Vector3 lightPosition_;
+
+    std::vector<GeometryNode*> geometryNodes_;
 
     VertexShaderManager vertexShaderManager_;
     FragmentShaderManager fragmentShaderManager_;
