@@ -6,6 +6,7 @@
 #include <geometry/vector2.h>
 
 #include <geometry/math.h>
+#include <geometry/matrix2x2.h>
 
 const Vector2 Vector2::zero()
 {
@@ -29,6 +30,39 @@ Vector2::Vector2(const float x, const float y)
     // ...
 }
 
+Vector2& Vector2::operator +=(const Vector2& v)
+{
+    *this = *this + v;
+    return *this;
+}
+
+Vector2& Vector2::operator -=(const Vector2& v)
+{
+    *this = *this - v;
+    return *this;
+}
+
+Vector2& Vector2::operator *=(const float k)
+{
+    *this = *this * k;
+    return *this;
+}
+
+Vector2& Vector2::operator *=(const Matrix2x2& m)
+{
+    *this = *this * m;
+    return *this;
+}
+
+Vector2& Vector2::operator /=(const float k)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
+
+    *this = *this / k;
+    return *this;
+}
+
 float* Vector2::data()
 {
     return &x;
@@ -43,55 +77,6 @@ void Vector2::swap(Vector2& other)
 {
     Math::swap(x, other.x);
     Math::swap(y, other.y);
-}
-
-Vector2& operator +=(Vector2& a, const Vector2& b)
-{
-    a.x += b.x;
-    a.y += b.y;
-    return a;
-}
-
-Vector2& operator -=(Vector2& a, const Vector2& b)
-{
-    a.x -= b.x;
-    a.y -= b.y;
-    return a;
-}
-
-Vector2& operator *=(Vector2& v, const float k)
-{
-    v.x *= k;
-    v.y *= k;
-    return v;
-}
-
-Vector2& operator *=(Vector2& a, const Vector2& b)
-{
-    a.x *= b.x;
-    a.y *= b.y;
-    return a;
-}
-
-Vector2& operator /=(Vector2& v, const float k)
-{
-    // TODO: use tolerances instead of exact values?
-    GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
-
-    v.x /= k;
-    v.y /= k;
-    return v;
-}
-
-Vector2& operator /=(Vector2& a, const Vector2& b)
-{
-    // TODO: use tolerances instead of exact values?
-    GEOMETRY_RUNTIME_ASSERT(b.x != 0.0f);
-    GEOMETRY_RUNTIME_ASSERT(b.y != 0.0f);
-
-    a.x /= b.x;
-    a.y /= b.y;
-    return a;
 }
 
 const Vector2 operator +(const Vector2& a, const Vector2& b)
@@ -128,18 +113,7 @@ const Vector2 operator *(const float k, const Vector2& v)
 
 const Vector2 operator *(const Vector2& v, const float k)
 {
-    return Vector2(
-        v.x * k,
-        v.y * k
-    );
-}
-
-const Vector2 operator *(const Vector2& a, const Vector2& b)
-{
-    return Vector2(
-        a.x * b.x,
-        a.y * b.y
-    );
+    return k * v;
 }
 
 const Vector2 operator /(const Vector2& v, const float k)
@@ -153,30 +127,9 @@ const Vector2 operator /(const Vector2& v, const float k)
     );
 }
 
-const Vector2 operator /(const Vector2& a, const Vector2& b)
-{
-    // TODO: use tolerances instead of exact values?
-    GEOMETRY_RUNTIME_ASSERT(b.x != 0.0f);
-    GEOMETRY_RUNTIME_ASSERT(b.y != 0.0f);
-
-    return Vector2(
-        a.x / b.x,
-        a.y / b.y
-    );
-}
-
 float angle(const Vector2& v)
 {
-    const Vector2 direction = normalize(v);
-
-    if (v.y >= 0.0f)
-    {
-        return Math::acos(v.x);
-    }
-    else
-    {
-        return 2.0f * Math::pi() - Math::acos(v.x);
-    }
+    return Math::atan(v.y, v.x);
 }
 
 float angleBetween(const Vector2& a, const Vector2& b)
@@ -203,11 +156,6 @@ float length(const Vector2& v)
     return Math::sqrt(v.x * v.x + v.y * v.y);
 }
 
-float perpDot(const Vector2& a, const Vector2& b)
-{
-    return a.x * b.y - a.y * b.x;
-}
-
 float sqrDistance(const Vector2& a, const Vector2& b)
 {
     return sqrLength(b - a);
@@ -218,65 +166,7 @@ float sqrLength(const Vector2& v)
     return v.x * v.x + v.y * v.y;
 }
 
-const Vector2 clamp(const Vector2& v, const float min, const float max)
-{
-    GEOMETRY_RUNTIME_ASSERT(min <= max);
-
-    return Vector2(
-        Math::clamp(v.x, min, max),
-        Math::clamp(v.y, min, max)
-    );
-}
-
-const Vector2 clamp(const Vector2& v, const Vector2& min, const Vector2& max)
-{
-    GEOMETRY_RUNTIME_ASSERT(min.x <= max.x);
-    GEOMETRY_RUNTIME_ASSERT(min.y <= max.y);
-
-    return Vector2(
-        Math::clamp(v.x, min.x, max.x),
-        Math::clamp(v.y, min.y, max.y)
-    );
-}
-
-const Vector2 max(const Vector2& v, const float k)
-{
-    return Vector2(
-        Math::max(v.x, k),
-        Math::max(v.y, k)
-    );
-}
-
-const Vector2 max(const Vector2& a, const Vector2& b)
-{
-    return Vector2(
-        Math::max(a.x, b.x),
-        Math::max(a.y, b.y)
-    );
-}
-
-const Vector2 min(const Vector2& v, const float k)
-{
-    return Vector2(
-        Math::min(v.x, k),
-        Math::min(v.y, k)
-    );
-}
-
-const Vector2 min(const Vector2& a, const Vector2& b)
-{
-    return Vector2(
-        Math::min(a.x, b.x),
-        Math::min(a.y, b.y)
-    );
-}
-
 const Vector2 mix(const Vector2& a, const Vector2& b, const float t)
-{
-    return a + t * (b - a);
-}
-
-const Vector2 mix(const Vector2& a, const Vector2& b, const Vector2& t)
 {
     return a + t * (b - a);
 }
@@ -304,20 +194,12 @@ const Vector2 perp(const Vector2& v)
     );
 }
 
-const Vector2 polarPoint(const float angle, const float radius)
+const Vector2 polarPoint(const float radius, const float angle)
 {
     return radius * Vector2::direction(angle);
 }
 
-const Vector2 polarPoint(
-    const Vector2& origin,
-    const float angle,
-    const float radius)
+const Vector2 reflect(const Vector2& v, const Vector2& n)
 {
-    return origin + radius * Vector2::direction(angle);
-}
-
-const Vector2 reflect(const Vector2& v, const Vector2& normal)
-{
-    return v - 2.0f * dot(v, normal) * normal;
+    return v - 2.0f * dot(v, n) * n;
 }

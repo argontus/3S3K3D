@@ -8,6 +8,8 @@
 
 #include <geometry/staticassert.h>
 
+class Matrix2x2;
+
 /**
  * Represents a 2D vector.
  */
@@ -30,8 +32,8 @@ public:
      */
     static const Vector2 direction(float angle);
 
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor, constructs an uninitialized vector.
@@ -46,7 +48,15 @@ public:
      */
     Vector2(float x, float y);
 
-    // TODO: should this be a member?
+    // the assignment operators are members to prevent implicit type
+    // conversions of the left hand side object
+
+    Vector2& operator +=(const Vector2& v);
+    Vector2& operator -=(const Vector2& v);
+    Vector2& operator *=(float k);
+    Vector2& operator *=(const Matrix2x2& m);
+    Vector2& operator /=(float k);
+
     /**
      * Gets the component array.
      *
@@ -54,7 +64,6 @@ public:
      */
     float* data();
 
-    // TODO: should this be a member?
     /**
      * Provided for const-correctness.
      *
@@ -69,9 +78,8 @@ public:
      */
     void swap(Vector2& other);
 
-    // emulates GLSL component access
-    union { float x; float r; float s; };
-    union { float y; float g; float t; };
+    float x;    ///< The x-component.
+    float y;    ///< The y-component.
 };
 
 /// @cond
@@ -79,157 +87,22 @@ public:
 GEOMETRY_STATIC_ASSERT(sizeof(Vector2[2]) == sizeof(float) * 4);
 /// @endcond
 
-/**
- * Vector addition.
- *
- * @param a The vector to which <code>b</code> is to be added.
- * @param b The vector to add to <code>a</code>.
- *
- * @return Reference to <code>a</code>.
- */
-Vector2& operator +=(Vector2& a, const Vector2& b);
-
-/**
- * Vector subtraction.
- *
- * @param a The vector from which <code>b</code> is to be subtracted.
- * @param b The vector to subtract from <code>a</code>.
- *
- * @return Reference to <code>a</code>.
- */
-Vector2& operator -=(Vector2& a, const Vector2& b);
-
-/**
- * Vector-scalar multiplication.
- *
- * @param v The vector to multiply.
- * @param k The multiplier.
- *
- * @return Reference to <code>v</code>.
- */
-Vector2& operator *=(Vector2& v, float k);
-
-/**
- * Component-wise vector-vector multiplication.
- *
- * @param a The vector to multiply.
- * @param b The multiplier.
- *
- * @return Reference to <code>a</code>.
- */
-Vector2& operator *=(Vector2& a, const Vector2& b);
-
-/**
- * Vector-scalar division.
- *
- * @param v The vector to divide.
- * @param k The divisor, cannot be zero.
- *
- * @return Reference to <code>v</code>.
- */
-Vector2& operator /=(Vector2& v, float k);
-
-/**
- * Component-wise vector-scalar division.
- *
- * @param a The vector to divide.
- * @param b The divisor, none of the components can be zero.
- *
- * @return Reference to <code>a</code>.
- */
-Vector2& operator /=(Vector2& a, const Vector2& b);
-
-/**
- * Vector addition.
- *
- * @param a The first vector.
- * @param b The other vector.
- *
- * @return <code>a + b</code>.
- */
 const Vector2 operator +(const Vector2& a, const Vector2& b);
-
-/**
- * Vector negation.
- *
- * @param v The vector to negate.
- *
- * @return Negated <code>v</code>.
- */
 const Vector2 operator -(const Vector2& v);
-
-/**
- * Vector subtraction.
- *
- * @param a The first vector.
- * @param b The other vector.
- *
- * @return <code>a - b</code>.
- */
 const Vector2 operator -(const Vector2& a, const Vector2& b);
-
-/**
- * Scalar-vector multiplication.
- *
- * @param k The multiplier.
- * @param v The vector to multiply.
- *
- * @return <code>k * v</code>.
- */
 const Vector2 operator *(float k, const Vector2& v);
-
-/**
- * Vector-scalar multiplication.
- *
- * @param v The vector to multiply.
- * @param k The multiplier.
- *
- * @return <code>v * k</code>.
- */
 const Vector2 operator *(const Vector2& v, float k);
-
-/**
- * Component-wise vector-vector multiplication.
- *
- * @param a The vector to multiply.
- * @param b The multiplier.
- *
- * @return <code>a * b</code>.
- */
-const Vector2 operator *(const Vector2& a, const Vector2& b);
-
-/**
- * Vector-scalar division.
- *
- * @param v The vector to divide.
- * @param k The divisor, cannot be zero.
- *
- * @return <code>v / k</code>.
- */
 const Vector2 operator /(const Vector2& v, float k);
 
 /**
- * Component-wise vector-vector division.
- *
- * @param a The vector to divide.
- * @param b The divisor, none of the components can be zero.
- *
- * @return <code>a / b</code>.
- */
-const Vector2 operator /(const Vector2& a, const Vector2& b);
-
-/**
  * Calculates the angle of a given direction vector in radians. <code>v</code>
- * does not need to be unit-length. If the magnitude (length) of <code>v</code>
- * is zero, <code>Vector2(1.0f, 0.0f)</code> is used in calculation in its
- * stead.
+ * does not need to be unit-length. If <code>v</code> is a zero vector, the
+ * return value is zero.
  *
  * @param v The direction vector whose angle is to be calculated.
  *
  * @return Angle of direction vector <code>v</code> in radians, between
- * [0, 2*pi). The angle of x-axis is 0, and the angle of y-axis is pi/2.
- *
- * @see normalize(const Vector2&)
+ * [-pi, pi].
  */
 float angle(const Vector2& v);
 
@@ -279,16 +152,6 @@ float dot(const Vector2& a, const Vector2& b);
 float length(const Vector2& v);
 
 /**
- * Same as <code>dot(perp(a), b)</code>.
- *
- * @param a The first vector.
- * @param b The other vector.
- *
- * @return Vector equal to <code>dot(perp(a), b)</code>.
- */
-float perpDot(const Vector2& a, const Vector2& b);
-
-/**
  * Calculates the squared distance between two points.
  *
  * @param a The first point.
@@ -308,81 +171,6 @@ float sqrDistance(const Vector2& a, const Vector2& b);
 float sqrLength(const Vector2& v);
 
 /**
- * Clamps the components of <code>v</code> between
- * [<code>min</code>, <code>max</code>]. <code>min</code> must be less than or
- * equal to <code>max</code>.
- *
- * @param v The vector to clamp.
- * @param min Minimum value.
- * @param max Maximum value.
- *
- * @return Clamped <code>v</code>.
- */
-const Vector2 clamp(const Vector2& v, float min, float max);
-
-/**
- * Clamps the components of <code>v</code> component-wise between
- * [<code>min</code>, <code>max</code>]. Each component of <code>min</code>
- * must be less than or equal to the corresponding component of
- * <code>max</code>.
- *
- * @param v The vector to clamp.
- * @param min Vector containing the component-wise minimum values.
- * @param max Vector containing the component-wise maximum values.
- *
- * @return Clamped <code>v</code>.
- */
-const Vector2 clamp(const Vector2& v, const Vector2& min, const Vector2& max);
-
-/**
- * Returns a vector containing the component-wise maximum values of
- * <code>v</code> and <code>k</code>.
- *
- * @param v The vector to compare.
- * @param k The scalar value to compare.
- *
- * @param Vector containing the component-wise maximum values of <code>v</code>
- * and <code>k</code>.
- */
-const Vector2 max(const Vector2& v, float k);
-
-/**
- * Returns a vector containing the component-wise maximum values of
- * <code>a</code> and <code>b</code>.
- *
- * @param a The first vector to compare.
- * @param b The second vector to compare.
- *
- * @param Vector containing the component-wise maximum values of <code>a</code>
- * and <code>b</code>.
- */
-const Vector2 max(const Vector2& a, const Vector2& b);
-
-/**
- * Returns a vector containing the component-wise minimum values of
- * <code>v</code> and <code>k</code>.
- *
- * @param v The vector to compare.
- * @param k The scalar value to compare.
- *
- * @param Vector containing the component-wise minimum values of <code>v</code>
- * and <code>k</code>.
- */
-const Vector2 min(const Vector2& v, float k);
-
-/**
- * Returns a vector containing the component-wise minimum values of
- * <code>a</code> and <code>b</code>.
- *
- * @param a The first vector to compare.
- * @param b The second vector to compare.
- *
- * @param Vector containing the component-wise minimum values of <code>a</code>
- * and <code>b</code>.
- */
-const Vector2 min(const Vector2& a, const Vector2& b);
-
-/**
  * Linear interpolation between two vectors.
  *
  * @param a Vector containing the values at <code>t == 0.0f</code>.
@@ -392,19 +180,6 @@ const Vector2 min(const Vector2& a, const Vector2& b);
  * @return <code>a + t * (b - a)</code>.
  */
 const Vector2 mix(const Vector2& a, const Vector2& b, float t);
-
-/**
- * Component-wise linear interpolation between two vectors.
- *
- * @param a Vector containing the values at
- * <code>t == Vector2(0.0f, 0.0f)</code>.
- * @param b Vector containing the values at
- * <code>t == Vector2(1.0f, 1.0f)</code>.
- * @param t Vector containing the component-wise weight coefficients.
- *
- * @return <code>a + t * (b - a)</code>.
- */
-const Vector2 mix(const Vector2& a, const Vector2& b, const Vector2& t);
 
 /**
  * Calculates a normalized vector. If the magnitude (length) of <code>v</code>
@@ -427,35 +202,25 @@ const Vector2 normalize(const Vector2& v);
 const Vector2 perp(const Vector2& v);
 
 /**
- * Calculates a point from polar coordinates. This function uses origin as the
- * reference point.
- *
- * @param angle Angular coordinate in radians.
- * @param radius Radial coordinate, distance from the reference point.
- *
- * @return The calculated point.
- */
-const Vector2 polarPoint(float angle, float radius);
-
-/**
  * Calculates a point from polar coordinates.
  *
- * @param origin Reference point.
+ * @param radius Radial coordinate, distance from the origin.
  * @param angle Angular coordinate in radians.
- * @param radius Radial coordinate, distance from the reference point.
  *
  * @return The calculated point.
  */
-const Vector2 polarPoint(const Vector2& origin, float angle, float radius);
+const Vector2 polarPoint(float radius, float angle);
 
 /**
  * Reflects a vector.
  *
  * @param v The vector to reflect.
- * @param normal Unit length reflection surface normal.
+ * @param n Unit length reflection surface normal.
  *
  * @return Reflected <code>v</code>.
  */
-const Vector2 reflect(const Vector2& v, const Vector2& normal);
+const Vector2 reflect(const Vector2& v, const Vector2& n);
+
+// TODO: const Vector2 refract(const Vector2& v, const Vector2& n, float k);
 
 #endif // #ifndef GEOMETRY_VECTOR2_H_INCLUDED

@@ -253,7 +253,7 @@ void Transform2::applyForward(In first, const In last, Out result) const
 
     while (first != last)
     {
-        *result = product(scaling_ * *first, rotation) + translation_;
+        *result = (scaling_ * *first) * rotation + translation_;
 
         ++first;
         ++result;
@@ -269,7 +269,7 @@ void Transform2::applyInverse(In first, const In last, Out result) const
 
     while (first != last)
     {
-        *result = productT(*first - translation_, rotation) / scaling_;
+        *result = timesTranspose(*first - translation_, rotation) / scaling_;
 
         ++first;
         ++result;

@@ -128,7 +128,7 @@ const Vector2 Transform2::applyForward(const Vector2& q) const
     GEOMETRY_RUNTIME_ASSERT(scaling_ > 0.0f);
 
     const Matrix2x2 rotation = Matrix2x2::rotation(rotation_);
-    return product(scaling_ * q, rotation) + translation_;
+    return (scaling_ * q) * rotation + translation_;
 }
 
 const Vector2 Transform2::applyInverse(const Vector2& q) const
@@ -136,7 +136,7 @@ const Vector2 Transform2::applyInverse(const Vector2& q) const
     GEOMETRY_RUNTIME_ASSERT(scaling_ > 0.0f);
 
     const Matrix2x2 rotation = Matrix2x2::rotation(rotation_);
-    return productT(q - translation_, rotation) / scaling_;
+    return timesTranspose(q - translation_, rotation) / scaling_;
 }
 
 void Transform2::swap(Transform2& other)
@@ -179,7 +179,7 @@ const Transform2 invert(const Transform2& t)
     const float invScaling = 1.0f / t.scaling();
 
     return Transform2(
-        product(-invScaling * t.translation(), invRotation),
+        (-invScaling * t.translation()) * invRotation,
         -t.rotation(),
         invScaling
     );

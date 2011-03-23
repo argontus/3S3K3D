@@ -139,7 +139,7 @@ void Vector2Array::rotateBy(const Matrix2x2& rotation)
 {
     for (int i = 0; i < size_; ++i)
     {
-        vertices_[i] = product(vertices_[i], rotation);
+        vertices_[i] = vertices_[i] * rotation;
     }
 }
 
