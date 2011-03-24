@@ -190,7 +190,7 @@ bool intersect(const CircleShape& a, const PolygonShape& b, const Transform2& t)
         return sqrDistance(refEdge.endPoint, center) < Math::sqr(radius);
     }
 
-    const float aMin = dot(center, refNormal);
+    const float aMin = dot(center, refNormal) - radius;
     const float bMax = dot(b.vertex(i), refNormal);
 
     const float separation = aMin - bMax;
