@@ -59,6 +59,8 @@
 			<Add directory="../../lib" />
 		</Linker>
 		<Unit filename="../../include/input/mouse.h" />
+		<Unit filename="../../src/game/gameobject.cpp" />
+		<Unit filename="../../src/game/gameobject.h" />
 		<Unit filename="../../src/game/gameprogram.cpp" />
 		<Unit filename="../../src/game/gameprogram.h" />
 		<Unit filename="../../src/game/gamewindow.cpp" />
