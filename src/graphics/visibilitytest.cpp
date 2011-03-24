@@ -79,9 +79,9 @@ void VisibilityTest::initOrthographic(
     const Matrix3x3 rotation = t.rotation();
 
     // direction, right and up axes
-    const Vector3 d = -rotation.row2();
-    const Vector3 r =  rotation.row0();
-    const Vector3 u =  rotation.row1();
+    const Vector3 d = -rotation.row(2);
+    const Vector3 r =  rotation.row(0);
+    const Vector3 u =  rotation.row(1);
 
     const float xMin = Math::min(s.left, s.right);
     const float xMax = Math::max(s.left, s.right);
@@ -112,9 +112,9 @@ void VisibilityTest::initPerspective(
     const Matrix3x3 rotation = t.rotation();
 
     // direction, right and up axes
-    const Vector3 d = -rotation.row2();
-    const Vector3 r =  rotation.row0();
-    const Vector3 u =  rotation.row1();
+    const Vector3 d = -rotation.row(2);
+    const Vector3 r =  rotation.row(0);
+    const Vector3 u =  rotation.row(1);
 
     const float xMin = Math::min(s.left, s.right);
     const float xMax = Math::max(s.left, s.right);

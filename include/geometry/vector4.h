@@ -8,6 +8,8 @@
 
 #include <geometry/staticassert.h>
 
+class Matrix4x4;
+
 /**
  * Represents a 4D vector.
  */
@@ -21,8 +23,8 @@ public:
      */
     static const Vector4 zero();
 
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor, constructs an uninitialized vector.
@@ -39,7 +41,15 @@ public:
      */
     Vector4(float x, float y, float z, float w);
 
-    // TODO: should this be a member?
+    // the assignment operators are members to prevent implicit type
+    // conversions of the left hand side object
+
+    Vector4& operator +=(const Vector4& v);
+    Vector4& operator -=(const Vector4& v);
+    Vector4& operator *=(float k);
+    Vector4& operator *=(const Matrix4x4& m);
+    Vector4& operator /=(float k);
+
     /**
      * Gets the component array.
      *
@@ -47,7 +57,6 @@ public:
      */
     float* data();
 
-    // TODO: should this be a member?
     /**
      * Provided for const-correctness.
      *
@@ -62,11 +71,10 @@ public:
      */
     void swap(Vector4& other);
 
-    // emulates GLSL component access
-    union { float x; float r; float s; };
-    union { float y; float g; float t; };
-    union { float z; float b; float p; };
-    union { float w; float a; float q; };
+    float x;    ///< The x-component.
+    float y;    ///< The y-component.
+    float z;    ///< The z-component.
+    float w;    ///< The w-component.
 };
 
 /// @cond
@@ -74,144 +82,12 @@ public:
 GEOMETRY_STATIC_ASSERT(sizeof(Vector4[2]) == sizeof(float) * 8);
 /// @endcond
 
-/**
- * Vector addition.
- *
- * @param a The vector to which <code>b</code> is to be added.
- * @param b The vector to add to <code>a</code>.
- *
- * @return Reference to <code>a</code>.
- */
-Vector4& operator +=(Vector4& a, const Vector4& b);
-
-/**
- * Vector subtraction.
- *
- * @param a The vector from which <code>b</code> is to be subtracted.
- * @param b The vector to subtract from <code>a</code>.
- *
- * @return Reference to <code>a</code>.
- */
-Vector4& operator -=(Vector4& a, const Vector4& b);
-
-/**
- * Vector-scalar multiplication.
- *
- * @param v The vector to multiply.
- * @param k The multiplier.
- *
- * @return Reference to <code>v</code>.
- */
-Vector4& operator *=(Vector4& v, float k);
-
-/**
- * Component-wise vector-vector multiplication.
- *
- * @param a The vector to multiply.
- * @param b The multiplier.
- *
- * @return Reference to <code>a</code>.
- */
-Vector4& operator *=(Vector4& a, const Vector4& b);
-
-/**
- * Vector-scalar division.
- *
- * @param v The vector to divide.
- * @param k The divisor, cannot be zero.
- *
- * @return Reference to <code>v</code>.
- */
-Vector4& operator /=(Vector4& v, float k);
-
-/**
- * Component-wise vector-scalar division.
- *
- * @param a The vector to divide.
- * @param b The divisor, none of the components can be zero.
- *
- * @return Reference to <code>a</code>.
- */
-Vector4& operator /=(Vector4& a, const Vector4& b);
-
-/**
- * Vector addition.
- *
- * @param a The first vector.
- * @param b The other vector.
- *
- * @return <code>a + b</code>.
- */
 const Vector4 operator +(const Vector4& a, const Vector4& b);
-
-/**
- * Vector negation.
- *
- * @param v The vector to negate.
- *
- * @return Negated <code>v</code>.
- */
 const Vector4 operator -(const Vector4& v);
-
-/**
- * Vector subtraction.
- *
- * @param a The first vector.
- * @param b The other vector.
- *
- * @return <code>a - b</code>.
- */
 const Vector4 operator -(const Vector4& a, const Vector4& b);
-
-/**
- * Scalar-vector multiplication.
- *
- * @param k The multiplier.
- * @param v The vector to multiply.
- *
- * @return <code>k * v</code>.
- */
 const Vector4 operator *(float k, const Vector4& v);
-
-/**
- * Vector-scalar multiplication.
- *
- * @param v The vector to multiply.
- * @param k The multiplier.
- *
- * @return <code>v * k</code>.
- */
 const Vector4 operator *(const Vector4& v, float k);
-
-/**
- * Component-wise vector-vector multiplication.
- *
- * @param a The vector to multiply.
- * @param b The multiplier.
- *
- * @return <code>a * b</code>.
- */
-const Vector4 operator *(const Vector4& a, const Vector4& b);
-
-/**
- * Vector-scalar division.
- *
- * @param v The vector to divide.
- * @param k The divisor, cannot be zero.
- *
- * @return <code>v / k</code>.
- */
 const Vector4 operator /(const Vector4& v, float k);
-
-/**
- * Component-wise vector-vector division.
- *
- * @param a The vector to divide.
- * @param b The divisor, none of the components can be zero.
- *
- * @return <code>a / b</code>.
- */
-const Vector4 operator /(const Vector4& a, const Vector4& b);
 
 /**
  * Calculates the angle between two vectors in radians. <code>a</code> and
@@ -278,81 +154,6 @@ float sqrDistance(const Vector4& a, const Vector4& b);
 float sqrLength(const Vector4& v);
 
 /**
- * Clamps the components of <code>v</code> between
- * [<code>min</code>, <code>max</code>]. <code>min</code> must be less than or
- * equal to <code>max</code>.
- *
- * @param v The vector to clamp.
- * @param min Minimum value.
- * @param max Maximum value.
- *
- * @return Clamped <code>v</code>.
- */
-const Vector4 clamp(const Vector4& v, float min, float max);
-
-/**
- * Clamps the components of <code>v</code> component-wise between
- * [<code>min</code>, <code>max</code>]. Each component of <code>min</code>
- * must be less than or equal to the corresponding component of
- * <code>max</code>.
- *
- * @param v The vector to clamp.
- * @param min Vector containing the component-wise minimum values.
- * @param max Vector containing the component-wise maximum values.
- *
- * @return Clamped <code>v</code>.
- */
-const Vector4 clamp(const Vector4& v, const Vector4& min, const Vector4& max);
-
-/**
- * Returns a vector containing the component-wise maximum values of
- * <code>v</code> and <code>k</code>.
- *
- * @param v The vector to compare.
- * @param k The scalar value to compare.
- *
- * @param Vector containing the component-wise maximum values of <code>v</code>
- * and <code>k</code>.
- */
-const Vector4 max(const Vector4& v, float k);
-
-/**
- * Returns a vector containing the component-wise maximum values of
- * <code>a</code> and <code>b</code>.
- *
- * @param a The first vector to compare.
- * @param b The second vector to compare.
- *
- * @param Vector containing the component-wise maximum values of <code>a</code>
- * and <code>b</code>.
- */
-const Vector4 max(const Vector4& a, const Vector4& b);
-
-/**
- * Returns a vector containing the component-wise minimum values of
- * <code>v</code> and <code>k</code>.
- *
- * @param v The vector to compare.
- * @param k The scalar value to compare.
- *
- * @param Vector containing the component-wise minimum values of <code>v</code>
- * and <code>k</code>.
- */
-const Vector4 min(const Vector4& v, float k);
-
-/**
- * Returns a vector containing the component-wise minimum values of
- * <code>a</code> and <code>b</code>.
- *
- * @param a The first vector to compare.
- * @param b The second vector to compare.
- *
- * @param Vector containing the component-wise minimum values of <code>a</code>
- * and <code>b</code>.
- */
-const Vector4 min(const Vector4& a, const Vector4& b);
-
-/**
  * Linear interpolation between two vectors.
  *
  * @param a Vector containing the values at <code>t == 0.0f</code>.
@@ -362,19 +163,6 @@ const Vector4 min(const Vector4& a, const Vector4& b);
  * @return <code>a + t * (b - a)</code>.
  */
 const Vector4 mix(const Vector4& a, const Vector4& b, float t);
-
-/**
- * Component-wise linear interpolation between two vectors.
- *
- * @param a Vector containing the values at
- * <code>t == Vector4(0.0f, 0.0f, 0.0f, 0.0f)</code>.
- * @param b Vector containing the values at
- * <code>t == Vector4(1.0f, 1.0f, 1.0f, 1.0f)</code>.
- * @param t Vector containing the component-wise weight coefficients.
- *
- * @return <code>a + t * (b - a)</code>.
- */
-const Vector4 mix(const Vector4& a, const Vector4& b, const Vector4& t);
 
 /**
  * Calculates a normalized vector. If the magnitude (length) of <code>v</code>
@@ -391,10 +179,12 @@ const Vector4 normalize(const Vector4& v);
  * Reflects a vector.
  *
  * @param v The vector to reflect.
- * @param normal Unit length reflection surface normal.
+ * @param n Unit length reflection surface normal.
  *
  * @return Reflected <code>v</code>.
  */
-const Vector4 reflect(const Vector4& v, const Vector4& normal);
+const Vector4 reflect(const Vector4& v, const Vector4& n);
+
+// TODO: const Vector4 refract(const Vector4& v, const Vector4& n, float k);
 
 #endif // #ifndef GEOMETRY_VECTOR4_H_INCLUDED

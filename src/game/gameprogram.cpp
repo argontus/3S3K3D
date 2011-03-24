@@ -48,6 +48,16 @@ GameProgram::GameProgram()
     cameraSpeedX    = 0;
     cameraSpeedY    = 0;
     cameraSpeedZ    = 0;
+
+//    const float a = Math::trunc( 0.0f);
+//    const float b = Math::trunc(-0.0f);
+//    const float c = Math::trunc( 0.5f);
+//    const float d = Math::trunc(-0.5f);
+//    const float e = Math::trunc( 1.0f);
+//    const float f = Math::trunc(-1.0f);
+//    const float g = Math::trunc( 1.5f);
+//    const float h = Math::trunc(-1.5f);
+//    const bool dummy = false;
 }
 
 int GameProgram::execute()
@@ -306,29 +316,29 @@ int GameProgram::execute()
 
 		if( keyboard.keyIsDown( Keyboard::KEY_D ) )
 		{
-            camera_->translateBy( deltaTime * camera_->rotation().row0() * speed );
+            camera_->translateBy( deltaTime * camera_->rotation().row(0) * speed );
 		}
 		else if( keyboard.keyIsDown( Keyboard::KEY_A ) )
         {
-            camera_->translateBy( deltaTime * camera_->rotation().row0() * -speed );
+            camera_->translateBy( deltaTime * camera_->rotation().row(0) * -speed );
         }
 
         if( keyboard.keyIsDown( Keyboard::KEY_Q) )
         {
-            camera_->translateBy(deltaTime * -speed * camera_->rotation().row1());
+            camera_->translateBy(deltaTime * -speed * camera_->rotation().row(1));
         }
         else if( keyboard.keyIsDown( Keyboard::KEY_E ) )
         {
-            camera_->translateBy(deltaTime * speed * camera_->rotation().row1());
+            camera_->translateBy(deltaTime * speed * camera_->rotation().row(1));
         }
 
         if( keyboard.keyIsDown( Keyboard::KEY_W) )
         {
-            camera_->translateBy(deltaTime * -speed * camera_->rotation().row2());
+            camera_->translateBy(deltaTime * -speed * camera_->rotation().row(2));
         }
         else if( keyboard.keyIsDown( Keyboard::KEY_S ) )
         {
-            camera_->translateBy(deltaTime * speed * camera_->rotation().row2());
+            camera_->translateBy(deltaTime * speed * camera_->rotation().row(2));
         }
 
 
@@ -348,7 +358,7 @@ int GameProgram::execute()
 
         if( deltaY != 0 && mouseBoundToScreen )
         {
-            camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row0(), deltaY * -rotationFactor));
+            camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor));
         }
 
         if( mouse.mouseButtonPressedInThisFrame( Mouse::MOUSEBUTTON_LEFT ) )
@@ -512,7 +522,7 @@ void GameProgram::render()
 
         for (int iFace = 0; iFace < mesh->numFaces(); ++iFace)
         {
-            const Vector3 n = product(mesh->normals()[3 * iFace], transform.rotation());
+            const Vector3 n = mesh->normals()[3 * iFace] * transform.rotation();
 
             Vector3 v0 = transform.applyForward(mesh->vertices()[3 * iFace + 0]);
             Vector3 v1 = transform.applyForward(mesh->vertices()[3 * iFace + 1]);
@@ -742,7 +752,8 @@ void GameProgram::render()
 
     if (rotateLights)
     {
-        lightRotation = Math::wrapTo2Pi(lightRotation + deltaTime * 0.125f);
+        //lightRotation = Math::wrapTo2Pi(lightRotation + deltaTime * 0.125f);
+        lightRotation = Math::mod(lightRotation + deltaTime * 0.125f, 2.0f * Math::pi());
     }
 
     if (drawExtents_)
@@ -800,7 +811,7 @@ void drawExtents(const Node* node, const DrawParams& params)
         7, 4
     };
 
-    const Matrix4x4 mvpMatrix = product(params.viewMatrix, params.projectionMatrix);
+    const Matrix4x4 mvpMatrix = params.viewMatrix * params.projectionMatrix;
 
     const GLint mvpMatrixLocation = params.shaderProgram->uniformLocation("mvp_matrix");
     glUniformMatrix4fv(mvpMatrixLocation, 1, false, mvpMatrix.data());

@@ -140,7 +140,7 @@ void Mesh::generateFlatNormals()
         Vector3 t = normalize(v1 - v0);
 
         // align tangent with the horizontal texture axis
-        t = normalize(product(t, Matrix3x3::rotation(n, -tCoordAngle)));
+        t = normalize(t * Matrix3x3::rotation(n, -tCoordAngle));
 
         normals_[i * 3 + 0] =
         normals_[i * 3 + 1] =

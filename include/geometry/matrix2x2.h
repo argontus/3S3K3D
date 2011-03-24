@@ -132,7 +132,8 @@ const Matrix2x2 operator /(const Matrix2x2& m, float k);
 float rotationAngle(const Matrix2x2& m);
 
 /**
- * Equivalent to <code>v * transpose(m)</code>.
+ * Equivalent to <code>v * transpose(m)</code>. This is intended as an
+ * optimization.
  *
  * @param v The vector to multiply.
  * @param m The matrix by whose transpose vector <code>v</code> is to be
@@ -167,7 +168,8 @@ const Matrix2x2 orthogonalize(const Matrix2x2& m);
 const Matrix2x2 slerp(const Matrix2x2& a, const Matrix2x2& b, float t);
 
 /**
- * Equivalent to <code>a * transpose(b)</code>.
+ * Equivalent to <code>a * transpose(b)</code>. This is intended as an
+ * optimization.
  *
  * @param a The matrix to multiply.
  * @param b The matrix by whose transpose matrix <code>a</code> is to be
@@ -187,7 +189,8 @@ const Matrix2x2 timesTranspose(const Matrix2x2& a, const Matrix2x2& b);
 const Matrix2x2 transpose(const Matrix2x2& m);
 
 /**
- * Equivalent to <code>transpose(a) * b</code>.
+ * Equivalent to <code>transpose(a) * b</code>. This is intended as an
+ * optimization.
  *
  * @param a The matrix whose transpose is to be multiplied.
  * @param b The matrix by which matrix <code>a</code> is to be multiplied with.

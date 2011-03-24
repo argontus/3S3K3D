@@ -24,44 +24,44 @@ public:
     static const Matrix3x3 identity();
 
     /**
+     * Gets a matrix that produces a rotation about an arbitrary axis.
+     *
+     * @param axis The axis to rotate about, must be unit length.
+     * @param angle Rotation, CCW about the given axis in radians.
+     *
+     * @return Matrix that produces a rotation about the given axis.
+     */
+    static const Matrix3x3 rotation(const Vector3& axis, float angle);
+
+    /**
      * Gets a matrix that produces a rotation about the x-axis.
      *
-     * @param rotation Rotation, CCW about the x-axis, in radians.
+     * @param angle Rotation, CCW about the x-axis, in radians.
      *
      * @return Matrix that produces a rotation about the x-axis.
      */
-    static const Matrix3x3 xRotation(float rotation);
+    static const Matrix3x3 xRotation(float angle);
 
     /**
      * Gets a matrix that produces a rotation about the y-axis.
      *
-     * @param rotation Rotation, CCW about the y-axis, in radians.
+     * @param angle Rotation, CCW about the y-axis, in radians.
      *
      * @return Matrix that produces a rotation about the y-axis.
      */
-    static const Matrix3x3 yRotation(float rotation);
+    static const Matrix3x3 yRotation(float angle);
 
     /**
      * Gets a matrix that produces a rotation about the z-axis.
      *
-     * @param rotation Rotation, CCW about the z-axis, in radians.
+     * @param angle Rotation, CCW about the z-axis, in radians.
      *
      * @return Matrix that produces a rotation about the z-axis.
      */
-    static const Matrix3x3 zRotation(float rotation);
+    static const Matrix3x3 zRotation(float angle);
 
-    /**
-     * Gets a matrix that produces a rotation about an arbitrary axis.
-     *
-     * @param axis The axis to rotate about, must be unit length.
-     * @param rotation Rotation, CCW about the given axis in radians.
-     *
-     * @return Matrix that produces a rotation about the given axis.
-     */
-    static const Matrix3x3 rotation(const Vector3& axis, float rotation);
-
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor, constructs an uninitialized matrix.
@@ -95,31 +95,15 @@ public:
      */
     Matrix3x3(const Vector3& row0, const Vector3& row1, const Vector3& row2);
 
-    // TODO: is this needed?
-    /**
-     * Gets the first row as a vector.
-     *
-     * @return The first row as a vector.
-     */
-    const Vector3 row0() const;
+    // the assignment operators are members to prevent implicit type
+    // conversions of the left hand side object
 
-    // TODO: is this needed?
-    /**
-     * Gets the second row as a vector.
-     *
-     * @return The second row as a vector.
-     */
-    const Vector3 row1() const;
+    Matrix3x3& operator +=(const Matrix3x3& m);
+    Matrix3x3& operator -=(const Matrix3x3& m);
+    Matrix3x3& operator *=(float k);
+    Matrix3x3& operator *=(const Matrix3x3& m);
+    Matrix3x3& operator /=(float k);
 
-    // TODO: is this needed?
-    /**
-     * Gets the third row as a vector.
-     *
-     * @return The third row as a vector.
-     */
-    const Vector3 row2() const;
-
-    // TODO: should this be a member?
     /**
      * Gets the element array.
      *
@@ -127,13 +111,21 @@ public:
      */
     float* data();
 
-    // TODO: should this be a member?
     /**
      * Provided for const-correctness.
      *
      * @see data()
      */
     const float* data() const;
+
+    /**
+     * Gets the specified row as a vector.
+     *
+     * @param index Index of the row to return, between [0, 2].
+     *
+     * @return The specified row as a vector.
+     */
+    const Vector3 row(int index) const;
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
@@ -160,26 +152,35 @@ public:
 GEOMETRY_STATIC_ASSERT(sizeof(Matrix3x3[2]) == sizeof(float) * 18);
 /// @endcond
 
-/**
- * Vector-matrix product.
- *
- * @param v Vector to transform by matrix <code>m</code>.
- * @param m Matrix by which vector <code>v</code> is to be transformed.
- *
- * @return <code>v</code> transformed by <code>m</code>.
- */
-const Vector3 product(const Vector3& v, const Matrix3x3& m);
+const Vector3 operator *(const Vector3& v, const Matrix3x3& m);
+
+const Matrix3x3 operator +(const Matrix3x3& a, const Matrix3x3& b);
+const Matrix3x3 operator -(const Matrix3x3& m);
+const Matrix3x3 operator -(const Matrix3x3& a, const Matrix3x3& b);
+const Matrix3x3 operator *(float k, const Matrix3x3& m);
+const Matrix3x3 operator *(const Matrix3x3& m, float k);
+const Matrix3x3 operator *(const Matrix3x3& a, const Matrix3x3& b);
+const Matrix3x3 operator /(const Matrix3x3& m, float k);
+
+// TODO: float determinant(const Matrix2x2& m);
+// TODO: float rotationAngle(const Matrix3x3& m);
+
+// TODO: const Vector3 rotationAxis(const Matrix3x3& m);
 
 /**
- * Equal to <code>product(v, transpose(m))</code>.
+ * Equivalent to <code>v * transpose(m)</code>. This is intended as an
+ * optimization.
  *
- * @param v Vector to transform by the transpose of matrix <code>m</code>.
- * @param m Matrix by whose transpose vector <code>v</code> is to be
- * transformed.
+ * @param v The vector to multiply.
+ * @param m The matrix by whose transpose vector <code>v</code> is to be
+ * multiplied with.
  *
- * @return <code>v</code> transformed by the transpose of <code>m</code>.
+ * @return <code>v</code> multiplied by the transpose of <code>m</code>.
  */
-const Vector3 productT(const Vector3& v, const Matrix3x3& m);
+const Vector3 timesTranspose(const Vector3& v, const Matrix3x3& m);
+
+// TODO: const Matrix3x3 adjoint(const Matrix3x3& m);
+// TODO: const Matrix3x3 inverse(const Matrix3x3& m);
 
 /**
  * Orthogonalizes a matrix by applying a Gram-Schmidt process to its rows.
@@ -190,26 +191,19 @@ const Vector3 productT(const Vector3& v, const Matrix3x3& m);
  */
 const Matrix3x3 orthogonalize(const Matrix3x3& m);
 
-/**
- * Matrix-matrix product.
- *
- * @param a Matrix to transform by matrix <code>b</code>.
- * @param b Matrix by which matrix <code>a</code> is to be transformed.
- *
- * @return <code>a</code> transformed by <code>b</code>.
- */
-const Matrix3x3 product(const Matrix3x3& a, const Matrix3x3& b);
+// TODO: const Matrix3x3 slerp(const Matrix3x3& a, const Matrix3x3& b, float t);
 
 /**
- * Equal to <code>product(a, transpose(b))</code>.
+ * Equivalent to <code>a * transpose(b)</code>. This is intended as an
+ * optimization.
  *
- * @param a Matrix to transform by the transpose of matrix <code>b</code>.
- * @param b Matrix by whose transpose matrix <code>a</code> is to be
- * transformed.
+ * @param a The matrix to multiply.
+ * @param b The matrix by whose transpose matrix <code>a</code> is to be
+ * multiplied with.
  *
- * @return <code>a</code> transformed by the transpose of <code>b</code>.
+ * @return <code>a</code> multiplied by the transpose of <code>b</code>.
  */
-const Matrix3x3 productT(const Matrix3x3& a, const Matrix3x3& b);
+const Matrix3x3 timesTranspose(const Matrix3x3& a, const Matrix3x3& b);
 
 /**
  * Calculates the transpose of a given matrix.
@@ -219,5 +213,16 @@ const Matrix3x3 productT(const Matrix3x3& a, const Matrix3x3& b);
  * @return The transpose of <code>m</code>.
  */
 const Matrix3x3 transpose(const Matrix3x3& m);
+
+/**
+ * Equivalent to <code>transpose(a) * b</code>. This is intended as an
+ * optimization.
+ *
+ * @param a The matrix whose transpose is to be multiplied.
+ * @param b The matrix by which matrix <code>a</code> is to be multiplied with.
+ *
+ * @return Transpose of <code>a</code> multiplied by <code>b</code>.
+ */
+const Matrix3x3 transposeTimes(const Matrix3x3& a, const Matrix3x3& b);
 
 #endif // #ifndef GEOMETRY_MATRIX3X3_H_INCLUDED

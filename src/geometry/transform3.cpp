@@ -103,7 +103,7 @@ void Transform3::transformBy(const Transform3& transform)
     GEOMETRY_RUNTIME_ASSERT(transform.scaling_ > 0.0f);
 
     translation_ = transform.applyForward(translation_);
-    rotation_ = product(rotation_, transform.rotation_);
+    rotation_ *= transform.rotation_;
     scaling_ *= transform.scaling_;
 }
 
@@ -129,7 +129,7 @@ void Transform3::setRotation(const Matrix3x3& rotation)
 
 void Transform3::rotateBy(const Matrix3x3& rotation)
 {
-    rotation_ = product(rotation_, rotation);
+    rotation_ *= rotation;
 }
 
 const Matrix3x3 Transform3::rotation() const
@@ -171,13 +171,13 @@ const Matrix4x4 Transform3::toMatrix4x4() const
 const Vector3 Transform3::applyForward(const Vector3& q) const
 {
     GEOMETRY_RUNTIME_ASSERT(scaling_ > 0.0f);
-    return product(scaling_ * q, rotation_) + translation_;
+    return (scaling_ * q) * rotation_ + translation_;
 }
 
 const Vector3 Transform3::applyInverse(const Vector3& q) const
 {
     GEOMETRY_RUNTIME_ASSERT(scaling_ > 0.0f);
-    return productT(q - translation_, rotation_) / scaling_;
+    return timesTranspose(q - translation_, rotation_) / scaling_;
 }
 
 void Transform3::swap(Transform3& other)
@@ -194,7 +194,7 @@ const Transform3 conversion(const Transform3& src, const Transform3& dst)
 
     return Transform3(
         dst.applyInverse(src.translation()),
-        productT(src.rotation(), dst.rotation()),
+        timesTranspose(src.rotation(), dst.rotation()),
         src.scaling() / dst.scaling()
     );
 }
@@ -206,7 +206,7 @@ const Transform3 product(const Transform3& a, const Transform3& b)
 
     return Transform3(
         b.applyForward(a.translation()),
-        product(a.rotation(), b.rotation()),
+        a.rotation() * b.rotation(),
         a.scaling() * b.scaling()
     );
 }
@@ -220,7 +220,7 @@ const Transform3 invert(const Transform3& t)
     const float invScaling = 1.0f / t.scaling();
 
     return Transform3(
-        product(-invScaling * t.translation(), invRotation),
+        (-invScaling * t.translation()) * invRotation,
         invRotation,
         invScaling
     );

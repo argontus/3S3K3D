@@ -6,7 +6,6 @@
 #include <geometry/matrix4x4.h>
 
 #include <geometry/math.h>
-#include <geometry/vector3.h>
 #include <geometry/vector4.h>
 
 const Matrix4x4 Matrix4x4::identity()
@@ -16,100 +15,6 @@ const Matrix4x4 Matrix4x4::identity()
         0.0f,  1.0f,  0.0f,  0.0f,
         0.0f,  0.0f,  1.0f,  0.0f,
         0.0f,  0.0f,  0.0f,  1.0f
-    );
-}
-
-const Matrix4x4 Matrix4x4::translation(const Vector3& t)
-{
-    return Matrix4x4(
-        1.0f,  0.0f,  0.0f,  0.0f,
-        0.0f,  1.0f,  0.0f,  0.0f,
-        0.0f,  0.0f,  1.0f,  0.0f,
-         t.x,   t.y,   t.z,  1.0f
-    );
-}
-
-const Matrix4x4 Matrix4x4::xRotation(const float rotation)
-{
-    const float c = Math::cos(rotation);
-    const float s = Math::sin(rotation);
-
-    return Matrix4x4(
-        1.0f,  0.0f,  0.0f,  0.0f,
-        0.0f,     c,     s,  0.0f,
-        0.0f,    -s,     c,  0.0f,
-        0.0f,  0.0f,  0.0f,  1.0f
-    );
-}
-
-const Matrix4x4 Matrix4x4::yRotation(const float rotation)
-{
-    const float c = Math::cos(rotation);
-    const float s = Math::sin(rotation);
-
-    return Matrix4x4(
-           c,  0.0f,    -s,  0.0f,
-        0.0f,  1.0f,  0.0f,  0.0f,
-           s,  0.0f,     c,  0.0f,
-        0.0f,  0.0f,  0.0f,  1.0f
-    );
-}
-
-const Matrix4x4 Matrix4x4::zRotation(const float rotation)
-{
-    const float c = Math::cos(rotation);
-    const float s = Math::sin(rotation);
-
-    return Matrix4x4(
-           c,     s,  0.0f,  0.0f,
-          -s,     c,  0.0f,  0.0f,
-        0.0f,  0.0f,  1.0f,  0.0f,
-        0.0f,  0.0f,  0.0f,  1.0f
-    );
-}
-
-const Matrix4x4 Matrix4x4::rotation(const Vector3& axis, const float rotation)
-{
-    // TODO: not tested, does this work?
-
-    const float c = Math::cos(rotation);
-    const float s = Math::sin(rotation);
-    const float k = 1.0f - c;
-
-    const float x = axis.x;
-    const float y = axis.y;
-    const float z = axis.z;
-
-    // let the compiler take care of common sub-expressions
-
-    return Matrix4x4(
-            x * x * k + c,  x * y * k + z * s,  x * z * k - y * s,  0.0f,
-        x * y * k - z * s,      y * y * k + c,  y * z * k + x * s,  0.0f,
-        x * z * k + y * s,  y * z * k - x * s,      z * z * k + c,  0.0f,
-                     0.0f,               0.0f,               0.0f,  1.0f
-    );
-}
-
-const Matrix4x4 Matrix4x4::scaling(const float s)
-{
-    return Matrix4x4(
-           s, 0.0f, 0.0f, 0.0f,
-        0.0f,    s, 0.0f, 0.0f,
-        0.0f, 0.0f,    s, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-    );
-}
-
-const Matrix4x4 Matrix4x4::scaling(
-    const float sx,
-    const float sy,
-    const float sz)
-{
-    return Matrix4x4(
-          sx, 0.0f, 0.0f, 0.0f,
-        0.0f,   sy, 0.0f, 0.0f,
-        0.0f, 0.0f,   sz, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
     );
 }
 
@@ -144,24 +49,37 @@ Matrix4x4::Matrix4x4(
     // ...
 }
 
-const Vector4 Matrix4x4::row0() const
+Matrix4x4& Matrix4x4::operator +=(const Matrix4x4& m)
 {
-    return Vector4(m00, m01, m02, m03);
+    *this = *this + m;
+    return *this;
 }
 
-const Vector4 Matrix4x4::row1() const
+Matrix4x4& Matrix4x4::operator -=(const Matrix4x4& m)
 {
-    return Vector4(m10, m11, m12, m13);
+    *this = *this - m;
+    return *this;
 }
 
-const Vector4 Matrix4x4::row2() const
+Matrix4x4& Matrix4x4::operator *=(const float k)
 {
-    return Vector4(m20, m21, m22, m23);
+    *this = *this * k;
+    return *this;
 }
 
-const Vector4 Matrix4x4::row3() const
+Matrix4x4& Matrix4x4::operator *=(const Matrix4x4& m)
 {
-    return Vector4(m30, m31, m32, m33);
+    *this = *this * m;
+    return *this;
+}
+
+Matrix4x4& Matrix4x4::operator /=(const float k)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
+
+    *this = *this / k;
+    return *this;
 }
 
 float* Matrix4x4::data()
@@ -172,6 +90,14 @@ float* Matrix4x4::data()
 const float* Matrix4x4::data() const
 {
     return &m00;
+}
+
+const Vector4 Matrix4x4::row(const int index) const
+{
+    GEOMETRY_RUNTIME_ASSERT(index >= 0 && index <= 3);
+
+    const float* const v = data() + 4 * index;
+    return Vector4(v[0], v[1], v[2], v[3]);
 }
 
 void Matrix4x4::swap(Matrix4x4& other)
@@ -197,7 +123,7 @@ void Matrix4x4::swap(Matrix4x4& other)
     Math::swap(m33, other.m33);
 }
 
-const Vector4 product(const Vector4& v, const Matrix4x4& m)
+const Vector4 operator *(const Vector4& v, const Matrix4x4& m)
 {
     return Vector4(
         v.x * m.m00 + v.y * m.m10 + v.z * m.m20 + v.w * m.m30,
@@ -207,51 +133,52 @@ const Vector4 product(const Vector4& v, const Matrix4x4& m)
     );
 }
 
-const Vector4 productT(const Vector4& v, const Matrix4x4& m)
+const Matrix4x4 operator +(const Matrix4x4& a, const Matrix4x4& b)
 {
-    return Vector4(
-        v.x * m.m00 + v.y * m.m01 + v.z * m.m02 + v.w * m.m03,
-        v.x * m.m10 + v.y * m.m11 + v.z * m.m12 + v.w * m.m13,
-        v.x * m.m20 + v.y * m.m21 + v.z * m.m22 + v.w * m.m23,
-        v.x * m.m30 + v.y * m.m31 + v.z * m.m32 + v.w * m.m33
+    return Matrix4x4(
+        a.m00 + b.m00, a.m01 + b.m01, a.m02 + b.m02, a.m03 + b.m03,
+        a.m10 + b.m10, a.m11 + b.m11, a.m12 + b.m12, a.m13 + b.m13,
+        a.m20 + b.m20, a.m21 + b.m21, a.m22 + b.m22, a.m23 + b.m23,
+        a.m30 + b.m30, a.m31 + b.m31, a.m32 + b.m32, a.m33 + b.m33
     );
 }
 
-const Matrix4x4 orthogonalize(const Matrix4x4& m)
+const Matrix4x4 operator -(const Matrix4x4& m)
 {
-    // TODO: In the worst case scenario, this could construct a matrix where
-    // one or more rows are incorrectly set to Vector4(1.0f, 0.0f, 0.0f, 0.0f)
-    // because of how normalize(const Vector4&) is implemented. Should this
-    // function check for division by zero instead of relying on the default
-    // behavior of vector normalization?
-
-    const Vector4 x = normalize(m.row0());
-
-    Vector4 y = m.row1();
-
-    // extract the part that is parallel to x and normalize
-    y -= x * dot(y, x);
-    y = normalize(y);
-
-    Vector4 z = m.row2();
-
-    // extract the parts that are parallel to x and y and normalize
-    z -= x * dot(z, x);
-    z -= y * dot(z, y);
-    z = normalize(z);
-
-    Vector4 w = m.row3();
-
-    // extract the parts that are parallel to x, y and z and normalize
-    w -= x * dot(w, x);
-    w -= y * dot(w, y);
-    w -= z * dot(w, z);
-    w = normalize(w);
-
-    return Matrix4x4(x, y, z, w);
+    return Matrix4x4(
+        -m.m00, -m.m01, -m.m02, -m.m03,
+        -m.m10, -m.m11, -m.m12, -m.m13,
+        -m.m20, -m.m21, -m.m22, -m.m23,
+        -m.m30, -m.m31, -m.m32, -m.m33
+    );
 }
 
-const Matrix4x4 product(const Matrix4x4& a, const Matrix4x4& b)
+const Matrix4x4 operator -(const Matrix4x4& a, const Matrix4x4& b)
+{
+    return Matrix4x4(
+        a.m00 - b.m00, a.m01 - b.m01, a.m02 - b.m02, a.m03 - b.m03,
+        a.m10 - b.m10, a.m11 - b.m11, a.m12 - b.m12, a.m13 - b.m13,
+        a.m20 - b.m20, a.m21 - b.m21, a.m22 - b.m22, a.m23 - b.m23,
+        a.m30 - b.m30, a.m31 - b.m31, a.m32 - b.m32, a.m33 - b.m33
+    );
+}
+
+const Matrix4x4 operator *(const float k, const Matrix4x4& m)
+{
+    return Matrix4x4(
+        k * m.m00, k * m.m01, k * m.m02, k * m.m03,
+        k * m.m10, k * m.m11, k * m.m12, k * m.m13,
+        k * m.m20, k * m.m21, k * m.m22, k * m.m23,
+        k * m.m30, k * m.m31, k * m.m32, k * m.m33
+    );
+}
+
+const Matrix4x4 operator *(const Matrix4x4& m, const float k)
+{
+    return k * m;
+}
+
+const Matrix4x4 operator *(const Matrix4x4& a, const Matrix4x4& b)
 {
     return Matrix4x4(
         a.m00 * b.m00 + a.m01 * b.m10 + a.m02 * b.m20 + a.m03 * b.m30,
@@ -276,7 +203,64 @@ const Matrix4x4 product(const Matrix4x4& a, const Matrix4x4& b)
     );
 }
 
-const Matrix4x4 productT(const Matrix4x4& a, const Matrix4x4& b)
+const Matrix4x4 operator /(const Matrix4x4& m, const float k)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
+
+    return Matrix4x4(
+        m.m00 / k, m.m01 / k, m.m02 / k, m.m03 / k,
+        m.m10 / k, m.m11 / k, m.m12 / k, m.m13 / k,
+        m.m20 / k, m.m21 / k, m.m22 / k, m.m23 / k,
+        m.m30 / k, m.m31 / k, m.m32 / k, m.m33 / k
+    );
+}
+
+const Vector4 timesTranspose(const Vector4& v, const Matrix4x4& m)
+{
+    return Vector4(
+        v.x * m.m00 + v.y * m.m01 + v.z * m.m02 + v.w * m.m03,
+        v.x * m.m10 + v.y * m.m11 + v.z * m.m12 + v.w * m.m13,
+        v.x * m.m20 + v.y * m.m21 + v.z * m.m22 + v.w * m.m23,
+        v.x * m.m30 + v.y * m.m31 + v.z * m.m32 + v.w * m.m33
+    );
+}
+
+const Matrix4x4 orthogonalize(const Matrix4x4& m)
+{
+    // TODO: In the worst case scenario, this could construct a matrix where
+    // one or more rows are incorrectly set to Vector4(1.0f, 0.0f, 0.0f, 0.0f)
+    // because of how normalize(const Vector4&) is implemented. Should this
+    // function check for division by zero instead of relying on the default
+    // behavior of vector normalization?
+
+    const Vector4 x = normalize(m.row(0));
+
+    Vector4 y = m.row(1);
+
+    // extract the part that is parallel to x and normalize
+    y -= x * dot(y, x);
+    y = normalize(y);
+
+    Vector4 z = m.row(2);
+
+    // extract the parts that are parallel to x and y and normalize
+    z -= x * dot(z, x);
+    z -= y * dot(z, y);
+    z = normalize(z);
+
+    Vector4 w = m.row(3);
+
+    // extract the parts that are parallel to x, y and z and normalize
+    w -= x * dot(w, x);
+    w -= y * dot(w, y);
+    w -= z * dot(w, z);
+    w = normalize(w);
+
+    return Matrix4x4(x, y, z, w);
+}
+
+const Matrix4x4 timesTranspose(const Matrix4x4& a, const Matrix4x4& b)
 {
     return Matrix4x4(
         a.m00 * b.m00 + a.m01 * b.m01 + a.m02 * b.m02 + a.m03 * b.m03,
@@ -308,5 +292,30 @@ const Matrix4x4 transpose(const Matrix4x4& m)
         m.m01, m.m11, m.m21, m.m31,
         m.m02, m.m12, m.m22, m.m32,
         m.m03, m.m13, m.m23, m.m33
+    );
+}
+
+const Matrix4x4 transposeTimes(const Matrix4x4& a, const Matrix4x4& b)
+{
+    return Matrix4x4(
+        a.m00 * b.m00 + a.m10 * b.m10 + a.m20 * b.m20 + a.m30 * b.m30,
+        a.m00 * b.m01 + a.m10 * b.m11 + a.m20 * b.m21 + a.m30 * b.m31,
+        a.m00 * b.m02 + a.m10 * b.m12 + a.m20 * b.m22 + a.m30 * b.m32,
+        a.m00 * b.m03 + a.m10 * b.m13 + a.m20 * b.m23 + a.m30 * b.m33,
+
+        a.m01 * b.m00 + a.m11 * b.m10 + a.m21 * b.m20 + a.m31 * b.m30,
+        a.m01 * b.m01 + a.m11 * b.m11 + a.m21 * b.m21 + a.m31 * b.m31,
+        a.m01 * b.m02 + a.m11 * b.m12 + a.m21 * b.m22 + a.m31 * b.m32,
+        a.m01 * b.m03 + a.m11 * b.m13 + a.m21 * b.m23 + a.m31 * b.m33,
+
+        a.m02 * b.m00 + a.m12 * b.m10 + a.m22 * b.m20 + a.m32 * b.m30,
+        a.m02 * b.m01 + a.m12 * b.m11 + a.m22 * b.m21 + a.m32 * b.m31,
+        a.m02 * b.m02 + a.m12 * b.m12 + a.m22 * b.m22 + a.m32 * b.m32,
+        a.m02 * b.m03 + a.m12 * b.m13 + a.m22 * b.m23 + a.m32 * b.m33,
+
+        a.m03 * b.m00 + a.m13 * b.m10 + a.m23 * b.m20 + a.m33 * b.m30,
+        a.m03 * b.m01 + a.m13 * b.m11 + a.m23 * b.m21 + a.m33 * b.m31,
+        a.m03 * b.m02 + a.m13 * b.m12 + a.m23 * b.m22 + a.m33 * b.m32,
+        a.m03 * b.m03 + a.m13 * b.m13 + a.m23 * b.m23 + a.m33 * b.m33
     );
 }
