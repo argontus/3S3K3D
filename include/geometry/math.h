@@ -86,7 +86,7 @@ float radians(float degrees);
  * @param x Value whose arc cosine is to be calculated, this is silently
  * clamped between [-1, 1].
  *
- * @return An angle whose cosine is <code>x</code>.
+ * @return An angle whose cosine is <code>x</code>, between [0, pi].
  */
 float acos(float x);
 
@@ -96,7 +96,7 @@ float acos(float x);
  * @param x Value whose arc sine is to be calculated, this is silently clamped
  * between [-1, 1].
  *
- * @return An angle whose sine is <code>x</code>.
+ * @return An angle whose sine is <code>x</code>, between [-pi/2, pi/2].
  */
 float asin(float x);
 
