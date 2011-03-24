@@ -83,6 +83,10 @@
 		<Unit filename="..\..\src\geometry\plane3.cpp" />
 		<Unit filename="..\..\src\geometry\ray2.cpp" />
 		<Unit filename="..\..\src\geometry\ray3.cpp" />
+		<Unit filename="..\..\src\geometry\shape\circleshape.cpp" />
+		<Unit filename="..\..\src\geometry\shape\compositeshape.cpp" />
+		<Unit filename="..\..\src\geometry\shape\intersectiontests.cpp" />
+		<Unit filename="..\..\src\geometry\shape\polygonshape.cpp" />
 		<Unit filename="..\..\src\geometry\sphere.cpp" />
 		<Unit filename="..\..\src\geometry\transform2.cpp" />
 		<Unit filename="..\..\src\geometry\transform3.cpp" />
