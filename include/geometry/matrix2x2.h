@@ -131,6 +131,7 @@ const Matrix2x2 operator /(const Matrix2x2& m, float k);
  */
 float rotationAngle(const Matrix2x2& m);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>v * transpose(m)</code>. This is intended as an
  * optimization.
@@ -167,6 +168,7 @@ const Matrix2x2 orthogonalize(const Matrix2x2& m);
  */
 const Matrix2x2 slerp(const Matrix2x2& a, const Matrix2x2& b, float t);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>a * transpose(b)</code>. This is intended as an
  * optimization.
@@ -188,6 +190,7 @@ const Matrix2x2 timesTranspose(const Matrix2x2& a, const Matrix2x2& b);
  */
 const Matrix2x2 transpose(const Matrix2x2& m);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>transpose(a) * b</code>. This is intended as an
  * optimization.

@@ -167,6 +167,7 @@ const Matrix3x3 operator /(const Matrix3x3& m, float k);
 
 // TODO: const Vector3 rotationAxis(const Matrix3x3& m);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>v * transpose(m)</code>. This is intended as an
  * optimization.
@@ -193,6 +194,7 @@ const Matrix3x3 orthogonalize(const Matrix3x3& m);
 
 // TODO: const Matrix3x3 slerp(const Matrix3x3& a, const Matrix3x3& b, float t);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>a * transpose(b)</code>. This is intended as an
  * optimization.
@@ -214,6 +216,7 @@ const Matrix3x3 timesTranspose(const Matrix3x3& a, const Matrix3x3& b);
  */
 const Matrix3x3 transpose(const Matrix3x3& m);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>transpose(a) * b</code>. This is intended as an
  * optimization.

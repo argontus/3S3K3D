@@ -81,6 +81,7 @@ public:
  */
 const Vector3 transform(const Vector3& q, const Transform3& t);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>transform(q, inverse(t))</code>. This is intended as an
  * optimization. The order of application is negative translation first,
@@ -140,6 +141,7 @@ const Transform3 inverse(const Transform3& t);
  */
 const Transform3 transform(const Transform3& a, const Transform3& b);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>transform(a, inverse(b))</code>. This is intended as an
  * optimization.
@@ -152,6 +154,7 @@ const Transform3 transform(const Transform3& a, const Transform3& b);
  */
 const Transform3 transformByInverse(const Transform3& a, const Transform3& b);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>transform(inverse(a), b)</code>. This is intended as an
  * optimization.

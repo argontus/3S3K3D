@@ -148,6 +148,7 @@ const Matrix4x4 operator /(const Matrix4x4& m, float k);
 
 // TODO: float determinant(const Matrix4x4& m);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>v * transpose(m)</code>. This is intended as an
  * optimization.
@@ -172,6 +173,7 @@ const Vector4 timesTranspose(const Vector4& v, const Matrix4x4& m);
  */
 const Matrix4x4 orthogonalize(const Matrix4x4& m);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>a * transpose(b)</code>. This is intended as an
  * optimization.
@@ -193,6 +195,7 @@ const Matrix4x4 timesTranspose(const Matrix4x4& a, const Matrix4x4& b);
  */
 const Matrix4x4 transpose(const Matrix4x4& m);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>transpose(a) * b</code>. This is intended as an
  * optimization.

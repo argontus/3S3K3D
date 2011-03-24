@@ -81,6 +81,7 @@ public:
  */
 const Vector2 transform(const Vector2& q, const Transform2& t);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>transform(q, inverse(t))</code>. This is intended as an
  * optimization. The order of application is negative translation first,
@@ -149,6 +150,7 @@ const Transform2 slerp(const Transform2& a, const Transform2& b, float t);
  */
 const Transform2 transform(const Transform2& a, const Transform2& b);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>transform(a, inverse(b))</code>. This is intended as an
  * optimization.
@@ -161,6 +163,7 @@ const Transform2 transform(const Transform2& a, const Transform2& b);
  */
 const Transform2 transformByInverse(const Transform2& a, const Transform2& b);
 
+// TODO: is this needed?
 /**
  * Equivalent to <code>transform(inverse(a), b)</code>. This is intended as an
  * optimization.
