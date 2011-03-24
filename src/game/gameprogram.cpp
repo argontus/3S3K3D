@@ -12,7 +12,6 @@
 // TODO: REALLY quick & dirty
 #include <geometry/math.h>
 #include <geometry/transform2.h>
-#include <geometry/vector3array.h>
 #include <graphics/color.h>
 #include <graphics/colorarray.h>
 #include <graphics/indexarray.h>
@@ -446,7 +445,7 @@ void GameProgram::render()
     drawParams.viewMatrix = camera_->worldToViewMatrix();
     // TODO: load projection matrix directly to the shader?
     drawParams.projectionMatrix = camera_->projectionMatrix();
-    drawParams.worldToViewRotation = transpose(camera_->worldTransform().rotation());
+    drawParams.worldToViewRotation = transpose(camera_->worldTransform().rotation);
     drawParams.cameraToWorld = camera_->worldTransform();
 
     drawParams.shaderProgram = shaderProgramManager_.getResource("unlit");
@@ -522,11 +521,11 @@ void GameProgram::render()
 
         for (int iFace = 0; iFace < mesh->numFaces(); ++iFace)
         {
-            const Vector3 n = mesh->normals()[3 * iFace] * transform.rotation();
+            const Vector3 n = mesh->normals()[3 * iFace] * transform.rotation;
 
-            Vector3 v0 = transform.applyForward(mesh->vertices()[3 * iFace + 0]);
-            Vector3 v1 = transform.applyForward(mesh->vertices()[3 * iFace + 1]);
-            Vector3 v2 = transform.applyForward(mesh->vertices()[3 * iFace + 2]);
+            Vector3 v0 = ::transform(mesh->vertices()[3 * iFace + 0], transform);
+            Vector3 v1 = ::transform(mesh->vertices()[3 * iFace + 1], transform);
+            Vector3 v2 = ::transform(mesh->vertices()[3 * iFace + 2], transform);
 
             // TODO: these do not avoid division by zero
             const Vector3 lightV0 = normalize(v0 - lightPosition_);
@@ -634,11 +633,17 @@ void GameProgram::render()
 
     static float lightRotation = 0.0f;
 
-    Transform3::yRotation(lightRotation).applyForward(lightPositions, lightPositions + 3, lightPositions);
+    const Transform3 t(
+        Vector3::zero(),
+        Matrix3x3::yRotation(lightRotation),
+        1.0f
+    );
+
+    transform(lightPositions, lightPositions + 3, lightPositions, t);
 
     lightPosition_ = lightPositions[0];
 
-    camera_->worldTransform().applyInverse(lightPositions, lightPositions + 3, lightPositions);
+    transform(lightPositions, lightPositions + 3, lightPositions, inverse(camera_->worldTransform()));
 
     const Vector3 lightColors[] = {
         Vector3(2.00f, 2.00f, 2.00f),
@@ -867,7 +872,7 @@ Mesh* createBox(const float dx, const float dy, const float dz)
         Vector2(0.0f, 1.0f)
     };
 
-    Vector3Array coords(36);
+    std::vector<Vector3> coords(36);
     // front
     coords[ 0] = _coords[0];
     coords[ 1] = _coords[1];
@@ -911,7 +916,7 @@ Mesh* createBox(const float dx, const float dy, const float dz)
     coords[34] = _coords[6];
     coords[35] = _coords[7];
 
-    Vector2Array texCoords(36);
+    std::vector<Vector2> texCoords(36);
     // front
     texCoords[ 0] = _texCoords[0];
     texCoords[ 1] = _texCoords[1];

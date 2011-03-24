@@ -77,10 +77,10 @@ const Matrix4x4 CameraNode::projectionMatrix() const
 const Matrix4x4 CameraNode::worldToViewMatrix() const
 {
     // construct the world to view transform, reset scaling just in case
-    Transform3 t = invert(worldTransform());
-    t.setScaling(1.0f);
+    Transform3 t = inverse(worldTransform());
+    t.scaling = 1.0f;
 
-    return t.toMatrix4x4();
+    return toMatrix4x4(t);
 }
 
 CameraNode* CameraNode::clone() const

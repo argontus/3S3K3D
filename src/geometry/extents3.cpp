@@ -186,7 +186,7 @@ const Extents3 transform(const Extents3& x, const Transform3& t)
         Vector3(x.max.x, x.max.y, x.max.z)
     };
 
-    t.applyForward(vertices, vertices + 8, vertices);
+    transform(vertices, vertices + 8, vertices, t);
 
     return Extents3(vertices, vertices + 8);
 }

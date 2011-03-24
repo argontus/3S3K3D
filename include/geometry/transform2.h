@@ -24,37 +24,10 @@ public:
      *
      * @return The identity transform.
      */
-    static const Transform2& identity();
+    static const Transform2 identity();
 
-    /**
-     * Gets a transform that produces a translation.
-     *
-     * @param translation Translation.
-     *
-     * @return Transform that produces a translation.
-     */
-    static const Transform2 translation(const Vector2& translation);
-
-    /**
-     * Gets a transform that produces a rotation about the z-axis.
-     *
-     * @param rotation Rotation, CCW about the z-axis, in radians.
-     *
-     * @return Transform that produces a rotation about the z-axis.
-     */
-    static const Transform2 rotation(float rotation);
-
-    /**
-     * Gets a transform that produces a uniform scaling.
-     *
-     * @param scaling Uniform scale factor, must be > 0.
-     *
-     * @return Transform that produces a uniform scaling.
-     */
-    static const Transform2 scaling(float scaling);
-
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor, constructs an identity transform.
@@ -65,137 +38,14 @@ public:
      * Constructor.
      *
      * @param translation Translation.
-     * @param rotation Rotation, CCW about the z-axis in radians.
-     * @param scaling Uniform scaling factor, must be > 0.
+     * @param rotation Rotation, this is assumed to be a valid rotation matrix.
+     * @param scaling Uniform scaling factor, this is assumed to be greater
+     * than zero.
      */
-    Transform2(const Vector2& translation, float rotation, float scaling);
-
-    /**
-     * Applies a given transform to this transform.
-     *
-     * @param transform The transform to apply.
-     */
-    void transformBy(const Transform2& transform);
-
-    /**
-     * Sets the translation.
-     *
-     * @param translation The translation to set.
-     */
-    void setTranslation(const Vector2& translation);
-
-    /**
-     * Applies a translation to this transform.
-     *
-     * @param translation The translation to apply.
-     */
-    void translateBy(const Vector2& translation);
-
-    /**
-     * Gets the translation.
-     *
-     * @return Translation.
-     */
-    const Vector2 translation() const;
-
-    /**
-     * Sets the rotation.
-     *
-     * @param rotation The rotation to set, CCW about the z-axis in radians.
-     */
-    void setRotation(float rotation);
-
-    /**
-     * Applies a rotation to this transform.
-     *
-     * @param rotation The rotation to apply, CCW about the z-axis in radians.
-     */
-    void rotateBy(float rotation);
-
-    /**
-     * Gets the rotation.
-     *
-     * @return Rotation, CCW about the z-axis in radians, always between
-     * [0, 2*pi).
-     */
-    float rotation() const;
-
-    /**
-     * Sets the scaling.
-     *
-     * @param scaling The scaling to set, must be > 0.
-     */
-    void setScaling(float scaling);
-
-    /**
-     * Applies a scaling to this transform.
-     *
-     * @param scaling The scaling to apply, must be > 0.
-     */
-    void scaleBy(float scaling);
-
-    /**
-     * Gets the scaling.
-     *
-     * @return Scaling.
-     */
-    float scaling() const;
-
-    /**
-     * Gets a 4x4 matrix that produces a transform equal to this.
-     *
-     * @return A 4x4 matrix that produces a transform equal to this.
-     */
-    const Matrix4x4 toMatrix4x4() const;
-
-    /**
-     * Applies this transform to a single point. The order of application is
-     * scaling first, rotation second and translation third.
-     *
-     * @param q The point to transform.
-     *
-     * @return The transformed point.
-     */
-    const Vector2 applyForward(const Vector2& q) const;
-
-    /**
-     * Applies the inverse of this transform to a single point. The order of
-     * application is negative translation first, inverse rotation second and
-     * inverse scaling third.
-     *
-     * @param q The point to transform.
-     *
-     * @return The transformed point.
-     */
-    const Vector2 applyInverse(const Vector2& q) const;
-
-    /**
-     * Applies this transform to a set of points. This transform is applied to
-     * all points in range [<code>first</code>, <code>last</code>). Each
-     * transformed point is stored in the range beginning at
-     * <code>result</code>. The order of application is scaling first, rotation
-     * second and translation third.
-     *
-     * @param first Input iterator, the first in source range.
-     * @param last Input iterator, one beyond the last in source range.
-     * @param result Output iterator, the first in destination range.
-     */
-    template <class In, class Out>
-    void applyForward(In first, In last, Out result) const;
-
-    /**
-     * Applies the inverse of this transform to a set of points. The inverse of
-     * this transform is applied to all points in range [<code>first</code>,
-     * <code>last</code>). Each transformed point is stored in the range
-     * beginning at <code>result</code>. The order of application is negative
-     * translation first, inverse rotation second and inverse scaling third.
-     *
-     * @param first Input iterator, the first in source range.
-     * @param last Input iterator, one beyond the last in source range.
-     * @param result Output iterator, the first in destination range.
-     */
-    template <class In, class Out>
-    void applyInverse(In first, In last, Out result) const;
+    Transform2(
+        const Vector2& translation,
+        const Matrix2x2& rotation,
+        float scaling);
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
@@ -204,36 +54,69 @@ public:
      */
     void swap(Transform2& other);
 
-private:
-    Vector2 translation_;   ///< Translation.
-    float rotation_;        ///< Rotation, CCW about the z-axis in radians.
-    float scaling_;         ///< Uniform scale factor, must be > 0.
+    /**
+     * Translation.
+     */
+    Vector2 translation;
+
+    /**
+     * Rotation, this is assumed to be a valid rotation matrix.
+     */
+    Matrix2x2 rotation;
+
+    /**
+     * Uniform scale factor, this is assumed to be greater than zero.
+     */
+    float scaling;
 };
 
-// TODO: is the documentation for this function understandable?
 /**
- * Calculates a conversion between local spaces of two transforms.
+ * Transforms <code>q</code> by <code>t</code>. The order of application is
+ * scaling first, rotation second and translation third.
  *
- * @param src Source space transformation.
- * @param dst Destination space transformation.
+ * @param q The point to transform.
+ * @param t The transform to apply.
  *
- * @return Transform that produces a conversion from local space of
- * <code>src</code> to local space of <code>dst</code>, that is, transform
- * <code>t</code> such as <code>t.applyForward(v)</code> is equal to
- * <code>dst.applyInverse(src.applyForward(v))</code>.
+ * @return The transformed point.
  */
-const Transform2 conversion(const Transform2& src, const Transform2& dst);
+const Vector2 transform(const Vector2& q, const Transform2& t);
 
 /**
- * Calculates a combined transform of two transforms.
+ * Equivalent to <code>transform(q, inverse(t))</code>. This is intended as an
+ * optimization. The order of application is negative translation first,
+ * inverse rotation second and inverse scaling third.
  *
- * @param a The first transformation to apply.
- * @param b The second transformation to apply.
+ * @param q The point to transform.
+ * @param t The transform whose inverse is to be applied.
  *
- * @return Transform <code>t</code> such as <code>t.applyForward(v)</code> is
- * equal to <code>b.applyForward(a.applyForward(v))</code>.
+ * @return The transformed point.
  */
-const Transform2 product(const Transform2& a, const Transform2& b);
+const Vector2 transformByInverse(const Vector2& q, const Transform2& t);
+
+/**
+ * Transforms all items in the range [<code>first</code>, <code>last</code>) by
+ * <code>t</code>.
+ *
+ * @param first Iterator pointing to the first item to transform.
+ * @param last Iterator pointing one beyond the last item to transform.
+ * @param dst Iterator pointing to the first item in the destination sequence.
+ * This can be equal to <code>first</code>.
+ * @param t The transform to apply.
+ *
+ * @return An iterator pointing to the item that follows the last item written
+ * in the destination sequence.
+ */
+template <class In, class Out>
+Out transform(In first, In last, Out dst, const Transform2& t);
+
+/**
+ * Gets a 4x4 matrix that produces a transform equivalent to <code>t</code>.
+ *
+ * @param t A transform.
+ *
+ * @return A 4x4 matrix that produces a transform equivalent to <code>t</code>.
+ */
+const Matrix4x4 toMatrix4x4(const Transform2& t);
 
 /**
  * Calculates the inverse transform of a given transform.
@@ -242,38 +125,68 @@ const Transform2 product(const Transform2& a, const Transform2& b);
  *
  * @return The inverse transform of <code>t</code>.
  */
-const Transform2 invert(const Transform2& t);
+const Transform2 inverse(const Transform2& t);
+
+/**
+ * Spherical linear interpolation between two transforms.
+ *
+ * @param a Transform at <code>t == 0.0f</code>.
+ * @param b Transform at <code>t == 1.0f</code>.
+ * @param t Weight coefficient.
+ *
+ * @return The interpolated transform.
+ */
+const Transform2 slerp(const Transform2& a, const Transform2& b, float t);
+
+/**
+ * Transforms <code>a</code> by <code>b</code>.
+ *
+ * @param a A transform.
+ * @param b A transform.
+ *
+ * @return Transform <code>t</code> such as <code>transform(x, t)</code> is
+ * equivalent to <code>transform(transform(x, a), b)</code>.
+ */
+const Transform2 transform(const Transform2& a, const Transform2& b);
+
+/**
+ * Equivalent to <code>transform(a, inverse(b))</code>. This is intended as an
+ * optimization.
+ *
+ * @param a A transform.
+ * @param b A transform.
+ *
+ * @return Transform <code>t</code> such as <code>transform(x, t)</code> is
+ * equivalent to <code>transform(transform(x, a), inverse(b))</code>.
+ */
+const Transform2 transformByInverse(const Transform2& a, const Transform2& b);
+
+/**
+ * Equivalent to <code>transform(inverse(a), b)</code>. This is intended as an
+ * optimization.
+ *
+ * @param a A transform.
+ * @param b A transform.
+ *
+ * @return Transform <code>t</code> such as <code>transform(x, t)</code> is
+ * equivalent to <code>transform(transform(x, inverse(a)), b)</code>.
+ */
+const Transform2 transformInverseBy(const Transform2& a, const Transform2& b);
 
 template <class In, class Out>
-void Transform2::applyForward(In first, const In last, Out result) const
+Out transform(In first, const In last, Out dst, const Transform2& t)
 {
-    GEOMETRY_RUNTIME_ASSERT(scaling_ > 0.0f);
-
-    const Matrix2x2 rotation = Matrix2x2::rotation(rotation_);
+    GEOMETRY_RUNTIME_ASSERT(t.scaling > 0.0f);
 
     while (first != last)
     {
-        *result = (scaling_ * *first) * rotation + translation_;
+        *dst = transform(*first, t);
 
         ++first;
-        ++result;
+        ++dst;
     }
-}
 
-template <class In, class Out>
-void Transform2::applyInverse(In first, const In last, Out result) const
-{
-    GEOMETRY_RUNTIME_ASSERT(scaling_ > 0.0f);
-
-    const Matrix2x2 rotation = Matrix2x2::rotation(rotation_);
-
-    while (first != last)
-    {
-        *result = timesTranspose(*first - translation_, rotation) / scaling_;
-
-        ++first;
-        ++result;
-    }
+    return dst;
 }
 
 #endif // #ifndef GEOMETRY_TRANSFORM2_H_INCLUDED

@@ -75,8 +75,8 @@ void VisibilityTest::initOrthographic(
     GRAPHICS_RUNTIME_ASSERT(s.type == ProjectionType::Orthographic);
 
     // camera position and rotation in world space
-    const Vector3 position = t.translation();
-    const Matrix3x3 rotation = t.rotation();
+    const Vector3 position = t.translation;
+    const Matrix3x3 rotation = t.rotation;
 
     // direction, right and up axes
     const Vector3 d = -rotation.row(2);
@@ -108,8 +108,8 @@ void VisibilityTest::initPerspective(
     GRAPHICS_RUNTIME_ASSERT(s.near < s.far);
 
     // camera position and rotation in world space
-    const Vector3 position = t.translation();
-    const Matrix3x3 rotation = t.rotation();
+    const Vector3 position = t.translation;
+    const Matrix3x3 rotation = t.rotation;
 
     // direction, right and up axes
     const Vector3 d = -rotation.row(2);

@@ -6,7 +6,6 @@
 #include <graphics/meshnode.h>
 
 #include <geometry/matrix4x4.h>
-#include <geometry/vector3array.h>
 
 #include <graphics/drawparams.h>
 #include <graphics/groupnode.h>
@@ -43,7 +42,9 @@ MeshNode::MeshNode(const MeshNode& other)
 void MeshNode::updateModelExtents()
 {
     GRAPHICS_RUNTIME_ASSERT(mesh_ != 0);
-    modelExtents_ = mesh_->vertices().extents();
+
+    const std::vector<Vector3>& vertices = mesh_->vertices();
+    modelExtents_ = Extents3(vertices.begin(), vertices.end());
     invalidateWorldExtents();
 }
 
@@ -98,17 +99,17 @@ void MeshNode::draw(const DrawParams& params) const
 {
     GRAPHICS_RUNTIME_ASSERT(mesh_ != 0);
 
-    const Vector3Array& coords = mesh_->vertices();
-    const Vector3Array& normals = mesh_->normals();
-    const Vector3Array& tangents = mesh_->tangents();
-    const Vector2Array& texCoords = mesh_->texCoords();
+    const std::vector<Vector3>& coords = mesh_->vertices();
+    const std::vector<Vector3>& normals = mesh_->normals();
+    const std::vector<Vector3>& tangents = mesh_->tangents();
+    const std::vector<Vector2>& texCoords = mesh_->texCoords();
 
     GRAPHICS_RUNTIME_ASSERT(coords.size() == normals.size());
     GRAPHICS_RUNTIME_ASSERT(coords.size() == tangents.size());
     GRAPHICS_RUNTIME_ASSERT(coords.size() == texCoords.size());
 
-    const Matrix4x4 modelViewMatrix = conversion(worldTransform(), params.cameraToWorld).toMatrix4x4();
-    const Matrix3x3 normalMatrix = worldTransform().rotation() * params.worldToViewRotation;
+    const Matrix4x4 modelViewMatrix = toMatrix4x4(transformByInverse(worldTransform(), params.cameraToWorld));
+    const Matrix3x3 normalMatrix = worldTransform().rotation * params.worldToViewRotation;
 
     params.shaderProgram->setUniformMatrix4x4fv(
         "modelViewMatrix",
@@ -133,19 +134,19 @@ void MeshNode::draw(const DrawParams& params) const
     );
 
     const GLint coordLocation = params.shaderProgram->attribLocation("coord");
-    glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords.componentData());
+    glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords[0].data());
     glEnableVertexAttribArray(coordLocation);
 
     const GLint normalLocation = params.shaderProgram->attribLocation("normal");
-    glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, 0, normals.componentData());
+    glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, 0, normals[0].data());
     glEnableVertexAttribArray(normalLocation);
 
     const GLint tangentLocation = params.shaderProgram->attribLocation("tangent");
-    glVertexAttribPointer(tangentLocation, 3, GL_FLOAT, false, 0, tangents.componentData());
+    glVertexAttribPointer(tangentLocation, 3, GL_FLOAT, false, 0, tangents[0].data());
     glEnableVertexAttribArray(tangentLocation);
 
     const GLint texCoordLocation = params.shaderProgram->attribLocation("texCoord");
-    glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, 0, texCoords.componentData());
+    glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, 0, texCoords[0].data());
     glEnableVertexAttribArray(texCoordLocation);
 
     glDrawArrays(GL_TRIANGLES, 0, coords.size());

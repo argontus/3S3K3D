@@ -163,7 +163,7 @@ const Extents2 transform(const Extents2& x, const Transform2& t)
         Vector2(x.max.x, x.max.y)
     };
 
-    t.applyForward(vertices, vertices + 4, vertices);
+    transform(vertices, vertices + 4, vertices, t);
 
     return Extents2(vertices, vertices + 4);
 }

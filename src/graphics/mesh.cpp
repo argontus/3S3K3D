@@ -38,66 +38,66 @@ Mesh& Mesh::operator =(const Mesh& other)
     return *this;
 }
 
-void Mesh::setVertices(const Vector3Array& vertices)
+void Mesh::setVertices(const std::vector<Vector3>& vertices)
 {
     GRAPHICS_RUNTIME_ASSERT(vertices.size() % 3 == 0);
     vertices_ = vertices;
 }
 
-Vector3Array& Mesh::vertices()
+std::vector<Vector3>& Mesh::vertices()
 {
     return vertices_;
 }
 
-const Vector3Array& Mesh::vertices() const
+const std::vector<Vector3>& Mesh::vertices() const
 {
     return vertices_;
 }
 
-void Mesh::setNormals(const Vector3Array& normals)
+void Mesh::setNormals(const std::vector<Vector3>& normals)
 {
     GRAPHICS_RUNTIME_ASSERT(normals.size() % 3 == 0);
     normals_ = normals;
 }
 
-Vector3Array& Mesh::normals()
+std::vector<Vector3>& Mesh::normals()
 {
     return normals_;
 }
 
-const Vector3Array& Mesh::normals() const
+const std::vector<Vector3>& Mesh::normals() const
 {
     return normals_;
 }
 
-void Mesh::setTangents(const Vector3Array& tangents)
+void Mesh::setTangents(const std::vector<Vector3>& tangents)
 {
     GRAPHICS_RUNTIME_ASSERT(tangents.size() % 3 == 0);
     tangents_ = tangents;
 }
 
-Vector3Array& Mesh::tangents()
+std::vector<Vector3>& Mesh::tangents()
 {
     return tangents_;
 }
 
-const Vector3Array& Mesh::tangents() const
+const std::vector<Vector3>& Mesh::tangents() const
 {
     return tangents_;
 }
 
-void Mesh::setTexCoords(const Vector2Array& texCoords)
+void Mesh::setTexCoords(const std::vector<Vector2>& texCoords)
 {
     GRAPHICS_RUNTIME_ASSERT(texCoords.size() % 3 == 0);
     texCoords_ = texCoords;
 }
 
-Vector2Array& Mesh::texCoords()
+std::vector<Vector2>& Mesh::texCoords()
 {
     return texCoords_;
 }
 
-const Vector2Array& Mesh::texCoords() const
+const std::vector<Vector2>& Mesh::texCoords() const
 {
     return texCoords_;
 }
@@ -112,9 +112,7 @@ void Mesh::generateFlatNormals()
 {
     if (vertices_.size() != normals_.size())
     {
-        // resize the normal array
-        // TODO: make resize(int) a member of Vector3Array?
-        Vector3Array(vertices_.size()).swap(normals_);
+        normals_.resize(vertices_.size());
     }
 
     GRAPHICS_RUNTIME_ASSERT(vertices_.size() == normals_.size());
@@ -167,7 +165,7 @@ void Mesh::swap(Mesh& other)
 
 const Vector3 Mesh::faceNormal(const int index) const
 {
-    GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < vertices_.size());
+    GRAPHICS_RUNTIME_ASSERT(index >= 0 && static_cast<size_t>(index) < vertices_.size());
     GRAPHICS_RUNTIME_ASSERT(vertices_.size() % 3 == 0);
 
     // face vertices, assume CCW winding
