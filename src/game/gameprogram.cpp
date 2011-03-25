@@ -40,7 +40,8 @@ GameProgram::GameProgram()
     fragmentShaderManager_(),
     shaderProgramManager_(),
     meshManager_(),
-    textureManager_()
+    textureManager_(),
+    testObject(NULL)
 {
     running         = true;
     deltaTicks      = 0;
@@ -167,6 +168,11 @@ int GameProgram::execute()
     camera_ = new CameraNode();
     camera_->setPerspectiveProjection(45.0f, aspectRatio, 1.0f, 2000.0f);
 
+    testObject = new GameObject();
+    testObject->setGraphicalPresentation( camera_ );
+    testObject->attachController( &testController );
+
+
 //    camera_->setOrthographicProjection(
 //        -150.0f * aspectRatio, 150.0f * aspectRatio,
 //        -150.0f, 150.0f,
@@ -284,6 +290,7 @@ int GameProgram::execute()
         // quick&dirty, write a function for these or something
         static const float speed = 50.0f;
 
+        /*
 		if( keyboard.keyIsDown( Keyboard::KEY_D ) )
 		{
             camera_->translateBy( deltaTime * camera_->rotation().row(0) * speed );
@@ -310,7 +317,7 @@ int GameProgram::execute()
         {
             camera_->translateBy(deltaTime * speed * camera_->rotation().row(2));
         }
-
+        */
         deltaX = mouse.getMouseX();
         deltaY = mouse.getMouseY();
 
@@ -340,10 +347,13 @@ int GameProgram::execute()
             std::cout << "middle mouse button pressed!" << std::endl;
         }
 
+        std::cout << mouse.getMouseDeltaX() << " " << mouse.getMouseDeltaY() << std::endl;
+
 		tick( deltaTime );
 
 		keyboard.updateKeyboardState();
 		mouse.updateMouse();
+		testObject->update( deltaTime );
 
 		render();
 		lastTicks = currentTicks;

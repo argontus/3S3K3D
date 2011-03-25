@@ -8,6 +8,8 @@
 
 #include <SDL/SDL.h>
 #include "gamewindow.h"
+#include "gameobject.h"
+#include "keyboardcontroller.h"
 
 #include "configuration/configuration.h"
 
@@ -133,6 +135,8 @@ private:
 
 	Configuration configuration;
 
+    GameObject* testObject;
+    KeyboardController testController;
 
     // TODO: quick & dirty
     CameraNode* camera_;
