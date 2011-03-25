@@ -75,9 +75,14 @@ void GameObject::setParent( GameObject* newParent )
 
     parent = newParent;
 }
+
 void GameObject::update( float deltaTime )
 {
-    //TODO: implement this!
+    std::iterator<Controller> controllerIterator = controllers.iterator();
+    while( controllerIterator != controllers.end() )
+    {
+        (*controllerIterator)->update();
+    }
 }
 
 void GameObject::onEnter( GameObject* otherObject )
