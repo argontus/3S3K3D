@@ -22,12 +22,14 @@ GameObject::~GameObject()
     while( childIterator != children.end() )
     {
         destroyChild( *childIterator );
+        childIterator++;
     }
 
     // iterate over controllers and delete all of them.
     while( controllerIterator != controllers.end() )
     {
         destroyController( *controllerIterator );
+        controllerIterator++;
     }
 
     delete graphicalPresentation;
@@ -43,7 +45,7 @@ void GameObject::setGameProgram( GameProgram* newGameProgram )
 
 void GameObject::setGraphicalPresentation( Node* newGraphicalPresentation )
 {
-    if( graphicalPresentation == NULL )
+    if( newGraphicalPresentation == NULL )
         return;
 
     graphicalPresentation = newGraphicalPresentation;
@@ -78,10 +80,12 @@ void GameObject::setParent( GameObject* newParent )
 
 void GameObject::update( float deltaTime )
 {
-    std::iterator<Controller> controllerIterator = controllers.iterator();
+    std::list<Controller*>::iterator controllerIterator = controllers.begin();
+
     while( controllerIterator != controllers.end() )
     {
-        (*controllerIterator)->update();
+        (*controllerIterator)->update( deltaTime );
+        controllerIterator++;
     }
 }
 
