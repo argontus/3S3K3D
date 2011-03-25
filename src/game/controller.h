@@ -1,7 +1,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-class GameObject;
+#include "gameobject.h"
 
 /**
  * Pure virtual class defining a controller. A controller can be used to control
@@ -13,7 +13,7 @@ class Controller
         Controller();
         virtual ~Controller();
 
-        virtual void update() = 0;
+        virtual void update( float deltaTime ) = 0;
 
         /**
          * returns the object that this controller is currently attached to
@@ -33,8 +33,10 @@ class Controller
          */
         void setObjectAttachedTo(GameObject* object);
     protected:
-    private:
         GameObject* objectAttachedTo;
+
+    private:
+
 
 };
 
