@@ -81,11 +81,18 @@ void GameObject::setParent( GameObject* newParent )
 void GameObject::update( float deltaTime )
 {
     std::list<Controller*>::iterator controllerIterator = controllers.begin();
+    std::list<GameObject*>::iterator childIterator = children.begin();
 
     while( controllerIterator != controllers.end() )
     {
         (*controllerIterator)->update( deltaTime );
         controllerIterator++;
+    }
+
+    while(  childIterator != children.iterator() )
+    {
+        (*childIterator)->update( deltaTime );
+        childIterator++;
     }
 }
 
