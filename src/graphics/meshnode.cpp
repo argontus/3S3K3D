@@ -11,8 +11,8 @@
 #include <graphics/groupnode.h>
 #include <graphics/mesh.h>
 #include <graphics/opengl.h>
+#include <graphics/program.h>
 #include <graphics/runtimeassert.h>
-#include <graphics/shaderprogram.h>
 
 MeshNode::~MeshNode()
 {
@@ -111,7 +111,7 @@ void MeshNode::draw(const DrawParams& params) const
     const Matrix4x4 modelViewMatrix = toMatrix4x4(transformByInverse(worldTransform(), params.cameraToWorld));
     const Matrix3x3 normalMatrix = worldTransform().rotation * params.worldToViewRotation;
 
-    params.shaderProgram->setUniformMatrix4x4fv(
+    params.program->setUniformMatrix4x4fv(
         "modelViewMatrix",
         1,
         false,
@@ -119,33 +119,33 @@ void MeshNode::draw(const DrawParams& params) const
     );
 
     // TODO: can be loaded in the draw initialization step
-    params.shaderProgram->setUniformMatrix4x4fv(
+    params.program->setUniformMatrix4x4fv(
         "projectionMatrix",
         1,
         false,
         params.projectionMatrix.data()
     );
 
-    params.shaderProgram->setUniformMatrix3x3fv(
+    params.program->setUniformMatrix3x3fv(
         "normalMatrix",
         1,
         false,
         normalMatrix.data()
     );
 
-    const GLint coordLocation = params.shaderProgram->attribLocation("coord");
+    const GLint coordLocation = params.program->attribLocation("coord");
     glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords[0].data());
     glEnableVertexAttribArray(coordLocation);
 
-    const GLint normalLocation = params.shaderProgram->attribLocation("normal");
+    const GLint normalLocation = params.program->attribLocation("normal");
     glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, 0, normals[0].data());
     glEnableVertexAttribArray(normalLocation);
 
-    const GLint tangentLocation = params.shaderProgram->attribLocation("tangent");
+    const GLint tangentLocation = params.program->attribLocation("tangent");
     glVertexAttribPointer(tangentLocation, 3, GL_FLOAT, false, 0, tangents[0].data());
     glEnableVertexAttribArray(tangentLocation);
 
-    const GLint texCoordLocation = params.shaderProgram->attribLocation("texCoord");
+    const GLint texCoordLocation = params.program->attribLocation("texCoord");
     glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, 0, texCoords[0].data());
     glEnableVertexAttribArray(texCoordLocation);
 

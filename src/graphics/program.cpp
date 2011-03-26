@@ -1,9 +1,9 @@
 /**
- * @file graphics/shaderprogram.cpp
+ * @file graphics/program.cpp
  * @author Mika Haarahiltunen
  */
 
-#include <graphics/shaderprogram.h>
+#include <graphics/program.h>
 
 #include <vector>
 
@@ -11,13 +11,13 @@
 #include <graphics/opengl.h>
 #include <graphics/vertexshader.h>
 
-ShaderProgram::~ShaderProgram()
+Program::~Program()
 {
     // this will automatically detach any attached shader objects
     glDeleteProgram(id_);
 }
 
-ShaderProgram::ShaderProgram()
+Program::Program()
 :   id_(glCreateProgram()),
     vertexShader_(0),
     fragmentShader_(0)
@@ -25,66 +25,66 @@ ShaderProgram::ShaderProgram()
     // ...
 }
 
-uint32_t ShaderProgram::id() const
+uint32_t Program::id() const
 {
     return id_;
 }
 
-void ShaderProgram::setVertexShader(VertexShader* const p)
+void Program::setVertexShader(VertexShader* const p)
 {
     vertexShader_ = p;
 }
 
-VertexShader* ShaderProgram::vertexShader() const
+VertexShader* Program::vertexShader() const
 {
     return vertexShader_;
 }
 
-bool ShaderProgram::hasVertexShader() const
+bool Program::hasVertexShader() const
 {
     return vertexShader_ != 0;
 }
 
-void ShaderProgram::setFragmentShader(FragmentShader* const p)
+void Program::setFragmentShader(FragmentShader* const p)
 {
     fragmentShader_ = p;
 }
 
-FragmentShader* ShaderProgram::fragmentShader() const
+FragmentShader* Program::fragmentShader() const
 {
     return fragmentShader_;
 }
 
-bool ShaderProgram::hasFragmentShader() const
+bool Program::hasFragmentShader() const
 {
     return fragmentShader_ != 0;
 }
 
-void ShaderProgram::bindAttribLocation(
+void Program::bindAttribLocation(
     const uint32_t index,
     const std::string& name)
 {
     glBindAttribLocation(id_, index, name.c_str());
 }
 
-int32_t ShaderProgram::attribLocation(const std::string& name) const
+int32_t Program::attribLocation(const std::string& name) const
 {
     return glGetAttribLocation(id_, name.c_str());
 }
 
-void ShaderProgram::bindFragDataLocation(
+void Program::bindFragDataLocation(
     const uint32_t index,
     const std::string& name)
 {
     glBindFragDataLocation(id_, index, name.c_str());
 }
 
-int32_t ShaderProgram::fragDataLocation(const std::string& name) const
+int32_t Program::fragDataLocation(const std::string& name) const
 {
     return glGetFragDataLocation(id_, name.c_str());
 }
 
-void ShaderProgram::link()
+void Program::link()
 {
     // synchronize states of the referenced OpenGL program object and this
     // object
@@ -94,7 +94,7 @@ void ShaderProgram::link()
     glLinkProgram(id_);
 }
 
-bool ShaderProgram::linkStatus() const
+bool Program::linkStatus() const
 {
     // fetch the link status
     GLint status = GL_FALSE;
@@ -103,12 +103,12 @@ bool ShaderProgram::linkStatus() const
     return status == GL_TRUE;
 }
 
-void ShaderProgram::validate()
+void Program::validate()
 {
     glValidateProgram(id_);
 }
 
-bool ShaderProgram::validateStatus() const
+bool Program::validateStatus() const
 {
     // fetch the validation status
     GLint status = GL_FALSE;
@@ -117,7 +117,7 @@ bool ShaderProgram::validateStatus() const
     return status == GL_TRUE;
 }
 
-const std::string ShaderProgram::infoLog() const
+const std::string Program::infoLog() const
 {
     // fetch the required character buffer size
     GLint size = 0;
@@ -130,19 +130,19 @@ const std::string ShaderProgram::infoLog() const
     return std::string(buffer.data());
 }
 
-int32_t ShaderProgram::uniformLocation(const std::string& name) const
+int32_t Program::uniformLocation(const std::string& name) const
 {
     return glGetUniformLocation(id_, name.c_str());
 }
 
-void ShaderProgram::setUniform1f(
+void Program::setUniform1f(
     const std::string& name,
     const float v0)
 {
     glUniform1f(uniformLocation(name), v0);
 }
 
-void ShaderProgram::setUniform2f(
+void Program::setUniform2f(
     const std::string& name,
     const float v0,
     const float v1)
@@ -150,7 +150,7 @@ void ShaderProgram::setUniform2f(
     glUniform2f(uniformLocation(name), v0, v1);
 }
 
-void ShaderProgram::setUniform3f(
+void Program::setUniform3f(
     const std::string& name,
     const float v0,
     const float v1,
@@ -159,7 +159,7 @@ void ShaderProgram::setUniform3f(
     glUniform3f(uniformLocation(name), v0, v1, v2);
 }
 
-void ShaderProgram::setUniform4f(
+void Program::setUniform4f(
     const std::string& name,
     const float v0,
     const float v1,
@@ -169,7 +169,7 @@ void ShaderProgram::setUniform4f(
     glUniform4f(uniformLocation(name), v0, v1, v2, v3);
 }
 
-void ShaderProgram::setUniform1fv(
+void Program::setUniform1fv(
     const std::string& name,
     const int count,
     const float* const src)
@@ -177,7 +177,7 @@ void ShaderProgram::setUniform1fv(
     glUniform1fv(uniformLocation(name), count, src);
 }
 
-void ShaderProgram::setUniform2fv(
+void Program::setUniform2fv(
     const std::string& name,
     const int count,
     const float* const src)
@@ -185,7 +185,7 @@ void ShaderProgram::setUniform2fv(
     glUniform2fv(uniformLocation(name), count, src);
 }
 
-void ShaderProgram::setUniform3fv(
+void Program::setUniform3fv(
     const std::string& name,
     const int count,
     const float* const src)
@@ -193,7 +193,7 @@ void ShaderProgram::setUniform3fv(
     glUniform3fv(uniformLocation(name), count, src);
 }
 
-void ShaderProgram::setUniform4fv(
+void Program::setUniform4fv(
     const std::string& name,
     const int count,
     const float* const src)
@@ -201,7 +201,7 @@ void ShaderProgram::setUniform4fv(
     glUniform4fv(uniformLocation(name), count, src);
 }
 
-void ShaderProgram::setUniformMatrix2x2fv(
+void Program::setUniformMatrix2x2fv(
     const std::string& name,
     const int count,
     const bool transpose,
@@ -210,7 +210,7 @@ void ShaderProgram::setUniformMatrix2x2fv(
     glUniformMatrix2fv(uniformLocation(name), count, transpose, src);
 }
 
-void ShaderProgram::setUniformMatrix3x3fv(
+void Program::setUniformMatrix3x3fv(
     const std::string& name,
     const int count,
     const bool transpose,
@@ -219,7 +219,7 @@ void ShaderProgram::setUniformMatrix3x3fv(
     glUniformMatrix3fv(uniformLocation(name), count, transpose, src);
 }
 
-void ShaderProgram::setUniformMatrix4x4fv(
+void Program::setUniformMatrix4x4fv(
     const std::string& name,
     const int count,
     const bool transpose,
@@ -228,7 +228,7 @@ void ShaderProgram::setUniformMatrix4x4fv(
     glUniformMatrix4fv(uniformLocation(name), count, transpose, src);
 }
 
-void ShaderProgram::attachShaders()
+void Program::attachShaders()
 {
     if (hasVertexShader())
     {
@@ -243,7 +243,7 @@ void ShaderProgram::attachShaders()
     }
 }
 
-void ShaderProgram::detachShaders()
+void Program::detachShaders()
 {
     // fetch the required shader id buffer size
     GLint size = 0;

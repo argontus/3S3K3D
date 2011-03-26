@@ -37,7 +37,7 @@ GameProgram::GameProgram()
     anisotropicFilteringOn(false),
     vertexShaderManager_(),
     fragmentShaderManager_(),
-    shaderProgramManager_(),
+    programManager_(),
     meshManager_(),
     textureManager_()
 {
@@ -147,45 +147,45 @@ int GameProgram::execute()
     GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
     fragmentShaderManager_.loadResource("shadow", fragmentShader);
 
-    // shader program for drawing mesh nodes
-    ShaderProgram* shaderProgram = new ShaderProgram();
-    shaderProgram->setVertexShader(vertexShaderManager_.getResource("default"));
-    shaderProgram->setFragmentShader(fragmentShaderManager_.getResource("default"));
-    shaderProgram->link();
-    GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
-    shaderProgramManager_.loadResource("default", shaderProgram);
+    // program for drawing mesh nodes
+    Program* program = new Program();
+    program->setVertexShader(vertexShaderManager_.getResource("default"));
+    program->setFragmentShader(fragmentShaderManager_.getResource("default"));
+    program->link();
+    GRAPHICS_RUNTIME_ASSERT(program->linkStatus());
+    programManager_.loadResource("default", program);
 
-    // shader program for drawing node extents
-    shaderProgram = new ShaderProgram();
-    shaderProgram->setVertexShader(vertexShaderManager_.getResource("extents"));
-    shaderProgram->setFragmentShader(fragmentShaderManager_.getResource("extents"));
-    shaderProgram->link();
-    GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
-    shaderProgramManager_.loadResource("extents", shaderProgram);
+    // program for drawing node extents
+    program = new Program();
+    program->setVertexShader(vertexShaderManager_.getResource("extents"));
+    program->setFragmentShader(fragmentShaderManager_.getResource("extents"));
+    program->link();
+    GRAPHICS_RUNTIME_ASSERT(program->linkStatus());
+    programManager_.loadResource("extents", program);
 
-    // shader program for drawing node extents
-    shaderProgram = new ShaderProgram();
-    shaderProgram->setVertexShader(vertexShaderManager_.getResource("test"));
-    shaderProgram->setFragmentShader(fragmentShaderManager_.getResource("test"));
-    shaderProgram->link();
-    GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
-    shaderProgramManager_.loadResource("test", shaderProgram);
+    // program for drawing node extents
+    program = new Program();
+    program->setVertexShader(vertexShaderManager_.getResource("test"));
+    program->setFragmentShader(fragmentShaderManager_.getResource("test"));
+    program->link();
+    GRAPHICS_RUNTIME_ASSERT(program->linkStatus());
+    programManager_.loadResource("test", program);
 
-    // shader program for unlit render passes
-    shaderProgram = new ShaderProgram();
-    shaderProgram->setVertexShader(vertexShaderManager_.getResource("unlit"));
-    shaderProgram->setFragmentShader(fragmentShaderManager_.getResource("unlit"));
-    shaderProgram->link();
-    GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
-    shaderProgramManager_.loadResource("unlit", shaderProgram);
+    // program for unlit render passes
+    program = new Program();
+    program->setVertexShader(vertexShaderManager_.getResource("unlit"));
+    program->setFragmentShader(fragmentShaderManager_.getResource("unlit"));
+    program->link();
+    GRAPHICS_RUNTIME_ASSERT(program->linkStatus());
+    programManager_.loadResource("unlit", program);
 
-    // shader program for shadow render passes
-    shaderProgram = new ShaderProgram();
-    shaderProgram->setVertexShader(vertexShaderManager_.getResource("shadow"));
-    shaderProgram->setFragmentShader(fragmentShaderManager_.getResource("shadow"));
-    shaderProgram->link();
-    GRAPHICS_RUNTIME_ASSERT(shaderProgram->linkStatus());
-    shaderProgramManager_.loadResource("shadow", shaderProgram);
+    // program for shadow render passes
+    program = new Program();
+    program->setVertexShader(vertexShaderManager_.getResource("shadow"));
+    program->setFragmentShader(fragmentShaderManager_.getResource("shadow"));
+    program->link();
+    GRAPHICS_RUNTIME_ASSERT(program->linkStatus());
+    programManager_.loadResource("shadow", program);
 
 
     // init textures
@@ -448,13 +448,13 @@ void GameProgram::render()
     drawParams.worldToViewRotation = transpose(camera_->worldTransform().rotation);
     drawParams.cameraToWorld = camera_->worldTransform();
 
-    drawParams.shaderProgram = shaderProgramManager_.getResource("unlit");
-    glUseProgram(drawParams.shaderProgram->id());
+    drawParams.program = programManager_.getResource("unlit");
+    glUseProgram(drawParams.program->id());
 
-    const GLint _diffuseMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "diffuseMap");
-    const GLint _specularMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "specularMap");
-    const GLint _glowMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "glowMap");
-    const GLint _normalMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "normalMap");
+    const GLint _diffuseMapLocation = glGetUniformLocation(drawParams.program->id(), "diffuseMap");
+    const GLint _specularMapLocation = glGetUniformLocation(drawParams.program->id(), "specularMap");
+    const GLint _glowMapLocation = glGetUniformLocation(drawParams.program->id(), "glowMap");
+    const GLint _normalMapLocation = glGetUniformLocation(drawParams.program->id(), "normalMap");
 
     glUniform1i(_diffuseMapLocation, 0);
     glUniform1i(_specularMapLocation, 1);
@@ -497,17 +497,17 @@ void GameProgram::render()
 
     // shadow pass
 
-    drawParams.shaderProgram = shaderProgramManager_.getResource("shadow");
-    glUseProgram(drawParams.shaderProgram->id());
+    drawParams.program = programManager_.getResource("shadow");
+    glUseProgram(drawParams.program->id());
 
-    drawParams.shaderProgram->setUniformMatrix4x4fv(
+    drawParams.program->setUniformMatrix4x4fv(
         "modelViewMatrix",
         1,
         false,
         drawParams.viewMatrix.data()
     );
 
-    drawParams.shaderProgram->setUniformMatrix4x4fv(
+    drawParams.program->setUniformMatrix4x4fv(
         "projectionMatrix",
         1,
         false,
@@ -562,7 +562,7 @@ void GameProgram::render()
                 v2, s0, v0
             };
 
-            const GLint coordLocation = drawParams.shaderProgram->attribLocation("coord");
+            const GLint coordLocation = drawParams.program->attribLocation("coord");
             glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords->data());
             glEnableVertexAttribArray(coordLocation);
 
@@ -607,19 +607,19 @@ void GameProgram::render()
 
     // ...
 
-    drawParams.shaderProgram = shaderProgramManager_.getResource("test");
-    glUseProgram(drawParams.shaderProgram->id());
+    drawParams.program = programManager_.getResource("test");
+    glUseProgram(drawParams.program->id());
 
     // ...
 
-    const GLint lightPositionsLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "lightPositions");
-    const GLint lightColorsLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "lightColors");
-    const GLint lightRangesLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "lightRanges");
-    const GLint numLightsLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "numLights");
-    const GLint diffuseMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "diffuseMap");
-    const GLint specularMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "specularMap");
-    const GLint glowMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "glowMap");
-    const GLint normalMapLocation = glGetUniformLocation(drawParams.shaderProgram->id(), "normalMap");
+    const GLint lightPositionsLocation = glGetUniformLocation(drawParams.program->id(), "lightPositions");
+    const GLint lightColorsLocation = glGetUniformLocation(drawParams.program->id(), "lightColors");
+    const GLint lightRangesLocation = glGetUniformLocation(drawParams.program->id(), "lightRanges");
+    const GLint numLightsLocation = glGetUniformLocation(drawParams.program->id(), "numLights");
+    const GLint diffuseMapLocation = glGetUniformLocation(drawParams.program->id(), "diffuseMap");
+    const GLint specularMapLocation = glGetUniformLocation(drawParams.program->id(), "specularMap");
+    const GLint glowMapLocation = glGetUniformLocation(drawParams.program->id(), "glowMap");
+    const GLint normalMapLocation = glGetUniformLocation(drawParams.program->id(), "normalMap");
 
     lightPosition_.x = 150.0f * Math::cos(Math::radians(0.0f));
     lightPosition_.y = 0.0f;
@@ -765,8 +765,8 @@ void GameProgram::render()
     {
         glDepthFunc(GL_LEQUAL);
 
-        drawParams.shaderProgram = shaderProgramManager_.getResource("extents");
-        glUseProgram(drawParams.shaderProgram->id());
+        drawParams.program = programManager_.getResource("extents");
+        glUseProgram(drawParams.program->id());
 
         for (int i = 0; i < renderQueue.numGeometryNodes(); ++i)
         {
@@ -818,10 +818,10 @@ void drawExtents(const Node* node, const DrawParams& params)
 
     const Matrix4x4 mvpMatrix = params.viewMatrix * params.projectionMatrix;
 
-    const GLint mvpMatrixLocation = params.shaderProgram->uniformLocation("mvp_matrix");
+    const GLint mvpMatrixLocation = params.program->uniformLocation("mvp_matrix");
     glUniformMatrix4fv(mvpMatrixLocation, 1, false, mvpMatrix.data());
 
-    const GLint coordLocation = params.shaderProgram->attribLocation("coord");
+    const GLint coordLocation = params.program->attribLocation("coord");
     glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, vertices->data());
     glEnableVertexAttribArray(coordLocation);
 
