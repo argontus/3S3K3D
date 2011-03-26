@@ -7,9 +7,9 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="static_debug">
-				<Option output="../../lib/libgraphicsd" prefix_auto="1" extension_auto="1" />
+				<Option output="..\..\lib\libgraphicsd" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="obj/static_debug/" />
+				<Option object_output="obj\static_debug\" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -19,9 +19,9 @@
 				</Compiler>
 			</Target>
 			<Target title="static_release">
-				<Option output="../../lib/libgraphics" prefix_auto="1" extension_auto="1" />
+				<Option output="..\..\lib\libgraphics" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="obj/static_release/" />
+				<Option object_output="obj\static_release\" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -35,60 +35,60 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add directory="../../include" />
+			<Add directory="..\..\include" />
 		</Compiler>
-		<Unit filename="../../include/graphics/blendsettings.h" />
-		<Unit filename="../../include/graphics/cameranode.h" />
-		<Unit filename="../../include/graphics/color.h" />
-		<Unit filename="../../include/graphics/colorarray.h" />
-		<Unit filename="../../include/graphics/culltestsettings.h" />
-		<Unit filename="../../include/graphics/depthtestsettings.h" />
-		<Unit filename="../../include/graphics/drawparams.h" />
-		<Unit filename="../../include/graphics/fragmentshader.h" />
-		<Unit filename="../../include/graphics/geometrynode.h" />
-		<Unit filename="../../include/graphics/groupnode.h" />
-		<Unit filename="../../include/graphics/indexarray.h" />
-		<Unit filename="../../include/graphics/mesh.h" />
-		<Unit filename="../../include/graphics/meshnode.h" />
-		<Unit filename="../../include/graphics/modelreader.h" />
-		<Unit filename="../../include/graphics/node.h" />
-		<Unit filename="../../include/graphics/opengl.h" />
-		<Unit filename="../../include/graphics/predrawparams.h" />
-		<Unit filename="../../include/graphics/projectionsettings.h" />
-		<Unit filename="../../include/graphics/renderqueue.h" />
-		<Unit filename="../../include/graphics/resourcemanager.h" />
-		<Unit filename="../../include/graphics/runtimeassert.h" />
-		<Unit filename="../../include/graphics/shader.h" />
-		<Unit filename="../../include/graphics/shaderprogram.h" />
-		<Unit filename="../../include/graphics/staticassert.h" />
-		<Unit filename="../../include/graphics/stenciltestsettings.h" />
-		<Unit filename="../../include/graphics/texture.h" />
-		<Unit filename="../../include/graphics/vertexshader.h" />
-		<Unit filename="../../include/graphics/visibilitytest.h" />
-		<Unit filename="../../src/graphics/blendsettings.cpp" />
-		<Unit filename="../../src/graphics/cameranode.cpp" />
-		<Unit filename="../../src/graphics/color.cpp" />
-		<Unit filename="../../src/graphics/colorarray.cpp" />
-		<Unit filename="../../src/graphics/culltestsettings.cpp" />
-		<Unit filename="../../src/graphics/depthtestsettings.cpp" />
-		<Unit filename="../../src/graphics/drawparams.cpp" />
-		<Unit filename="../../src/graphics/fragmentshader.cpp" />
-		<Unit filename="../../src/graphics/geometrynode.cpp" />
-		<Unit filename="../../src/graphics/groupnode.cpp" />
-		<Unit filename="../../src/graphics/indexarray.cpp" />
-		<Unit filename="../../src/graphics/mesh.cpp" />
-		<Unit filename="../../src/graphics/meshnode.cpp" />
-		<Unit filename="../../src/graphics/modelreader.cpp" />
-		<Unit filename="../../src/graphics/node.cpp" />
-		<Unit filename="../../src/graphics/predrawparams.cpp" />
-		<Unit filename="../../src/graphics/projectionsettings.cpp" />
-		<Unit filename="../../src/graphics/renderqueue.cpp" />
-		<Unit filename="../../src/graphics/shader.cpp" />
-		<Unit filename="../../src/graphics/shaderprogram.cpp" />
-		<Unit filename="../../src/graphics/stenciltestsettings.cpp" />
-		<Unit filename="../../src/graphics/texture.cpp" />
-		<Unit filename="../../src/graphics/vertexshader.cpp" />
-		<Unit filename="../../src/graphics/visibilitytest.cpp" />
+		<Unit filename="..\..\include\graphics\blendsettings.h" />
+		<Unit filename="..\..\include\graphics\cameranode.h" />
+		<Unit filename="..\..\include\graphics\color.h" />
+		<Unit filename="..\..\include\graphics\colorarray.h" />
+		<Unit filename="..\..\include\graphics\culltestsettings.h" />
+		<Unit filename="..\..\include\graphics\depthtestsettings.h" />
+		<Unit filename="..\..\include\graphics\drawparams.h" />
+		<Unit filename="..\..\include\graphics\fragmentshader.h" />
+		<Unit filename="..\..\include\graphics\geometrynode.h" />
+		<Unit filename="..\..\include\graphics\groupnode.h" />
+		<Unit filename="..\..\include\graphics\indexarray.h" />
+		<Unit filename="..\..\include\graphics\mesh.h" />
+		<Unit filename="..\..\include\graphics\meshnode.h" />
+		<Unit filename="..\..\include\graphics\modelreader.h" />
+		<Unit filename="..\..\include\graphics\node.h" />
+		<Unit filename="..\..\include\graphics\opengl.h" />
+		<Unit filename="..\..\include\graphics\predrawparams.h" />
+		<Unit filename="..\..\include\graphics\program.h" />
+		<Unit filename="..\..\include\graphics\projectionsettings.h" />
+		<Unit filename="..\..\include\graphics\renderqueue.h" />
+		<Unit filename="..\..\include\graphics\resourcemanager.h" />
+		<Unit filename="..\..\include\graphics\runtimeassert.h" />
+		<Unit filename="..\..\include\graphics\shader.h" />
+		<Unit filename="..\..\include\graphics\staticassert.h" />
+		<Unit filename="..\..\include\graphics\stenciltestsettings.h" />
+		<Unit filename="..\..\include\graphics\texture.h" />
+		<Unit filename="..\..\include\graphics\vertexshader.h" />
+		<Unit filename="..\..\include\graphics\visibilitytest.h" />
+		<Unit filename="..\..\src\graphics\blendsettings.cpp" />
+		<Unit filename="..\..\src\graphics\cameranode.cpp" />
+		<Unit filename="..\..\src\graphics\color.cpp" />
+		<Unit filename="..\..\src\graphics\colorarray.cpp" />
+		<Unit filename="..\..\src\graphics\culltestsettings.cpp" />
+		<Unit filename="..\..\src\graphics\depthtestsettings.cpp" />
+		<Unit filename="..\..\src\graphics\drawparams.cpp" />
+		<Unit filename="..\..\src\graphics\fragmentshader.cpp" />
+		<Unit filename="..\..\src\graphics\geometrynode.cpp" />
+		<Unit filename="..\..\src\graphics\groupnode.cpp" />
+		<Unit filename="..\..\src\graphics\indexarray.cpp" />
+		<Unit filename="..\..\src\graphics\mesh.cpp" />
+		<Unit filename="..\..\src\graphics\meshnode.cpp" />
+		<Unit filename="..\..\src\graphics\modelreader.cpp" />
+		<Unit filename="..\..\src\graphics\node.cpp" />
+		<Unit filename="..\..\src\graphics\predrawparams.cpp" />
+		<Unit filename="..\..\src\graphics\program.cpp" />
+		<Unit filename="..\..\src\graphics\projectionsettings.cpp" />
+		<Unit filename="..\..\src\graphics\renderqueue.cpp" />
+		<Unit filename="..\..\src\graphics\shader.cpp" />
+		<Unit filename="..\..\src\graphics\stenciltestsettings.cpp" />
+		<Unit filename="..\..\src\graphics\texture.cpp" />
+		<Unit filename="..\..\src\graphics\vertexshader.cpp" />
+		<Unit filename="..\..\src\graphics\visibilitytest.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />
