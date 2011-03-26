@@ -181,13 +181,13 @@ bool intersect(const CircleShape& a, const PolygonShape& b, const Transform2& t)
     if (d < 0.0f)
     {
         // the center is closest to refEdge.startPoint
-        return sqrDistance(refEdge.startPoint, center) < Math::sqr(radius);
+        return sqrDistance(refEdge.startPoint, center) <= Math::sqr(radius);
     }
 
     if (d > separation(plane, refEdge.endPoint))
     {
         // the center is closest to refEdge.endPoint
-        return sqrDistance(refEdge.endPoint, center) < Math::sqr(radius);
+        return sqrDistance(refEdge.endPoint, center) <= Math::sqr(radius);
     }
 
     const float aMin = dot(center, refNormal) - radius;
