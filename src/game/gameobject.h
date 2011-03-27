@@ -5,10 +5,17 @@
 #include "geometry/transform2.h"
 #include <list>
 
+/**
+ * @file game/gameobject.h
+ * @author Marko Silokunnas
+ *
+ * Defines a class that is used as a base for all objects in the game. This
+ * class is inherited by all objects in the game.
+ */
+
 class Node;
 class Controller;
 class GameProgram;
-
 
 class GameObject
 {

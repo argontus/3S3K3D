@@ -31,8 +31,6 @@ GameObject::~GameObject()
         destroyController( *controllerIterator );
         controllerIterator++;
     }
-
-    delete graphicalPresentation;
 }
 
 void GameObject::setGameProgram( GameProgram* newGameProgram )
@@ -89,7 +87,7 @@ void GameObject::update( float deltaTime )
         controllerIterator++;
     }
 
-    while(  childIterator != children.iterator() )
+    while( childIterator != children.iterator() )
     {
         (*childIterator)->update( deltaTime );
         childIterator++;
