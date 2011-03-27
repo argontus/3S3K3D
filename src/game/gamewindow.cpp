@@ -14,7 +14,7 @@ GameWindow::GameWindow()
    width(0),
    height(0),
    mouseVisible(false),
-   fullscreen(true),
+   fullscreen(false),
    mouseBoundToScreen(true)
 {
 }
