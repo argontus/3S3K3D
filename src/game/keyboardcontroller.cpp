@@ -32,28 +32,23 @@ void KeyboardController::update( float deltaTime )
 		else if( keyboard->keyIsDown( Keyboard::KEY_A ) )
         {
             graphicalPresentation->translateBy( deltaTime * rotation.row(0) * -speed );
-            //objectAttachedTo->translateBy( deltaTime * camera_->rotation().row(0) * -speed );
         }
 
         if( keyboard->keyIsDown( Keyboard::KEY_Q) )
         {
-            //camera_->translateBy(deltaTime * -speed * camera_->rotation().row(1));
             graphicalPresentation->translateBy( deltaTime * rotation.row(1) * -speed );
         }
         else if( keyboard->keyIsDown( Keyboard::KEY_E ) )
         {
-            //camera_->translateBy(deltaTime * speed * camera_->rotation().row(1));
             graphicalPresentation->translateBy( deltaTime * rotation.row(1) * speed );
         }
 
         if( keyboard->keyIsDown( Keyboard::KEY_W) )
         {
-            //camera_->translateBy(deltaTime * -speed * camera_->rotation().row(2));
             graphicalPresentation->translateBy( deltaTime * rotation.row(2) * -speed );
         }
         else if( keyboard->keyIsDown( Keyboard::KEY_S ) )
         {
-            //camera_->translateBy(deltaTime * speed * camera_->rotation().row(2));
             graphicalPresentation->translateBy( deltaTime * rotation.row(2) * speed );
         }
     }
