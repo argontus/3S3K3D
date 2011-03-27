@@ -87,7 +87,7 @@ void GameObject::update( float deltaTime )
         controllerIterator++;
     }
 
-    while( childIterator != children.iterator() )
+    while( childIterator != children.end() )
     {
         (*childIterator)->update( deltaTime );
         childIterator++;
