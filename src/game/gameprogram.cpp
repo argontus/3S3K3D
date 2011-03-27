@@ -287,37 +287,11 @@ int GameProgram::execute()
                 mouse.hideMousePointer();
         }
 
-        // quick&dirty, write a function for these or something
+        // see keyboardcontroller.h for a TODO related to member 'speed'
         static const float speed = 50.0f;
+        testController.setSpeed( speed );
 
-        /*
-		if( keyboard.keyIsDown( Keyboard::KEY_D ) )
-		{
-            camera_->translateBy( deltaTime * camera_->rotation().row(0) * speed );
-		}
-		else if( keyboard.keyIsDown( Keyboard::KEY_A ) )
-        {
-            camera_->translateBy( deltaTime * camera_->rotation().row(0) * -speed );
-        }
 
-        if( keyboard.keyIsDown( Keyboard::KEY_Q) )
-        {
-            camera_->translateBy(deltaTime * -speed * camera_->rotation().row(1));
-        }
-        else if( keyboard.keyIsDown( Keyboard::KEY_E ) )
-        {
-            camera_->translateBy(deltaTime * speed * camera_->rotation().row(1));
-        }
-
-        if( keyboard.keyIsDown( Keyboard::KEY_W) )
-        {
-            camera_->translateBy(deltaTime * -speed * camera_->rotation().row(2));
-        }
-        else if( keyboard.keyIsDown( Keyboard::KEY_S ) )
-        {
-            camera_->translateBy(deltaTime * speed * camera_->rotation().row(2));
-        }
-        */
         deltaX = mouse.getMouseX();
         deltaY = mouse.getMouseY();
 
@@ -346,8 +320,6 @@ int GameProgram::execute()
         {
             std::cout << "middle mouse button pressed!" << std::endl;
         }
-
-        std::cout << mouse.getMouseDeltaX() << " " << mouse.getMouseDeltaY() << std::endl;
 
 		tick( deltaTime );
 
