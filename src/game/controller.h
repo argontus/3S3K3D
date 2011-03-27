@@ -4,6 +4,9 @@
 #include "gameobject.h"
 
 /**
+ * @file game/controller.h
+ * @author Marko Silokunnas
+ *
  * Pure virtual class defining a controller. A controller can be used to control
  * a game object. Controller can modify the game object's transformations etc.
  */
