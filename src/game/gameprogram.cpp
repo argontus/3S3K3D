@@ -26,7 +26,8 @@
 #include <graphics/visibilitytest.h>
 
 GameProgram::GameProgram()
-:   camera_(0),
+:   testObject(NULL),
+    camera_(0),
     rootNode_(0),
     drawExtents_(true),
     diffuseMipmappingOn(false),
@@ -39,8 +40,7 @@ GameProgram::GameProgram()
     fragmentShaderManager_(),
     programManager_(),
     meshManager_(),
-    textureManager_(),
-    testObject(NULL)
+    textureManager_()
 {
     running         = true;
     deltaTicks      = 0;

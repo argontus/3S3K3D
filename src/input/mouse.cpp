@@ -1,10 +1,10 @@
 #include "input/mouse.h"
 
 Mouse::Mouse()
- : mouseX(0),
-   mouseY(0),
-   mouseBindPointX(0),
+ : mouseBindPointX(0),
    mouseBindPointY(0),
+   mouseX(0),
+   mouseY(0),
    mouseLastX(0),
    mouseLastY(0)
 {
