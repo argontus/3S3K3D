@@ -24,7 +24,7 @@ enum
  */
 struct AudioData
 {
-    char*           filename;
+    const char*           filename;
     std::string     friendlyname;
     int             channel; // needed for chunks
     Uint16          type;
@@ -70,7 +70,7 @@ public:
      * @param chunkname a name for the sound effect, needed for actual playback
      * @return int -1 if failed, 0 if succeeded
      */
-    int loadChunk( char* filename, std::string friendlyname );
+    int loadChunk( const char* filename, std::string friendlyname );
 
     /**
      * Loads a music file into the engine. Supports multiple audio formats.
@@ -78,7 +78,7 @@ public:
      * @param songname a name for the music piece, needed for actual playback
      * @return int -1 if failed, 0 if succeeded
      */
-    int loadMusic( char* filename, std::string friendlyname );
+    int loadMusic( const char* filename, std::string friendlyname );
 
     /**
      * Plays a sound effect.

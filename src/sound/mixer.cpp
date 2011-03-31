@@ -48,7 +48,7 @@ void Mixer::close()
 }
 
 
-int Mixer::loadChunk( char* filename, std::string friendlyname )
+int Mixer::loadChunk( const char* filename, std::string friendlyname )
 {
     Mix_Chunk* chunk = Mix_LoadWAV( filename );
     if( chunk == NULL )
@@ -67,7 +67,7 @@ int Mixer::loadChunk( char* filename, std::string friendlyname )
 }
 
 
-int Mixer::loadMusic( char* filename, std::string friendlyname )
+int Mixer::loadMusic( const char* filename, std::string friendlyname )
 {
     Mix_Music* music = Mix_LoadMUS( filename );
     if( music == NULL )
@@ -96,7 +96,7 @@ void Mixer::playChunk( std::string name, int loops=0 )
 
     AudioData* data = NULL;
 
-    for ( int i = 0; i < soundList_.size(); ++i )
+    for ( size_t i = 0; i < soundList_.size(); ++i )
     {
     	if( soundList_[i]->friendlyname.compare( name ) == 0 )
     	{
@@ -121,7 +121,7 @@ void Mixer::playMusic( std::string name )
 
     AudioData* data = NULL;
 
-    for ( int i = 0; i < soundList_.size(); ++i )
+    for ( size_t i = 0; i < soundList_.size(); ++i )
     {
     	if( soundList_[i]->friendlyname.compare( name ) == 0 )
     	{
@@ -162,11 +162,11 @@ void Mixer::stopMusic()
 
 void Mixer::freeSounds()
 {
-    for ( int i=0; i < (int)soundList_.size(); ++i )
+    for ( size_t i=0; i < soundList_.size(); ++i )
     {
         AudioData* data = soundList_[i];
 
-        if( data->type = MIXER_SOUNDTYPE_MUSIC )
+        if( data->type == MIXER_SOUNDTYPE_MUSIC )
         {
             Mix_FreeMusic( (Mix_Music*)data->data_p );
         }
