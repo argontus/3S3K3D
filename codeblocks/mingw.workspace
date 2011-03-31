@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="mingw">
-		<Project filename="input/input.cbp" />
 		<Project filename="configuration/configuration.cbp" />
-		<Project filename="sound/sound.cbp" />
-		<Project filename="geometry/geometry.cbp" />
-		<Project filename="graphics/graphics.cbp" />
 		<Project filename="game_mingw/game_mingw.cbp" active="1">
 			<Depends filename="input/input.cbp" />
 			<Depends filename="configuration/configuration.cbp" />
@@ -13,5 +9,9 @@
 			<Depends filename="geometry/geometry.cbp" />
 			<Depends filename="graphics/graphics.cbp" />
 		</Project>
+		<Project filename="geometry/geometry.cbp" />
+		<Project filename="graphics/graphics.cbp" />
+		<Project filename="input/input.cbp" />
+		<Project filename="sound/sound.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
