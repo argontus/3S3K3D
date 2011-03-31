@@ -32,7 +32,17 @@ CompositeShape::CompositeShape(const CompositeShape& other)
 
 void CompositeShape::addPrimitive(const PrimitiveShape& p)
 {
-    primitives_.push_back(p.clone());
+    PrimitiveShape* const clone = p.clone();
+
+    try
+    {
+        primitives_.push_back(clone);
+    }
+    catch (...)
+    {
+        delete clone;
+        throw;
+    }
 }
 
 int CompositeShape::numPrimitives() const
