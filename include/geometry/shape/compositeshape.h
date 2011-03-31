@@ -60,6 +60,11 @@ public:
     const PrimitiveShape& primitive(int index) const;
 
     /**
+     * Removes all primitive shapes from this composite shape.
+     */
+    void clear();
+
+    /**
      * @name Shape Interface
      */
     //@{
