@@ -8,11 +8,7 @@
 
 #include <geometry/staticassert.h>
 
-class Matrix2x2;
-class Matrix3x3;
-class Transform2;
-class Transform3;
-class Vector3;
+class Vector4;
 
 /**
  * Represents a row-major 4x4 matrix.
@@ -25,76 +21,10 @@ public:
      *
      * @return The identity matrix.
      */
-    static const Matrix4x4& identity();
+    static const Matrix4x4 identity();
 
-    /**
-     * Gets a matrix that produces a translation.
-     *
-     * @param translation Translation.
-     *
-     * @return Matrix that produces a translation.
-     */
-    static const Matrix4x4 translation(const Vector3& translation);
-
-    /**
-     * Gets a matrix that produces a rotation about the x-axis.
-     *
-     * @param rotation Rotation, CCW about the x-axis, in radians.
-     *
-     * @return Matrix that produces a rotation about the x-axis.
-     */
-    static const Matrix4x4 xRotation(float rotation);
-
-    /**
-     * Gets a matrix that produces a rotation about the y-axis.
-     *
-     * @param rotation Rotation, CCW about the y-axis, in radians.
-     *
-     * @return Matrix that produces a rotation about the y-axis.
-     */
-    static const Matrix4x4 yRotation(float rotation);
-
-    /**
-     * Gets a matrix that produces a rotation about the z-axis.
-     *
-     * @param rotation Rotation, CCW about the z-axis, in radians.
-     *
-     * @return Matrix that produces a rotation about the z-axis.
-     */
-    static const Matrix4x4 zRotation(float rotation);
-
-    /**
-     * Gets a matrix that produces a rotation about an arbitrary axis.
-     *
-     * @param axis The axis to rotate about, must be unit length.
-     * @param rotation Rotation, CCW about the given axis in radians.
-     *
-     * @return Matrix that produces a rotation about the given axis.
-     */
-    static const Matrix4x4 rotation(const Vector3& axis, float rotation);
-
-    /**
-     * Gets a matrix that produces a uniform scaling.
-     *
-     * @param scaling Uniform scale factor.
-     *
-     * @return Matrix that produces a uniform scaling.
-     */
-    static const Matrix4x4 scaling(float scaling);
-
-    /**
-     * Gets a matrix that produces a uniform or non-uniform scaling.
-     *
-     * @param sx Scaling along x-axis.
-     * @param sy Scaling along y-axis.
-     * @param sz Scaling along z-axis.
-     *
-     * @return Matrix that produces a uniform or non-uniform scaling.
-     */
-    static const Matrix4x4 scaling(float sx, float sy, float sz);
-
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor, constructs an uninitialized matrix.
@@ -128,51 +58,27 @@ public:
         float m30, float m31, float m32, float m33);
 
     /**
-     * Constructor, constructs a 4x4 matrix from a 2x2 matrix.
+     * Constructor.
      *
-     * @param m 2x2 matrix.
+     * @param row0 Vector containing the elements of row 0.
+     * @param row1 Vector containing the elements of row 1.
+     * @param row2 Vector containing the elements of row 2.
+     * @param row3 Vector containing the elements of row 3.
      */
-    explicit Matrix4x4(const Matrix2x2& m);
+    Matrix4x4(
+        const Vector4& row0,
+        const Vector4& row1,
+        const Vector4& row2,
+        const Vector4& row3);
 
-    /**
-     * Constructor, constructs a 4x4 matrix from a 3x3 matrix.
-     *
-     * @param m 3x3 matrix.
-     */
-    explicit Matrix4x4(const Matrix3x3& m);
+    // the assignment operators are members to prevent implicit type
+    // conversions of the left hand side object
 
-    /**
-     * Constructor, constructs a matrix that produces a 2D transform.
-     *
-     * @param transform 2D transform describing the transform matrix to
-     * construct.
-     */
-    explicit Matrix4x4(const Transform2& transform);
-
-    /**
-     * Constructor, constructs a matrix that produces a 3D transform.
-     *
-     * @param transform 3D transform describing the transform matrix to
-     * construct.
-     */
-    explicit Matrix4x4(const Transform3& transform);
-
-    /**
-     * Array access operator. Allows matrices to be accessed like 2D
-     * arrays of <code>float</code>.
-     *
-     * @param row Index of the row to return, between [0, 3].
-     *
-     * @return Pointer to the first element of the specified row.
-     */
-    float* operator [](int row);
-
-    /**
-     * Provided for const-correctness.
-     *
-     * @see operator [](int)
-     */
-    const float* operator [](int row) const;
+    Matrix4x4& operator +=(const Matrix4x4& m);
+    Matrix4x4& operator -=(const Matrix4x4& m);
+    Matrix4x4& operator *=(float k);
+    Matrix4x4& operator *=(const Matrix4x4& m);
+    Matrix4x4& operator /=(float k);
 
     /**
      * Gets the element array.
@@ -189,20 +95,13 @@ public:
     const float* data() const;
 
     /**
-     * Sets <code>*this</code> to the product of <code>*this</code> and
-     * <code>m</code>.
+     * Gets the specified row as a vector.
      *
-     * @param m The matrix to multiply this matrix with.
-     */
-    void multiplyBy(const Matrix4x4& m);
-
-    /**
-     * Sets <code>*this</code> to the product of <code>*this</code> and the
-     * transpose of <code>m</code>.
+     * @param index Index of the row to return, between [0, 3].
      *
-     * @param m The matrix by whose transpose this matrix is multiplied with.
+     * @return The specified row as a vector.
      */
-    void multiplyByT(const Matrix4x4& m);
+    const Vector4 row(int index) const;
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
@@ -237,26 +136,55 @@ public:
 GEOMETRY_STATIC_ASSERT(sizeof(Matrix4x4[2]) == sizeof(float) * 32);
 /// @endcond
 
+const Vector4 operator *(const Vector4& v, const Matrix4x4& m);
+
+const Matrix4x4 operator +(const Matrix4x4& a, const Matrix4x4& b);
+const Matrix4x4 operator -(const Matrix4x4& m);
+const Matrix4x4 operator -(const Matrix4x4& a, const Matrix4x4& b);
+const Matrix4x4 operator *(float k, const Matrix4x4& m);
+const Matrix4x4 operator *(const Matrix4x4& m, float k);
+const Matrix4x4 operator *(const Matrix4x4& a, const Matrix4x4& b);
+const Matrix4x4 operator /(const Matrix4x4& m, float k);
+
+// TODO: float determinant(const Matrix4x4& m);
+
+// TODO: is this needed?
 /**
- * Matrix-matrix product.
+ * Equivalent to <code>v * transpose(m)</code>. This is intended as an
+ * optimization.
  *
- * @param a Matrix to transform by matrix <code>b</code>.
- * @param b Matrix by which matrix <code>a</code> is to be transformed.
+ * @param v The vector to multiply.
+ * @param m The matrix by whose transpose vector <code>v</code> is to be
+ * multiplied with.
  *
- * @return <code>a</code> transformed by <code>b</code>.
+ * @return <code>v</code> multiplied by the transpose of <code>m</code>.
  */
-const Matrix4x4 product(const Matrix4x4& a, const Matrix4x4& b);
+const Vector4 timesTranspose(const Vector4& v, const Matrix4x4& m);
+
+// TODO: const Matrix4x4 adjoint(const Matrix4x4& m);
+// TODO: const Matrix4x4 inverse(const Matrix4x4& m);
 
 /**
- * Same as <code>product(a, transpose(b))</code>.
+ * Orthogonalizes a matrix by applying a Gram-Schmidt process to its rows.
  *
- * @param a Matrix to transform by the transpose of matrix <code>b</code>.
- * @param b Matrix by whose transpose matrix <code>a</code> is to be
- * transformed.
+ * @param m The matrix to orthogonalize.
  *
- * @return <code>a</code> transformed by the transpose of <code>b</code>.
+ * @return Orthogonalized <code>m</code>.
  */
-const Matrix4x4 productT(const Matrix4x4& a, const Matrix4x4& b);
+const Matrix4x4 orthogonalize(const Matrix4x4& m);
+
+// TODO: is this needed?
+/**
+ * Equivalent to <code>a * transpose(b)</code>. This is intended as an
+ * optimization.
+ *
+ * @param a The matrix to multiply.
+ * @param b The matrix by whose transpose matrix <code>a</code> is to be
+ * multiplied with.
+ *
+ * @return <code>a</code> multiplied by the transpose of <code>b</code>.
+ */
+const Matrix4x4 timesTranspose(const Matrix4x4& a, const Matrix4x4& b);
 
 /**
  * Calculates the transpose of a given matrix.
@@ -266,5 +194,17 @@ const Matrix4x4 productT(const Matrix4x4& a, const Matrix4x4& b);
  * @return The transpose of <code>m</code>.
  */
 const Matrix4x4 transpose(const Matrix4x4& m);
+
+// TODO: is this needed?
+/**
+ * Equivalent to <code>transpose(a) * b</code>. This is intended as an
+ * optimization.
+ *
+ * @param a The matrix whose transpose is to be multiplied.
+ * @param b The matrix by which matrix <code>a</code> is to be multiplied with.
+ *
+ * @return Transpose of <code>a</code> multiplied by <code>b</code>.
+ */
+const Matrix4x4 transposeTimes(const Matrix4x4& a, const Matrix4x4& b);
 
 #endif // #ifndef GEOMETRY_MATRIX4X4_H_INCLUDED

@@ -45,7 +45,7 @@ public:
     /**
      * Invalidates the world extents.
      */
-    void invalidateWorlExtents() const;
+    void invalidateWorldExtents() const;
 
     /**
      * @name Node Interface
@@ -57,7 +57,7 @@ public:
 
     // invalidates the world transform of this node and all direct and indirect
     // child nodes
-    virtual void invalidateWorlTransform() const;
+    virtual void invalidateWorldTransform() const;
 
     virtual void setScene(Scene*);
     //@}

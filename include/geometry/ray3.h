@@ -14,8 +14,8 @@
 class Ray3
 {
 public:
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor, constructs an uninitialized ray.
@@ -31,33 +31,6 @@ public:
     Ray3(const Vector3& origin, const Vector3& direction);
 
     /**
-     * Calculates the point on this ray that is closest to <code>q</code>.
-     *
-     * @param q A point.
-     *
-     * @return The point on this ray that is closest to <code>q</code>.
-     */
-    const Vector3 closestPointTo(const Vector3& q) const;
-
-    /**
-     * Calculates the distance to a point from this ray.
-     *
-     * @param q A point.
-     *
-     * @return The distance to point <code>q</code> from this ray.
-     */
-    float distanceTo(const Vector3& q) const;
-
-    /**
-     * Calculates the squared distance to a point from this ray.
-     *
-     * @param q A point.
-     *
-     * @return The squared distance to point <code>q</code> from this ray.
-     */
-    float sqrDistanceTo(const Vector3& q) const;
-
-    /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
      *
      * @param other The object to swap contents with.
@@ -67,5 +40,40 @@ public:
     Vector3 origin;     ///< Ray origin.
     Vector3 direction;  ///< Ray direction, should be unit length.
 };
+
+/**
+ * Calculates the distance between ray <code>x</code> and point
+ * <code>q</code>.
+ *
+ * @param x A ray.
+ * @param q A point.
+ *
+ * @return The distance between ray <code>x</code> and point <code>q</code>.
+ */
+float distance(const Ray3& x, const Vector3& q);
+
+/**
+ * Calculates the squared distance between ray <code>x</code> and point
+ * <code>q</code>.
+ *
+ * @param x A ray.
+ * @param q A point.
+ *
+ * @return The squared distance between ray <code>x</code> and point
+ * <code>q</code>.
+ */
+float sqrDistance(const Ray3& x, const Vector3& q);
+
+/**
+ * Calculates the point on ray <code>x</code> that is closest to point
+ * <code>q</code>.
+ *
+ * @param x A ray.
+ * @param q A point.
+ *
+ * @return The point on ray <code>x</code> that is closest to point
+ * <code>q</code>.
+ */
+const Vector3 closestPoint(const Ray3& x, const Vector3& q);
 
 #endif // #ifndef GEOMETRY_RAY3_H_INCLUDED

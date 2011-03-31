@@ -5,19 +5,15 @@
 
 #include <geometry/matrix2x2.h>
 
-#include <algorithm>
-
 #include <geometry/math.h>
 #include <geometry/vector2.h>
 
-const Matrix2x2& Matrix2x2::identity()
+const Matrix2x2 Matrix2x2::identity()
 {
-    static const Matrix2x2 m(
+    return Matrix2x2(
         1.0f, 0.0f,
         0.0f, 1.0f
     );
-
-    return m;
 }
 
 const Matrix2x2 Matrix2x2::rotation(const float rotation)
@@ -49,16 +45,37 @@ Matrix2x2::Matrix2x2(const Vector2& row0, const Vector2& row1)
     // ...
 }
 
-float* Matrix2x2::operator [](const int row)
+Matrix2x2& Matrix2x2::operator +=(const Matrix2x2& m)
 {
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 1);
-    return &m00 + row * 2;
+    *this = *this + m;
+    return *this;
 }
 
-const float* Matrix2x2::operator [](const int row) const
+Matrix2x2& Matrix2x2::operator -=(const Matrix2x2& m)
 {
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 1);
-    return &m00 + row * 2;
+    *this = *this - m;
+    return *this;
+}
+
+Matrix2x2& Matrix2x2::operator *=(const float k)
+{
+    *this = *this * k;
+    return *this;
+}
+
+Matrix2x2& Matrix2x2::operator *=(const Matrix2x2& m)
+{
+    *this = *this * m;
+    return *this;
+}
+
+Matrix2x2& Matrix2x2::operator /=(const float k)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
+
+    *this = *this / k;
+    return *this;
 }
 
 float* Matrix2x2::data()
@@ -71,88 +88,24 @@ const float* Matrix2x2::data() const
     return &m00;
 }
 
-void Matrix2x2::setRow(const int row, const Vector2& v)
+const Vector2 Matrix2x2::row(const int index) const
 {
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 1);
-    float* data = &m00 + row * 2;
+    GEOMETRY_RUNTIME_ASSERT(index >= 0 && index <= 1);
 
-    data[0] = v.x;
-    data[1] = v.y;
-}
-
-const Vector2 Matrix2x2::row(const int row) const
-{
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 1);
-    const float* data = &m00 + row * 2;
-    return Vector2(data[0], data[1]);
-}
-
-void Matrix2x2::setColumn(const int column, const Vector2& v)
-{
-    GEOMETRY_RUNTIME_ASSERT(column >= 0 && column <= 1);
-    float* data = &m00 + column;
-
-    data[0] = v.x;
-    data[2] = v.y;
-}
-
-const Vector2 Matrix2x2::column(const int column) const
-{
-    GEOMETRY_RUNTIME_ASSERT(column >= 0 && column <= 1);
-    const float* data = &m00 + column;
-    return Vector2(data[0], data[2]);
-}
-
-void Matrix2x2::multiplyBy(const Matrix2x2& m)
-{
-    *this = product(*this, m);
-}
-
-void Matrix2x2::multiplyByT(const Matrix2x2& m)
-{
-    *this = productT(*this, m);
-}
-
-void Matrix2x2::orthogonalize()
-{
-    Vector2 x(m00, m01);
-    x.normalize();
-
-    Vector2 y(m10, m11);
-    y -= x * dot(y, x);
-    y.normalize();
-
-    m00 = x.x;
-    m01 = x.y;
-
-    m10 = y.x;
-    m11 = y.y;
+    const float* const v = data() + 2 * index;
+    return Vector2(v[0], v[1]);
 }
 
 void Matrix2x2::swap(Matrix2x2& other)
 {
-    std::swap(m00, other.m00);
-    std::swap(m01, other.m01);
+    Math::swap(m00, other.m00);
+    Math::swap(m01, other.m01);
 
-    std::swap(m10, other.m10);
-    std::swap(m11, other.m11);
+    Math::swap(m10, other.m10);
+    Math::swap(m11, other.m11);
 }
 
-float angle(const Matrix2x2& m)
-{
-    const Vector2 xAxis = m.row(0);
-
-    if (xAxis.y >= 0.0f)
-    {
-        return Math::acos(xAxis.x);
-    }
-    else
-    {
-        return Math::twoPi() - Math::acos(xAxis.x);
-    }
-}
-
-const Vector2 product(const Vector2& v, const Matrix2x2& m)
+const Vector2 operator *(const Vector2& v, const Matrix2x2& m)
 {
     return Vector2(
         v.x * m.m00 + v.y * m.m10,
@@ -160,15 +113,44 @@ const Vector2 product(const Vector2& v, const Matrix2x2& m)
     );
 }
 
-const Vector2 productT(const Vector2& v, const Matrix2x2& m)
+const Matrix2x2 operator +(const Matrix2x2& a, const Matrix2x2& b)
 {
-    return Vector2(
-        v.x * m.m00 + v.y * m.m01,
-        v.x * m.m10 + v.y * m.m11
+    return Matrix2x2(
+        a.m00 + b.m00, a.m01 + b.m01,
+        a.m10 + b.m10, a.m11 + b.m11
     );
 }
 
-const Matrix2x2 product(const Matrix2x2& a, const Matrix2x2& b)
+const Matrix2x2 operator -(const Matrix2x2& m)
+{
+    return Matrix2x2(
+        -m.m00, -m.m01,
+        -m.m10, -m.m11
+    );
+}
+
+const Matrix2x2 operator -(const Matrix2x2& a, const Matrix2x2& b)
+{
+    return Matrix2x2(
+        a.m00 - b.m00, a.m01 - b.m01,
+        a.m10 - b.m10, a.m11 - b.m11
+    );
+}
+
+const Matrix2x2 operator *(const float k, const Matrix2x2& m)
+{
+    return Matrix2x2(
+        k * m.m00, k * m.m01,
+        k * m.m10, k * m.m11
+    );
+}
+
+const Matrix2x2 operator *(const Matrix2x2& m, const float k)
+{
+    return k * m;
+}
+
+const Matrix2x2 operator *(const Matrix2x2& a, const Matrix2x2& b)
 {
     return Matrix2x2(
         a.m00 * b.m00 + a.m01 * b.m10,
@@ -179,7 +161,58 @@ const Matrix2x2 product(const Matrix2x2& a, const Matrix2x2& b)
     );
 }
 
-const Matrix2x2 productT(const Matrix2x2& a, const Matrix2x2& b)
+const Matrix2x2 operator /(const Matrix2x2& m, const float k)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
+
+    return Matrix2x2(
+        m.m00 / k, m.m01 / k,
+        m.m10 / k, m.m11 / k
+    );
+}
+
+float rotationAngle(const Matrix2x2& m)
+{
+    return Math::atan(m.m01, m.m00);
+}
+
+const Vector2 timesTranspose(const Vector2& v, const Matrix2x2& m)
+{
+    return Vector2(
+        v.x * m.m00 + v.y * m.m01,
+        v.x * m.m10 + v.y * m.m11
+    );
+}
+
+const Matrix2x2 orthogonalize(const Matrix2x2& m)
+{
+    // TODO: In the worst case scenario, this could construct a matrix where
+    // one or both rows are incorrectly set to Vector2(1.0f, 0.0f) because of
+    // how normalize(const Vector2&) is implemented. Should this function check
+    // for division by zero instead of relying on the default behavior of
+    // vector normalization?
+
+    const Vector2 x = normalize(m.row(0));
+
+    Vector2 y = m.row(1);
+
+    // extract the part that is parallel to x and normalize
+    y -= x * dot(y, x);
+    y = normalize(y);
+
+    return Matrix2x2(x, y);
+}
+
+const Matrix2x2 slerp(const Matrix2x2& a, const Matrix2x2& b, const float t)
+{
+    const Matrix2x2 c = timesTranspose(a, b);
+    const float angle = rotationAngle(c);
+
+    return a * Matrix2x2::rotation(t * angle);
+}
+
+const Matrix2x2 timesTranspose(const Matrix2x2& a, const Matrix2x2& b)
 {
     return Matrix2x2(
         a.m00 * b.m00 + a.m01 * b.m01,
@@ -195,5 +228,16 @@ const Matrix2x2 transpose(const Matrix2x2& m)
     return Matrix2x2(
         m.m00, m.m10,
         m.m01, m.m11
+    );
+}
+
+const Matrix2x2 transposeTimes(const Matrix2x2& a, const Matrix2x2& b)
+{
+    return Matrix2x2(
+        a.m00 * b.m00 + a.m10 * b.m10,
+        a.m00 * b.m01 + a.m10 * b.m11,
+
+        a.m01 * b.m00 + a.m11 * b.m10,
+        a.m01 * b.m01 + a.m11 * b.m11
     );
 }

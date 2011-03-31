@@ -8,7 +8,7 @@
 
 #include <geometry/staticassert.h>
 
-class Plane3;
+class Matrix3x3;
 
 /**
  * Represents a 3D vector.
@@ -19,33 +19,12 @@ public:
     /**
      * Gets the zero vector.
      *
-     * @return The zero vector.
+     * @return <code>Vector3(0.0f, 0.0f, 0.0f)</code>.
      */
-    static const Vector3& zero();
+    static const Vector3 zero();
 
-    /**
-     * Gets the unit length x-axis direction vector.
-     *
-     * @return The unit length x-axis direction vector.
-     */
-    static const Vector3& xAxis();
-
-    /**
-     * Gets the unit length y-axis direction vector.
-     *
-     * @return The unit length y-axis direction vector.
-     */
-    static const Vector3& yAxis();
-
-    /**
-     * Gets the unit length z-axis direction vector.
-     *
-     * @return The unit length z-axis direction vector.
-     */
-    static const Vector3& zAxis();
-
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor, constructs an uninitialized vector.
@@ -61,57 +40,14 @@ public:
      */
     Vector3(float x, float y, float z);
 
-    /**
-     * Vector addition.
-     *
-     * @param v The vector to add to <code>*this</code>.
-     *
-     * @return Reference to <code>*this</code>.
-     */
+    // the assignment operators are members to prevent implicit type
+    // conversions of the left hand side object
+
     Vector3& operator +=(const Vector3& v);
-
-    /**
-     * Vector subtraction.
-     *
-     * @param v The vector to subtract from <code>*this</code>.
-     *
-     * @return Reference to <code>*this</code>.
-     */
     Vector3& operator -=(const Vector3& v);
-
-    /**
-     * Vector-times-scalar multiplication.
-     *
-     * @param k The multiplier.
-     *
-     * @return Reference to <code>*this</code>.
-     */
     Vector3& operator *=(float k);
-
-    /**
-     * Vector-times-inverse scalar multiplication.
-     *
-     * @param k The divisor, cannot be zero.
-     *
-     * @return Reference to <code>*this</code>.
-     */
+    Vector3& operator *=(const Matrix3x3& m);
     Vector3& operator /=(float k);
-
-    /**
-     * Array access operator.
-     *
-     * @param i Index of the component to return, between [0, 2].
-     *
-     * @return Reference to the specified component.
-     */
-    float& operator [](int i);
-
-    /**
-     * Provided for const-correctness.
-     *
-     * @see operator [](int)
-     */
-    float operator [](int i) const;
 
     /**
      * Gets the component array.
@@ -126,26 +62,6 @@ public:
      * @see data()
      */
     const float* data() const;
-
-    /**
-     * Negates this vector.
-     */
-    void negate();
-
-    /**
-     * Normalizes this vector. The magnitude (length) of this vector cannot be
-     * zero.
-     */
-    void normalize();
-
-    /**
-     * Sets all components.
-     *
-     * @param x The x-component to set.
-     * @param y The y-component to set.
-     * @param z The z-component to set.
-     */
-    void set(float x, float y, float z);
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
@@ -164,74 +80,26 @@ public:
 GEOMETRY_STATIC_ASSERT(sizeof(Vector3[2]) == sizeof(float) * 6);
 /// @endcond
 
-/**
- * Vector addition.
- *
- * @param a The first vector.
- * @param b The other vector.
- *
- * @return <code>a + b</code>.
- */
 const Vector3 operator +(const Vector3& a, const Vector3& b);
-
-/**
- * Vector subtraction.
- *
- * @param a The first vector.
- * @param b The other vector.
- *
- * @return <code>a - b</code>.
- */
-const Vector3 operator -(const Vector3& a, const Vector3& b);
-
-/**
- * Vector negation.
- *
- * @param v The vector to negate.
- *
- * @return Negated <code>v</code>.
- */
 const Vector3 operator -(const Vector3& v);
-
-/**
- * Scalar-times-vector multiplication.
- *
- * @param k The multiplier.
- * @param v The vector to multiply.
- *
- * @return <code>v</code> scaled by <code>k</code>.
- */
+const Vector3 operator -(const Vector3& a, const Vector3& b);
 const Vector3 operator *(float k, const Vector3& v);
-
-/**
- * Vector-times-scalar multiplication.
- *
- * @param v The vector to multiply.
- * @param k The multiplier.
- *
- * @return <code>v</code> scaled by <code>k</code>.
- */
 const Vector3 operator *(const Vector3& v, float k);
-
-/**
- * Vector-times-inverse scalar multiplication.
- *
- * @param v The vector to multiply.
- * @param k The divisor, cannot be zero.
- *
- * @return <code>v</code> scaled by the inverse of <code>k</code>.
- */
 const Vector3 operator /(const Vector3& v, float k);
 
 /**
- * Calculates the angle between two vectors in radians. The magnitude (length)
- * of the given vectors cannot be zero.
+ * Calculates the angle between two vectors in radians. <code>a</code> and
+ * <code>b</code> do not need to be unit length. If the magnitude (length) of a
+ * given vector is zero, <code>Vector3(1.0f, 0.0f, 0.0f)</code> is used in
+ * calculation in its stead.
  *
  * @param a The first vector.
  * @param b The other vector.
  *
  * @return The angle between <code>a</code> and <code>b</code> in radians,
  * between [0, pi].
+ *
+ * @see normalize(const Vector3&)
  */
 float angleBetween(const Vector3& a, const Vector3& b);
 
@@ -246,6 +114,25 @@ float angleBetween(const Vector3& a, const Vector3& b);
 float distance(const Vector3& a, const Vector3& b);
 
 /**
+ * Vector dot product.
+ *
+ * @param a The first vector.
+ * @param b The other vector.
+ *
+ * @return The dot product of <code>a</code> and <code>b</code>.
+ */
+float dot(const Vector3& a, const Vector3& b);
+
+/**
+ * Calculates the length of a given vector.
+ *
+ * @param v The vector whose length is to be calculated.
+ *
+ * @return Length of the given vector.
+ */
+float length(const Vector3& v);
+
+/**
  * Calculates the squared distance between two points.
  *
  * @param a The first point.
@@ -256,14 +143,13 @@ float distance(const Vector3& a, const Vector3& b);
 float sqrDistance(const Vector3& a, const Vector3& b);
 
 /**
- * Vector dot product.
+ * Calculates the squared length of a given vector.
  *
- * @param a The first vector.
- * @param b The other vector.
+ * @param v The vector whose squared length is to be calculated.
  *
- * @return The dot product of <code>a</code> and <code>b</code>.
+ * @return Squared length of the given vector.
  */
-float dot(const Vector3& a, const Vector3& b);
+float sqrLength(const Vector3& v);
 
 /**
  * Vector cross product.
@@ -276,28 +162,10 @@ float dot(const Vector3& a, const Vector3& b);
 const Vector3 cross(const Vector3& a, const Vector3& b);
 
 /**
- * Calculates the length of a given vector.
+ * Linear interpolation between two vectors.
  *
- * @param v The vector whose length is to be calculated.
- *
- * @return Length of the given vector.
- */
-float length(const Vector3& v);
-
-/**
- * Calculates the squared length of a given vector.
- *
- * @param v The vector whose squared length is to be calculated.
- *
- * @return Squared length of the given vector.
- */
-float sqrLength(const Vector3& v);
-
-/**
- * Linear interpolation between two points.
- *
- * @param a Begin point.
- * @param b End point.
+ * @param a Vector containing the values at <code>t == 0.0f</code>.
+ * @param b Vector containing the values at <code>t == 1.0f</code>.
  * @param t Weight coefficient.
  *
  * @return <code>a + t * (b - a)</code>.
@@ -305,8 +173,9 @@ float sqrLength(const Vector3& v);
 const Vector3 mix(const Vector3& a, const Vector3& b, float t);
 
 /**
- * Calculates a normalized vector. The magnitude (length) of the given vector
- * cannot be zero.
+ * Calculates a normalized vector. If the magnitude (length) of <code>v</code>
+ * is zero, the returned vector is equal to
+ * <code>Vector3(1.0f, 0.0f, 0.0f)</code>.
  *
  * @param v The vector from which the result vector is to be calculated.
  *
@@ -318,21 +187,12 @@ const Vector3 normalize(const Vector3& v);
  * Reflects a vector.
  *
  * @param v The vector to reflect.
- * @param normal Unit length reflection surface normal.
+ * @param n Unit length reflection surface normal.
  *
  * @return Reflected <code>v</code>.
  */
-const Vector3 reflect(const Vector3& v, const Vector3& normal);
+const Vector3 reflect(const Vector3& v, const Vector3& n);
 
-// TODO: should this be called mirror instead of reflect?
-/**
- * Reflects a point across a plane.
- *
- * @param q The point to reflect.
- * @param plane Reflection plane.
- *
- * @return Reflected <code>q</code>.
- */
-const Vector3 reflect(const Vector3& q, const Plane3& plane);
+// TODO: const Vector3 refract(const Vector3& v, const Vector3& n, float k);
 
 #endif // #ifndef GEOMETRY_VECTOR3_H_INCLUDED

@@ -8,36 +8,23 @@
 
 #include <geometry/vector2.h>
 
+class Circle;
 class Interval;
-class Matrix2x2;
 class Transform2;
 
-// TODO: better encapsulation?
 /**
- * Describes a 2D axis-aligned bounding rectangle (AABR).
+ * Describes 2D extents.
  */
 class Extents2
 {
 public:
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
-     * Default constructor, constructs an empty AABR. The minimum extents are
-     * set to <code>std::numeric_limits<float>::max()</code> and the maximum
-     * extents are set to <code>-std::numeric_limits<float>::max()</code>.
+     * Default constructor, constructs empty extents.
      */
     Extents2();
-
-    /**
-     * Constructor.
-     *
-     * @param xMin Minimum x-coordinate extent.
-     * @param yMin Minimum y-coordinate extent.
-     * @param xMax Maximum x-coordinate extent.
-     * @param yMax Maximum y-coordinate extent.
-     */
-    Extents2(float xMin, float yMin, float xMax, float yMax);
 
     /**
      * Constructor.
@@ -47,132 +34,57 @@ public:
      */
     Extents2(const Vector2& min, const Vector2& max);
 
+    // TODO: type of *In can be Vector2 or Extents2, document it
     /**
-     * Makes <code>*this</code> empty. The minimum extents are set to
-     * <code>std::numeric_limits<float>::max()</code> and the maximum extents
-     * are set to <code>-std::numeric_limits<float>::max()</code>.
+     * Constructor, constructs extents containing all items in the range
+     * [<code>first</code>, <code>last</code>).
+     *
+     * @param first Iterator pointing to the first item to enclose.
+     * @param last Iterator pointing one beyond the last item to enclose.
+     */
+    template <class In>
+    Extents2(In first, In last);
+
+    /**
+     * Makes <code>*this</code> empty.
      */
     void clear();
 
     /**
-     * Tests if <code>*this</code> is empty. An AABR is considered empty if its
-     * maximum extents are less than its minimum extents on one or both axes.
+     * Grows the extents to enclose point <code>q</code>.
+     *
+     * @param q The point to enclose.
+     */
+    void enclose(const Vector2& q);
+
+    /**
+     * Grows the extents to enclose <code>other</code>. If <code>other</code>
+     * is empty, this member function does nothing.
+     *
+     * @param other The extents to enclose.
+     */
+    void enclose(const Extents2& other);
+
+    // TODO: type of *In can be Vector2 or Extents2, document it
+    /**
+     * Grows the extents to enclose all items in the range [<code>first</code>,
+     * <code>last</code>).
+     *
+     * @param first Iterator pointing to the first item to enclose.
+     * @param last Iterator pointing one beyond the last item to enclose.
+     */
+    template <class In>
+    void enclose(In first, In last);
+
+    /**
+     * Tests if <code>*this</code> is empty. <code>*this</code> is considered
+     * empty if the maximum extent is less than the minimum extent on at least
+     * one axis.
      *
      * @return <code>true</code>, if <code>*this</code> is empty,
      * <code>false</code> otherwise.
      */
     bool isEmpty() const;
-
-    /**
-     * Gets the AABR length along x-axis. The return value is equivalent to
-     * <code>max.x - min.x</code>.
-     *
-     * @return AABR length along x-axis.
-     */
-    float xLength() const;
-
-    /**
-     * Gets the AABR length along y-axis. The return value is equivalent to
-     * <code>max.y - min.y</code>.
-     *
-     * @return AABR length along y-axis.
-     */
-    float yLength() const;
-
-    /**
-     * Tests if this AABR contains a given point.
-     *
-     * @param point The point to test.
-     *
-     * @return <code>true</code>, if <code>*this</code> contains the given
-     * point, <code>false</code> otherwise. If this AABR is empty, the return
-     * value is <code>false</code>.
-     */
-    bool contains(const Vector2& point) const;
-
-    /**
-     * Tests if this AABR contains a given AABR.
-     *
-     * @param other The AABR to test.
-     *
-     * @return <code>true</code>, if <code>*this</code> contains
-     * <code>other</code>, <code>false</code> otherwise. If one or both AABRs
-     * are empty, the return value is <code>false</code>.
-     */
-    bool contains(const Extents2& other) const;
-
-    /**
-     * Tests if this AABR intersects a given AABR. Two AABRs are considered
-     * intersecting when their penetration depth is greater than zero.
-     *
-     * @param other The AABR to test.
-     *
-     * @return <code>true</code>, if <code>*this</code> intersects
-     * <code>other</code>, <code>false</code> otherwise. If one or both AABRs
-     * are empty, the return value is <code>false</code>.
-     */
-    bool intersects(const Extents2& other) const;
-
-    /**
-     * Grows the extents of this AABR to enclose a given point.
-     *
-     * @param point The point to enclose.
-     */
-    void growToContain(const Vector2& point);
-
-    /**
-     * Grows the extents of this AABR to enclose a given AABR. If the given
-     * AABR is empty, this member function does nothing.
-     *
-     * @param other The AABR to enclose.
-     */
-    void growToContain(const Extents2& other);
-
-    /**
-     * Calculates the interval of this AABR along a given axis. If this AABR is
-     * empty, the returned interval will be empty.
-     *
-     * @param axis The axis along which the interval is to be calculated.
-     *
-     * @return The calculated interval.
-     */
-    const Interval intervalAlong(const Vector2& axis) const;
-
-    /**
-     * Applies a tranform to this AABR. <code>*this</code> is set to an AABR
-     * that wraps the transformed original AABR. If this AABR is empty, this
-     * member function does nothing.
-     *
-     * @param transform The transform to apply.
-     */
-    void transformBy(const Transform2& transform);
-
-    /**
-     * Applies a translation to this AABR. <code>*this</code> is set to an AABR
-     * that wraps the translated original AABR. If this AABR is empty, this
-     * member function does nothing.
-     *
-     * @param translation The translation to apply.
-     */
-    void translateBy(const Vector2& translation);
-
-    /**
-     * Applies a rotation to this AABR. <code>*this</code> is set to an AABR
-     * that wraps the rotated original AABR. If this AABR is empty, this member
-     * function does nothing.
-     *
-     * @param rotation The rotation to apply, must be a valid rotation matrix.
-     */
-    void rotateBy(const Matrix2x2& rotation);
-
-    /**
-     * Applies a scaling to this AABR. <code>*this</code> is set to an AABR
-     * that wraps the scaled original AABR. If this AABR is empty, this member
-     * function does nothing.
-     *
-     * @param scaling The scaling to apply, must be > 0.
-     */
-    void scaleBy(float scaling);
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
@@ -184,5 +96,81 @@ public:
     Vector2 min;    ///< The minimum extents.
     Vector2 max;    ///< The maximum extents.
 };
+
+/**
+ * Tests if <code>a</code> and <code>b</code> intersect.
+ *
+ * @param a Extents.
+ * @param b A circle.
+ *
+ * @return <code>true</code>, if <code>a</code> and <code>b</code> intersect,
+ * <code>false</code> otherwise. If <code>a</code> is empty, the return value
+ * is <code>false</code>.
+ */
+bool intersect(const Extents2& a, const Circle& b);
+
+/**
+ * Tests if <code>a</code> and <code>b</code> intersect.
+ *
+ * @param a Extents.
+ * @param b Extents.
+ *
+ * @return <code>true</code>, if <code>a</code> and <code>b</code> intersect,
+ * <code>false</code> otherwise. If <code>a</code>, <code>b</code> or both are
+ * empty, the return value is <code>false</code>.
+ */
+bool intersect(const Extents2& a, const Extents2& b);
+
+/**
+ * Calculates the point on or in extents <code>x</code> that is closest to
+ * point <code>q</code>.
+ *
+ * @param x Extents, cannot be empty.
+ * @param q A point.
+ *
+ * @return The point on or in extents <code>x</code> that is closest to point
+ * <code>q</code>.
+ */
+const Vector2 closestPoint(const Extents2& x, const Vector2& q);
+
+/**
+ * Calculates the interval of <code>x</code> along <code>axis</code>. If
+ * <code>x</code> is empty, the returned interval will be empty.
+ *
+ * @param x The extents whose interval is to be calculated.
+ * @param axis The axis along which the interval is to be calculated.
+ *
+ * @return The calculated interval.
+ */
+const Interval interval(const Extents2& x, const Vector2& axis);
+
+/**
+ * Transforms <code>x</code> by <code>t</code>. The returned extents wraps the
+ * transformed <code>x</code>. If <code>x</code> is empty, the return value is
+ * equivalent to <code>x</code>.
+ *
+ * @param x The extents to transform.
+ * @param t The transform to apply.
+ *
+ * @return The transformed extents.
+ */
+const Extents2 transform(const Extents2& x, const Transform2& t);
+
+template <class In>
+Extents2::Extents2(const In first, const In last)
+{
+    clear();
+    enclose(first, last);
+}
+
+template <class In>
+void Extents2::enclose(In first, const In last)
+{
+    while (first != last)
+    {
+        enclose(*first);
+        ++first;
+    }
+}
 
 #endif // #ifndef GEOMETRY_EXTENTS2_H_INCLUDED
