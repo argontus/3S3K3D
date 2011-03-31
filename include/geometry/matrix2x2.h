@@ -21,7 +21,7 @@ public:
      *
      * @return The identity matrix.
      */
-    static const Matrix2x2& identity();
+    static const Matrix2x2 identity();
 
     /**
      * Gets a matrix that produces a rotation about the z-axis.
@@ -32,8 +32,8 @@ public:
      */
     static const Matrix2x2 rotation(float rotation);
 
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor, constructs an uninitialized matrix.
@@ -48,34 +48,24 @@ public:
      * @param m10 Element at row 1, column 0.
      * @param m11 Element at row 1, column 1.
      */
-    Matrix2x2(
-        float m00, float m01,
-        float m10, float m11);
+    Matrix2x2(float m00, float m01, float m10, float m11);
 
     /**
      * Constructor.
      *
-     * @param row0 Contains the elements of row 0.
-     * @param row1 Contains the elements of row 1.
+     * @param row0 Vector containing the elements of row 0.
+     * @param row1 Vector containing the elements of row 1.
      */
     Matrix2x2(const Vector2& row0, const Vector2& row1);
 
-    /**
-     * Array access operator. Allows matrices to be accessed like 2D
-     * arrays of <code>float</code>.
-     *
-     * @param row Index of the row to return, between [0, 1].
-     *
-     * @return Pointer to the first element of the specified row.
-     */
-    float* operator [](int row);
+    // the assignment operators are members to prevent implicit type
+    // conversions of the left hand side object
 
-    /**
-     * Provided for const-correctness.
-     *
-     * @see operator [](int)
-     */
-    const float* operator [](int row) const;
+    Matrix2x2& operator +=(const Matrix2x2& m);
+    Matrix2x2& operator -=(const Matrix2x2& m);
+    Matrix2x2& operator *=(float k);
+    Matrix2x2& operator *=(const Matrix2x2& m);
+    Matrix2x2& operator /=(float k);
 
     /**
      * Gets the element array.
@@ -92,59 +82,13 @@ public:
     const float* data() const;
 
     /**
-     * Sets the elements of a specified row.
+     * Gets the specified row as a vector.
      *
-     * @param row Index of the row to set, between [0, 1].
-     * @param v Vector containing the elements to set.
-     */
-    void setRow(int row, const Vector2& v);
-
-    /**
-     * Gets a specified row as a vector.
-     *
-     * @param row Index of the row to return, between [0, 1].
+     * @param index Index of the row to return, between [0, 1].
      *
      * @return The specified row as a vector.
      */
-    const Vector2 row(int row) const;
-
-    /**
-     * Sets the elements of a specified column.
-     *
-     * @param column Index of the column to set, between [0, 1].
-     * @param v Vector containing the elements to set.
-     */
-    void setColumn(int column, const Vector2& v);
-
-    /**
-     * Gets a specified column as a vector.
-     *
-     * @param column Index of the column to return, between [0, 1].
-     *
-     * @return The specified column as a vector.
-     */
-    const Vector2 column(int column) const;
-
-    /**
-     * Sets <code>*this</code> to the product of <code>*this</code> and
-     * <code>m</code>.
-     *
-     * @param m The matrix to multiply this matrix with.
-     */
-    void multiplyBy(const Matrix2x2& m);
-
-    /**
-     * Sets <code>*this</code> to the product of <code>*this</code> and the
-     * transpose of <code>m</code>.
-     *
-     * @param m The matrix by whose transpose this matrix is multiplied with.
-     */
-    void multiplyByT(const Matrix2x2& m);
-
-    /**
-     * Applies a Gram-Schmidt process to the rows.
-     */
-    void orthogonalize();
+    const Vector2 row(int index) const;
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
@@ -165,57 +109,77 @@ public:
 GEOMETRY_STATIC_ASSERT(sizeof(Matrix2x2[2]) == sizeof(float) * 8);
 /// @endcond
 
+const Vector2 operator *(const Vector2& v, const Matrix2x2& m);
+
+const Matrix2x2 operator +(const Matrix2x2& a, const Matrix2x2& b);
+const Matrix2x2 operator -(const Matrix2x2& m);
+const Matrix2x2 operator -(const Matrix2x2& a, const Matrix2x2& b);
+const Matrix2x2 operator *(float k, const Matrix2x2& m);
+const Matrix2x2 operator *(const Matrix2x2& m, float k);
+const Matrix2x2 operator *(const Matrix2x2& a, const Matrix2x2& b);
+const Matrix2x2 operator /(const Matrix2x2& m, float k);
+
+// TODO: float determinant(const Matrix2x2& m);
+
 /**
- * Calculates the rotation angle of a given rotation matrix radians. The given
- * matrix is assumed to be a valid rotation matrix.
+ * Gets the rotation angle of <code>m</code>. <code>m</code> is assumed to be a
+ * valid rotation matrix.
  *
  * @param m The rotation matrix whose rotation angle is to be calculated.
  *
- * @return Rotation angle of rotation matrix <code>m</code> in radians.
+ * @return The rotation angle of <code>m</code>, in radians, between [-pi, pi].
  */
-float angle(const Matrix2x2& m);
+float rotationAngle(const Matrix2x2& m);
+
+// TODO: is this needed?
+/**
+ * Equivalent to <code>v * transpose(m)</code>. This is intended as an
+ * optimization.
+ *
+ * @param v The vector to multiply.
+ * @param m The matrix by whose transpose vector <code>v</code> is to be
+ * multiplied with.
+ *
+ * @return <code>v</code> multiplied by the transpose of <code>m</code>.
+ */
+const Vector2 timesTranspose(const Vector2& v, const Matrix2x2& m);
+
+// TODO: const Matrix2x2 adjoint(const Matrix2x2& m);
+// TODO: const Matrix2x2 inverse(const Matrix2x2& m);
 
 /**
- * Vector-matrix product.
+ * Orthogonalizes a matrix by applying a Gram-Schmidt process to its rows.
  *
- * @param v Vector to transform by matrix <code>m</code>.
- * @param m Matrix by which vector <code>v</code> is to be transformed.
+ * @param m The matrix to orthogonalize.
  *
- * @return <code>v</code> transformed by <code>m</code>.
+ * @return Orthogonalized <code>m</code>.
  */
-const Vector2 product(const Vector2& v, const Matrix2x2& m);
+const Matrix2x2 orthogonalize(const Matrix2x2& m);
 
 /**
- * Same as <code>product(v, transpose(m))</code>.
+ * Spherical linear interpolation between two rotation matrices. <code>a</code>
+ * and <code>b</code> are assumed to be valid rotation matrices.
  *
- * @param v Vector to transform by the transpose of matrix <code>m</code>.
- * @param m Matrix by whose transpose vector <code>v</code> is to be
- * transformed.
+ * @param a Matrix describing the rotation at <code>t == 0.0f</code>.
+ * @param b Matrix describing the rotation at <code>t == 1.0f</code>.
+ * @param t Weight coefficient.
  *
- * @return <code>v</code> transformed by the transpose of <code>m</code>.
+ * @return The interpolated rotation matrix.
  */
-const Vector2 productT(const Vector2& v, const Matrix2x2& m);
+const Matrix2x2 slerp(const Matrix2x2& a, const Matrix2x2& b, float t);
 
+// TODO: is this needed?
 /**
- * Matrix-matrix product.
+ * Equivalent to <code>a * transpose(b)</code>. This is intended as an
+ * optimization.
  *
- * @param a Matrix to transform by matrix <code>b</code>.
- * @param b Matrix by which matrix <code>a</code> is to be transformed.
+ * @param a The matrix to multiply.
+ * @param b The matrix by whose transpose matrix <code>a</code> is to be
+ * multiplied with.
  *
- * @return <code>a</code> transformed by <code>b</code>.
+ * @return <code>a</code> multiplied by the transpose of <code>b</code>.
  */
-const Matrix2x2 product(const Matrix2x2& a, const Matrix2x2& b);
-
-/**
- * Same as <code>product(a, transpose(b))</code>.
- *
- * @param a Matrix to transform by the transpose of matrix <code>b</code>.
- * @param b Matrix by whose transpose matrix <code>a</code> is to be
- * transformed.
- *
- * @return <code>a</code> transformed by the transpose of <code>b</code>.
- */
-const Matrix2x2 productT(const Matrix2x2& a, const Matrix2x2& b);
+const Matrix2x2 timesTranspose(const Matrix2x2& a, const Matrix2x2& b);
 
 /**
  * Calculates the transpose of a given matrix.
@@ -225,5 +189,17 @@ const Matrix2x2 productT(const Matrix2x2& a, const Matrix2x2& b);
  * @return The transpose of <code>m</code>.
  */
 const Matrix2x2 transpose(const Matrix2x2& m);
+
+// TODO: is this needed?
+/**
+ * Equivalent to <code>transpose(a) * b</code>. This is intended as an
+ * optimization.
+ *
+ * @param a The matrix whose transpose is to be multiplied.
+ * @param b The matrix by which matrix <code>a</code> is to be multiplied with.
+ *
+ * @return Transpose of <code>a</code> multiplied by <code>b</code>.
+ */
+const Matrix2x2 transposeTimes(const Matrix2x2& a, const Matrix2x2& b);
 
 #endif // #ifndef GEOMETRY_MATRIX2X2_H_INCLUDED

@@ -68,7 +68,7 @@ public:
 
     // invalidates the world transform of this node, invalidates the world
     // extents of this node and all anchestor nodes
-    virtual void invalidateWorlTransform() const;
+    virtual void invalidateWorldTransform() const;
     //@}
 
     /**
@@ -88,7 +88,7 @@ private:
     /**
      * Invalidates the world extents.
      */
-    void invalidateWorlExtents() const;
+    void invalidateWorldExtents() const;
 
     /**
      * Updates and validates the world extents. This is called internally for

@@ -10,13 +10,13 @@
 #include <iostream>
 
 GameWindow::GameWindow()
+ : aspectRatio(0),
+   width(0),
+   height(0),
+   mouseVisible(false),
+   fullscreen(false),
+   mouseBoundToScreen(true)
 {
-    aspectRatio = 0;
-    width = 0;
-    height = 0;
-    mouseVisible = true;
-    mouseBoundToScreen = true;
-    fullscreen = true;
 }
 
 GameWindow::~GameWindow()
@@ -45,17 +45,20 @@ bool GameWindow::init()
 		return false;
 	}
 
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+	//TODO: request the depth value from the driver instead of hardcoding it.
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+    // this is needed for the depth fail shadow volume algorithm
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
     if( (mainwindow = SDL_SetVideoMode( width, height, 32, flags )) == NULL )
     {
 		std::cerr << "SDL initialization failed: " << SDL_GetError();
 		std::cerr << std::endl;
 		return false;
 	}
-
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-	//TODO: request the depth value from the driver instead of hardcoding it.
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
 	SDL_ShowCursor( mouseVisible );
 
@@ -159,18 +162,6 @@ void GameWindow::onMouseButtonDown(const SDL_MouseButtonEvent& mouseButtonEvent)
 void GameWindow::onMouseButtonUp(const SDL_MouseButtonEvent& mouseButtonEvent)
 {
     // does nothing by default
-}
-
-void GameWindow::bindMouse()
-{
-    mouse.setMouseBindPointX( width/2 );
-    mouse.setMouseBindPointY( height/2 );
-    mouse.bindMouse();
-}
-
-void GameWindow::releaseMouse()
-{
-    mouse.releaseMouse();
 }
 
 void GameWindow::centerMouse()

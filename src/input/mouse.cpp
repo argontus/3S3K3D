@@ -1,10 +1,12 @@
 #include "input/mouse.h"
 
 Mouse::Mouse()
- : currentMouseX(0),
-   currentMouseY(0),
-   previousMouseX(0),
-   previousMouseY(0)
+ : mouseX(0),
+   mouseY(0),
+   mouseBindPointX(0),
+   mouseBindPointY(0),
+   mouseLastX(0),
+   mouseLastY(0)
 {
 }
 
@@ -17,22 +19,23 @@ int Mouse::getNumberOfMouseButtons()
     return numberOfMouseButtons;
 }
 
-void Mouse::setMouseBindPointX( const int x )
+void Mouse::setMouseMode( MOUSEMODE mode )
 {
-    mouseBindPointX = x;
+    mouseMode = mode;
 }
 
-void Mouse::setMouseBindPointY( const int y )
+void Mouse::setMouseBindPoint( int x, int y )
 {
+    mouseBindPointX = x;
     mouseBindPointY = y;
 }
 
-void Mouse::bindMouse()
+int Mouse::getMouseDeltaX()
 {
-    mouseBoundToPoint = true;
+    return mouseX-mouseLastX;
 }
 
-void Mouse::releaseMouse()
+int Mouse::getMouseDeltaY()
 {
-    mouseBoundToPoint = false;
+    return mouseY-mouseLastY;
 }

@@ -38,66 +38,66 @@ Mesh& Mesh::operator =(const Mesh& other)
     return *this;
 }
 
-void Mesh::setVertices(const Vector3Array& vertices)
+void Mesh::setVertices(const std::vector<Vector3>& vertices)
 {
     GRAPHICS_RUNTIME_ASSERT(vertices.size() % 3 == 0);
     vertices_ = vertices;
 }
 
-Vector3Array& Mesh::vertices()
+std::vector<Vector3>& Mesh::vertices()
 {
     return vertices_;
 }
 
-const Vector3Array& Mesh::vertices() const
+const std::vector<Vector3>& Mesh::vertices() const
 {
     return vertices_;
 }
 
-void Mesh::setNormals(const Vector3Array& normals)
+void Mesh::setNormals(const std::vector<Vector3>& normals)
 {
     GRAPHICS_RUNTIME_ASSERT(normals.size() % 3 == 0);
     normals_ = normals;
 }
 
-Vector3Array& Mesh::normals()
+std::vector<Vector3>& Mesh::normals()
 {
     return normals_;
 }
 
-const Vector3Array& Mesh::normals() const
+const std::vector<Vector3>& Mesh::normals() const
 {
     return normals_;
 }
 
-void Mesh::setTangents(const Vector3Array& tangents)
+void Mesh::setTangents(const std::vector<Vector3>& tangents)
 {
     GRAPHICS_RUNTIME_ASSERT(tangents.size() % 3 == 0);
     tangents_ = tangents;
 }
 
-Vector3Array& Mesh::tangents()
+std::vector<Vector3>& Mesh::tangents()
 {
     return tangents_;
 }
 
-const Vector3Array& Mesh::tangents() const
+const std::vector<Vector3>& Mesh::tangents() const
 {
     return tangents_;
 }
 
-void Mesh::setTexCoords(const Vector2Array& texCoords)
+void Mesh::setTexCoords(const std::vector<Vector2>& texCoords)
 {
     GRAPHICS_RUNTIME_ASSERT(texCoords.size() % 3 == 0);
     texCoords_ = texCoords;
 }
 
-Vector2Array& Mesh::texCoords()
+std::vector<Vector2>& Mesh::texCoords()
 {
     return texCoords_;
 }
 
-const Vector2Array& Mesh::texCoords() const
+const std::vector<Vector2>& Mesh::texCoords() const
 {
     return texCoords_;
 }
@@ -112,9 +112,7 @@ void Mesh::generateFlatNormals()
 {
     if (vertices_.size() != normals_.size())
     {
-        // resize the normal array
-        // TODO: make resize(int) a member of Vector3Array?
-        Vector3Array(vertices_.size()).swap(normals_);
+        normals_.resize(vertices_.size());
     }
 
     GRAPHICS_RUNTIME_ASSERT(vertices_.size() == normals_.size());
@@ -126,41 +124,21 @@ void Mesh::generateFlatNormals()
         const Vector3 v0 = vertices_[i * 3 + 0];
         const Vector3 v1 = vertices_[i * 3 + 1];
 
-        // unnormalized tangent vector
-        Vector3 t = v1 - v0;
-
-        const float k = length(t);
-
-        // avoid division by zero
-        if (k > 0.0f)
-        {
-            // normalize the tangent vector
-            t /= k;
-        }
-        else
-        {
-            // unable to normalize, use x-axis as the tangent vector
-            t = Vector3::xAxis();
-        }
-
         const Vector2 t0 = texCoords_[i * 3 + 0];
         const Vector2 t1 = texCoords_[i * 3 + 1];
 
         Vector2 t0t1 = t1 - t0;
-
-        if (length(t0t1) == 0.0f)
-        {
-            t0t1 = Vector2::xAxis();
-        }
 
         const float tCoordAngle = angle(t0t1);
 
         // normal
         const Vector3 n = faceNormal(i);
 
+        // normalized tangent vector
+        Vector3 t = normalize(v1 - v0);
+
         // align tangent with the horizontal texture axis
-        t = product(t, Matrix3x3::rotation(n, -tCoordAngle));
-        t.normalize();
+        t = normalize(t * Matrix3x3::rotation(n, -tCoordAngle));
 
         normals_[i * 3 + 0] =
         normals_[i * 3 + 1] =
@@ -187,7 +165,7 @@ void Mesh::swap(Mesh& other)
 
 const Vector3 Mesh::faceNormal(const int index) const
 {
-    GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < vertices_.size());
+    GRAPHICS_RUNTIME_ASSERT(index >= 0 && static_cast<size_t>(index) < vertices_.size());
     GRAPHICS_RUNTIME_ASSERT(vertices_.size() % 3 == 0);
 
     // face vertices, assume CCW winding
@@ -197,18 +175,5 @@ const Vector3 Mesh::faceNormal(const int index) const
 
     // TODO: suffers from loss of precision, use 64-bit precision for
     // calculating the normal vector?
-    const Vector3 n = cross(v1 - v0, v2 - v0);
-    const float k = length(n);
-
-    // avoid division by zero
-    if (k > 0.0f)
-    {
-        // return normalized n
-        return n / k;
-    }
-    else
-    {
-        // unable to normalize, return the x-axis
-        return Vector3::xAxis();
-    }
+    return normalize(cross(v1 - v0, v2 - v0));
 }

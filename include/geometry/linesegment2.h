@@ -14,8 +14,8 @@
 class LineSegment2
 {
 public:
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor, constructs an uninitialized line segment.
@@ -31,36 +31,6 @@ public:
     LineSegment2(const Vector2& startPoint, const Vector2& endPoint);
 
     /**
-     * Calculates the point on this line segment that is closest to
-     * <code>q</code>.
-     *
-     * @param q A point.
-     *
-     * @return The point on this line segment that is closest to
-     * <code>q</code>.
-     */
-    const Vector2 closestPointTo(const Vector2& q) const;
-
-    /**
-     * Calculates the distance to a point from this line segment.
-     *
-     * @param q A point.
-     *
-     * @return The distance to point <code>q</code> from this line segment.
-     */
-    float distanceTo(const Vector2& q) const;
-
-    /**
-     * Calculates the squared distance to a point from this line segment.
-     *
-     * @param q A point.
-     *
-     * @return The squared distance to point <code>q</code> from this line
-     * segment.
-     */
-    float sqrDistanceTo(const Vector2& q) const;
-
-    /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
      *
      * @param other The object to swap contents with.
@@ -70,5 +40,41 @@ public:
     Vector2 startPoint; ///< Start point.
     Vector2 endPoint;   ///< End point.
 };
+
+/**
+ * Calculates the distance between line segment <code>x</code> and point
+ * <code>q</code>.
+ *
+ * @param x A line segment.
+ * @param q A point.
+ *
+ * @return The distance between line segment <code>x</code> and point
+ * <code>q</code>.
+ */
+float distance(const LineSegment2& x, const Vector2& q);
+
+/**
+ * Calculates the squared distance between line segment <code>x</code> and
+ * point <code>q</code>.
+ *
+ * @param x A line segment.
+ * @param q A point.
+ *
+ * @return The squared distance between line segment <code>x</code> and point
+ * <code>q</code>.
+ */
+float sqrDistance(const LineSegment2& x, const Vector2& q);
+
+/**
+ * Calculates the point on line segment <code>x</code> that is closest to point
+ * <code>q</code>.
+ *
+ * @param x A line segment.
+ * @param q A point.
+ *
+ * @return The point on line segment <code>x</code> that is closest to point
+ * <code>q</code>.
+ */
+const Vector2 closestPoint(const LineSegment2& x, const Vector2& q);
 
 #endif // #ifndef GEOMETRY_LINESEGMENT2_H_INCLUDED

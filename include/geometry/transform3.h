@@ -10,6 +10,8 @@
 #include <geometry/runtimeassert.h>
 #include <geometry/vector3.h>
 
+class Matrix4x4;
+
 /**
  * Represents a 3D transformation. Supports translation, rotation and uniform
  * scaling, where the scaling factor is greater than zero.
@@ -22,65 +24,10 @@ public:
      *
      * @return The identity transform.
      */
-    static const Transform3& identity();
+    static const Transform3 identity();
 
-    /**
-     * Gets a transform that produces a translation.
-     *
-     * @param translation Translation.
-     *
-     * @return Transform that produces a translation.
-     */
-    static const Transform3 translation(const Vector3& translation);
-
-    /**
-     * Gets a transform that produces a rotation about the x-axis.
-     *
-     * @param rotation Rotation, CCW about the x-axis, in radians.
-     *
-     * @return Transform that produces a rotation about the x-axis.
-     */
-    static const Transform3 xRotation(float rotation);
-
-    /**
-     * Gets a transform that produces a rotation about the y-axis.
-     *
-     * @param rotation Rotation, CCW about the y-axis, in radians.
-     *
-     * @return Transform that produces a rotation about the y-axis.
-     */
-    static const Transform3 yRotation(float rotation);
-
-    /**
-     * Gets a transform that produces a rotation about the z-axis.
-     *
-     * @param rotation Rotation, CCW about the z-axis, in radians.
-     *
-     * @return Transform that produces a rotation about the z-axis.
-     */
-    static const Transform3 zRotation(float rotation);
-
-    /**
-     * Gets a transform that produces a rotation about an arbitrary axis.
-     *
-     * @param axis The axis to rotate about, must be unit length.
-     * @param rotation Rotation, CCW about the given axis in radians.
-     *
-     * @return Transform that produces a rotation about the given axis.
-     */
-    static const Transform3 rotation(const Vector3& axis, float rotation);
-
-    /**
-     * Gets a transform that produces a uniform scaling.
-     *
-     * @param scaling Uniform scale factor, must be > 0.
-     *
-     * @return Transform that produces a uniform scaling.
-     */
-    static const Transform3 scaling(float scaling);
-
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor, constructs an identity transform.
@@ -91,132 +38,14 @@ public:
      * Constructor.
      *
      * @param translation Translation.
-     * @param rotation Rotation, must be a valid rotation matrix.
-     * @param scaling Uniform scaling factor, must be > 0.
+     * @param rotation Rotation, this is assumed to be a valid rotation matrix.
+     * @param scaling Uniform scaling factor, this is assumed to be greater
+     * than zero.
      */
     Transform3(
         const Vector3& translation,
         const Matrix3x3& rotation,
         float scaling);
-
-    /**
-     * Applies a given transform to this transform.
-     *
-     * @param transform The transform to apply.
-     */
-    void transformBy(const Transform3& transform);
-
-    /**
-     * Sets the translation.
-     *
-     * @param translation The translation to set.
-     */
-    void setTranslation(const Vector3& translation);
-
-    /**
-     * Applies a translation to this transform.
-     *
-     * @param translation The translation to apply.
-     */
-    void translateBy(const Vector3& translation);
-
-    /**
-     * Gets the translation.
-     *
-     * @return Translation.
-     */
-    const Vector3 translation() const;
-
-    /**
-     * Sets the rotation.
-     *
-     * @param rotation The rotation to set, must be a valid rotation matrix.
-     */
-    void setRotation(const Matrix3x3& rotation);
-
-    /**
-     * Applies a rotation to this transform.
-     *
-     * @param rotation The rotation to apply, must be a valid rotation matrix.
-     */
-    void rotateBy(const Matrix3x3& rotation);
-
-    /**
-     * Gets the rotation.
-     *
-     * @return Rotation.
-     */
-    const Matrix3x3 rotation() const;
-
-    /**
-     * Sets the scaling.
-     *
-     * @param scaling The scaling to set, must be > 0.
-     */
-    void setScaling(float scaling);
-
-    /**
-     * Applies a scaling to this transform.
-     *
-     * @param scaling The scaling to apply, must be > 0.
-     */
-    void scaleBy(float scaling);
-
-    /**
-     * Gets the scaling.
-     *
-     * @return Scaling.
-     */
-    float scaling() const;
-
-    /**
-     * Applies this transform to a single point. The order of application is
-     * scaling first, rotation second and translation third.
-     *
-     * @param q The point to transform.
-     *
-     * @return The transformed point.
-     */
-    const Vector3 applyForward(const Vector3& q) const;
-
-    /**
-     * Applies the inverse of this transform to a single point. The order of
-     * application is negative translation first, inverse rotation second and
-     * inverse scaling third.
-     *
-     * @param q The point to transform.
-     *
-     * @return The transformed point.
-     */
-    const Vector3 applyInverse(const Vector3& q) const;
-
-    /**
-     * Applies this transform to a set of points. This transform is applied to
-     * all points in range [<code>first</code>, <code>last</code>). Each
-     * transformed point is stored in the range beginning at
-     * <code>result</code>. The order of application is scaling first, rotation
-     * second and translation third.
-     *
-     * @param first Input iterator, the first in source range.
-     * @param last Input iterator, one beyond the last in source range.
-     * @param result Output iterator, the first in destination range.
-     */
-    template <class In, class Out>
-    void applyForward(In first, In last, Out result) const;
-
-    /**
-     * Applies the inverse of this transform to a set of points. The inverse of
-     * this transform is applied to all points in range [<code>first</code>,
-     * <code>last</code>). Each transformed point is stored in the range
-     * beginning at <code>result</code>. The order of application is negative
-     * translation first, inverse rotation second and inverse scaling third.
-     *
-     * @param first Input iterator, the first in source range.
-     * @param last Input iterator, one beyond the last in source range.
-     * @param result Output iterator, the first in destination range.
-     */
-    template <class In, class Out>
-    void applyInverse(In first, In last, Out result) const;
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
@@ -225,36 +54,70 @@ public:
      */
     void swap(Transform3& other);
 
-private:
-    Vector3 translation_;   ///< Translation.
-    Matrix3x3 rotation_;    ///< Rotation.
-    float scaling_;         ///< Uniform scale factor, must be > 0.
+    /**
+     * Translation.
+     */
+    Vector3 translation;
+
+    /**
+     * Rotation, this is assumed to be a valid rotation matrix.
+     */
+    Matrix3x3 rotation;
+
+    /**
+     * Uniform scale factor, this is assumed to be greater than zero.
+     */
+    float scaling;
 };
 
-// TODO: is the documentation for this function understandable?
 /**
- * Calculates a conversion between local spaces of two transforms.
+ * Transforms <code>q</code> by <code>t</code>. The order of application is
+ * scaling first, rotation second and translation third.
  *
- * @param src Source space transformation.
- * @param dst Destination space transformation.
+ * @param q The point to transform.
+ * @param t The transform to apply.
  *
- * @return Transform that produces a conversion from local space of
- * <code>src</code> to local space of <code>dst</code>, that is, transform
- * <code>t</code> such as <code>t.applyForward(v)</code> is equal to
- * <code>dst.applyInverse(src.applyForward(v))</code>.
+ * @return The transformed point.
  */
-const Transform3 conversion(const Transform3& src, const Transform3& dst);
+const Vector3 transform(const Vector3& q, const Transform3& t);
+
+// TODO: is this needed?
+/**
+ * Equivalent to <code>transform(q, inverse(t))</code>. This is intended as an
+ * optimization. The order of application is negative translation first,
+ * inverse rotation second and inverse scaling third.
+ *
+ * @param q The point to transform.
+ * @param t The transform whose inverse is to be applied.
+ *
+ * @return The transformed point.
+ */
+const Vector3 transformByInverse(const Vector3& q, const Transform3& t);
 
 /**
- * Calculates a combined transform of two transforms.
+ * Transforms all items in the range [<code>first</code>, <code>last</code>) by
+ * <code>t</code>.
  *
- * @param a The first transformation to apply.
- * @param b The second transformation to apply.
+ * @param first Iterator pointing to the first item to transform.
+ * @param last Iterator pointing one beyond the last item to transform.
+ * @param dst Iterator pointing to the first item in the destination sequence.
+ * This can be equal to <code>first</code>.
+ * @param t The transform to apply.
  *
- * @return Transform <code>t</code> such as <code>t.applyForward(v)</code> is
- * equal to <code>b.applyForward(a.applyForward(v))</code>.
+ * @return An iterator pointing to the item that follows the last item written
+ * in the destination sequence.
  */
-const Transform3 product(const Transform3& a, const Transform3& b);
+template <class In, class Out>
+Out transform(In first, In last, Out dst, const Transform3& t);
+
+/**
+ * Gets a 4x4 matrix that produces a transform equivalent to <code>t</code>.
+ *
+ * @param t A transform.
+ *
+ * @return A 4x4 matrix that produces a transform equivalent to <code>t</code>.
+ */
+const Matrix4x4 toMatrix4x4(const Transform3& t);
 
 /**
  * Calculates the inverse transform of a given transform.
@@ -263,34 +126,61 @@ const Transform3 product(const Transform3& a, const Transform3& b);
  *
  * @return The inverse transform of <code>t</code>.
  */
-const Transform3 invert(const Transform3& t);
+const Transform3 inverse(const Transform3& t);
+
+// TODO: const Transform3 slerp(const Transform3& a, const Transform3& b, float t);
+
+/**
+ * Transforms <code>a</code> by <code>b</code>.
+ *
+ * @param a A transform.
+ * @param b A transform.
+ *
+ * @return Transform <code>t</code> such as <code>transform(x, t)</code> is
+ * equivalent to <code>transform(transform(x, a), b)</code>.
+ */
+const Transform3 transform(const Transform3& a, const Transform3& b);
+
+// TODO: is this needed?
+/**
+ * Equivalent to <code>transform(a, inverse(b))</code>. This is intended as an
+ * optimization.
+ *
+ * @param a A transform.
+ * @param b A transform.
+ *
+ * @return Transform <code>t</code> such as <code>transform(x, t)</code> is
+ * equivalent to <code>transform(transform(x, a), inverse(b))</code>.
+ */
+const Transform3 transformByInverse(const Transform3& a, const Transform3& b);
+
+// TODO: is this needed?
+/**
+ * Equivalent to <code>transform(inverse(a), b)</code>. This is intended as an
+ * optimization.
+ *
+ * @param a A transform.
+ * @param b A transform.
+ *
+ * @return Transform <code>t</code> such as <code>transform(x, t)</code> is
+ * equivalent to <code>transform(transform(x, inverse(a)), b)</code>.
+ */
+const Transform3 transformInverseBy(const Transform3& a, const Transform3& b);
 
 template <class In, class Out>
-void Transform3::applyForward(In first, const In last, Out result) const
+Out transform(In first, const In last, Out dst, const Transform3& t)
 {
-    GEOMETRY_RUNTIME_ASSERT(scaling_ > 0.0f);
+    GEOMETRY_RUNTIME_ASSERT(t.scaling > 0.0f);
 
     while (first != last)
     {
-        *result = product(scaling_ * *first, rotation_) + translation_;
+        *dst = transform(*first, t);
 
         ++first;
-        ++result;
+        ++dst;
     }
-}
 
-template <class In, class Out>
-void Transform3::applyInverse(In first, const In last, Out result) const
-{
-    GEOMETRY_RUNTIME_ASSERT(scaling_ > 0.0f);
-
-    while (first != last)
-    {
-        *result = productT(*first - translation_, rotation_) / scaling_;
-
-        ++first;
-        ++result;
-    }
+    return dst;
 }
 
 #endif // #ifndef GEOMETRY_TRANSFORM3_H_INCLUDED

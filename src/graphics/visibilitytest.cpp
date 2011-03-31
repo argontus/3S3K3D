@@ -39,7 +39,8 @@ VisibilityState::Enum VisibilityTest::test(const Extents3& extents) const
     // for each frustum plane
     for (int i = 0; i < 6; ++i)
     {
-        const Interval interval = extents.intervalAlong(planes_[i].normal);
+        //const Interval interval = extents.intervalAlong(planes_[i].normal);
+        const Interval interval = ::interval(extents, planes_[i].normal);
 
         if (interval.max < planes_[i].constant)
         {
@@ -74,13 +75,13 @@ void VisibilityTest::initOrthographic(
     GRAPHICS_RUNTIME_ASSERT(s.type == ProjectionType::Orthographic);
 
     // camera position and rotation in world space
-    const Vector3 position = t.translation();
-    const Matrix3x3 rotation = t.rotation();
+    const Vector3 position = t.translation;
+    const Matrix3x3 rotation = t.rotation;
 
     // direction, right and up axes
     const Vector3 d = -rotation.row(2);
-    const Vector3 r = rotation.row(0);
-    const Vector3 u = rotation.row(1);
+    const Vector3 r =  rotation.row(0);
+    const Vector3 u =  rotation.row(1);
 
     const float xMin = Math::min(s.left, s.right);
     const float xMax = Math::max(s.left, s.right);
@@ -107,8 +108,8 @@ void VisibilityTest::initPerspective(
     GRAPHICS_RUNTIME_ASSERT(s.near < s.far);
 
     // camera position and rotation in world space
-    const Vector3 position = t.translation();
-    const Matrix3x3 rotation = t.rotation();
+    const Vector3 position = t.translation;
+    const Matrix3x3 rotation = t.rotation;
 
     // direction, right and up axes
     const Vector3 d = -rotation.row(2);

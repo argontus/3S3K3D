@@ -9,7 +9,7 @@
 #include <geometry/matrix4x4.h>
 #include <geometry/transform3.h>
 
-class ShaderProgram;
+class Program;
 
 /**
  * Describes draw parameters.
@@ -37,7 +37,7 @@ public:
     Matrix3x3 worldToViewRotation;  ///< World to view rotation matrix.
 
     // TODO: quick & dirty
-    ShaderProgram* shaderProgram;
+    Program* program;
     Transform3 cameraToWorld;
 };
 

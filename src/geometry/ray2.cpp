@@ -17,32 +17,32 @@ Ray2::Ray2(const Vector2& origin, const Vector2& direction)
     // ...
 }
 
-const Vector2 Ray2::closestPointTo(const Vector2& q) const
-{
-    // distance to q from ray origin along ray direction
-    const float d = dot(q, direction) - dot(origin, direction);
-
-    // test if point q is closest to the ray origin
-    if (d <= 0.0f)
-    {
-        return origin;
-    }
-
-    return origin + d * direction;
-}
-
-float Ray2::distanceTo(const Vector2& q) const
-{
-    return distance(closestPointTo(q), q);
-}
-
-float Ray2::sqrDistanceTo(const Vector2& q) const
-{
-    return sqrDistance(closestPointTo(q), q);
-}
-
 void Ray2::swap(Ray2& other)
 {
     origin.swap(other.origin);
     direction.swap(other.direction);
+}
+
+float distance(const Ray2& x, const Vector2& q)
+{
+    return distance(closestPoint(x, q), q);
+}
+
+float sqrDistance(const Ray2& x, const Vector2& q)
+{
+    return sqrDistance(closestPoint(x, q), q);
+}
+
+const Vector2 closestPoint(const Ray2& x, const Vector2& q)
+{
+    // distance to q from ray origin along ray direction
+    const float d = dot(q, x.direction) - dot(x.origin, x.direction);
+
+    // test if point q is closest to the ray origin
+    if (d <= 0.0f)
+    {
+        return x.origin;
+    }
+
+    return x.origin + d * x.direction;
 }

@@ -18,7 +18,7 @@ Node::~Node()
     // TODO: unregister from scene
 }
 
-void Node::invalidateWorlTransform() const
+void Node::invalidateWorldTransform() const
 {
     worldTransformValid_ = false;
 }
@@ -39,7 +39,7 @@ const Transform3 Node::worldTransform() const
 void Node::setTransform(const Transform3& transform)
 {
     localTransform_ = transform;
-    invalidateWorlTransform();
+    invalidateWorldTransform();
 
     // invalidateWorlTransform() should invalidate the world transform
     GRAPHICS_RUNTIME_ASSERT(worldTransformValid_ == false);
@@ -47,8 +47,8 @@ void Node::setTransform(const Transform3& transform)
 
 void Node::transformBy(const Transform3& transform)
 {
-    localTransform_.transformBy(transform);
-    invalidateWorlTransform();
+    localTransform_ = ::transform(localTransform_, transform);
+    invalidateWorldTransform();
 
     // invalidateWorlTransform() should invalidate the world transform
     GRAPHICS_RUNTIME_ASSERT(worldTransformValid_ == false);
@@ -61,8 +61,8 @@ const Transform3 Node::transform() const
 
 void Node::setTranslation(const Vector3& translation)
 {
-    localTransform_.setTranslation(translation);
-    invalidateWorlTransform();
+    localTransform_.translation = translation;
+    invalidateWorldTransform();
 
     // invalidateWorlTransform() should invalidate the world transform
     GRAPHICS_RUNTIME_ASSERT(worldTransformValid_ == false);
@@ -70,8 +70,8 @@ void Node::setTranslation(const Vector3& translation)
 
 void Node::translateBy(const Vector3& translation)
 {
-    localTransform_.translateBy(translation);
-    invalidateWorlTransform();
+    localTransform_.translation += translation;
+    invalidateWorldTransform();
 
     // invalidateWorlTransform() should invalidate the world transform
     GRAPHICS_RUNTIME_ASSERT(worldTransformValid_ == false);
@@ -79,13 +79,13 @@ void Node::translateBy(const Vector3& translation)
 
 const Vector3 Node::translation() const
 {
-    return localTransform_.translation();
+    return localTransform_.translation;
 }
 
 void Node::setRotation(const Matrix3x3& rotation)
 {
-    localTransform_.setRotation(rotation);
-    invalidateWorlTransform();
+    localTransform_.rotation = rotation;
+    invalidateWorldTransform();
 
     // invalidateWorlTransform() should invalidate the world transform
     GRAPHICS_RUNTIME_ASSERT(worldTransformValid_ == false);
@@ -93,8 +93,8 @@ void Node::setRotation(const Matrix3x3& rotation)
 
 void Node::rotateBy(const Matrix3x3& rotation)
 {
-    localTransform_.rotateBy(rotation);
-    invalidateWorlTransform();
+    localTransform_.rotation *= rotation;
+    invalidateWorldTransform();
 
     // invalidateWorlTransform() should invalidate the world transform
     GRAPHICS_RUNTIME_ASSERT(worldTransformValid_ == false);
@@ -102,15 +102,15 @@ void Node::rotateBy(const Matrix3x3& rotation)
 
 const Matrix3x3 Node::rotation() const
 {
-    return localTransform_.rotation();
+    return localTransform_.rotation;
 }
 
 void Node::setScaling(const float scaling)
 {
     GRAPHICS_RUNTIME_ASSERT(scaling > 0.0f);
 
-    localTransform_.setScaling(scaling);
-    invalidateWorlTransform();
+    localTransform_.scaling = scaling;
+    invalidateWorldTransform();
 
     // invalidateWorlTransform() should invalidate the world transform
     GRAPHICS_RUNTIME_ASSERT(worldTransformValid_ == false);
@@ -120,8 +120,8 @@ void Node::scaleBy(const float scaling)
 {
     GRAPHICS_RUNTIME_ASSERT(scaling > 0.0f);
 
-    localTransform_.scaleBy(scaling);
-    invalidateWorlTransform();
+    localTransform_.scaling *= scaling;
+    invalidateWorldTransform();
 
     // invalidateWorlTransform() should invalidate the world transform
     GRAPHICS_RUNTIME_ASSERT(worldTransformValid_ == false);
@@ -129,7 +129,7 @@ void Node::scaleBy(const float scaling)
 
 float Node::scaling() const
 {
-    return localTransform_.scaling();
+    return localTransform_.scaling;
 }
 
 void Node::setRotationLocked(const bool locked)
@@ -141,7 +141,7 @@ void Node::setRotationLocked(const bool locked)
     }
 
     rotationLocked_ = locked;
-    invalidateWorlTransform();
+    invalidateWorldTransform();
 
     // invalidateWorlTransform() should invalidate the world transform
     GRAPHICS_RUNTIME_ASSERT(worldTransformValid_ == false);
@@ -161,7 +161,7 @@ void Node::setScalingLocked(const bool locked)
     }
 
     scalingLocked_ = locked;
-    invalidateWorlTransform();
+    invalidateWorldTransform();
 
     // invalidateWorlTransform() should invalidate the world transform
     GRAPHICS_RUNTIME_ASSERT(worldTransformValid_ == false);
@@ -174,7 +174,7 @@ bool Node::isScalingLocked() const
 
 const Matrix4x4 Node::modelToWorldMatrix() const
 {
-    return Matrix4x4(worldTransform());
+    return toMatrix4x4(worldTransform());
 }
 
 void Node::setScene(Scene* const scene)
@@ -249,18 +249,18 @@ void Node::updateWorldTransform() const
         // world transform of the parent node
         const Transform3 t = parent_->worldTransform();
 
-        worldTransform_.setTranslation(t.applyForward(localTransform_.translation()));
-        worldTransform_.setRotation(localTransform_.rotation());
-        worldTransform_.setScaling(localTransform_.scaling());
+        worldTransform_.translation = ::transform(localTransform_.translation, t);
+        worldTransform_.rotation = localTransform_.rotation;
+        worldTransform_.scaling = localTransform_.scaling;
 
         if (rotationLocked_ == false)
         {
-            worldTransform_.rotateBy(t.rotation());
+            worldTransform_.rotation *= t.rotation;
         }
 
         if (scalingLocked_ == false)
         {
-            worldTransform_.scaleBy(t.scaling());
+            worldTransform_.scaling *= t.scaling;
         }
     }
     else

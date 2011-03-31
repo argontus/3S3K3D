@@ -6,20 +6,17 @@
 #ifndef GEOMETRY_INTERVAL_H_INCLUDED
 #define GEOMETRY_INTERVAL_H_INCLUDED
 
-// TODO: better encapsulation?
 /**
  * Represents a bounded interval.
  */
 class Interval
 {
 public:
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
-     * Default constructor, constructs an empty interval. The minimum extent is
-     * set to <code>std::numeric_limits<float>::max()</code> and the maximum
-     * extent is set to <code>-std::numeric_limits<float>::max()</code>.
+     * Default constructor, constructs an empty interval.
      */
     Interval();
 
@@ -31,84 +28,56 @@ public:
      */
     Interval(float min, float max);
 
+    // TODO: type of *In can be float or Interval, document it
     /**
-     * Makes this interval an empty interval. The minimum extent is set to
-     * <code>std::numeric_limits<float>::max()</code> and the maximum extent is
-     * set to <code>-std::numeric_limits<float>::max()</code>.
+     * Constructor, constructs an interval containing all items in the range
+     * [<code>first</code>, <code>last</code>).
+     *
+     * @param first Iterator pointing to the first item to enclose.
+     * @param last Iterator pointing one beyond the last item to enclose.
+     */
+    template <class In>
+    Interval(In first, In last);
+
+    /**
+     * Makes <code>*this</code> empty.
      */
     void clear();
 
     /**
-     * Tests if this interval is empty. An interval is considered empty if its
-     * maximum extent is less than its minimum extent.
+     * Grows the extents to enclose <code>k</code>.
      *
-     * @return <code>true</code>, if this interval is empty, <code>false</code>
-     * otherwise.
+     * @param k The value to enclose.
      */
-    bool isEmpty() const;
+    void enclose(float k);
 
     /**
-     * Gets the interval length.
-     *
-     * @return Interval length. The return value is equivalent to
-     * <code>max - min</code>.
-     */
-    float length() const;
-
-    /**
-     * Tests if this interval contains a given value. A value is considered
-     * contained if it is between [<code>min</code>, <code>max</code>].
-     *
-     * @param value The value to test.
-     *
-     * @return <code>true</code>, if <code>*this</code> contains the given
-     * value, <code>false</code> otherwise. If this interval is empty, the
-     * return value is <code>false</code>.
-     */
-    bool contains(float value) const;
-
-    /**
-     * Tests if this interval contains a given interval. An interval is
-     * considered contained if the its minimum extent is greater than or equal
-     * to the minimum extent of this interval and its maximum extent is less
-     * than or equal to the maximum extent of this interval.
-     *
-     * @param other The interval to test.
-     *
-     * @return <code>true</code>, if <code>*this</code> contains
-     * <code>other</code>, <code>false</code> otherwise. If one or both
-     * intervals are empty, the return value is <code>false</code>.
-     */
-    bool contains(const Interval& other) const;
-
-    /**
-     * Tests if this interval intersects a given interval. An interval is
-     * considered intersecting if its minimum extent is less than the maximum
-     * extent of this interval and its maximum extent is greater than the
-     * minimum extent of this interval.
-     *
-     * @param other The interval to test.
-     *
-     * @return <code>true</code>, if <code>*this</code> intersects
-     * <code>other</code>, <code>false</code> otherwise. If one or both
-     * intervals are empty, the return value is <code>false</code>.
-     */
-    bool intersects(const Interval& other) const;
-
-    /**
-     * Grows the extents of this interval to enclose a given value.
-     *
-     * @param value The value to enclose.
-     */
-    void growToContain(float value);
-
-    /**
-     * Grows the extents of this interval to enclose a given interval. If the
-     * given interval is empty, this member function does nothing.
+     * Grows the extents to enclose <code>other</code>. If <code>other</code>
+     * is empty, this member function does nothing.
      *
      * @param other The interval to enclose.
      */
-    void growToContain(const Interval& other);
+    void enclose(const Interval& other);
+
+    // TODO: type of *In can be float or Interval, document it
+    /**
+     * Grows the extents to enclose all items in the range [<code>first</code>,
+     * <code>last</code>).
+     *
+     * @param first Iterator pointing to the first item to enclose.
+     * @param last Iterator pointing one beyond the last item to enclose.
+     */
+    template <class In>
+    void enclose(In first, In last);
+
+    /**
+     * Tests if <code>*this</code> is empty. <code>*this</code> is considered
+     * empty if the maximum extent is less than the minimum extent.
+     *
+     * @return <code>true</code>, if <code>*this</code> is empty,
+     * <code>false</code> otherwise.
+     */
+    bool isEmpty() const;
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
@@ -120,5 +89,22 @@ public:
     float min;  ///< The minimum extent.
     float max;  ///< The maximum extent.
 };
+
+template <class In>
+Interval::Interval(const In first, const In last)
+{
+    clear();
+    enclose(first, last);
+}
+
+template <class In>
+void Interval::enclose(In first, const In last)
+{
+    while (first != last)
+    {
+        enclose(*first);
+        ++first;
+    }
+}
 
 #endif // #ifndef GEOMETRY_INTERVAL_H_INCLUDED

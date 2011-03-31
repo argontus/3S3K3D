@@ -5,23 +5,14 @@
 
 #include <geometry/extents2.h>
 
-#include <limits>
-
+#include <geometry/circle.h>
 #include <geometry/interval.h>
+#include <geometry/math.h>
 #include <geometry/transform2.h>
 
 Extents2::Extents2()
 {
     clear();
-}
-
-Extents2::Extents2(
-    const float xMin, const float yMin,
-    const float xMax, const float yMax)
-:   min(xMin, yMin),
-    max(xMax, yMax)
-{
-    // ...
 }
 
 Extents2::Extents2(const Vector2& min, const Vector2& max)
@@ -33,64 +24,38 @@ Extents2::Extents2(const Vector2& min, const Vector2& max)
 
 void Extents2::clear()
 {
-    min.x = min.y = std::numeric_limits<float>::max();
-    max.x = max.y = -std::numeric_limits<float>::max();
+    min.x = min.y = 1.0f;
+    max.x = max.y = 0.0f;
 }
 
-bool Extents2::isEmpty() const
+void Extents2::enclose(const Vector2& q)
 {
-    return max.x < min.x || max.y < min.y;
-}
-
-float Extents2::xLength() const
-{
-    return max.x - min.x;
-}
-
-float Extents2::yLength() const
-{
-    return max.y - min.y;
-}
-
-bool Extents2::contains(const Vector2& point) const
-{
-    return min.x <= point.x && point.x <= max.x
-        && min.y <= point.y && point.y <= max.y;
-}
-
-bool Extents2::contains(const Extents2& other) const
-{
-    if (isEmpty() || other.isEmpty())
+    if (isEmpty())
     {
-        return false;
+        min = max = q;
+        return;
     }
 
-    return min.x <= other.min.x && other.max.x <= max.x
-        && min.y <= other.min.y && other.max.y <= max.y;
+    if (q.x < min.x) min.x = q.x;
+    if (max.x < q.x) max.x = q.x;
+
+    if (q.y < min.y) min.y = q.y;
+    if (max.y < q.y) max.y = q.y;
 }
 
-bool Extents2::intersects(const Extents2& other) const
+void Extents2::enclose(const Extents2& other)
 {
-    if (isEmpty() || other.isEmpty())
+    if (other.isEmpty())
     {
-        return false;
+        return;
     }
 
-    return other.min.x < max.x && min.x < other.max.x
-        && other.min.y < max.y && min.y < other.max.y;
-}
+    if (isEmpty())
+    {
+        *this = other;
+        return;
+    }
 
-void Extents2::growToContain(const Vector2& point)
-{
-    if (point.x < min.x) min.x = point.x;
-    if (max.x < point.x) max.x = point.x;
-
-    if (point.y < min.y) min.y = point.y;
-    if (max.y < point.y) max.y = point.y;
-}
-
-void Extents2::growToContain(const Extents2& other)
-{
     if (other.min.x < min.x) min.x = other.min.x;
     if (max.x < other.max.x) max.x = other.max.x;
 
@@ -98,122 +63,107 @@ void Extents2::growToContain(const Extents2& other)
     if (max.y < other.max.y) max.y = other.max.y;
 }
 
-const Interval Extents2::intervalAlong(const Vector2& axis) const
+bool Extents2::isEmpty() const
 {
-    if (isEmpty())
-    {
-        // return an empty interval
-        return Interval();
-    }
-
-    // This optimization is based on the fact that if this AABR is not empty,
-    // then all minimum extents are less than or equal to their corresponding
-    // maximum extents.
-
-    Interval interval(0.0f, 0.0f);
-
-    if (axis.x >= 0.0f)
-    {
-        interval.min += axis.x * min.x;
-        interval.max += axis.x * max.x;
-    }
-    else
-    {
-        interval.min += axis.x * max.x;
-        interval.max += axis.x * min.x;
-    }
-
-    if (axis.y >= 0.0f)
-    {
-        interval.min += axis.y * min.y;
-        interval.max += axis.y * max.y;
-    }
-    else
-    {
-        interval.min += axis.y * max.y;
-        interval.max += axis.y * min.y;
-    }
-
-    return interval;
-}
-
-void Extents2::transformBy(const Transform2& transform)
-{
-    // TODO: could be optimized, see Real-Time Collision Detection by Christer
-    // Ericson, 4.2.6 AABB Recomputed from Rotated AABB
-
-    if (isEmpty())
-    {
-        return;
-    }
-
-    Vector2 vertices[] = {
-        Vector2(min.x, min.y),
-        Vector2(min.x, max.y),
-        Vector2(max.x, min.y),
-        Vector2(max.x, max.y)
-    };
-
-    transform.applyForward(vertices, vertices + 4, vertices);
-    min = max = vertices[0];
-
-    for (int i = 1; i < 4; ++i)
-    {
-        growToContain(vertices[i]);
-    }
-}
-
-void Extents2::translateBy(const Vector2& translation)
-{
-    if (isEmpty())
-    {
-        return;
-    }
-
-    min += translation;
-    max += translation;
-}
-
-void Extents2::rotateBy(const Matrix2x2& rotation)
-{
-    // TODO: could be optimized, see Real-Time Collision Detection by Christer
-    // Ericson, 4.2.6 AABB Recomputed from Rotated AABB
-
-    if (isEmpty())
-    {
-        return;
-    }
-
-    Vector2 vertices[] = {
-        Vector2(min.x, min.y),
-        Vector2(min.x, max.y),
-        Vector2(max.x, min.y),
-        Vector2(max.x, max.y)
-    };
-
-    min = max = product(vertices[0], rotation);
-
-    for (int i = 1; i < 4; ++i)
-    {
-        growToContain(product(vertices[i], rotation));
-    }
-}
-
-void Extents2::scaleBy(const float scaling)
-{
-    GEOMETRY_RUNTIME_ASSERT(scaling > 0.0f);
-
-    if (isEmpty())
-    {
-        return;
-    }
-
-    min *= scaling;
-    max *= scaling;
+    return max.x < min.x || max.y < min.y;
 }
 
 void Extents2::swap(Extents2& other)
 {
     min.swap(other.min);
     max.swap(other.max);
+}
+
+bool intersect(const Extents2& a, const Circle& b)
+{
+    if (a.isEmpty())
+    {
+        return false;
+    }
+
+    const float sqrRadius = b.radius * b.radius;
+
+    return sqrDistance(closestPoint(a, b.center), b.center) <= sqrRadius;
+}
+
+bool intersect(const Extents2& a, const Extents2& b)
+{
+    if (a.isEmpty() || b.isEmpty())
+    {
+        return false;
+    }
+
+    return b.min.x <= a.max.x && a.min.x <= b.max.x
+        && b.min.y <= a.max.y && a.min.y <= b.max.y;
+}
+
+const Vector2 closestPoint(const Extents2& x, const Vector2& q)
+{
+    GEOMETRY_RUNTIME_ASSERT(x.isEmpty() == false);
+
+    return Vector2(
+        Math::clamp(q.x, x.min.x, x.max.x),
+        Math::clamp(q.y, x.min.y, x.max.y)
+    );
+}
+
+const Interval interval(const Extents2& x, const Vector2& axis)
+{
+    if (x.isEmpty())
+    {
+        // return an empty interval
+        return Interval();
+    }
+
+    // This optimization is based on the fact that if x is not empty, then all
+    // minimum extents are less than or equal to their corresponding maximum
+    // extents.
+
+    Interval interval(0.0f, 0.0f);
+
+    if (axis.x >= 0.0f)
+    {
+        interval.min += axis.x * x.min.x;
+        interval.max += axis.x * x.max.x;
+    }
+    else
+    {
+        interval.min += axis.x * x.max.x;
+        interval.max += axis.x * x.min.x;
+    }
+
+    if (axis.y >= 0.0f)
+    {
+        interval.min += axis.y * x.min.y;
+        interval.max += axis.y * x.max.y;
+    }
+    else
+    {
+        interval.min += axis.y * x.max.y;
+        interval.max += axis.y * x.min.y;
+    }
+
+    return interval;
+}
+
+const Extents2 transform(const Extents2& x, const Transform2& t)
+{
+    // TODO: could be optimized, see Real-Time Collision Detection by Christer
+    // Ericson, 4.2.6 AABB Recomputed from Rotated AABB
+
+    if (x.isEmpty())
+    {
+        return x;
+    }
+
+    Vector2 vertices[] = {
+        Vector2(x.min.x, x.min.y),
+        Vector2(x.min.x, x.max.y),
+        Vector2(x.max.x, x.min.y),
+        Vector2(x.max.x, x.max.y)
+    };
+
+    transform(vertices, vertices + 4, vertices, t);
+
+    return Extents2(vertices, vertices + 4);
 }

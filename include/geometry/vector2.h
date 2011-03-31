@@ -8,7 +8,7 @@
 
 #include <geometry/staticassert.h>
 
-class Plane2;
+class Matrix2x2;
 
 /**
  * Represents a 2D vector.
@@ -19,35 +19,21 @@ public:
     /**
      * Gets the zero vector.
      *
-     * @return The zero vector.
+     * @return <code>Vector2(0.0f, 0.0f)</code>.
      */
-    static const Vector2& zero();
+    static const Vector2 zero();
 
     /**
-     * Gets the unit length x-axis direction vector.
+     * Gets a unit-length direction vector.
      *
-     * @return The unit length x-axis direction vector.
-     */
-    static const Vector2& xAxis();
-
-    /**
-     * Gets the unit length y-axis direction vector.
-     *
-     * @return The unit length y-axis direction vector.
-     */
-    static const Vector2& yAxis();
-
-    /**
-     * Creates a unit-length direction vector.
-     *
-     * @param theta Direction angle, CCW about the z-axis in radians.
+     * @param angle Direction angle, CCW about the z-axis in radians.
      *
      * @return Unit-length direction vector.
      */
-    static const Vector2 direction(float theta);
+    static const Vector2 direction(float angle);
 
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor, constructs an uninitialized vector.
@@ -62,57 +48,14 @@ public:
      */
     Vector2(float x, float y);
 
-    /**
-     * Vector addition.
-     *
-     * @param v The vector to add to <code>*this</code>.
-     *
-     * @return Reference to <code>*this</code>.
-     */
+    // the assignment operators are members to prevent implicit type
+    // conversions of the left hand side object
+
     Vector2& operator +=(const Vector2& v);
-
-    /**
-     * Vector subtraction.
-     *
-     * @param v The vector to subtract from <code>*this</code>.
-     *
-     * @return Reference to <code>*this</code>.
-     */
     Vector2& operator -=(const Vector2& v);
-
-    /**
-     * Vector-times-scalar multiplication.
-     *
-     * @param k The multiplier.
-     *
-     * @return Reference to <code>*this</code>.
-     */
     Vector2& operator *=(float k);
-
-    /**
-     * Vector-times-inverse scalar multiplication.
-     *
-     * @param k The divisor, cannot be zero.
-     *
-     * @return Reference to <code>*this</code>.
-     */
+    Vector2& operator *=(const Matrix2x2& m);
     Vector2& operator /=(float k);
-
-    /**
-     * Array access operator.
-     *
-     * @param i Index of the component to return, between [0, 1].
-     *
-     * @return Reference to the specified component.
-     */
-    float& operator [](int i);
-
-    /**
-     * Provided for const-correctness.
-     *
-     * @see operator [](int)
-     */
-    float operator [](int i) const;
 
     /**
      * Gets the component array.
@@ -127,25 +70,6 @@ public:
      * @see data()
      */
     const float* data() const;
-
-    /**
-     * Negates this vector.
-     */
-    void negate();
-
-    /**
-     * Normalizes this vector. The magnitude (length) of this vector cannot be
-     * zero.
-     */
-    void normalize();
-
-    /**
-     * Sets both components.
-     *
-     * @param x The x-component to set.
-     * @param y The y-component to set.
-     */
-    void set(float x, float y);
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
@@ -163,85 +87,38 @@ public:
 GEOMETRY_STATIC_ASSERT(sizeof(Vector2[2]) == sizeof(float) * 4);
 /// @endcond
 
-/**
- * Vector addition.
- *
- * @param a The first vector.
- * @param b The other vector.
- *
- * @return <code>a + b</code>.
- */
 const Vector2 operator +(const Vector2& a, const Vector2& b);
-
-/**
- * Vector subtraction.
- *
- * @param a The first vector.
- * @param b The other vector.
- *
- * @return <code>a - b</code>.
- */
-const Vector2 operator -(const Vector2& a, const Vector2& b);
-
-/**
- * Vector negation.
- *
- * @param v The vector to negate.
- *
- * @return Negated <code>v</code>.
- */
 const Vector2 operator -(const Vector2& v);
-
-/**
- * Scalar-times-vector multiplication.
- *
- * @param k The multiplier.
- * @param v The vector to multiply.
- *
- * @return <code>v</code> scaled by <code>k</code>.
- */
+const Vector2 operator -(const Vector2& a, const Vector2& b);
 const Vector2 operator *(float k, const Vector2& v);
-
-/**
- * Vector-times-scalar multiplication.
- *
- * @param v The vector to multiply.
- * @param k The multiplier.
- *
- * @return <code>v</code> scaled by <code>k</code>.
- */
 const Vector2 operator *(const Vector2& v, float k);
-
-/**
- * Vector-times-inverse scalar multiplication.
- *
- * @param v The vector to multiply.
- * @param k The divisor, cannot be zero.
- *
- * @return <code>v</code> scaled by the inverse of <code>k</code>.
- */
 const Vector2 operator /(const Vector2& v, float k);
 
 /**
- * Calculates the angle of a given direction vector in radians. The magnitude
- * (length) of the given vector cannot be zero.
+ * Calculates the angle of a given direction vector in radians. <code>v</code>
+ * does not need to be unit-length. If <code>v</code> is a zero vector, the
+ * return value is zero.
  *
  * @param v The direction vector whose angle is to be calculated.
  *
  * @return Angle of direction vector <code>v</code> in radians, between
- * [0, 2*pi). The angle of x-axis is 0, and the angle of y-axis is pi/2.
+ * [-pi, pi].
  */
 float angle(const Vector2& v);
 
 /**
- * Calculates the angle between two vectors in radians. The magnitude (length)
- * of the given vectors cannot be zero.
+ * Calculates the angle between two vectors in radians. <code>a</code> and
+ * <code>b</code> do not need to be unit length. If the magnitude (length) of a
+ * given vector is zero, <code>Vector2(1.0f, 0.0f)</code> is used in
+ * calculation in its stead.
  *
  * @param a The first vector.
  * @param b The other vector.
  *
  * @return The angle between <code>a</code> and <code>b</code> in radians,
  * between [0, pi].
+ *
+ * @see normalize(const Vector2&)
  */
 float angleBetween(const Vector2& a, const Vector2& b);
 
@@ -256,16 +133,6 @@ float angleBetween(const Vector2& a, const Vector2& b);
 float distance(const Vector2& a, const Vector2& b);
 
 /**
- * Calculates the squared distance between two points.
- *
- * @param a The first point.
- * @param b The other point.
- *
- * @return The squared distance between <code>a</code> and <code>b</code>.
- */
-float sqrDistance(const Vector2& a, const Vector2& b);
-
-/**
  * Vector dot product.
  *
  * @param a The first vector.
@@ -274,16 +141,6 @@ float sqrDistance(const Vector2& a, const Vector2& b);
  * @return The dot product of <code>a</code> and <code>b</code>.
  */
 float dot(const Vector2& a, const Vector2& b);
-
-/**
- * Same as <code>dot(perp(a), b)</code>.
- *
- * @param a The first vector.
- * @param b The other vector.
- *
- * @return Vector equal to <code>dot(perp(a), b)</code>.
- */
-float perpDot(const Vector2& a, const Vector2& b);
 
 /**
  * Calculates the length of a given vector.
@@ -295,6 +152,16 @@ float perpDot(const Vector2& a, const Vector2& b);
 float length(const Vector2& v);
 
 /**
+ * Calculates the squared distance between two points.
+ *
+ * @param a The first point.
+ * @param b The other point.
+ *
+ * @return The squared distance between <code>a</code> and <code>b</code>.
+ */
+float sqrDistance(const Vector2& a, const Vector2& b);
+
+/**
  * Calculates the squared length of a given vector.
  *
  * @param v The vector whose squared length is to be calculated.
@@ -304,15 +171,25 @@ float length(const Vector2& v);
 float sqrLength(const Vector2& v);
 
 /**
- * Linear interpolation between two points.
+ * Linear interpolation between two vectors.
  *
- * @param a Begin point.
- * @param b End point.
+ * @param a Vector containing the values at <code>t == 0.0f</code>.
+ * @param b Vector containing the values at <code>t == 1.0f</code>.
  * @param t Weight coefficient.
  *
  * @return <code>a + t * (b - a)</code>.
  */
 const Vector2 mix(const Vector2& a, const Vector2& b, float t);
+
+/**
+ * Calculates a normalized vector. If the magnitude (length) of <code>v</code>
+ * is zero, the returned vector is equal to <code>Vector2(1.0f, 0.0f)</code>.
+ *
+ * @param v The vector from which the result vector is to be calculated.
+ *
+ * @return Normalized <code>v</code>.
+ */
+const Vector2 normalize(const Vector2& v);
 
 /**
  * Calculates a vector perpendicular (rotated 90 degrees CCW) to a given
@@ -325,56 +202,25 @@ const Vector2 mix(const Vector2& a, const Vector2& b, float t);
 const Vector2 perp(const Vector2& v);
 
 /**
- * Calculates a normalized vector. The magnitude (length) of the given vector
- * cannot be zero.
+ * Calculates a point from polar coordinates.
  *
- * @param v The vector from which the result vector is to be calculated.
+ * @param radius Radial coordinate, distance from the origin.
+ * @param angle Angular coordinate in radians.
  *
- * @return Normalized <code>v</code>.
+ * @return The calculated point.
  */
-const Vector2 normalize(const Vector2& v);
+const Vector2 polarPoint(float radius, float angle);
 
 /**
  * Reflects a vector.
  *
  * @param v The vector to reflect.
- * @param normal Unit length reflection surface normal.
+ * @param n Unit length reflection surface normal.
  *
  * @return Reflected <code>v</code>.
  */
-const Vector2 reflect(const Vector2& v, const Vector2& normal);
+const Vector2 reflect(const Vector2& v, const Vector2& n);
 
-// TODO: should this be called mirror instead of reflect?
-/**
- * Reflects a point across a plane.
- *
- * @param q The point to reflect.
- * @param plane Reflection plane.
- *
- * @return Reflected <code>q</code>.
- */
-const Vector2 reflect(const Vector2& q, const Plane2& plane);
-
-/**
- * Calculates a point from polar coordinates. This function uses origin as the
- * reference point.
- *
- * @param direction Offset direction in radians.
- * @param distance Offset distance from the reference point.
- *
- * @return The calculated point.
- */
-const Vector2 polarPoint(float direction, float distance);
-
-/**
- * Calculates a point from polar coordinates.
- *
- * @param point Reference point.
- * @param direction Offset direction in radians.
- * @param distance Offset distance from the reference point.
- *
- * @return The calculated point.
- */
-const Vector2 polarPoint(const Vector2& point, float direction, float distance);
+// TODO: const Vector2 refract(const Vector2& v, const Vector2& n, float k);
 
 #endif // #ifndef GEOMETRY_VECTOR2_H_INCLUDED
