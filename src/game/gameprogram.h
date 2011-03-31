@@ -8,9 +8,8 @@
 
 #include <SDL/SDL.h>
 #include "gamewindow.h"
-
-#include "input/sdlkeyboard.h"
-#include "input/sdlmouse.h"
+#include "gameobject.h"
+#include "keyboardcontroller.h"
 
 #include "configuration/configuration.h"
 
@@ -19,7 +18,7 @@
 #include <graphics/resourcemanager.h>
 #include <graphics/vertexshader.h>
 #include <graphics/fragmentshader.h>
-#include <graphics/shaderprogram.h>
+#include <graphics/program.h>
 #include <graphics/mesh.h>
 #include <geometry/vector3.h>
 #include <graphics/texture.h>
@@ -36,7 +35,7 @@ class Node;
 
 typedef ResourceManager<VertexShader> VertexShaderManager;
 typedef ResourceManager<FragmentShader> FragmentShaderManager;
-typedef ResourceManager<ShaderProgram> ShaderProgramManager;
+typedef ResourceManager<Program> ProgramManager;
 typedef ResourceManager<Mesh> MeshManager;
 typedef ResourceManager<Texture> TextureManager;
 
@@ -126,9 +125,6 @@ public:
 
 	//virtual void onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent );
 
-	virtual void bindMouse();
-	virtual void releaseMouse();
-
 private:
     void test();
 
@@ -140,13 +136,14 @@ private:
 	float cameraSpeedX;
 	float cameraSpeedY;
 	float cameraSpeedZ;
-	SDLKeyboard keyboard;
-	SDLMouse mouse;
+
 	Configuration configuration;
 	Mixer mixer_;
 	Node* ship;
 
 
+    GameObject* testObject;
+    KeyboardController testController;
 
     // TODO: quick & dirty
     CameraNode* camera_;
@@ -165,7 +162,7 @@ private:
 
     VertexShaderManager vertexShaderManager_;
     FragmentShaderManager fragmentShaderManager_;
-    ShaderProgramManager shaderProgramManager_;
+    ProgramManager programManager_;
     MeshManager meshManager_;
     TextureManager textureManager_;
 };

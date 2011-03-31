@@ -63,6 +63,9 @@ class Keyboard
             KEY_F7,
             KEY_F8,
             KEY_F9,
+            KEY_F10,
+            KEY_F11,
+            KEY_F12,
             KEY_SPACE,
             KEY_ENTER,
             KEY_ESCAPE,
@@ -116,6 +119,7 @@ class Keyboard
 
     protected:
         static const int numberOfKeys = 52;
+
         int keycodes[numberOfKeys];
 
         int* keyboardState;

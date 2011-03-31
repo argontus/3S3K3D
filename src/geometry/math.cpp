@@ -5,73 +5,50 @@
 
 #include <geometry/math.h>
 
+#include <cfloat>
 #include <cmath>
 
 namespace Math {
 
+// mathematical constants
+
+float e()
+{
+    return M_E;
+}
+
+float infinity()
+{
+    // TODO: return infinity, not the maximum positive value
+    return FLT_MAX;
+}
+
 float pi()
 {
-    // constant pi
-    static const float k = static_cast<float>(std::atan(1.0) * 4.0);
-
-    return k;
+    return M_PI;
 }
 
-float halfPi()
-{
-    // constant pi/2
-    static const float k = static_cast<float>(std::atan(1.0) * 2.0);
+// angle conversion functions
 
-    return k;
+float degrees(const float radians)
+{
+    return 180.0 / M_PI * radians;
 }
 
-float twoPi()
+float radians(const float degrees)
 {
-    // constant 2*pi
-    static const float k = static_cast<float>(std::atan(1.0) * 8.0);
-
-    return k;
+    return M_PI / 180.0 * degrees;
 }
 
-float degToRad(const float value)
+// trigonometry functions
+
+float acos(const float x)
 {
-    // constant pi/180
-    static const float k = static_cast<float>(std::atan(1.0) / 45.0);
-
-    return k * value;
-}
-
-float radToDeg(const float value)
-{
-    // constant 180/pi
-    static const float k = static_cast<float>(45.0 / std::atan(1.0));
-
-    return k * value;
-}
-
-float cos(const float value)
-{
-    return std::cos(value);
-}
-
-float sin(const float value)
-{
-    return std::sin(value);
-}
-
-float tan(const float value)
-{
-    GEOMETRY_RUNTIME_ASSERT(std::cos(value) != 0.0f);
-    return std::tan(value);
-}
-
-float acos(const float value)
-{
-    if (value > -1.0f)
+    if (x > -1.0f)
     {
-        if (value < 1.0f)
+        if (x < 1.0f)
         {
-            return std::acos(value);
+            return std::acos(x);
         }
 
         return 0.0f;
@@ -80,52 +57,89 @@ float acos(const float value)
     return pi();
 }
 
-float asin(const float value)
+float asin(const float x)
 {
-    if (value > -1.0f)
+    if (x > -1.0f)
     {
-        if (value < 1.0f)
+        if (x < 1.0f)
         {
-            return std::asin(value);
+            return std::asin(x);
         }
 
-        return halfPi();
+        return 0.5f * pi();
     }
 
-    return -halfPi();
+    return -0.5f * pi();
 }
 
-float atan(const float value)
+float atan(const float x)
 {
-    return std::atan(value);
+    return std::atan(x);
 }
 
-float atan2(const float y, const float x)
+float atan(const float y, const float x)
 {
+    // TODO: use tolerances instead of absolute values?
+    if (x == 0.0f && y == 0.0f)
+    {
+        return 0.0f;
+    }
+
     return std::atan2(y, x);
 }
 
-float sqr(const float value)
+float cos(const float angle)
 {
-    return value * value;
+    return std::cos(angle);
 }
 
-float sqrt(const float value)
+float sin(const float angle)
 {
-    GEOMETRY_RUNTIME_ASSERT(value >= 0.0f);
-    return std::sqrt(value);
+    return std::sin(angle);
 }
 
-float invSqrt(const float value)
+float tan(const float angle)
 {
-    GEOMETRY_RUNTIME_ASSERT(value > 0.0f);
-    return 1.0f / std::sqrt(value);
+    // TODO: use tolerances instead of absolute values?
+    GEOMETRY_RUNTIME_ASSERT(std::cos(angle) != 0.0f);
+    return std::tan(angle);
 }
 
-float abs(const float value)
+// exponential functions
+
+float exp(const float x)
 {
-    return value < 0.0f ? -value : value;
+    return std::exp(x);
 }
+
+float log(const float x)
+{
+    // TODO: use tolerances instead of absolute values?
+    GEOMETRY_RUNTIME_ASSERT(x > 0.0f);
+    return std::log(x);
+}
+
+float pow(const float base, const float exponent)
+{
+    // TODO: use tolerances instead of absolute values?
+    GEOMETRY_RUNTIME_ASSERT(base >= 0.0f);
+    // TODO: more sanity checks
+    return std::pow(base, exponent);
+}
+
+float sqr(const float x)
+{
+    return x * x;
+}
+
+float sqrt(const float x)
+{
+    // TODO: use tolerances instead of absolute values?
+    GEOMETRY_RUNTIME_ASSERT(x >= 0.0f);
+    return std::sqrt(x);
+}
+
+// common functions
 
 float ceil(const float value)
 {
@@ -142,10 +156,11 @@ float mix(const float a, const float b, const float t)
     return a + t * (b - a);
 }
 
-float wrapTo2Pi(float value)
+float mod(const float dividend, const float divisor)
 {
-    value += twoPi();
-    return value - floor(value / twoPi()) * twoPi();
+    // TODO: use tolerances instead of absolute values?
+    GEOMETRY_RUNTIME_ASSERT(divisor != 0.0f);
+    return dividend - divisor * floor(dividend / divisor);
 }
 
 } // namespace Math

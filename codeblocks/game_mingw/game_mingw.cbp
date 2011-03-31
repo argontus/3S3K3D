@@ -65,10 +65,16 @@
 		<Linker>
 			<Add directory="..\..\lib" />
 		</Linker>
+		<Unit filename="..\..\src\game\controller.cpp" />
+		<Unit filename="..\..\src\game\controller.h" />
+		<Unit filename="..\..\src\game\gameobject.cpp" />
+		<Unit filename="..\..\src\game\gameobject.h" />
 		<Unit filename="..\..\src\game\gameprogram.cpp" />
 		<Unit filename="..\..\src\game\gameprogram.h" />
 		<Unit filename="..\..\src\game\gamewindow.cpp" />
 		<Unit filename="..\..\src\game\gamewindow.h" />
+		<Unit filename="..\..\src\game\keyboardcontroller.cpp" />
+		<Unit filename="..\..\src\game\keyboardcontroller.h" />
 		<Unit filename="..\..\src\game\main.cpp" />
 		<Extensions>
 			<code_completion />

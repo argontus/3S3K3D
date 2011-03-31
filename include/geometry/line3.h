@@ -14,8 +14,8 @@
 class Line3
 {
 public:
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor, constructs an uninitialized line.
@@ -31,33 +31,6 @@ public:
     Line3(const Vector3& point, const Vector3& direction);
 
     /**
-     * Calculates the point on this line that is closest to <code>q</code>.
-     *
-     * @param q A point.
-     *
-     * @return The point on this line that is closest to <code>q</code>.
-     */
-    const Vector3 closestPointTo(const Vector3& q) const;
-
-    /**
-     * Calculates the distance to a point from this line.
-     *
-     * @param q A point.
-     *
-     * @return The distance to point <code>q</code> from this line.
-     */
-    float distanceTo(const Vector3& q) const;
-
-    /**
-     * Calculates the squared distance to a point from this line.
-     *
-     * @param q A point.
-     *
-     * @return The squared distance to point <code>q</code> from this line.
-     */
-    float sqrDistanceTo(const Vector3& q) const;
-
-    /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
      *
      * @param other The object to swap contents with.
@@ -67,5 +40,40 @@ public:
     Vector3 point;      ///< Point on the line.
     Vector3 direction;  ///< Line direction, should be unit length.
 };
+
+/**
+ * Calculates the distance between line <code>x</code> and point
+ * <code>q</code>.
+ *
+ * @param x A line.
+ * @param q A point.
+ *
+ * @return The distance between line <code>x</code> and point <code>q</code>.
+ */
+float distance(const Line3& x, const Vector3& q);
+
+/**
+ * Calculates the squared distance between line <code>x</code> and point
+ * <code>q</code>.
+ *
+ * @param x A line.
+ * @param q A point.
+ *
+ * @return The squared distance between line <code>x</code> and point
+ * <code>q</code>.
+ */
+float sqrDistance(const Line3& x, const Vector3& q);
+
+/**
+ * Calculates the point on line <code>x</code> that is closest to point
+ * <code>q</code>.
+ *
+ * @param x A line.
+ * @param q A point.
+ *
+ * @return The point on line <code>x</code> that is closest to point
+ * <code>q</code>.
+ */
+const Vector3 closestPoint(const Line3& x, const Vector3& q);
 
 #endif // #ifndef GEOMETRY_LINE3_H_INCLUDED

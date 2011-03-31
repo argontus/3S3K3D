@@ -6,8 +6,10 @@
 #ifndef GRAPHICS_MESH_H_INCLUDED
 #define GRAPHICS_MESH_H_INCLUDED
 
-#include <geometry/vector2array.h>
-#include <geometry/vector3array.h>
+#include <vector>
+
+#include <geometry/vector2.h>
+#include <geometry/vector3.h>
 
 /**
  * Represents a 3D triangle mesh.
@@ -56,21 +58,21 @@ public:
      * @see generateFlatNormals()
      * @see generateSmoothNormals()
      */
-    void setVertices(const Vector3Array& vertices);
+    void setVertices(const std::vector<Vector3>& vertices);
 
     /**
      * Gets the vertices.
      *
      * @return Vertices.
      */
-    Vector3Array& vertices();
+    std::vector<Vector3>& vertices();
 
     /**
      * Provided for const-correctness.
      *
      * @see vertices()
      */
-    const Vector3Array& vertices() const;
+    const std::vector<Vector3>& vertices() const;
 
     /**
      * Sets the vertex normals. The size of the given array must be a multiple
@@ -78,21 +80,21 @@ public:
      *
      * @param normals Vertex normal array to copy.
      */
-    void setNormals(const Vector3Array& normals);
+    void setNormals(const std::vector<Vector3>& normals);
 
     /**
      * Gets the vertex normals.
      *
      * @return Vertex normals.
      */
-    Vector3Array& normals();
+    std::vector<Vector3>& normals();
 
     /**
      * Provided for const-correctness.
      *
      * @see normals()
      */
-    const Vector3Array& normals() const;
+    const std::vector<Vector3>& normals() const;
 
     /**
      * Sets the vertex tangents. The size of the given array must be a multiple
@@ -100,21 +102,21 @@ public:
      *
      * @param tangents Vertex tangent array to copy.
      */
-    void setTangents(const Vector3Array& tangents);
+    void setTangents(const std::vector<Vector3>& tangents);
 
     /**
      * Gets the vertex tangents.
      *
      * @return Vertex tangents.
      */
-    Vector3Array& tangents();
+    std::vector<Vector3>& tangents();
 
     /**
      * Provided for const-correctness.
      *
      * @see tangents()
      */
-    const Vector3Array& tangents() const;
+    const std::vector<Vector3>& tangents() const;
 
     /**
      * Sets the vertex texture coordinates. The size of the given array must be
@@ -122,21 +124,21 @@ public:
      *
      * @param texCoords Vertex texture coordinate array to copy.
      */
-    void setTexCoords(const Vector2Array& texCoords);
+    void setTexCoords(const std::vector<Vector2>& texCoords);
 
     /**
      * Gets the vertex texture coordinates.
      *
      * @return Vertex texture coordinates.
      */
-    Vector2Array& texCoords();
+    std::vector<Vector2>& texCoords();
 
     /**
      * Provided for const-correctness.
      *
      * @see texCoords()
      */
-    const Vector2Array& texCoords() const;
+    const std::vector<Vector2>& texCoords() const;
 
     /**
      * Gets the number of faces in this mesh.
@@ -181,10 +183,10 @@ private:
     const Vector3 faceNormal(int index) const;
 
     // TODO: VBOs
-    Vector3Array vertices_;     ///< Vertex coordinates.
-    Vector3Array normals_;      ///< Vertex normals.
-    Vector3Array tangents_;     ///< Vertex tangents for normal mapping.
-    Vector2Array texCoords_;    ///< Vertex texture coordinates.
+    std::vector<Vector3> vertices_;     ///< Vertex coordinates.
+    std::vector<Vector3> normals_;      ///< Vertex normals.
+    std::vector<Vector3> tangents_;     ///< Vertex tangents for normal mapping.
+    std::vector<Vector2> texCoords_;    ///< Vertex texture coordinates.
 };
 
 #endif // #ifndef GRAPHICS_MESH_H_INCLUDED

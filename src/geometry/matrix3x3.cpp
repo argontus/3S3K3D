@@ -5,65 +5,22 @@
 
 #include <geometry/matrix3x3.h>
 
-#include <algorithm>
-
 #include <geometry/math.h>
-#include <geometry/matrix2x2.h>
 #include <geometry/vector3.h>
 
-const Matrix3x3& Matrix3x3::identity()
+const Matrix3x3 Matrix3x3::identity()
 {
-    static const Matrix3x3 m(
+    return Matrix3x3(
         1.0f,  0.0f,  0.0f,
         0.0f,  1.0f,  0.0f,
         0.0f,  0.0f,  1.0f
     );
-
-    return m;
 }
 
-const Matrix3x3 Matrix3x3::xRotation(const float rotation)
+const Matrix3x3 Matrix3x3::rotation(const Vector3& axis, const float angle)
 {
-    const float c = Math::cos(rotation);
-    const float s = Math::sin(rotation);
-
-    return Matrix3x3(
-        1.0f,  0.0f,  0.0f,
-        0.0f,     c,     s,
-        0.0f,    -s,     c
-    );
-}
-
-const Matrix3x3 Matrix3x3::yRotation(const float rotation)
-{
-    const float c = Math::cos(rotation);
-    const float s = Math::sin(rotation);
-
-    return Matrix3x3(
-           c,  0.0f,    -s,
-        0.0f,  1.0f,  0.0f,
-           s,  0.0f,     c
-    );
-}
-
-const Matrix3x3 Matrix3x3::zRotation(const float rotation)
-{
-    const float c = Math::cos(rotation);
-    const float s = Math::sin(rotation);
-
-    return Matrix3x3(
-           c,     s,  0.0f,
-          -s,     c,  0.0f,
-        0.0f,  0.0f,  1.0f
-    );
-}
-
-const Matrix3x3 Matrix3x3::rotation(const Vector3& axis, const float rotation)
-{
-    // TODO: not tested, does this work?
-
-    const float c = Math::cos(rotation);
-    const float s = Math::sin(rotation);
+    const float c = Math::cos(angle);
+    const float s = Math::sin(angle);
     const float k = 1.0f - c;
 
     const float x = axis.x;
@@ -76,6 +33,42 @@ const Matrix3x3 Matrix3x3::rotation(const Vector3& axis, const float rotation)
             x * x * k + c,  x * y * k + z * s,  x * z * k - y * s,
         x * y * k - z * s,      y * y * k + c,  y * z * k + x * s,
         x * z * k + y * s,  y * z * k - x * s,      z * z * k + c
+    );
+}
+
+const Matrix3x3 Matrix3x3::xRotation(const float angle)
+{
+    const float c = Math::cos(angle);
+    const float s = Math::sin(angle);
+
+    return Matrix3x3(
+        1.0f,  0.0f,  0.0f,
+        0.0f,     c,     s,
+        0.0f,    -s,     c
+    );
+}
+
+const Matrix3x3 Matrix3x3::yRotation(const float angle)
+{
+    const float c = Math::cos(angle);
+    const float s = Math::sin(angle);
+
+    return Matrix3x3(
+           c,  0.0f,    -s,
+        0.0f,  1.0f,  0.0f,
+           s,  0.0f,     c
+    );
+}
+
+const Matrix3x3 Matrix3x3::zRotation(const float angle)
+{
+    const float c = Math::cos(angle);
+    const float s = Math::sin(angle);
+
+    return Matrix3x3(
+           c,     s,  0.0f,
+          -s,     c,  0.0f,
+        0.0f,  0.0f,  1.0f
     );
 }
 
@@ -106,24 +99,37 @@ Matrix3x3::Matrix3x3(
     // ...
 }
 
-Matrix3x3::Matrix3x3(const Matrix2x2& m)
-:   m00(m.m00), m01(m.m01), m02(0.0f),
-    m10(m.m10), m11(m.m11), m12(0.0f),
-    m20(0.0f), m21(0.0f), m22(1.0f)
+Matrix3x3& Matrix3x3::operator +=(const Matrix3x3& m)
 {
-    // ...
+    *this = *this + m;
+    return *this;
 }
 
-float* Matrix3x3::operator [](const int row)
+Matrix3x3& Matrix3x3::operator -=(const Matrix3x3& m)
 {
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 2);
-    return &m00 + row * 3;
+    *this = *this - m;
+    return *this;
 }
 
-const float* Matrix3x3::operator [](const int row) const
+Matrix3x3& Matrix3x3::operator *=(const float k)
 {
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 2);
-    return &m00 + row * 3;
+    *this = *this * k;
+    return *this;
+}
+
+Matrix3x3& Matrix3x3::operator *=(const Matrix3x3& m)
+{
+    *this = *this * m;
+    return *this;
+}
+
+Matrix3x3& Matrix3x3::operator /=(const float k)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
+
+    *this = *this / k;
+    return *this;
 }
 
 float* Matrix3x3::data()
@@ -136,92 +142,30 @@ const float* Matrix3x3::data() const
     return &m00;
 }
 
-void Matrix3x3::setRow(const int row, const Vector3& v)
+const Vector3 Matrix3x3::row(const int index) const
 {
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 2);
-    float* data = &m00 + row * 3;
+    GEOMETRY_RUNTIME_ASSERT(index >= 0 && index <= 2);
 
-    data[0] = v.x;
-    data[1] = v.y;
-    data[2] = v.z;
-}
-
-const Vector3 Matrix3x3::row(const int row) const
-{
-    GEOMETRY_RUNTIME_ASSERT(row >= 0 && row <= 2);
-    const float* data = &m00 + row * 3;
-    return Vector3(data[0], data[1], data[2]);
-}
-
-void Matrix3x3::setColumn(const int column, const Vector3& v)
-{
-    GEOMETRY_RUNTIME_ASSERT(column >= 0 && column <= 2);
-    float* data = &m00 + column;
-
-    data[0] = v.x;
-    data[3] = v.y;
-    data[6] = v.z;
-}
-
-const Vector3 Matrix3x3::column(const int column) const
-{
-    GEOMETRY_RUNTIME_ASSERT(column >= 0 && column <= 2);
-    const float* data = &m00 + column;
-    return Vector3(data[0], data[3], data[6]);
-}
-
-void Matrix3x3::multiplyBy(const Matrix3x3& m)
-{
-    *this = product(*this, m);
-}
-
-void Matrix3x3::multiplyByT(const Matrix3x3& m)
-{
-    *this = productT(*this, m);
-}
-
-void Matrix3x3::orthogonalize()
-{
-    Vector3 x(m00, m01, m02);
-    x.normalize();
-
-    Vector3 y(m10, m11, m12);
-    y -= x * dot(y, x);
-    y.normalize();
-
-    // cross(x, y) should produce a unit vector, normalize just in case
-    Vector3 z = cross(x, y);
-    z.normalize();
-
-    m00 = x.x;
-    m01 = x.y;
-    m02 = x.z;
-
-    m10 = y.x;
-    m11 = y.y;
-    m12 = y.z;
-
-    m20 = z.x;
-    m21 = z.y;
-    m22 = z.z;
+    const float* const v = data() + 3 * index;
+    return Vector3(v[0], v[1], v[2]);
 }
 
 void Matrix3x3::swap(Matrix3x3& other)
 {
-    std::swap(m00, other.m00);
-    std::swap(m01, other.m01);
-    std::swap(m02, other.m02);
+    Math::swap(m00, other.m00);
+    Math::swap(m01, other.m01);
+    Math::swap(m02, other.m02);
 
-    std::swap(m10, other.m10);
-    std::swap(m11, other.m11);
-    std::swap(m12, other.m12);
+    Math::swap(m10, other.m10);
+    Math::swap(m11, other.m11);
+    Math::swap(m12, other.m12);
 
-    std::swap(m20, other.m20);
-    std::swap(m21, other.m21);
-    std::swap(m22, other.m22);
+    Math::swap(m20, other.m20);
+    Math::swap(m21, other.m21);
+    Math::swap(m22, other.m22);
 }
 
-const Vector3 product(const Vector3& v, const Matrix3x3& m)
+const Vector3 operator *(const Vector3& v, const Matrix3x3& m)
 {
     return Vector3(
         v.x * m.m00 + v.y * m.m10 + v.z * m.m20,
@@ -230,16 +174,48 @@ const Vector3 product(const Vector3& v, const Matrix3x3& m)
     );
 }
 
-const Vector3 productT(const Vector3& v, const Matrix3x3& m)
+const Matrix3x3 operator +(const Matrix3x3& a, const Matrix3x3& b)
 {
-    return Vector3(
-        v.x * m.m00 + v.y * m.m01 + v.z * m.m02,
-        v.x * m.m10 + v.y * m.m11 + v.z * m.m12,
-        v.x * m.m20 + v.y * m.m21 + v.z * m.m22
+    return Matrix3x3(
+        a.m00 + b.m00, a.m01 + b.m01, a.m02 + b.m02,
+        a.m10 + b.m10, a.m11 + b.m11, a.m12 + b.m12,
+        a.m20 + b.m20, a.m21 + b.m21, a.m22 + b.m22
     );
 }
 
-const Matrix3x3 product(const Matrix3x3& a, const Matrix3x3& b)
+const Matrix3x3 operator -(const Matrix3x3& m)
+{
+    return Matrix3x3(
+        -m.m00, -m.m01, -m.m02,
+        -m.m10, -m.m11, -m.m12,
+        -m.m20, -m.m21, -m.m22
+    );
+}
+
+const Matrix3x3 operator -(const Matrix3x3& a, const Matrix3x3& b)
+{
+    return Matrix3x3(
+        a.m00 - b.m00, a.m01 - b.m01, a.m02 - b.m02,
+        a.m10 - b.m10, a.m11 - b.m11, a.m12 - b.m12,
+        a.m20 - b.m20, a.m21 - b.m21, a.m22 - b.m22
+    );
+}
+
+const Matrix3x3 operator *(const float k, const Matrix3x3& m)
+{
+    return Matrix3x3(
+        k * m.m00, k * m.m01, k * m.m02,
+        k * m.m10, k * m.m11, k * m.m12,
+        k * m.m20, k * m.m21, k * m.m22
+    );
+}
+
+const Matrix3x3 operator *(const Matrix3x3& m, const float k)
+{
+    return k * m;
+}
+
+const Matrix3x3 operator *(const Matrix3x3& a, const Matrix3x3& b)
 {
     return Matrix3x3(
         a.m00 * b.m00 + a.m01 * b.m10 + a.m02 * b.m20,
@@ -256,7 +232,54 @@ const Matrix3x3 product(const Matrix3x3& a, const Matrix3x3& b)
     );
 }
 
-const Matrix3x3 productT(const Matrix3x3& a, const Matrix3x3& b)
+const Matrix3x3 operator /(const Matrix3x3& m, const float k)
+{
+    // TODO: use tolerances instead of exact values?
+    GEOMETRY_RUNTIME_ASSERT(k != 0.0f);
+
+    return Matrix3x3(
+        m.m00 / k, m.m01 / k, m.m02 / k,
+        m.m10 / k, m.m11 / k, m.m12 / k,
+        m.m20 / k, m.m21 / k, m.m22 / k
+    );
+}
+
+const Vector3 timesTranspose(const Vector3& v, const Matrix3x3& m)
+{
+    return Vector3(
+        v.x * m.m00 + v.y * m.m01 + v.z * m.m02,
+        v.x * m.m10 + v.y * m.m11 + v.z * m.m12,
+        v.x * m.m20 + v.y * m.m21 + v.z * m.m22
+    );
+}
+
+const Matrix3x3 orthogonalize(const Matrix3x3& m)
+{
+    // TODO: In the worst case scenario, this could construct a matrix where
+    // one or more rows are incorrectly set to Vector3(1.0f, 0.0f, 0.0f)
+    // because of how normalize(const Vector3&) is implemented. Should this
+    // function check for division by zero instead of relying on the default
+    // behavior of vector normalization?
+
+    const Vector3 x = normalize(m.row(0));
+
+    Vector3 y = m.row(1);
+
+    // extract the part that is parallel to x and normalize
+    y -= x * dot(y, x);
+    y = normalize(y);
+
+    Vector3 z = m.row(2);
+
+    // extract the parts that are parallel to x and y and normalize
+    z -= x * dot(z, x);
+    z -= y * dot(z, y);
+    z = normalize(z);
+
+    return Matrix3x3(x, y, z);
+}
+
+const Matrix3x3 timesTranspose(const Matrix3x3& a, const Matrix3x3& b)
 {
     return Matrix3x3(
         a.m00 * b.m00 + a.m01 * b.m01 + a.m02 * b.m02,
@@ -279,5 +302,22 @@ const Matrix3x3 transpose(const Matrix3x3& m)
         m.m00, m.m10, m.m20,
         m.m01, m.m11, m.m21,
         m.m02, m.m12, m.m22
+    );
+}
+
+const Matrix3x3 transposeTimes(const Matrix3x3& a, const Matrix3x3& b)
+{
+    return Matrix3x3(
+        a.m00 * b.m00 + a.m10 * b.m10 + a.m20 * b.m20,
+        a.m00 * b.m01 + a.m10 * b.m11 + a.m20 * b.m21,
+        a.m00 * b.m02 + a.m10 * b.m12 + a.m20 * b.m22,
+
+        a.m01 * b.m00 + a.m11 * b.m10 + a.m21 * b.m20,
+        a.m01 * b.m01 + a.m11 * b.m11 + a.m21 * b.m21,
+        a.m01 * b.m02 + a.m11 * b.m12 + a.m21 * b.m22,
+
+        a.m02 * b.m00 + a.m12 * b.m10 + a.m22 * b.m20,
+        a.m02 * b.m01 + a.m12 * b.m11 + a.m22 * b.m21,
+        a.m02 * b.m02 + a.m12 * b.m12 + a.m22 * b.m22
     );
 }
