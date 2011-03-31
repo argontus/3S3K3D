@@ -28,7 +28,7 @@ int SDLMouse::getMouseX()
     }
     else if( mouseMode == Mouse::MOUSE_BOUND )
     {
-        return mouseX-mouseBindPointX;
+        return mouseX-mouseLastX;
     }
 
     return 0;
@@ -42,7 +42,7 @@ int SDLMouse::getMouseY()
     }
     else if( mouseMode == Mouse::MOUSE_BOUND )
     {
-         return mouseY-mouseBindPointY;
+         return mouseY-mouseLastY;
     }
 
     return 0;
@@ -120,4 +120,3 @@ void SDLMouse::moveMouse( int x, int y )
 {
     SDL_WarpMouse( x, y );
 }
-
