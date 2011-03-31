@@ -1,7 +1,7 @@
 #version 150
 
 // hard-coded material ambient lighting parameter
-const vec3 ambient = vec3(0.05, 0.05, 0.05);
+const vec3 ambient = vec3(0.35, 0.35, 0.35);
 
 // light parameters
 //uniform vec3 lightPosition;     // light positions in view space

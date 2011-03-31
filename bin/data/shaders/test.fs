@@ -1,7 +1,7 @@
 #version 150
 
 // hard-coded material lighting parameters
-const vec3 ambient = vec3(0.05, 0.05, 0.05);
+const vec3 ambient = vec3(0.35, 0.35, 0.35);
 const float specularExponent = 128.0;
 
 // hard-coded maximum number of lights
