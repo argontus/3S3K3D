@@ -128,24 +128,11 @@ public:
 private:
     void test();
 
-	bool running;
-	Uint32 deltaTicks; /* ticks between last frame and current frame */
-	float deltaTime;
-	static const Uint32 ticksPerSecond = 1000;
-	Vector3 cameraVelocity;
-	float cameraSpeedX;
-	float cameraSpeedY;
-	float cameraSpeedZ;
-
 	Configuration configuration;
 	Mixer mixer_;
 	Node* ship;
-
-
     GameObject* testObject;
     KeyboardController testController;
-
-    // TODO: quick & dirty
     CameraNode* camera_;
     GroupNode* rootNode_;
     bool drawExtents_;
@@ -155,16 +142,30 @@ private:
     bool specularMipmappingOn;
     bool rotateLights;
     bool anisotropicFilteringOn;
-
-    Vector3 lightPosition_;
-
-    std::vector<GeometryNode*> geometryNodes_;
-
     VertexShaderManager vertexShaderManager_;
     FragmentShaderManager fragmentShaderManager_;
     ProgramManager programManager_;
     MeshManager meshManager_;
     TextureManager textureManager_;
+
+	bool running;
+	Uint32 deltaTicks; /* ticks between last frame and current frame */
+	float deltaTime;
+	static const Uint32 ticksPerSecond = 1000;
+	Vector3 cameraVelocity;
+	float cameraSpeedX;
+	float cameraSpeedY;
+	float cameraSpeedZ;
+
+    // TODO: quick & dirty
+
+
+
+    Vector3 lightPosition_;
+
+    std::vector<GeometryNode*> geometryNodes_;
+
+
 };
 
 #endif /* GAMEPROGRAM_H_ */

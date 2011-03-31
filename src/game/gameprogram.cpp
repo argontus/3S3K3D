@@ -26,7 +26,10 @@
 #include <graphics/visibilitytest.h>
 
 GameProgram::GameProgram()
-:   testObject(NULL),
+:
+    mixer_(),
+    ship(NULL),
+    testObject(NULL),
     camera_(0),
     rootNode_(0),
     drawExtents_(true),
@@ -40,9 +43,9 @@ GameProgram::GameProgram()
     fragmentShaderManager_(),
     programManager_(),
     meshManager_(),
-    textureManager_(),
-    mixer_(),
-    ship(NULL)
+    textureManager_()
+
+
 {
     running         = true;
     deltaTicks      = 0;
@@ -335,8 +338,7 @@ int GameProgram::execute()
         deltaX = mouse.getMouseX();
         deltaY = mouse.getMouseY();
 
-
-        const float rotationFactor = 0.005;
+        const float rotationFactor = 0.005f;
 
         if( deltaX != 0 && mouseBoundToScreen )
         {
@@ -962,9 +964,9 @@ void GameProgram::test()
     //ship->setMesh(boxMesh);
     //ship->updateModelExtents();
 
-    const int count = 6;
-    const float offset = 2.5f * scaling;
-    const float displacement = -(offset * (count - 1)) / 2.0f;
+    //const int count = 6;
+    //const float offset = 2.5f * scaling;
+    //const float displacement = -(offset * (count - 1)) / 2.0f;
 
 
     ship->setTranslation(Vector3(0.0f, 0.0f, -50.0f));
@@ -1019,6 +1021,7 @@ void GameProgram::test()
 //    rootNode_->attachChild(p);
 
     camera_->setTranslation(Vector3(0.0f, 0.0f, 50.0f));
+    camera_->setRotation(Matrix3x3::identity());
     //camera_->setTranslation(Vector3(-0.5f * offset, -0.5f * offset, 0.0f));
 }
 
