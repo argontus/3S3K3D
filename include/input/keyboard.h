@@ -72,7 +72,8 @@ class Keyboard
             KEY_LEFT,
             KEY_RIGHT,
             KEY_UP,
-            KEY_DOWN
+            KEY_DOWN,
+            NUMBER_OF_KEYS
         };
 
         Keyboard();
@@ -118,9 +119,7 @@ class Keyboard
         virtual void updateKeyboardState() = 0;
 
     protected:
-        static const int numberOfKeys = 52;
-
-        int keycodes[numberOfKeys];
+        int keycodes[NUMBER_OF_KEYS];
 
         int* keyboardState;
         int* keyboardStateInLastFrame;
