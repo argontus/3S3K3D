@@ -13,8 +13,6 @@
 #include <geometry/math.h>
 #include <geometry/transform2.h>
 #include <graphics/color.h>
-#include <graphics/colorarray.h>
-#include <graphics/indexarray.h>
 #include <graphics/meshnode.h>
 #include <graphics/cameranode.h>
 #include <graphics/groupnode.h>
