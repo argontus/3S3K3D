@@ -164,7 +164,7 @@ int GameProgram::execute()
     GRAPHICS_RUNTIME_ASSERT(program->linkStatus());
     programManager_.loadResource("extents", program);
 
-    // program for drawing node extents
+    // program for lit render passes
     program = new Program();
     program->setVertexShader(vertexShaderManager_.getResource("test"));
     program->setFragmentShader(fragmentShaderManager_.getResource("test"));
@@ -468,15 +468,15 @@ void GameProgram::render()
     drawParams.program = programManager_.getResource("shadow");
     glUseProgram(drawParams.program->id());
 
-    drawParams.program->setUniformMatrix4x4fv(
-        "modelViewMatrix",
+    glUniformMatrix4fv(
+        glGetUniformLocation(drawParams.program->id(), "modelViewMatrix"),
         1,
         false,
         drawParams.viewMatrix.data()
     );
 
-    drawParams.program->setUniformMatrix4x4fv(
-        "projectionMatrix",
+    glUniformMatrix4fv(
+        glGetUniformLocation(drawParams.program->id(), "projectionMatrix"),
         1,
         false,
         drawParams.projectionMatrix.data()
@@ -530,7 +530,7 @@ void GameProgram::render()
                 v2, s0, v0
             };
 
-            const GLint coordLocation = drawParams.program->attribLocation("coord");
+            const GLint coordLocation = glGetAttribLocation(drawParams.program->id(), "coord");
             glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords->data());
             glEnableVertexAttribArray(coordLocation);
 
@@ -786,10 +786,10 @@ void drawExtents(const Node* node, const DrawParams& params)
 
     const Matrix4x4 mvpMatrix = params.viewMatrix * params.projectionMatrix;
 
-    const GLint mvpMatrixLocation = params.program->uniformLocation("mvp_matrix");
+    const GLint mvpMatrixLocation = glGetUniformLocation(params.program->id(), "mvp_matrix");
     glUniformMatrix4fv(mvpMatrixLocation, 1, false, mvpMatrix.data());
 
-    const GLint coordLocation = params.program->attribLocation("coord");
+    const GLint coordLocation = glGetAttribLocation(params.program->id(), "coord");
     glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, vertices->data());
     glEnableVertexAttribArray(coordLocation);
 
