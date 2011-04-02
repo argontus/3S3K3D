@@ -32,6 +32,7 @@ class Vector3Array;
 class ColorArray;
 class IndexArray;
 class Node;
+class State;
 
 typedef ResourceManager<VertexShader> VertexShaderManager;
 typedef ResourceManager<FragmentShader> FragmentShaderManager;
@@ -45,6 +46,16 @@ typedef ResourceManager<Texture> TextureManager;
  */
 class GameProgram : public GameWindow {
 public:
+
+    enum STATES {
+        STATE_INTRO,
+        STATE_MAINMENU,
+        STATE_GAME,
+        STATE_GAMEMENU,
+        STATE_CREDITS,
+        STATE_QUIT
+    };
+
 	GameProgram();
 
 	/**
@@ -114,6 +125,29 @@ public:
      */
 	virtual void onQuit();
 
+    /**
+     * Initializes and sets state defined by the parameter as the current
+     * state. Fades into the state.
+     */
+	virtual void changeState( STATES state );
+
+	/**
+	 * Initializes and sets the state defined by the parameter as the current
+	 * state instantly.
+	 */
+	virtual void addState( STATES state );
+
+	/**
+	 * Goes back to previous state by popping the topmost state from the states
+	 * stack. If the stack is empty after tha pop, the program will quit
+	 */
+	virtual void previousState();
+
+	/**
+	 * Initilizes a new state and returns a pointer to it
+	 */
+    virtual State* InitNewState(STATES state);
+
 	/*
 	 * Called when user presses key on the keyboard.
 	 *
@@ -148,14 +182,17 @@ private:
     MeshManager meshManager_;
     TextureManager textureManager_;
 
+    /**
+     * State stack.
+     */
+    std::vector<State*> states;
+
+    State* currentState;
+
 	bool running;
 	Uint32 deltaTicks; /* ticks between last frame and current frame */
 	float deltaTime;
 	static const Uint32 ticksPerSecond = 1000;
-	Vector3 cameraVelocity;
-	float cameraSpeedX;
-	float cameraSpeedY;
-	float cameraSpeedZ;
 
     // TODO: quick & dirty
 

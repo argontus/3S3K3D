@@ -15,7 +15,7 @@
 class State
 {
     public:
-        State( GameProgram* backpointer = NULL );
+        State( GameProgram* backpointer );
         ~State();
 
         /**

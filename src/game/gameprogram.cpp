@@ -22,6 +22,12 @@
 #include <graphics/runtimeassert.h>
 #include <graphics/modelreader.h>
 #include <graphics/visibilitytest.h>
+#include "state.h"
+#include "introstate.h"
+#include "mainmenustate.h"
+#include "gamestate.h"
+#include "gamemenustate.h"
+#include "creditsstate.h"
 
 GameProgram::GameProgram()
 :
@@ -41,26 +47,16 @@ GameProgram::GameProgram()
     fragmentShaderManager_(),
     programManager_(),
     meshManager_(),
-    textureManager_()
+    textureManager_(),
+    currentState(NULL)
 
 
 {
     running         = true;
     deltaTicks      = 0;
     deltaTime       = 0;
-    cameraSpeedX    = 0;
-    cameraSpeedY    = 0;
-    cameraSpeedZ    = 0;
 
-//    const float a = Math::trunc( 0.0f);
-//    const float b = Math::trunc(-0.0f);
-//    const float c = Math::trunc( 0.5f);
-//    const float d = Math::trunc(-0.5f);
-//    const float e = Math::trunc( 1.0f);
-//    const float f = Math::trunc(-1.0f);
-//    const float g = Math::trunc( 1.5f);
-//    const float h = Math::trunc(-1.5f);
-//    const bool dummy = false;
+    changeState(STATE_INTRO);
 }
 
 int GameProgram::execute()
@@ -281,7 +277,7 @@ int GameProgram::execute()
 
         if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_ESCAPE))
         {
-            running = false;
+            changeState( STATE_CREDITS );
         }
 
         if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F1))
@@ -317,6 +313,11 @@ int GameProgram::execute()
         if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F7 ) )
         {
             anisotropicFilteringOn = !anisotropicFilteringOn;
+        }
+
+        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_P ) )
+        {
+            addState(STATE_GAMEMENU);
         }
 
 
@@ -358,6 +359,12 @@ int GameProgram::execute()
         }
 
 		tick( deltaTime );
+		if( currentState == NULL )
+        {
+            std::cerr << "ERROR! OH SHI-!" << std::endl;
+            running = false;
+        }
+		currentState->update( deltaTime );
 
 		keyboard.updateKeyboardState();
 
@@ -1024,9 +1031,109 @@ void GameProgram::test()
     //camera_->setTranslation(Vector3(-0.5f * offset, -0.5f * offset, 0.0f));
 }
 
+void GameProgram::changeState( STATES state )
+{
+    State* tmpState = NULL;
+
+    if( states.size() > 0 )
+    {
+        tmpState = states.back();
+        states.pop_back();
+    }
+
+    if( tmpState != NULL )
+    {
+        delete tmpState;
+    }
+
+    tmpState = InitNewState( state );
+
+    if( tmpState == NULL )
+    {
+        running = false;
+        return;
+    }
+
+    states.push_back( tmpState );
+    currentState = tmpState;
+}
+
+void GameProgram::addState( STATES state )
+{
+    State* tmpState = InitNewState( state );
+
+    if( tmpState == NULL )
+    {
+        running = false;
+        return;
+    }
+
+    states.push_back( tmpState );
+    currentState = tmpState;
+}
+
+void GameProgram::previousState()
+{
+    /*
+     * we can only go to a previous state if we have atleast 2 states in the
+     * state stack.
+     */
+    if( states.size() <= 1 )
+    {
+        // quit the application
+        running = false;
+    }
+
+    State* tmpState = states.back();
+    delete tmpState;
+    states.pop_back();
+
+    currentState = states.back();
+}
+
+State* GameProgram::InitNewState(STATES state)
+{
+    State* tmpState = NULL;
+    switch( state )
+    {
+        case STATE_INTRO:
+            tmpState = new IntroState(this);
+        break;
+
+        case STATE_MAINMENU:
+            tmpState = new MainMenuState(this);
+        break;
+
+        case STATE_GAME:
+            tmpState = new GameState(this);
+        break;
+
+        case STATE_GAMEMENU:
+            tmpState = new GameMenuState(this);
+        break;
+
+        case STATE_CREDITS:
+            tmpState = new CreditsState(this);
+        break;
+
+        case STATE_QUIT:
+            tmpState = NULL;
+        break;
+    }
+
+    return tmpState;
+}
+
 GameProgram::~GameProgram()
 {
     delete rootNode_;
     delete camera_;
+
+    std::vector<State*>::iterator stateIterator = states.begin();
+    while( stateIterator != states.end() )
+    {
+        delete *stateIterator;
+        stateIterator++;
+    }
 }
 
