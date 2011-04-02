@@ -223,10 +223,6 @@ int GameProgram::execute()
     camera_ = new CameraNode();
     camera_->setPerspectiveProjection(45.0f, aspectRatio, 1.0f, 2000.0f);
 
-    testObject = new GameObject();
-    testObject->setGraphicalPresentation( camera_ );
-    testObject->attachController( &testController );
-
 
 //    camera_->setOrthographicProjection(
 //        -150.0f * aspectRatio, 150.0f * aspectRatio,
@@ -970,6 +966,11 @@ void GameProgram::test()
     ship->setTranslation(Vector3(0.0f, 0.0f, -50.0f));
     groupNode->attachChild(ship);
     rootNode_->attachChild(groupNode);
+
+    testObject = new GameObject();
+    testObject->setGraphicalPresentation( ship );
+    testObject->attachController( &testController );
+
 
 //    MeshNode* meshNode = new MeshNode();
 //    meshNode->setMesh(boxMesh);

@@ -26,10 +26,14 @@ class KeyboardController : public Controller
          */
         virtual inline float getSpeed() const { return speed; }
         virtual void setSpeed( float newSpeed );
+
+        virtual inline float getRotationSpeed() const { return rotationSpeed; }
+        virtual void setRotationSpeed( float newRotationSpeed );
     protected:
     private:
         Keyboard* keyboard;
         float speed;
+        float rotationSpeed;
 };
 
 #endif // KEYBOARDCONTROLLER_H

@@ -3,11 +3,12 @@
 #include "input/sdlkeyboard.h"
 #include "geometry/matrix3x3.h"
 #include "graphics/node.h"
-
+#include "geometry/vector3.h"
 
 KeyboardController::KeyboardController()
     : keyboard( new SDLKeyboard() ),
-      speed( 5.0f )
+      speed( 5.0f ),
+      rotationSpeed( 5.0f )
 {
 }
 
@@ -24,32 +25,35 @@ void KeyboardController::update( float deltaTime )
         Node* graphicalPresentation = objectAttachedTo->getGraphicalPresentation();
         Matrix3x3 rotation = graphicalPresentation->rotation();
 
-
         if( keyboard->keyIsDown( Keyboard::KEY_D ) )
 		{
-            graphicalPresentation->translateBy( deltaTime * rotation.row(0) * speed );
+            graphicalPresentation->rotateBy( Matrix3x3::zRotation( -rotationSpeed * deltaTime ));
 		}
 		else if( keyboard->keyIsDown( Keyboard::KEY_A ) )
         {
-            graphicalPresentation->translateBy( deltaTime * rotation.row(0) * -speed );
+            graphicalPresentation->rotateBy( Matrix3x3::zRotation( rotationSpeed * deltaTime ));
         }
 
         if( keyboard->keyIsDown( Keyboard::KEY_Q) )
         {
-            graphicalPresentation->translateBy( deltaTime * rotation.row(1) * -speed );
+            Vector3 direction = -graphicalPresentation->worldTransform().rotation.row(1);
+            graphicalPresentation->rotateBy( Matrix3x3::rotation( direction, rotationSpeed * deltaTime ));
         }
         else if( keyboard->keyIsDown( Keyboard::KEY_E ) )
         {
-            graphicalPresentation->translateBy( deltaTime * rotation.row(1) * speed );
+            Vector3 direction = -graphicalPresentation->worldTransform().rotation.row(1);
+            graphicalPresentation->rotateBy( Matrix3x3::rotation( direction, -rotationSpeed * deltaTime ));
         }
 
         if( keyboard->keyIsDown( Keyboard::KEY_W) )
         {
-            graphicalPresentation->translateBy( deltaTime * rotation.row(2) * -speed );
+            Vector3 direction = -graphicalPresentation->worldTransform().rotation.row(1);
+            graphicalPresentation->translateBy( direction * speed * deltaTime );
         }
         else if( keyboard->keyIsDown( Keyboard::KEY_S ) )
         {
-            graphicalPresentation->translateBy( deltaTime * rotation.row(2) * speed );
+            Vector3 direction = -graphicalPresentation->worldTransform().rotation.row(1);
+            graphicalPresentation->translateBy( -direction * speed * deltaTime );
         }
     }
 }
@@ -57,4 +61,9 @@ void KeyboardController::update( float deltaTime )
 void KeyboardController::setSpeed( float newSpeed )
 {
     speed = newSpeed;
+}
+
+void KeyboardController::setRotationSpeed( float newRotationSpeed )
+{
+    rotationSpeed = newRotationSpeed;
 }
