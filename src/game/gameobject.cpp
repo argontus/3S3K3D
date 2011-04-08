@@ -9,7 +9,6 @@ GameObject::GameObject()
    gameProgram(NULL),
    parent(NULL)
 {
-    //ctor
 }
 
 GameObject::~GameObject()
@@ -47,6 +46,7 @@ void GameObject::setGraphicalPresentation( Node* newGraphicalPresentation )
         return;
 
     graphicalPresentation = newGraphicalPresentation;
+    worldTransformation = Transform2( graphicalPresentation->worldTransform() );
 }
 
 void GameObject::setLocalTransformation( Transform2 newTransformation )
