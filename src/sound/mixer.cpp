@@ -9,6 +9,7 @@
 
 
 Mixer::Mixer()
+:   lastPlayed("")
 {
     //ctor
 }
@@ -95,6 +96,7 @@ void Mixer::playChunk( std::string name, int loops=0 )
     }
 
     AudioData* data = NULL;
+    bool foundData = false;
 
     for ( size_t i = 0; i < soundList_.size(); ++i )
     {
@@ -104,8 +106,11 @@ void Mixer::playChunk( std::string name, int loops=0 )
 
     	    // check if the data exists
     	    if( data->data_p == NULL ) return;
+            foundData = true;
     	}
     }
+
+    if( !foundData ) return;
 
     // convert void pointer to more useful type
     Mix_PlayChannel( -1, (Mix_Chunk*)data->data_p, loops );
@@ -120,6 +125,7 @@ void Mixer::playMusic( std::string name )
     }
 
     AudioData* data = NULL;
+    bool foundData = false;
 
     for ( size_t i = 0; i < soundList_.size(); ++i )
     {
@@ -129,8 +135,11 @@ void Mixer::playMusic( std::string name )
 
     	    // check if the data exists
     	    if( data->data_p == NULL ) return;
+    	    foundData = true;
     	}
     }
+
+    if( !foundData ) return;
 
     Mix_Music* music = (Mix_Music*)data->data_p;
 
@@ -148,6 +157,8 @@ void Mixer::playMusic( std::string name )
     {
         Mix_PlayMusic( music, -1 );
     }
+
+    lastPlayed = name;
 }
 
 
@@ -177,4 +188,16 @@ void Mixer::freeSounds()
     }
 
     soundList_.clear();
+}
+
+void Mixer::toggleMusic()
+{
+    if( Mix_PlayingMusic() )
+    {
+        stopMusic();
+    }
+    else
+    {
+        playMusic( lastPlayed );
+    }
 }
