@@ -33,7 +33,11 @@ GameProgram::GameProgram()
 :
     mixer_(),
     ship(NULL),
-    testObject(NULL),
+    //testObject(NULL),
+    testMenuObject1(NULL),
+    testMenuObject2(NULL),
+    testMenuObject3(NULL),
+    testMenuObject4(NULL),
     camera_(0),
     rootNode_(0),
     drawExtents_(true),
@@ -369,7 +373,11 @@ int GameProgram::execute()
 		keyboard.updateKeyboardState();
 
 		mouse.updateMouse();
-		testObject->update( deltaTime );
+		//testObject->update( deltaTime );
+        testMenuObject1->update( deltaTime );
+        testMenuObject2->update( deltaTime );
+        testMenuObject3->update( deltaTime );
+        testMenuObject4->update( deltaTime );
 
 		render();
 		lastTicks = currentTicks;
@@ -960,8 +968,20 @@ void GameProgram::test()
 
     const float scaling = 0.1f;
 
-    ship = modelReader.read("data/models/ship2.3DS");
-    ship->setScaling(scaling);
+    menu1 = modelReader.read("data/models/menuitem.3DS");
+    menu1->setScaling(scaling);
+
+    menu2 = modelReader.read("data/models/menuitem.3DS");
+    menu2->setScaling(scaling);
+
+    menu3 = modelReader.read("data/models/menuitem.3DS");
+    menu3->setScaling(scaling);
+
+    menu4 = modelReader.read("data/models/menuitem.3DS");
+    menu4->setScaling(scaling);
+
+
+
     //ship->setMesh(boxMesh);
     //ship->updateModelExtents();
 
@@ -970,13 +990,46 @@ void GameProgram::test()
     //const float displacement = -(offset * (count - 1)) / 2.0f;
 
 
-    ship->setTranslation(Vector3(0.0f, 0.0f, -50.0f));
-    groupNode->attachChild(ship);
+    menu1->setTranslation(Vector3(0.0f, 20.0f, -50.0f));
+    menu2->setTranslation(Vector3(0.0f, 0.0f, -50.0f));
+    menu3->setTranslation(Vector3(0.0f, -20.0f, -50.0f));
+    menu4->setTranslation(Vector3(0.0f, -40.0f, -50.0f));
+
+    groupNode->attachChild(menu1);
+    groupNode->attachChild(menu2);
+    groupNode->attachChild(menu3);
+    groupNode->attachChild(menu4);
+
     rootNode_->attachChild(groupNode);
 
-    testObject = new GameObject();
-    testObject->setGraphicalPresentation( ship );
-    testObject->attachController( &testController );
+    testMenuObject1 = new MenuObject();
+    testMenuObject1->setGraphicalPresentation( menu1 );
+    testMenuObject1->attachController( &menuController1 );
+
+    testMenuObject2 = new MenuObject();
+    testMenuObject2->setGraphicalPresentation( menu2 );
+    testMenuObject2->attachController( &menuController2 );
+
+    testMenuObject3 = new MenuObject();
+    testMenuObject3->setGraphicalPresentation( menu3 );
+    testMenuObject3->attachController( &menuController3 );
+
+    testMenuObject4 = new MenuObject();
+    testMenuObject4->setGraphicalPresentation( menu4 );
+    testMenuObject4->attachController( &menuController4 );
+
+
+    testMenuObject1->setDown(testMenuObject2);
+
+    testMenuObject2->setUp(testMenuObject1);
+    testMenuObject2->setDown(testMenuObject3);
+
+    testMenuObject3->setUp(testMenuObject2);
+    testMenuObject3->setDown(testMenuObject4);
+
+    testMenuObject4->setUp(testMenuObject3);
+
+    testMenuObject1->setActive(true);
 
 
 //    MeshNode* meshNode = new MeshNode();

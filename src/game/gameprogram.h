@@ -10,6 +10,8 @@
 #include "gamewindow.h"
 #include "gameobject.h"
 #include "keyboardcontroller.h"
+#include "menukeyboardcontroller.h"
+#include "menuobject.h"
 
 #include "configuration/configuration.h"
 
@@ -165,7 +167,15 @@ private:
 	Configuration configuration;
 	Mixer mixer_;
 	Node* ship;
-    GameObject* testObject;
+	Node* menu1;
+	Node* menu2;
+	Node* menu3;
+	Node* menu4;
+    //GameObject* testObject;
+    MenuObject* testMenuObject1;
+    MenuObject* testMenuObject2;
+    MenuObject* testMenuObject3;
+    MenuObject* testMenuObject4;
     KeyboardController testController;
     CameraNode* camera_;
     GroupNode* rootNode_;
@@ -181,6 +191,11 @@ private:
     ProgramManager programManager_;
     MeshManager meshManager_;
     TextureManager textureManager_;
+
+    MenuKeyboardController menuController1;
+    MenuKeyboardController menuController2;
+    MenuKeyboardController menuController3;
+    MenuKeyboardController menuController4;
 
     /**
      * State stack.

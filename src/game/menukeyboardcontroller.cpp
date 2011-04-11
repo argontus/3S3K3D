@@ -1,10 +1,12 @@
 #include "menukeyboardcontroller.h"
 #include "input/keyboard.h"
 #include "input/sdlkeyboard.h"
+#include "geometry/matrix3x3.h"
+#include "graphics/node.h"
+#include "geometry/vector3.h"
 
 MenuKeyboardController::MenuKeyboardController()
-    : keyboard( new SDLKeyboard() ),
-      attachedMenuObject(NULL)
+    : keyboard( new SDLKeyboard() )
 {
 }
 
@@ -12,29 +14,35 @@ MenuKeyboardController::~MenuKeyboardController()
 {
         if( keyboard )
             delete keyboard;
-        if ( attachedMenuObject )
-            delete attachedMenuObject;
 }
 
 void MenuKeyboardController::update(float deltaTime)
 {
-    if( attachedMenuObject != NULL )
+    if( objectAttachedTo != NULL )
     {
-        if( keyboard->keyIsDown( Keyboard::KEY_W) )
         {
-            attachedMenuObject->giveFocus('u');
-        }
-        else if( keyboard->keyIsDown( Keyboard::KEY_S ) )
-        {
-            attachedMenuObject->giveFocus('d');
-        }
-        else if( keyboard->keyIsDown( Keyboard::KEY_A ) )
-        {
-            attachedMenuObject->giveFocus('l');
-        }
-        else if( keyboard->keyIsDown( Keyboard::KEY_D ) )
-        {
-            attachedMenuObject->giveFocus('r');
+            attachedMenuObject = (MenuObject*)objectAttachedTo;
+
+            if( keyboard->keyIsDown( Keyboard::KEY_W) )
+            {
+                attachedMenuObject->giveFocus('u');
+            }
+            else if( keyboard->keyIsDown( Keyboard::KEY_S ) )
+            {
+                attachedMenuObject->giveFocus('d');
+            }
+            else if( keyboard->keyIsDown( Keyboard::KEY_A ) )
+            {
+                attachedMenuObject->giveFocus('l');
+            }
+            else if( keyboard->keyIsDown( Keyboard::KEY_D ) )
+            {
+                attachedMenuObject->giveFocus('r');
+            }
+            else if( keyboard->keyIsDown( Keyboard::KEY_ENTER ) )
+            {
+                attachedMenuObject->activate();
+            }
         }
     }
 }

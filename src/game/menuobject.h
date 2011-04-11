@@ -3,7 +3,6 @@
 
 #include "gameobject.h"
 
-
 class MenuObject : public GameObject
 {
     public:
@@ -16,12 +15,14 @@ class MenuObject : public GameObject
         inline void setRight(MenuObject* newRight) { right = newRight; }
 
         inline void setActive(bool newActive) { active = newActive; }
-        inline void setAnimationSpeed(MenuObject* newRight) { right = newRight; }
+        inline void setAnimationSpeed( float newAnimationSpeed) { animationSpeed = newAnimationSpeed; }
         inline void setNormalSize( float newNormalSize ) { normalSize = newNormalSize; }
         inline void setHighlightSize( float newHliglightSize ) { highlightSize = newHliglightSize; }
 
         void getFocus();
         void giveFocus(char direction);
+
+        void activate();
 
         void update( float deltaTime );
 
@@ -32,12 +33,14 @@ class MenuObject : public GameObject
         MenuObject* left;
         MenuObject* right;
 
-        bool active;
-
         float animationSpeed;
         float normalSize;
         float highlightSize;
         float currentSize;
+        float timer;
+
+        bool active;
+
 };
 
 #endif // MENUOBJECT_H

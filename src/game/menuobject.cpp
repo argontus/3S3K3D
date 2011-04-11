@@ -1,10 +1,20 @@
 #include "menuobject.h"
+#include "graphics/node.h"
+#include <iostream>
+#include <geometry/vector3.h>
 
 MenuObject::MenuObject()
     : up(NULL),
       down(NULL),
       left(NULL),
-      right(NULL)
+      right(NULL),
+      animationSpeed(5.0f),
+      normalSize(0.1f),
+      highlightSize(0.5f),
+      currentSize(0.1f),
+      timer(0.0f),
+      active(false)
+
 {
 }
 
@@ -23,11 +33,12 @@ MenuObject::~MenuObject()
 void MenuObject::getFocus()
 {
     active = true;
+    timer = 0.0f;
 }
 
 void MenuObject::giveFocus(char direction)
 {
-    if(active)
+    if(active && timer>0.5f)
     {
         switch (direction)
         {
@@ -36,6 +47,7 @@ void MenuObject::giveFocus(char direction)
                 if(up != NULL)
                 {
                     up->getFocus();
+                    timer = 0.0f;
                     active = false;
                 }
                 break;
@@ -44,6 +56,7 @@ void MenuObject::giveFocus(char direction)
                 if(down != NULL)
                 {
                     down->getFocus();
+                    timer = 0.0f;
                     active = false;
                 }
                 break;
@@ -52,6 +65,7 @@ void MenuObject::giveFocus(char direction)
                 if(left != NULL)
                 {
                     left->getFocus();
+                    timer = 0.0f;
                     active = false;
                 }
                 break;
@@ -60,6 +74,7 @@ void MenuObject::giveFocus(char direction)
                 if(right != NULL)
                 {
                     right->getFocus();
+                    timer = 0.0f;
                     active = false;
                 }
                 break;
@@ -71,16 +86,35 @@ void MenuObject::giveFocus(char direction)
 
 void MenuObject::update(float deltaTime)
 {
+    if(active)
+    {
+        timer += deltaTime;
+    }
+
+    GameObject::update( deltaTime );
+
+    Node* graphicalPresentation = getGraphicalPresentation();
+
     if(active && currentSize < highlightSize)
     {
-        //TODO increase size
+        currentSize += animationSpeed*deltaTime;
+        if (currentSize>highlightSize)
+            currentSize=highlightSize;
+        graphicalPresentation->setScaling(currentSize);
     }
     else if (!active && currentSize > normalSize)
     {
-        //TODO decrease size
+        currentSize -= animationSpeed*deltaTime;
+        if (currentSize<normalSize)
+            currentSize=normalSize;
+        graphicalPresentation->setScaling(currentSize);
     }
 }
 
+void MenuObject::activate()
+{
+
+}
 
 
 

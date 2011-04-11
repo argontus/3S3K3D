@@ -2,6 +2,7 @@
 #define CONTROLLER_H
 
 #include "gameobject.h"
+#include "menuobject.h"
 
 /**
  * @file game/controller.h
@@ -28,7 +29,6 @@ class Controller
         {
             return objectAttachedTo;
         }
-
         /**
          * Setter for the 'objectAttachedTo' member variable
          *
