@@ -162,10 +162,27 @@ const Matrix3x3 operator *(const Matrix3x3& m, float k);
 const Matrix3x3 operator *(const Matrix3x3& a, const Matrix3x3& b);
 const Matrix3x3 operator /(const Matrix3x3& m, float k);
 
-// TODO: float determinant(const Matrix2x2& m);
-// TODO: float rotationAngle(const Matrix3x3& m);
+/**
+ * Extracts the axis and angle of rotation of <code>m</code>. <code>m</code> is
+ * assumed to be a valid rotation matrix.
+ *
+ * @param m The rotation matrix from which the axis and angle of rotation are
+ * to be extracted.
+ * @param axis Variable to which the extracted axis is stored, cannot be a null
+ * pointer.
+ * @param angle Variable to which the extracted angle is stored, cannot be a
+ * null pointer.
+ */
+void extractAxisAngle(const Matrix3x3& m, Vector3* axis, float* angle);
 
-// TODO: const Vector3 rotationAxis(const Matrix3x3& m);
+/**
+ * Gets the determinant of <code>m</code>.
+ *
+ * @param m The matrix whose determinant is to be calculated.
+ *
+ * @return The determinant of <code>m</code>.
+ */
+float determinant(const Matrix3x3& m);
 
 // TODO: is this needed?
 /**
@@ -180,8 +197,25 @@ const Matrix3x3 operator /(const Matrix3x3& m, float k);
  */
 const Vector3 timesTranspose(const Vector3& v, const Matrix3x3& m);
 
-// TODO: const Matrix3x3 adjoint(const Matrix3x3& m);
-// TODO: const Matrix3x3 inverse(const Matrix3x3& m);
+/**
+ * Gets the adjoint matrix of <code>m</code>.
+ *
+ * @param m The matrix whose adjoint matrix is to be calculated.
+ *
+ * @return The adjoint matrix of <code>m</code>.
+ */
+const Matrix3x3 adjoint(const Matrix3x3& m);
+
+/**
+ * Gets the inverse matrix of <code>m</code>. The return value is equivalent to
+ * <code>1.0f / determinant(m) * adjoint(m)</code>. <code>m</code> cannot be
+ * singular, i.e., the determinant of <code>m</code> cannot zero.
+ *
+ * @param m The matrix whose inverse matrix is to be calculated.
+ *
+ * @return The inverse matrix of <code>m</code>.
+ */
+const Matrix3x3 inverse(const Matrix3x3& m);
 
 /**
  * Orthogonalizes a matrix by applying a Gram-Schmidt process to its rows.
@@ -192,7 +226,17 @@ const Vector3 timesTranspose(const Vector3& v, const Matrix3x3& m);
  */
 const Matrix3x3 orthogonalize(const Matrix3x3& m);
 
-// TODO: const Matrix3x3 slerp(const Matrix3x3& a, const Matrix3x3& b, float t);
+/**
+ * Spherical linear interpolation between two rotation matrices. <code>a</code>
+ * and <code>b</code> are assumed to be valid rotation matrices.
+ *
+ * @param a Matrix describing the rotation at <code>t == 0.0f</code>.
+ * @param b Matrix describing the rotation at <code>t == 1.0f</code>.
+ * @param t Weight coefficient.
+ *
+ * @return The interpolated rotation matrix.
+ */
+const Matrix3x3 slerp(const Matrix3x3& a, const Matrix3x3& b, float t);
 
 // TODO: is this needed?
 /**
@@ -227,5 +271,7 @@ const Matrix3x3 transpose(const Matrix3x3& m);
  * @return Transpose of <code>a</code> multiplied by <code>b</code>.
  */
 const Matrix3x3 transposeTimes(const Matrix3x3& a, const Matrix3x3& b);
+
+// TODO: const Matrix3x3 transposeTimesTranspose(const Matrix3x3& a, const Matrix3x3& b);
 
 #endif // #ifndef GEOMETRY_MATRIX3X3_H_INCLUDED

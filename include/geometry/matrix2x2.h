@@ -119,7 +119,14 @@ const Matrix2x2 operator *(const Matrix2x2& m, float k);
 const Matrix2x2 operator *(const Matrix2x2& a, const Matrix2x2& b);
 const Matrix2x2 operator /(const Matrix2x2& m, float k);
 
-// TODO: float determinant(const Matrix2x2& m);
+/**
+ * Gets the determinant of <code>m</code>.
+ *
+ * @param m The matrix whose determinant is to be calculated.
+ *
+ * @return The determinant of <code>m</code>.
+ */
+float determinant(const Matrix2x2& m);
 
 /**
  * Gets the rotation angle of <code>m</code>. <code>m</code> is assumed to be a
@@ -144,8 +151,25 @@ float rotationAngle(const Matrix2x2& m);
  */
 const Vector2 timesTranspose(const Vector2& v, const Matrix2x2& m);
 
-// TODO: const Matrix2x2 adjoint(const Matrix2x2& m);
-// TODO: const Matrix2x2 inverse(const Matrix2x2& m);
+/**
+ * Gets the adjoint matrix of <code>m</code>.
+ *
+ * @param m The matrix whose adjoint matrix is to be calculated.
+ *
+ * @return The adjoint matrix of <code>m</code>.
+ */
+const Matrix2x2 adjoint(const Matrix2x2& m);
+
+/**
+ * Gets the inverse matrix of <code>m</code>. The return value is equivalent to
+ * <code>1.0f / determinant(m) * adjoint(m)</code>. <code>m</code> cannot be
+ * singular, i.e., the determinant of <code>m</code> cannot zero.
+ *
+ * @param m The matrix whose inverse matrix is to be calculated.
+ *
+ * @return The inverse matrix of <code>m</code>.
+ */
+const Matrix2x2 inverse(const Matrix2x2& m);
 
 /**
  * Orthogonalizes a matrix by applying a Gram-Schmidt process to its rows.
@@ -201,5 +225,7 @@ const Matrix2x2 transpose(const Matrix2x2& m);
  * @return Transpose of <code>a</code> multiplied by <code>b</code>.
  */
 const Matrix2x2 transposeTimes(const Matrix2x2& a, const Matrix2x2& b);
+
+// TODO: const Matrix2x2 transposeTimesTranspose(const Matrix2x2& a, const Matrix2x2& b);
 
 #endif // #ifndef GEOMETRY_MATRIX2X2_H_INCLUDED

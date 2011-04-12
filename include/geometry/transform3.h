@@ -11,6 +11,7 @@
 #include <geometry/vector3.h>
 
 class Matrix4x4;
+class Transform2;
 
 /**
  * Represents a 3D transformation. Supports translation, rotation and uniform
@@ -46,6 +47,15 @@ public:
         const Vector3& translation,
         const Matrix3x3& rotation,
         float scaling);
+
+    // TODO: is this needed?
+    /**
+     * Constructor, constructs a transform equivalent to
+     * <code>transform</code>.
+     *
+     * @param transform A 2D transform.
+     */
+    explicit Transform3(const Transform2& transform);
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
@@ -128,7 +138,16 @@ const Matrix4x4 toMatrix4x4(const Transform3& t);
  */
 const Transform3 inverse(const Transform3& t);
 
-// TODO: const Transform3 slerp(const Transform3& a, const Transform3& b, float t);
+/**
+ * Spherical linear interpolation between two transforms.
+ *
+ * @param a Transform at <code>t == 0.0f</code>.
+ * @param b Transform at <code>t == 1.0f</code>.
+ * @param t Weight coefficient.
+ *
+ * @return The interpolated transform.
+ */
+const Transform3 slerp(const Transform3& a, const Transform3& b, float t);
 
 /**
  * Transforms <code>a</code> by <code>b</code>.

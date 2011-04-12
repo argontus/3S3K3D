@@ -146,7 +146,14 @@ const Matrix4x4 operator *(const Matrix4x4& m, float k);
 const Matrix4x4 operator *(const Matrix4x4& a, const Matrix4x4& b);
 const Matrix4x4 operator /(const Matrix4x4& m, float k);
 
-// TODO: float determinant(const Matrix4x4& m);
+/**
+ * Gets the determinant of <code>m</code>.
+ *
+ * @param m The matrix whose determinant is to be calculated.
+ *
+ * @return The determinant of <code>m</code>.
+ */
+float determinant(const Matrix4x4& m);
 
 // TODO: is this needed?
 /**
@@ -161,8 +168,25 @@ const Matrix4x4 operator /(const Matrix4x4& m, float k);
  */
 const Vector4 timesTranspose(const Vector4& v, const Matrix4x4& m);
 
-// TODO: const Matrix4x4 adjoint(const Matrix4x4& m);
-// TODO: const Matrix4x4 inverse(const Matrix4x4& m);
+/**
+ * Gets the adjoint matrix of <code>m</code>.
+ *
+ * @param m The matrix whose adjoint matrix is to be calculated.
+ *
+ * @return The adjoint matrix of <code>m</code>.
+ */
+const Matrix4x4 adjoint(const Matrix4x4& m);
+
+/**
+ * Gets the inverse matrix of <code>m</code>. The return value is equivalent to
+ * <code>1.0f / determinant(m) * adjoint(m)</code>. <code>m</code> cannot be
+ * singular, i.e., the determinant of <code>m</code> cannot zero.
+ *
+ * @param m The matrix whose inverse matrix is to be calculated.
+ *
+ * @return The inverse matrix of <code>m</code>.
+ */
+const Matrix4x4 inverse(const Matrix4x4& m);
 
 /**
  * Orthogonalizes a matrix by applying a Gram-Schmidt process to its rows.
@@ -206,5 +230,7 @@ const Matrix4x4 transpose(const Matrix4x4& m);
  * @return Transpose of <code>a</code> multiplied by <code>b</code>.
  */
 const Matrix4x4 transposeTimes(const Matrix4x4& a, const Matrix4x4& b);
+
+// TODO: const Matrix4x4 transposeTimesTranspose(const Matrix4x4& a, const Matrix4x4& b);
 
 #endif // #ifndef GEOMETRY_MATRIX4X4_H_INCLUDED

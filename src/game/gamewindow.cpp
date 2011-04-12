@@ -10,12 +10,13 @@
 #include <iostream>
 
 GameWindow::GameWindow()
+ : aspectRatio(0),
+   width(0),
+   height(0),
+   mouseVisible(false),
+   mouseBoundToScreen(true),
+   fullscreen(false)
 {
-    aspectRatio = 0;
-    width = 0;
-    height = 0;
-    mouseVisible = false;
-    mouseBoundToScreen = true;
 }
 
 GameWindow::~GameWindow()
@@ -31,9 +32,14 @@ bool GameWindow::init()
 	width       = 1280; // 1280
 	height      = 800;  // 800
 	int flags   = SDL_HWACCEL | SDL_GL_DOUBLEBUFFER | SDL_OPENGL;
-    //int flags   = SDL_HWACCEL | SDL_GL_DOUBLEBUFFER | SDL_OPENGL | SDL_FULLSCREEN;
 
-	if( SDL_Init(SDL_INIT_EVERYTHING) < 0 ) {
+	if( fullscreen )
+	{
+	    flags = flags | SDL_FULLSCREEN;
+	}
+
+	if( SDL_Init(SDL_INIT_EVERYTHING) < 0 )
+	{
 		std::cerr << "SDL initialization failed: " << SDL_GetError();
 		std::cerr << std::endl;
 		return false;
@@ -47,7 +53,8 @@ bool GameWindow::init()
     // this is needed for the depth fail shadow volume algorithm
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-    if( (mainwindow = SDL_SetVideoMode( width, height, 32, flags )) == NULL ) {
+    if( (mainwindow = SDL_SetVideoMode( width, height, 32, flags )) == NULL )
+    {
 		std::cerr << "SDL initialization failed: " << SDL_GetError();
 		std::cerr << std::endl;
 		return false;
@@ -95,10 +102,6 @@ void GameWindow::onEvent( const SDL_Event& event )
         case SDL_MOUSEMOTION:
             onMouseMoved( event.motion );
         break;
-
-/*        case SDL_WINDOWEVENT:
-            onWindowEvent( event.window );
-        break; */
 
         case SDL_MOUSEBUTTONDOWN:
             onMouseButtonDown( event.button );
@@ -159,20 +162,6 @@ void GameWindow::onMouseButtonDown(const SDL_MouseButtonEvent& mouseButtonEvent)
 void GameWindow::onMouseButtonUp(const SDL_MouseButtonEvent& mouseButtonEvent)
 {
     // does nothing by default
-}
-
-void GameWindow::bindMouse()
-{
-    mouseBoundToScreen = true;
-    mouseVisible = false;
-    SDL_ShowCursor( mouseVisible );
-}
-
-void GameWindow::releaseMouse()
-{
-    mouseBoundToScreen = false;
-    mouseVisible = true;
-    SDL_ShowCursor( mouseVisible );
 }
 
 void GameWindow::centerMouse()

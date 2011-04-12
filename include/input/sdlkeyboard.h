@@ -47,7 +47,7 @@ class SDLKeyboard : public Keyboard
         /**
          * Keycode table.
          */
-        int keycodes[numberOfKeys];
+        int keycodes[NUMBER_OF_KEYS];
 
 };
 

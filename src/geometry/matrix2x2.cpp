@@ -172,6 +172,11 @@ const Matrix2x2 operator /(const Matrix2x2& m, const float k)
     );
 }
 
+float determinant(const Matrix2x2& m)
+{
+    return m.m00 * m.m11 - m.m01 * m.m10;
+}
+
 float rotationAngle(const Matrix2x2& m)
 {
     return Math::atan(m.m01, m.m00);
@@ -183,6 +188,24 @@ const Vector2 timesTranspose(const Vector2& v, const Matrix2x2& m)
         v.x * m.m00 + v.y * m.m01,
         v.x * m.m10 + v.y * m.m11
     );
+}
+
+const Matrix2x2 adjoint(const Matrix2x2& m)
+{
+    return Matrix2x2(
+         m.m11, -m.m01,
+        -m.m10,  m.m00
+    );
+}
+
+const Matrix2x2 inverse(const Matrix2x2& m)
+{
+    const float det = determinant(m);
+
+    // TODO: use tolerances instead of absolute values?
+    GEOMETRY_RUNTIME_ASSERT(det != 0.0f);
+
+    return 1.0f / det * adjoint(m);
 }
 
 const Matrix2x2 orthogonalize(const Matrix2x2& m)
@@ -206,10 +229,10 @@ const Matrix2x2 orthogonalize(const Matrix2x2& m)
 
 const Matrix2x2 slerp(const Matrix2x2& a, const Matrix2x2& b, const float t)
 {
+    // conversion from a to b
     const Matrix2x2 c = timesTranspose(a, b);
-    const float angle = rotationAngle(c);
 
-    return a * Matrix2x2::rotation(t * angle);
+    return a * Matrix2x2::rotation(t * rotationAngle(c));
 }
 
 const Matrix2x2 timesTranspose(const Matrix2x2& a, const Matrix2x2& b)

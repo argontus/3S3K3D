@@ -111,41 +111,41 @@ void MeshNode::draw(const DrawParams& params) const
     const Matrix4x4 modelViewMatrix = toMatrix4x4(transformByInverse(worldTransform(), params.cameraToWorld));
     const Matrix3x3 normalMatrix = worldTransform().rotation * params.worldToViewRotation;
 
-    params.program->setUniformMatrix4x4fv(
-        "modelViewMatrix",
+    glUniformMatrix4fv(
+        glGetUniformLocation(params.program->id(), "modelViewMatrix"),
         1,
         false,
         modelViewMatrix.data()
     );
 
     // TODO: can be loaded in the draw initialization step
-    params.program->setUniformMatrix4x4fv(
-        "projectionMatrix",
+    glUniformMatrix4fv(
+        glGetUniformLocation(params.program->id(), "projectionMatrix"),
         1,
         false,
         params.projectionMatrix.data()
     );
 
-    params.program->setUniformMatrix3x3fv(
-        "normalMatrix",
+    glUniformMatrix3fv(
+        glGetUniformLocation(params.program->id(), "normalMatrix"),
         1,
         false,
         normalMatrix.data()
     );
 
-    const GLint coordLocation = params.program->attribLocation("coord");
+    const GLint coordLocation = glGetAttribLocation(params.program->id(), "coord");
     glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords[0].data());
     glEnableVertexAttribArray(coordLocation);
 
-    const GLint normalLocation = params.program->attribLocation("normal");
+    const GLint normalLocation = glGetAttribLocation(params.program->id(), "normal");
     glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, 0, normals[0].data());
     glEnableVertexAttribArray(normalLocation);
 
-    const GLint tangentLocation = params.program->attribLocation("tangent");
+    const GLint tangentLocation = glGetAttribLocation(params.program->id(), "tangent");
     glVertexAttribPointer(tangentLocation, 3, GL_FLOAT, false, 0, tangents[0].data());
     glEnableVertexAttribArray(tangentLocation);
 
-    const GLint texCoordLocation = params.program->attribLocation("texCoord");
+    const GLint texCoordLocation = glGetAttribLocation(params.program->id(), "texCoord");
     glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, 0, texCoords[0].data());
     glEnableVertexAttribArray(texCoordLocation);
 

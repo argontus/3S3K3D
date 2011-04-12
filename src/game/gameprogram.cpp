@@ -5,6 +5,8 @@
 
 #include "gameprogram.h"
 
+#include <cstring>
+
 #include <iostream>
 
 #include <graphics/opengl.h>
@@ -13,8 +15,6 @@
 #include <geometry/math.h>
 #include <geometry/transform2.h>
 #include <graphics/color.h>
-#include <graphics/colorarray.h>
-#include <graphics/indexarray.h>
 #include <graphics/meshnode.h>
 #include <graphics/cameranode.h>
 #include <graphics/groupnode.h>
@@ -25,8 +25,22 @@
 #include <graphics/modelreader.h>
 #include <graphics/visibilitytest.h>
 
+#include <graphics/material.h>
+#include <graphics/floatvariable.h>
+#include <graphics/sampler2dvariable.h>
+#include <graphics/vec3variable.h>
+
+#include <graphics/indexbuffer.h>
+#include <graphics/vertexbuffer.h>
+#include <graphics/vertexformat.h>
+
 GameProgram::GameProgram()
-:   camera_(0),
+:   configuration(),
+    mixer_(),
+    renderer_(),
+    ship(NULL),
+    testObject(NULL),
+    camera_(0),
     rootNode_(0),
     drawExtents_(true),
     diffuseMipmappingOn(false),
@@ -35,8 +49,6 @@ GameProgram::GameProgram()
     specularMipmappingOn(false),
     rotateLights(false),
     anisotropicFilteringOn(false),
-    vertexShaderManager_(),
-    fragmentShaderManager_(),
     programManager_(),
     meshManager_(),
     textureManager_()
@@ -47,16 +59,6 @@ GameProgram::GameProgram()
     cameraSpeedX    = 0;
     cameraSpeedY    = 0;
     cameraSpeedZ    = 0;
-
-//    const float a = Math::trunc( 0.0f);
-//    const float b = Math::trunc(-0.0f);
-//    const float c = Math::trunc( 0.5f);
-//    const float d = Math::trunc(-0.5f);
-//    const float e = Math::trunc( 1.0f);
-//    const float f = Math::trunc(-1.0f);
-//    const float g = Math::trunc( 1.5f);
-//    const float h = Math::trunc(-1.5f);
-//    const bool dummy = false;
 }
 
 int GameProgram::execute()
@@ -66,126 +68,6 @@ int GameProgram::execute()
 	}
 
     glewInit();
-
-
-    // init shader stuff
-
-    // TODO: A helper class for managing shader loading would be nice. Loading
-    // shader programs should be as simple as: "I want a shader program called
-    // 'default' that uses vertex and fragment shaders
-    // 'data/shaders/default.vs' and 'data/shaders/default.fs'". The shader
-    // object loading and compilation should happen automatically if they are
-    // not already loaded. The shader program manager could own vertex and
-    // fragment shader object managers and handle the shader object loading and
-    // compilation internally.
-
-    VertexShader* vertexShader = new VertexShader();
-    vertexShader->setSourceText(readSourceText("data/shaders/default.vs"));
-    vertexShader->compile();
-    //const std::string info = vertexShader->infoLog();
-    GRAPHICS_RUNTIME_ASSERT(vertexShader->compileStatus());
-    vertexShaderManager_.loadResource("default", vertexShader);
-
-    vertexShader = new VertexShader();
-    vertexShader->setSourceText(readSourceText("data/shaders/extents.vs"));
-    vertexShader->compile();
-    GRAPHICS_RUNTIME_ASSERT(vertexShader->compileStatus());
-    vertexShaderManager_.loadResource("extents", vertexShader);
-
-    vertexShader = new VertexShader();
-    vertexShader->setSourceText(readSourceText("data/shaders/test.vs"));
-    vertexShader->compile();
-    //const std::string info = vertexShader->infoLog();
-    GRAPHICS_RUNTIME_ASSERT(vertexShader->compileStatus());
-    vertexShaderManager_.loadResource("test", vertexShader);
-
-    vertexShader = new VertexShader();
-    vertexShader->setSourceText(readSourceText("data/shaders/unlit.vs"));
-    vertexShader->compile();
-    //const std::string info = vertexShader->infoLog();
-    GRAPHICS_RUNTIME_ASSERT(vertexShader->compileStatus());
-    vertexShaderManager_.loadResource("unlit", vertexShader);
-
-    vertexShader = new VertexShader();
-    vertexShader->setSourceText(readSourceText("data/shaders/shadow.vs"));
-    vertexShader->compile();
-    //const std::string info = vertexShader->infoLog();
-    GRAPHICS_RUNTIME_ASSERT(vertexShader->compileStatus());
-    vertexShaderManager_.loadResource("shadow", vertexShader);
-
-    FragmentShader* fragmentShader = new FragmentShader();
-    fragmentShader->setSourceText(readSourceText("data/shaders/default.fs"));
-    fragmentShader->compile();
-    //const std::string info = fragmentShader->infoLog();
-    GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
-    fragmentShaderManager_.loadResource("default", fragmentShader);
-
-    fragmentShader = new FragmentShader();
-    fragmentShader->setSourceText(readSourceText("data/shaders/extents.fs"));
-    fragmentShader->compile();
-    GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
-    fragmentShaderManager_.loadResource("extents", fragmentShader);
-
-    fragmentShader = new FragmentShader();
-    fragmentShader->setSourceText(readSourceText("data/shaders/test.fs"));
-    fragmentShader->compile();
-    //const std::string info = fragmentShader->infoLog();
-    GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
-    fragmentShaderManager_.loadResource("test", fragmentShader);
-
-    fragmentShader = new FragmentShader();
-    fragmentShader->setSourceText(readSourceText("data/shaders/unlit.fs"));
-    fragmentShader->compile();
-    //const std::string info = fragmentShader->infoLog();
-    GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
-    fragmentShaderManager_.loadResource("unlit", fragmentShader);
-
-    fragmentShader = new FragmentShader();
-    fragmentShader->setSourceText(readSourceText("data/shaders/shadow.fs"));
-    fragmentShader->compile();
-    //const std::string info = fragmentShader->infoLog();
-    GRAPHICS_RUNTIME_ASSERT(fragmentShader->compileStatus());
-    fragmentShaderManager_.loadResource("shadow", fragmentShader);
-
-    // program for drawing mesh nodes
-    Program* program = new Program();
-    program->setVertexShader(vertexShaderManager_.getResource("default"));
-    program->setFragmentShader(fragmentShaderManager_.getResource("default"));
-    program->link();
-    GRAPHICS_RUNTIME_ASSERT(program->linkStatus());
-    programManager_.loadResource("default", program);
-
-    // program for drawing node extents
-    program = new Program();
-    program->setVertexShader(vertexShaderManager_.getResource("extents"));
-    program->setFragmentShader(fragmentShaderManager_.getResource("extents"));
-    program->link();
-    GRAPHICS_RUNTIME_ASSERT(program->linkStatus());
-    programManager_.loadResource("extents", program);
-
-    // program for drawing node extents
-    program = new Program();
-    program->setVertexShader(vertexShaderManager_.getResource("test"));
-    program->setFragmentShader(fragmentShaderManager_.getResource("test"));
-    program->link();
-    GRAPHICS_RUNTIME_ASSERT(program->linkStatus());
-    programManager_.loadResource("test", program);
-
-    // program for unlit render passes
-    program = new Program();
-    program->setVertexShader(vertexShaderManager_.getResource("unlit"));
-    program->setFragmentShader(fragmentShaderManager_.getResource("unlit"));
-    program->link();
-    GRAPHICS_RUNTIME_ASSERT(program->linkStatus());
-    programManager_.loadResource("unlit", program);
-
-    // program for shadow render passes
-    program = new Program();
-    program->setVertexShader(vertexShaderManager_.getResource("shadow"));
-    program->setFragmentShader(fragmentShaderManager_.getResource("shadow"));
-    program->link();
-    GRAPHICS_RUNTIME_ASSERT(program->linkStatus());
-    programManager_.loadResource("shadow", program);
 
 
     // init textures
@@ -210,15 +92,25 @@ int GameProgram::execute()
     texture->generateMipmap();
     textureManager_.loadResource("normal", texture);
 
+    texture = new Texture();
+    texture->loadImage("data/textures/particle.tga");
+    texture->generateMipmap();
+    textureManager_.loadResource("particle", texture);
 
     // init scene
 
     rootNode_ = new GroupNode();
 
+
     // init camera
 
     camera_ = new CameraNode();
-    camera_->setPerspectiveProjection(45.0f, aspectRatio, 1.0f, 2000.0f);
+    camera_->setPerspectiveProjection(45.0f, aspectRatio, 1.0f, 1000.0f);
+
+    testObject = new GameObject();
+    testObject->setGraphicalPresentation( camera_ );
+    testObject->attachController( &testController );
+
 
 //    camera_->setOrthographicProjection(
 //        -150.0f * aspectRatio, 150.0f * aspectRatio,
@@ -242,16 +134,26 @@ int GameProgram::execute()
     deltaTime           = 0;
     Uint32 currentTicks = 0;
     Uint32 lastTicks    = 0;
+    int deltaX          = 0;
+    int deltaY          = 0;
 
     configuration.readConfiguration("config.ini");
 
     if( mouseBoundToScreen )
     {
-        mouse.bindMouse();
-        mouse.setMouseBindPointX( width/2 );
-        mouse.setMouseBindPointY( height/2 );
-        centerMouse();
+        mouse.setMouseMode( Mouse::MOUSE_BOUND );
+        mouse.setMouseBindPoint( width/2, height/2 );
+        mouse.moveMouse( width/2, height/2 );
     }
+
+    // init audio
+    // default frequency is usually 22050 Hz
+    // default format is AUDIO_U16SYS
+    // 2 for stereo channels
+    // 1024 is a viable buffer size for 22kHz, tweak this if skippy / laggy
+    mixer_.init( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024 );
+    mixer_.loadMusic( "data/sounds/radio.ogg", "radio" );
+    mixer_.loadChunk( "data/sounds/tub.ogg", "tub" );
 
     std::cout << "Entering main loop..." << std::endl;
 
@@ -265,37 +167,37 @@ int GameProgram::execute()
 			onEvent( event );
 		}
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_ESCAPE))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_ESCAPE))
         {
             running = false;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F1))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F1))
         {
             drawExtents_ = !drawExtents_;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F2))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F2))
         {
             diffuseMipmappingOn = !diffuseMipmappingOn;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F3))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F3))
         {
             glowMipmappingOn = !glowMipmappingOn;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F4))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F4))
         {
             normalMipmappingOn = !normalMipmappingOn;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F5))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F5))
         {
             specularMipmappingOn = !specularMipmappingOn;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F6))
+        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F6))
         {
             rotateLights = !rotateLights;
         }
@@ -305,50 +207,20 @@ int GameProgram::execute()
             anisotropicFilteringOn = !anisotropicFilteringOn;
         }
 
+
         if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F8 ) )
         {
             mouseBoundToScreen = !mouseBoundToScreen;
         }
 
-        // quick&dirty, write a function for these or something
+        // see keyboardcontroller.h for a TODO related to member 'speed'
         static const float speed = 50.0f;
+        testController.setSpeed( speed );
 
-		if( keyboard.keyIsDown( Keyboard::KEY_D ) )
-		{
-            camera_->translateBy( deltaTime * camera_->rotation().row(0) * speed );
-		}
-		else if( keyboard.keyIsDown( Keyboard::KEY_A ) )
-        {
-            camera_->translateBy( deltaTime * camera_->rotation().row(0) * -speed );
-        }
+        deltaX = mouse.getMouseX();
+        deltaY = mouse.getMouseY();
 
-        if( keyboard.keyIsDown( Keyboard::KEY_Q) )
-        {
-            camera_->translateBy(deltaTime * -speed * camera_->rotation().row(1));
-        }
-        else if( keyboard.keyIsDown( Keyboard::KEY_E ) )
-        {
-            camera_->translateBy(deltaTime * speed * camera_->rotation().row(1));
-        }
-
-        if( keyboard.keyIsDown( Keyboard::KEY_W) )
-        {
-            camera_->translateBy(deltaTime * -speed * camera_->rotation().row(2));
-        }
-        else if( keyboard.keyIsDown( Keyboard::KEY_S ) )
-        {
-            camera_->translateBy(deltaTime * speed * camera_->rotation().row(2));
-        }
-
-
-
-        int deltaX;
-        int deltaY;
-
-        deltaX = mouse.getMouseDeltaX();
-        deltaY = mouse.getMouseDeltaY();
-
-        const float rotationFactor = 0.005;
+        const float rotationFactor = 0.005f;
 
         if( deltaX != 0 && mouseBoundToScreen )
         {
@@ -366,7 +238,7 @@ int GameProgram::execute()
         }
         if( mouse.mouseButtonPressedInThisFrame( Mouse::MOUSEBUTTON_RIGHT ) )
         {
-            std::cout << "ŕight mouse button pressed!" << std::endl;
+            std::cout << "right mouse button pressed!" << std::endl;
         }
         if( mouse.mouseButtonPressedInThisFrame( Mouse::MOUSEBUTTON_MIDDLE ) )
         {
@@ -377,25 +249,16 @@ int GameProgram::execute()
 
 		keyboard.updateKeyboardState();
 
-		if( mouseBoundToScreen )
-		{
-		    bindMouse();
-		    mouse.bindMouse();
-		}
-		else
-		{
-		    releaseMouse();
-		    mouse.releaseMouse();
-		}
 		mouse.updateMouse();
+		testObject->update( deltaTime );
 
 		render();
 		lastTicks = currentTicks;
-
 	}
 
     std::cout << "Leaving main loop." << std::endl;
 
+    mixer_.close();
 	cleanup();
 	std::cout << "bye!" << std::endl;
 
@@ -406,6 +269,53 @@ void drawExtents(const Node* node, const DrawParams& params);
 
 void GameProgram::render()
 {
+    if( diffuseMipmappingOn )
+    {
+        textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
+    }
+    else
+    {
+        textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+    }
+
+    if( glowMipmappingOn )
+    {
+        textureManager_.getResource("glow")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
+    }
+    else
+    {
+        textureManager_.getResource("glow")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+    }
+
+    if( normalMipmappingOn )
+    {
+        textureManager_.getResource("normal")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
+    }
+    else
+    {
+        textureManager_.getResource("normal")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+    }
+
+    if( specularMipmappingOn )
+    {
+        textureManager_.getResource("specular")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
+    }
+    else
+    {
+        textureManager_.getResource("specular")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+    }
+
+    if( anisotropicFilteringOn )
+    {
+        textureManager_.getResource("diffuse")->activateAnisotropicFiltering();
+    }
+    else
+    {
+        textureManager_.getResource("diffuse")->disableAnisotropicFiltering();
+    }
+
+
+
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glDepthRange(0.0f, 1.0f);
@@ -414,9 +324,8 @@ void GameProgram::render()
     glEnable(GL_CULL_FACE);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClearStencil(0);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	//glClearColor(0.25f, 0.25f, 0.25f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
     // TODO: REALLY quick & dirty
@@ -448,67 +357,87 @@ void GameProgram::render()
     drawParams.worldToViewRotation = transpose(camera_->worldTransform().rotation);
     drawParams.cameraToWorld = camera_->worldTransform();
 
-    drawParams.program = programManager_.getResource("unlit");
-    glUseProgram(drawParams.program->id());
+    drawParams.program = programManager_.load("data/shaders/unlit.vs", "data/shaders/unlit.fs");
 
-    const GLint _diffuseMapLocation = glGetUniformLocation(drawParams.program->id(), "diffuseMap");
-    const GLint _specularMapLocation = glGetUniformLocation(drawParams.program->id(), "specularMap");
-    const GLint _glowMapLocation = glGetUniformLocation(drawParams.program->id(), "glowMap");
-    const GLint _normalMapLocation = glGetUniformLocation(drawParams.program->id(), "normalMap");
+    Material unlitMaterial;
+    unlitMaterial.setProgram(drawParams.program);
+    unlitMaterial.addVariable(new Vec3Variable("ambient", Vector3(0.1f, 0.1f, 0.1f)));
+    unlitMaterial.addVariable(new Sampler2DVariable("diffuseMap", textureManager_.getResource("diffuse")));
+    unlitMaterial.addVariable(new Sampler2DVariable("glowMap", textureManager_.getResource("glow")));
 
-    glUniform1i(_diffuseMapLocation, 0);
-    glUniform1i(_specularMapLocation, 1);
-    glUniform1i(_glowMapLocation, 2);
-    glUniform1i(_normalMapLocation, 3);
+    if (unlitMaterial.link() == false)
+    {
+        GRAPHICS_RUNTIME_ASSERT(false);
+    }
 
-    glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("diffuse")->bindTexture();
-
-    glActiveTexture(GL_TEXTURE1);
-    glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("specular")->bindTexture();
-
-    glActiveTexture(GL_TEXTURE2);
-    glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("glow")->bindTexture();
-
-    glActiveTexture(GL_TEXTURE3);
-    glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("normal")->bindTexture();
+    unlitMaterial.bind();
 
     // unlit render pass
     renderQueue.draw(drawParams);
 
-    glActiveTexture(GL_TEXTURE0);
-    glDisable(GL_TEXTURE_2D);
-
-    glActiveTexture(GL_TEXTURE1);
-    glDisable(GL_TEXTURE_2D);
-
-    glActiveTexture(GL_TEXTURE2);
-    glDisable(GL_TEXTURE_2D);
-
-    glActiveTexture(GL_TEXTURE3);
-    glDisable(GL_TEXTURE_2D);
+    unlitMaterial.unbind();
 
     // ...
 
+    Vector3 lightPositions[] = {
+//        Vector3(150.0f * Math::cos(Math::radians(0.0f)), 0.0f, 150.0f * Math::sin(Math::radians(0.0f))),
+//        Vector3(150.0f * Math::cos(Math::radians(120.0f)), 0.0f, 150.0f * Math::sin(Math::radians(120.0f))),
+//        Vector3(150.0f * Math::cos(Math::radians(240.0f)), 0.0f, 150.0f * Math::sin(Math::radians(240.0f)))
+        Vector3(150.0f * Math::cos(Math::radians(0.0f)), 0.0f, 150.0f * Math::sin(Math::radians(0.0f))),
+        Vector3(150.0f * Math::cos(Math::radians(90.0f)), 0.0f, 150.0f * Math::sin(Math::radians(90.0f))),
+        Vector3(150.0f * Math::cos(Math::radians(180.0f)), 0.0f, 150.0f * Math::sin(Math::radians(180.0f))),
+        Vector3(150.0f * Math::cos(Math::radians(270.0f)), 0.0f, 150.0f * Math::sin(Math::radians(270.0f)))
+    };
+
+    Vector3 worldLightPositions[4];
+    Vector3 viewLightPositions[4];
+
+    static float lightRotation = 0.0f;
+
+    const Transform3 t(
+        Vector3::zero(),
+        Matrix3x3::yRotation(lightRotation),
+        1.0f
+    );
+
+    transform(lightPositions, lightPositions + 4, worldLightPositions, t);
+    transform(worldLightPositions, worldLightPositions + 4, viewLightPositions, inverse(camera_->worldTransform()));
+
+    const Vector3 lightColors[] = {
+        Vector3(1.0f, 0.5f, 0.5f),
+        Vector3(0.5f, 1.0f, 0.5f),
+        Vector3(0.5f, 0.5f, 1.0f),
+        Vector3(1.0f, 1.0f, 1.0f)
+    };
+
+    const float lightRanges[] = {
+        250.0f,
+        250.0f,
+        250.0f,
+        250.0f
+    };
+
+    // for each light
+    //for (int lightIndex = 0; lightIndex < 4; ++lightIndex)
+    for (int lightIndex = 0; lightIndex < 3; ++lightIndex)
+    {
+
+    glClear(GL_STENCIL_BUFFER_BIT);
 
     // shadow pass
 
-    drawParams.program = programManager_.getResource("shadow");
+    drawParams.program = programManager_.load("data/shaders/shadow.vs", "data/shaders/shadow.fs");
     glUseProgram(drawParams.program->id());
 
-    drawParams.program->setUniformMatrix4x4fv(
-        "modelViewMatrix",
+    glUniformMatrix4fv(
+        glGetUniformLocation(drawParams.program->id(), "modelViewMatrix"),
         1,
         false,
         drawParams.viewMatrix.data()
     );
 
-    drawParams.program->setUniformMatrix4x4fv(
-        "projectionMatrix",
+    glUniformMatrix4fv(
+        glGetUniformLocation(drawParams.program->id(), "projectionMatrix"),
         1,
         false,
         drawParams.projectionMatrix.data()
@@ -528,9 +457,9 @@ void GameProgram::render()
             Vector3 v2 = ::transform(mesh->vertices()[3 * iFace + 2], transform);
 
             // TODO: these do not avoid division by zero
-            const Vector3 lightV0 = normalize(v0 - lightPosition_);
-            const Vector3 lightV1 = normalize(v1 - lightPosition_);
-            const Vector3 lightV2 = normalize(v2 - lightPosition_);
+            const Vector3 lightV0 = normalize(v0 - worldLightPositions[lightIndex]);
+            const Vector3 lightV1 = normalize(v1 - worldLightPositions[lightIndex]);
+            const Vector3 lightV2 = normalize(v2 - worldLightPositions[lightIndex]);
 
             // if the signs do not differ, this is not a front face
             if (dot(lightV0, n) >= 0.0f)
@@ -562,7 +491,7 @@ void GameProgram::render()
                 v2, s0, v0
             };
 
-            const GLint coordLocation = drawParams.program->attribLocation("coord");
+            const GLint coordLocation = glGetAttribLocation(drawParams.program->id(), "coord");
             glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords->data());
             glEnableVertexAttribArray(coordLocation);
 
@@ -607,127 +536,33 @@ void GameProgram::render()
 
     // ...
 
-    drawParams.program = programManager_.getResource("test");
-    glUseProgram(drawParams.program->id());
+    drawParams.program = programManager_.load("data/shaders/lit.vs", "data/shaders/lit.fs");
+
+    Material litMaterial;
+    litMaterial.setProgram(drawParams.program);
+    litMaterial.addVariable(new FloatVariable("specularExponent", 128.0f));
+    litMaterial.addVariable(new Sampler2DVariable("diffuseMap", textureManager_.getResource("diffuse")));
+    litMaterial.addVariable(new Sampler2DVariable("specularMap", textureManager_.getResource("specular")));
+    litMaterial.addVariable(new Sampler2DVariable("normalMap", textureManager_.getResource("normal")));
+
+    if (litMaterial.link() == false)
+    {
+        GRAPHICS_RUNTIME_ASSERT(false);
+    }
+
+    litMaterial.bind();
 
     // ...
 
-    const GLint lightPositionsLocation = glGetUniformLocation(drawParams.program->id(), "lightPositions");
-    const GLint lightColorsLocation = glGetUniformLocation(drawParams.program->id(), "lightColors");
-    const GLint lightRangesLocation = glGetUniformLocation(drawParams.program->id(), "lightRanges");
-    const GLint numLightsLocation = glGetUniformLocation(drawParams.program->id(), "numLights");
-    const GLint diffuseMapLocation = glGetUniformLocation(drawParams.program->id(), "diffuseMap");
-    const GLint specularMapLocation = glGetUniformLocation(drawParams.program->id(), "specularMap");
-    const GLint glowMapLocation = glGetUniformLocation(drawParams.program->id(), "glowMap");
-    const GLint normalMapLocation = glGetUniformLocation(drawParams.program->id(), "normalMap");
+    const GLint lightPositionLocation = glGetUniformLocation(drawParams.program->id(), "lightPosition");
+    const GLint lightColorLocation = glGetUniformLocation(drawParams.program->id(), "lightColor");
+    const GLint lightRangeLocation = glGetUniformLocation(drawParams.program->id(), "lightRange");
 
-    lightPosition_.x = 150.0f * Math::cos(Math::radians(0.0f));
-    lightPosition_.y = 0.0f;
-    lightPosition_.z = 150.0f * Math::sin(Math::radians(0.0f));
-
-    Vector3 lightPositions[] = {
-        Vector3(150.0f * Math::cos(Math::radians(0.0f)), 0.0f, 150.0f * Math::sin(Math::radians(0.0f))),
-        Vector3(150.0f * Math::cos(Math::radians(120.0f)), 0.0f, 150.0f * Math::sin(Math::radians(120.0f))),
-        Vector3(150.0f * Math::cos(Math::radians(240.0f)), 0.0f, 150.0f * Math::sin(Math::radians(240.0f)))
-    };
-
-    static float lightRotation = 0.0f;
-
-    const Transform3 t(
-        Vector3::zero(),
-        Matrix3x3::yRotation(lightRotation),
-        1.0f
-    );
-
-    transform(lightPositions, lightPositions + 3, lightPositions, t);
-
-    lightPosition_ = lightPositions[0];
-
-    transform(lightPositions, lightPositions + 3, lightPositions, inverse(camera_->worldTransform()));
-
-    const Vector3 lightColors[] = {
-        Vector3(2.00f, 2.00f, 2.00f),
-        Vector3(0.50f, 2.00f, 0.50f),
-        Vector3(0.50f, 0.50f, 2.00f)
-    };
-
-    const float lightRanges[] = {
-        750.0f,
-        250.0f,
-        250.0f
-    };
-
-    glUniform3fv(lightPositionsLocation, 3, lightPositions->data());
-    glUniform3fv(lightColorsLocation, 3, lightColors->data());
-    glUniform1fv(lightRangesLocation, 3, lightRanges);
-    glUniform1i(numLightsLocation, 1);  // number of active lights
-
-    glUniform1i(diffuseMapLocation, 0);
-    glUniform1i(specularMapLocation, 1);
-    glUniform1i(glowMapLocation, 2);
-    glUniform1i(normalMapLocation, 3);
+    glUniform3fv(lightPositionLocation, 1, viewLightPositions[lightIndex].data());
+    glUniform3fv(lightColorLocation, 1, lightColors[lightIndex].data());
+    glUniform1f(lightRangeLocation, lightRanges[lightIndex]);
 
     // ...
-
-    if( diffuseMipmappingOn )
-    {
-        textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-    }
-    else
-    {
-        textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-    }
-
-    if( glowMipmappingOn )
-    {
-        textureManager_.getResource("glow")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-    }
-    else
-    {
-        textureManager_.getResource("glow")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-    }
-
-    if( normalMipmappingOn )
-    {
-        textureManager_.getResource("normal")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-    }
-    else
-    {
-        textureManager_.getResource("normal")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-    }
-
-    if( specularMipmappingOn )
-    {
-        textureManager_.getResource("specular")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-    }
-    else
-    {
-        textureManager_.getResource("specular")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-    }
-    if( anisotropicFilteringOn )
-    {
-        textureManager_.getResource("diffuse")->activateAnisotropicFiltering();
-    }
-    else
-    {
-        textureManager_.getResource("diffuse")->disableAnisotropicFiltering();
-    }
-
-    glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("diffuse")->bindTexture();
-
-    glActiveTexture(GL_TEXTURE1);
-    glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("specular")->bindTexture();
-
-    glActiveTexture(GL_TEXTURE2);
-    glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("glow")->bindTexture();
-
-    glActiveTexture(GL_TEXTURE3);
-    glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("normal")->bindTexture();
 
     glDepthFunc(GL_LEQUAL);
 
@@ -738,35 +573,118 @@ void GameProgram::render()
     glStencilFunc(GL_EQUAL, 0x00, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_ONE, GL_ONE);
+
     // lit render pass, should be done for each light source
     renderQueue.draw(drawParams);
 
+    glDisable(GL_BLEND);
+
     glDisable(GL_STENCIL_TEST);
 
-    glActiveTexture(GL_TEXTURE0);
-    glDisable(GL_TEXTURE_2D);
+    litMaterial.unbind();
 
-    glActiveTexture(GL_TEXTURE1);
-    glDisable(GL_TEXTURE_2D);
-
-    glActiveTexture(GL_TEXTURE2);
-    glDisable(GL_TEXTURE_2D);
-
-    glActiveTexture(GL_TEXTURE3);
-    glDisable(GL_TEXTURE_2D);
+    } // for each light
 
     if (rotateLights)
     {
-        //lightRotation = Math::wrapTo2Pi(lightRotation + deltaTime * 0.125f);
-        lightRotation = Math::mod(lightRotation + deltaTime * 0.125f, 2.0f * Math::pi());
+        lightRotation = Math::mod(lightRotation + deltaTime * 0.1f, 2.0f * Math::pi());
     }
+
+    // quick & dirty point sprite test
+
+    drawParams.program = programManager_.load("data/shaders/particle.vs", "data/shaders/particle.fs");
+
+    VertexFormat vertexFormat(3);
+    vertexFormat.setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Coord);
+    vertexFormat.setAttribute(1, VertexAttribute::Type::Float4, VertexAttribute::Usage::Color);
+    vertexFormat.setAttribute(2, VertexAttribute::Type::Float1, VertexAttribute::Usage::PointSize);
+    vertexFormat.compile();
+
+    //const float pointSize = 8.75;
+    const float pointSize = 17.5;
+
+    float components[] = {
+        worldLightPositions[0].x, worldLightPositions[0].y, worldLightPositions[0].z,
+        lightColors[0].x, lightColors[0].y, lightColors[0].z, 0.5f,
+        4.0f,
+
+        worldLightPositions[1].x, worldLightPositions[1].y, worldLightPositions[1].z,
+        lightColors[1].x, lightColors[1].y, lightColors[1].z, 0.5f,
+        4.0f,
+
+        worldLightPositions[2].x, worldLightPositions[2].y, worldLightPositions[2].z,
+        lightColors[2].x, lightColors[2].y, lightColors[2].z, 0.5f,
+        4.0f,
+/*
+        25.0f, 0.0f, 0.0f,
+        1.0f, 1.0f, 0.5f, 0.25f,
+        pointSize,
+
+        50.0f, 0.0f, 0.0f,
+        1.0f, 0.75f, 0.375f, 0.225f,
+        pointSize,
+
+        0.0f, 0.0f, 0.0f,
+        1.0f, 0.5f, 0.25f, 0.20f,
+        pointSize,
+
+        -25.0f, 0.0f, 0.0f,
+        1.0f, 0.25f, 0.125f, 0.175f,
+        pointSize,
+
+        -50.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f, 0.15f,
+        pointSize
+*/
+    };
+
+    VertexBuffer vertexBuffer(
+        sizeof(components) / (sizeof(float) * 8),
+        sizeof(float) * 8,
+        components,
+        VertexBuffer::Usage::Static
+    );
+
+    renderer_.setProgram(drawParams.program);
+    renderer_.setVertexFormat(&vertexFormat);
+    renderer_.setVertexBuffer(&vertexBuffer);
+    renderer_.setTexture(0, textureManager_.getResource("particle"));
+
+    const GLint modelViewMatrixLocation = glGetUniformLocation(drawParams.program->id(), "modelViewMatrix");
+    const GLint projectionMatrixLocation = glGetUniformLocation(drawParams.program->id(), "projectionMatrix");
+    glUniformMatrix4fv(modelViewMatrixLocation, 1, false, drawParams.viewMatrix.data());
+    glUniformMatrix4fv(projectionMatrixLocation, 1, false, drawParams.projectionMatrix.data());
+
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glEnable(GL_POINT_SPRITE);
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    glDepthMask(GL_FALSE);
+
+    renderer_.renderPrimitives(Renderer::PrimitiveType::Points);
+
+    glDepthMask(GL_TRUE);
+    glDisable(GL_POINT_SPRITE);
+    glDisable(GL_PROGRAM_POINT_SIZE);
+    glDisable(GL_BLEND);
+
+    renderer_.setTexture(0, 0);
+    renderer_.setVertexBuffer(0);
+    renderer_.setVertexFormat(0);
+    renderer_.setProgram(0);
+
+    // end of quick & dirty point sprite test
 
     if (drawExtents_)
     {
         glDepthFunc(GL_LEQUAL);
 
-        drawParams.program = programManager_.getResource("extents");
-        glUseProgram(drawParams.program->id());
+        drawParams.program = programManager_.load("data/shaders/extents.vs", "data/shaders/extents.fs");
+        renderer_.setProgram(drawParams.program);
 
         for (int i = 0; i < renderQueue.numGeometryNodes(); ++i)
         {
@@ -777,18 +695,24 @@ void GameProgram::render()
         {
             drawExtents(renderQueue.groupNode(i), drawParams);
         }
+
+        renderer_.setProgram(0);
     }
 
     SDL_GL_SwapBuffers();
 }
 
 // TODO: quick & dirty, this does not belong here
-void drawExtents(const Node* node, const DrawParams& params)
+void GameProgram::drawExtents(const Node* node, const DrawParams& params)
 {
     const Extents3 extents = node->worldExtents();
 
     const Vector3 min = extents.min;
     const Vector3 max = extents.max;
+
+    VertexFormat vertexFormat(1);
+    vertexFormat.setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Coord);
+    vertexFormat.compile();
 
     const Vector3 vertices[] = {
         Vector3(min.x, min.y, max.z),
@@ -801,7 +725,16 @@ void drawExtents(const Node* node, const DrawParams& params)
         Vector3(max.x, max.y, min.z)
     };
 
-    const uint32_t indices[] = {
+    const int vertexSize = sizeof(Vector3);
+
+    VertexBuffer vertexBuffer(
+        sizeof(vertices) / vertexSize,
+        vertexSize,
+        vertices,
+        VertexBuffer::Usage::Static
+    );
+
+    const GLushort indices[] = {
         0, 1,
         1, 2,
         2, 3,
@@ -816,31 +749,85 @@ void drawExtents(const Node* node, const DrawParams& params)
         7, 4
     };
 
-    const Matrix4x4 mvpMatrix = params.viewMatrix * params.projectionMatrix;
-
-    const GLint mvpMatrixLocation = params.program->uniformLocation("mvp_matrix");
-    glUniformMatrix4fv(mvpMatrixLocation, 1, false, mvpMatrix.data());
-
-    const GLint coordLocation = params.program->attribLocation("coord");
-    glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, vertices->data());
-    glEnableVertexAttribArray(coordLocation);
-
-    glDrawElements(
-        GL_LINES,
-        24,
-        GL_UNSIGNED_INT,
-        indices
+    IndexBuffer indexBuffer(
+        sizeof(indices) / sizeof(indices[0]),
+        indices,
+        IndexBuffer::Format::UnsignedShort,
+        IndexBuffer::Usage::Static
     );
 
-    glDisableVertexAttribArray(coordLocation);
+    const Matrix4x4 mvpMatrix = params.viewMatrix * params.projectionMatrix;
+
+    const GLint mvpMatrixLocation = glGetUniformLocation(params.program->id(), "mvpMatrix");
+    glUniformMatrix4fv(mvpMatrixLocation, 1, false, mvpMatrix.data());
+
+    renderer_.setVertexFormat(&vertexFormat);
+    renderer_.setVertexBuffer(&vertexBuffer);
+    renderer_.setIndexBuffer(&indexBuffer);
+
+    renderer_.renderPrimitives(Renderer::PrimitiveType::Lines);
+
+    renderer_.setIndexBuffer(0);
+    renderer_.setVertexBuffer(0);
+    renderer_.setVertexFormat(0);
 }
 
 void GameProgram::tick( const float deltaTime )
 {
-    if( mouseBoundToScreen )
+    return;
+
+    const float kx = 75.0f;
+    const float ky = 37.5f;
+    const float kz = 75.0f;
+
+    static const Transform3 transforms[] = {
+        Transform3(Vector3( -kx, -ky,   kz), Matrix3x3::yRotation(-0.50f * Math::pi()), 1.0f),
+        Transform3(Vector3(0.0f, -ky,   kz), Matrix3x3::yRotation(-0.50f * Math::pi()), 1.0f),
+
+        Transform3(Vector3(  kx, -ky,   kz), Matrix3x3::yRotation( 0.00f * Math::pi()), 1.0f),
+        Transform3(Vector3(  kx, -ky, 0.0f), Matrix3x3::yRotation( 0.00f * Math::pi()), 1.0f),
+
+        Transform3(Vector3(  kx, -ky,  -kz), Matrix3x3::yRotation( 0.50f * Math::pi()), 1.0f),
+        Transform3(Vector3( -kx, -ky,  -kz), Matrix3x3::yRotation( 0.50f * Math::pi()), 1.0f),
+
+        // ascend
+        Transform3(Vector3( -kx, -ky,  -kz), Matrix3x3::yRotation(-0.75f * Math::pi()), 1.0f),
+        Transform3(Vector3( -kx,  ky,  -kz), Matrix3x3::yRotation(-0.75f * Math::pi()), 1.0f),
+
+        Transform3(Vector3( -kx,  ky,   kz), Matrix3x3::yRotation(-0.50f * Math::pi()), 1.0f),
+        Transform3(Vector3(0.0f,  ky,   kz), Matrix3x3::yRotation(-0.50f * Math::pi()), 1.0f),
+
+        Transform3(Vector3(  kx,  ky,   kz), Matrix3x3::yRotation( 0.00f * Math::pi()), 1.0f),
+        Transform3(Vector3(  kx,  ky, 0.0f), Matrix3x3::yRotation( 0.00f * Math::pi()), 1.0f),
+
+        Transform3(Vector3(  kx,  ky,  -kz), Matrix3x3::yRotation( 0.50f * Math::pi()), 1.0f),
+        Transform3(Vector3( -kx,  ky,  -kz), Matrix3x3::yRotation( 0.50f * Math::pi()), 1.0f),
+
+        // descend
+        Transform3(Vector3(-kx,  ky,  -kz), Matrix3x3::yRotation(-0.75f * Math::pi()), 1.0f),
+        Transform3(Vector3(-kx, -ky,  -kz), Matrix3x3::yRotation(-0.75f * Math::pi()), 1.0f)
+    };
+
+    const int numFrames = sizeof(transforms) / sizeof(Transform3);
+    const float frameTime = 4.0f;
+
+    static int frame = 0;
+    static float t = 0.0f;
+
+    t += deltaTime;
+
+    while (t > frameTime)
     {
-        centerMouse();
+        frame = (frame + 1) % numFrames;
+        t -= frameTime;
     }
+
+    const float scaledT = t / frameTime;
+
+    const int nextFrame = (frame + 1) % numFrames;
+    const Transform3 transform = slerp(transforms[frame], transforms[nextFrame], scaledT);
+
+    camera_->setTransform(transform);
 }
 
 void GameProgram::onQuit()
@@ -977,7 +964,7 @@ void GameProgram::test()
 
     GroupNode* groupNode = new GroupNode();
 
-    const float scaling = 15.0f;
+    const float scaling = 17.5f;
 
     MeshNode* meshNode = new MeshNode();
     meshNode->setScaling(scaling);
@@ -985,7 +972,8 @@ void GameProgram::test()
     meshNode->updateModelExtents();
 
     const int count = 6;
-    const float offset = 2.5f * scaling;
+    //const float offset = 2.5f * scaling;
+    const float offset = 2.5f * 15.0f;
     const float displacement = -(offset * (count - 1)) / 2.0f;
 
     for (int i = 0; i < count; ++i)
@@ -1019,68 +1007,12 @@ void GameProgram::test()
         }
     }
 
-//    ModelReader modelReader;
-//    modelReader.setMeshManager(&meshManager_);
-//
-//    Node* p = 0;
-//
-//    // heavy geometry with tanks
-//
-//    p = modelReader.read("data/models/abrams_tank.3ds");
-//    p->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
-//    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
-//    p->setScaling(0.15f);
-//
-//    const int count = 6;
-//    const float offset = 75.0f;
-//    const float displacement = -(offset * (count - 1)) / 2.0f;
-//
-//    for (int i = 0; i < count; ++i)
-//    {
-//        for (int j = 0; j < count; ++j)
-//        {
-//            if (i != 0 || j != 0)
-//            {
-//                p = p->clone();
-//            }
-//
-//            p->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
-//            rootNode_->attachChild(p);
-//        }
-//    }
-//
-//    p = modelReader.read("data/models/platform.3ds");
-//    p->setTranslation(Vector3(0.0f, -472.0f, 0.0f));
-//    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
-//    p->setScaling(3.0f);
-//    rootNode_->attachChild(p);
-//
-//    p = modelReader.read("data/models/ship2.3ds");
-//    p->setTranslation(Vector3(0.0f, 25.0f, 0.0f));
-//    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
-//    //p->setScaling(3.0f);
-//    rootNode_->attachChild(p);
-
-    camera_->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
-    //camera_->setTranslation(Vector3(-0.5f * offset, -0.5f * offset, 0.0f));
+    camera_->setTranslation(Vector3(0.0f, 0.0f, 50.0f));
+    camera_->setRotation(Matrix3x3::identity());
 }
 
 GameProgram::~GameProgram()
 {
     delete rootNode_;
     delete camera_;
-}
-
-void GameProgram::bindMouse()
-{
-    mouseBoundToScreen = true;
-    mouseVisible = false;
-    SDL_ShowCursor( mouseVisible );
-}
-
-void GameProgram::releaseMouse()
-{
-    mouseBoundToScreen = false;
-    mouseVisible = true;
-    SDL_ShowCursor( mouseVisible );
 }

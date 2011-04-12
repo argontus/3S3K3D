@@ -8,32 +8,28 @@
 
 #include <SDL/SDL.h>
 #include "gamewindow.h"
-
-#include "input/sdlkeyboard.h"
-#include "input/sdlmouse.h"
+#include "gameobject.h"
+#include "keyboardcontroller.h"
 
 #include "configuration/configuration.h"
 
+#include "sound/mixer.h"
+
 #include <graphics/resourcemanager.h>
-#include <graphics/vertexshader.h>
-#include <graphics/fragmentshader.h>
-#include <graphics/program.h>
+#include <graphics/programmanager.h>
 #include <graphics/mesh.h>
 #include <geometry/vector3.h>
 #include <graphics/texture.h>
 
 #include <graphics/geometrynode.h>
 
+#include <graphics/renderer.h>
+
 // TODO: quick & dirty
 class CameraNode;
 class GroupNode;
-class Vector3Array;
-class ColorArray;
-class IndexArray;
+class Node;
 
-typedef ResourceManager<VertexShader> VertexShaderManager;
-typedef ResourceManager<FragmentShader> FragmentShaderManager;
-typedef ResourceManager<Program> ProgramManager;
 typedef ResourceManager<Mesh> MeshManager;
 typedef ResourceManager<Texture> TextureManager;
 
@@ -123,26 +119,16 @@ public:
 
 	//virtual void onMouseMoved( const SDL_MouseMotionEvent& mouseMotionEvent );
 
-	virtual void bindMouse();
-	virtual void releaseMouse();
-
 private:
     void test();
+    void drawExtents(const Node* node, const DrawParams& params);
 
-	bool running;
-	Uint32 deltaTicks; /* ticks between last frame and current frame */
-	float deltaTime;
-	static const Uint32 ticksPerSecond = 1000;
-	Vector3 cameraVelocity;
-	float cameraSpeedX;
-	float cameraSpeedY;
-	float cameraSpeedZ;
-	SDLKeyboard keyboard;
-	SDLMouse mouse;
 	Configuration configuration;
-
-
-    // TODO: quick & dirty
+	Mixer mixer_;
+	Renderer renderer_;
+	Node* ship;
+    GameObject* testObject;
+    KeyboardController testController;
     CameraNode* camera_;
     GroupNode* rootNode_;
     bool drawExtents_;
@@ -152,16 +138,22 @@ private:
     bool specularMipmappingOn;
     bool rotateLights;
     bool anisotropicFilteringOn;
-
-    Vector3 lightPosition_;
-
-    std::vector<GeometryNode*> geometryNodes_;
-
-    VertexShaderManager vertexShaderManager_;
-    FragmentShaderManager fragmentShaderManager_;
     ProgramManager programManager_;
     MeshManager meshManager_;
     TextureManager textureManager_;
+
+	bool running;
+	Uint32 deltaTicks; /* ticks between last frame and current frame */
+	float deltaTime;
+	static const Uint32 ticksPerSecond = 1000;
+	Vector3 cameraVelocity;
+	float cameraSpeedX;
+	float cameraSpeedY;
+	float cameraSpeedZ;
+
+    // TODO: quick & dirty
+
+    std::vector<GeometryNode*> geometryNodes_;
 };
 
 #endif /* GAMEPROGRAM_H_ */

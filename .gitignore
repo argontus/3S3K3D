@@ -1,5 +1,6 @@
 bin/data/textures/
 bin/data/models/
+bin/data/sounds/
 bin/*.dll
 bin/*.so
 bin/game*
@@ -27,6 +28,10 @@ codeblocks/configuration/obj/
 codeblocks/configuration/*.cbTemp
 codeblocks/configuration/*.depend
 codeblocks/configuration/*.layout
+codeblocks/sound/obj/
+codeblocks/sound/*.cbTemp
+codeblocks/sound/*.depend
+codeblocks/sound/*.layout
 codeblocks/*.cbTemp
 doc/doxygen/html/
 include/glew/

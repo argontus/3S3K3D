@@ -216,6 +216,26 @@ const Matrix4x4 operator /(const Matrix4x4& m, const float k)
     );
 }
 
+float determinant(const Matrix4x4& m)
+{
+    const float a0 = m.m00 * m.m11 - m.m01 * m.m10;
+    const float a1 = m.m00 * m.m12 - m.m02 * m.m10;
+    const float a2 = m.m00 * m.m13 - m.m03 * m.m10;
+    const float a3 = m.m01 * m.m12 - m.m02 * m.m11;
+    const float a4 = m.m01 * m.m13 - m.m03 * m.m11;
+    const float a5 = m.m02 * m.m13 - m.m03 * m.m12;
+
+    const float b0 = m.m20 * m.m31 - m.m21 * m.m30;
+    const float b1 = m.m20 * m.m32 - m.m22 * m.m30;
+    const float b2 = m.m20 * m.m33 - m.m23 * m.m30;
+    const float b3 = m.m21 * m.m32 - m.m22 * m.m31;
+    const float b4 = m.m21 * m.m33 - m.m23 * m.m31;
+    const float b5 = m.m22 * m.m33 - m.m23 * m.m32;
+
+    return a0 * b5 - a1 * b4 + a2 * b3 + a3 * b2 - a4 * b1 + a5 * b0;
+
+}
+
 const Vector4 timesTranspose(const Vector4& v, const Matrix4x4& m)
 {
     return Vector4(
@@ -224,6 +244,53 @@ const Vector4 timesTranspose(const Vector4& v, const Matrix4x4& m)
         v.x * m.m20 + v.y * m.m21 + v.z * m.m22 + v.w * m.m23,
         v.x * m.m30 + v.y * m.m31 + v.z * m.m32 + v.w * m.m33
     );
+}
+
+const Matrix4x4 adjoint(const Matrix4x4& m)
+{
+    const float a0 = m.m00 * m.m11 - m.m01 * m.m10;
+    const float a1 = m.m00 * m.m12 - m.m02 * m.m10;
+    const float a2 = m.m00 * m.m13 - m.m03 * m.m10;
+    const float a3 = m.m01 * m.m12 - m.m02 * m.m11;
+    const float a4 = m.m01 * m.m13 - m.m03 * m.m11;
+    const float a5 = m.m02 * m.m13 - m.m03 * m.m12;
+
+    const float b0 = m.m20 * m.m31 - m.m21 * m.m30;
+    const float b1 = m.m20 * m.m32 - m.m22 * m.m30;
+    const float b2 = m.m20 * m.m33 - m.m23 * m.m30;
+    const float b3 = m.m21 * m.m32 - m.m22 * m.m31;
+    const float b4 = m.m21 * m.m33 - m.m23 * m.m31;
+    const float b5 = m.m22 * m.m33 - m.m23 * m.m32;
+
+    return Matrix4x4
+    (
+        + m.m11 * b5 - m.m12 * b4 + m.m13 * b3,
+        - m.m01 * b5 + m.m02 * b4 - m.m03 * b3,
+        + m.m31 * a5 - m.m32 * a4 + m.m33 * a3,
+        - m.m21 * a5 + m.m22 * a4 - m.m23 * a3,
+        - m.m10 * b5 + m.m12 * b2 - m.m13 * b1,
+        + m.m00 * b5 - m.m02 * b2 + m.m03 * b1,
+        - m.m30 * a5 + m.m32 * a2 - m.m33 * a1,
+        + m.m20 * a5 - m.m22 * a2 + m.m23 * a1,
+        + m.m10 * b4 - m.m11 * b2 + m.m13 * b0,
+        - m.m00 * b4 + m.m01 * b2 - m.m03 * b0,
+        + m.m30 * a4 - m.m31 * a2 + m.m33 * a0,
+        - m.m20 * a4 + m.m21 * a2 - m.m23 * a0,
+        - m.m10 * b3 + m.m11 * b1 - m.m12 * b0,
+        + m.m00 * b3 - m.m01 * b1 + m.m02 * b0,
+        - m.m30 * a3 + m.m31 * a1 - m.m32 * a0,
+        + m.m20 * a3 - m.m21 * a1 + m.m22 * a0
+    );
+}
+
+const Matrix4x4 inverse(const Matrix4x4& m)
+{
+    const float det = determinant(m);
+
+    // TODO: use tolerances instead of absolute values?
+    GEOMETRY_RUNTIME_ASSERT(det != 0.0f);
+
+    return 1.0f / det * adjoint(m);
 }
 
 const Matrix4x4 orthogonalize(const Matrix4x4& m)

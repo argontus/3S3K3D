@@ -5,7 +5,6 @@
 
 #include <graphics/shader.h>
 
-#include <fstream>
 #include <vector>
 
 #include <graphics/opengl.h>
@@ -16,7 +15,7 @@ Shader::~Shader()
     glDeleteShader(id_);
 }
 
-uint32_t Shader::id() const
+GLuint Shader::id() const
 {
     return id_;
 }
@@ -40,13 +39,10 @@ const std::string Shader::sourceText() const
     return std::string(buffer.data());
 }
 
-void Shader::compile()
+bool Shader::compile()
 {
     glCompileShader(id_);
-}
 
-bool Shader::compileStatus() const
-{
     // fetch the compile status
     GLint status = GL_FALSE;
     glGetShaderiv(id_, GL_COMPILE_STATUS, &status);
@@ -67,45 +63,8 @@ const std::string Shader::infoLog() const
     return std::string(buffer.data());
 }
 
-Shader::Shader(const Type::Enum type)
-:   id_(0)
+Shader::Shader(const GLenum type)
+:   id_(glCreateShader(type))
 {
-    switch (type)
-    {
-        case Type::FragmentShader:
-            id_ = glCreateShader(GL_FRAGMENT_SHADER);
-            break;
-
-        case Type::VertexShader:
-            id_ = glCreateShader(GL_VERTEX_SHADER);
-            break;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            break;
-    }
-}
-
-const std::string readSourceText(const std::string& path)
-{
-    std::ifstream inputStream;
-    inputStream.open(path.c_str(), std::ios::in);
-
-    if (inputStream.is_open() == false)
-    {
-        // TODO: quick & dirty, decide how errors should be reported
-        GRAPHICS_RUNTIME_ASSERT(false);
-
-        return std::string();
-    }
-
-    std::string text;
-    char c;
-
-    while (inputStream.get(c))
-    {
-        text += c;
-    }
-
-    return text;
+    // ...
 }

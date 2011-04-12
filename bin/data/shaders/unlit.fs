@@ -1,17 +1,9 @@
 #version 150
 
-// hard-coded material ambient lighting parameter
-const vec3 ambient = vec3(0.35, 0.35, 0.35);
-
-// light parameters
-//uniform vec3 lightPosition;     // light positions in view space
-//uniform vec3 lightColor;        // light colors
-//uniform float lightRange;       // light ranges in world space
+uniform vec3 ambient;           // ambient lighting color
 
 uniform sampler2D diffuseMap;   // diffuse map
-uniform sampler2D specularMap;  // specular map, unused
 uniform sampler2D glowMap;      // glow map
-uniform sampler2D normalMap;    // normal map, unused
 
 in vec3 coord_;                 // fragment coordinate in view space, unused
 in vec3 normal_;                // fragment normal in view space, unused

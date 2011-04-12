@@ -63,6 +63,7 @@ Color& Color::operator *=(const float k)
 
 Color& Color::operator /=(const float k)
 {
+    // TODO: use tolerances instead of absolute values?
     GRAPHICS_RUNTIME_ASSERT(k != 0.0f);
 
     r /= k;
@@ -72,16 +73,19 @@ Color& Color::operator /=(const float k)
     return *this;
 }
 
-float& Color::operator [](const int i)
+Color& Color::operator /=(const Color& c)
 {
-    GRAPHICS_RUNTIME_ASSERT(i >= 0 && i <= 3);
-    return (&r)[i];
-}
+    // TODO: use tolerances instead of absolute values?
+    GRAPHICS_RUNTIME_ASSERT(c.r != 0.0f);
+    GRAPHICS_RUNTIME_ASSERT(c.g != 0.0f);
+    GRAPHICS_RUNTIME_ASSERT(c.b != 0.0f);
+    GRAPHICS_RUNTIME_ASSERT(c.a != 0.0f);
 
-float Color::operator [](const int i) const
-{
-    GRAPHICS_RUNTIME_ASSERT(i >= 0 && i <= 3);
-    return (&r)[i];
+    r /= c.r;
+    g /= c.g;
+    b /= c.b;
+    a /= c.a;
+    return *this;
 }
 
 float* Color::data()
@@ -92,30 +96,6 @@ float* Color::data()
 const float* Color::data() const
 {
     return &r;
-}
-
-void Color::clamp()
-{
-    r = Math::clamp(r, 0.0f, 1.0f);
-    g = Math::clamp(g, 0.0f, 1.0f);
-    b = Math::clamp(b, 0.0f, 1.0f);
-    a = Math::clamp(a, 0.0f, 1.0f);
-}
-
-void Color::negate()
-{
-    r = -r;
-    g = -g;
-    b = -b;
-    a = -a;
-}
-
-void Color::set(const float r, const float g, const float b, const float a)
-{
-    this->r = r;
-    this->g = g;
-    this->b = b;
-    this->a = a;
 }
 
 void Color::swap(Color& other)
@@ -188,6 +168,7 @@ const Color operator *(const Color& c, const float k)
 
 const Color operator /(const Color& c, const float k)
 {
+    // TODO: use tolerances instead of absolute values?
     GRAPHICS_RUNTIME_ASSERT(k != 0.0f);
 
     return Color(
@@ -198,13 +179,29 @@ const Color operator /(const Color& c, const float k)
     );
 }
 
-const Color clamp(const Color& c)
+const Color operator /(const Color& a, const Color& b)
+{
+    // TODO: use tolerances instead of absolute values?
+    GRAPHICS_RUNTIME_ASSERT(b.r != 0.0f);
+    GRAPHICS_RUNTIME_ASSERT(b.g != 0.0f);
+    GRAPHICS_RUNTIME_ASSERT(b.b != 0.0f);
+    GRAPHICS_RUNTIME_ASSERT(b.a != 0.0f);
+
+    return Color(
+        a.r / b.r,
+        a.g / b.g,
+        a.b / b.b,
+        a.a / b.a
+    );
+}
+
+const Color clamp(const Color& c, const float min, const float max)
 {
     return Color(
-        Math::clamp(c.r, 0.0f, 1.0f),
-        Math::clamp(c.g, 0.0f, 1.0f),
-        Math::clamp(c.b, 0.0f, 1.0f),
-        Math::clamp(c.a, 0.0f, 1.0f)
+        Math::clamp(c.r, min, max),
+        Math::clamp(c.g, min, max),
+        Math::clamp(c.b, min, max),
+        Math::clamp(c.a, min, max)
     );
 }
 

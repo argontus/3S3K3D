@@ -244,6 +244,89 @@ const Matrix3x3 operator /(const Matrix3x3& m, const float k)
     );
 }
 
+void extractAxisAngle(const Matrix3x3& m, Vector3* axis, float* angle)
+{
+    // See 3D Game Engine Architecture by David H. Eberly, p. 86.
+
+    GEOMETRY_RUNTIME_ASSERT(axis != 0);
+    GEOMETRY_RUNTIME_ASSERT(angle != 0);
+
+    const float trace = m.m00 + m.m11 + m.m22;
+    const float cosine = 0.5f * (trace - 1.0f);
+
+    // calculate and store the angle of rotation, betweem [0, pi]
+    *angle = Math::acos(cosine);
+
+    if (*angle <= 0.0f)
+    {
+        // angle is 0 and any axis will work, so just use the x-axis
+
+        axis->x = 1.0f;
+        axis->y = 0.0f;
+        axis->z = 0.0f;
+
+        return;
+    }
+
+    if (*angle < Math::pi())
+    {
+        // angle is between (0, pi)
+
+        axis->x = m.m21 - m.m12;
+        axis->y = m.m02 - m.m20;
+        axis->z = m.m10 - m.m01;
+        *axis = normalize(*axis);
+
+        return;
+    }
+
+    // angle is pi
+
+    if (m.m00 >= m.m11)
+    {
+        if (m.m00 >= m.m22)
+        {
+            // m.m00 is the maximum diagonal term
+            axis->x = 0.5f * Math::sqrt(1.0f + m.m00 - m.m11 - m.m22);
+            axis->y = 0.5f / axis->x * m.m01;
+            axis->z = 0.5f / axis->x * m.m02;
+        }
+        else
+        {
+            // m.m22 is the maximum diagonal term
+            axis->z = 0.5f * Math::sqrt(1.0f + m.m22 - m.m00 - m.m11);
+            axis->x = 0.5f / axis->z * m.m02;
+            axis->y = 0.5f / axis->z * m.m12;
+        }
+    }
+    else
+    {
+        if (m.m11 >= m.m22)
+        {
+            // m.m11 is the maximum diagonal term
+            axis->y = 0.5f * Math::sqrt(1.0f + m.m11 - m.m00 - m.m22);
+            axis->x = 0.5f / axis->y * m.m01;
+            axis->z = 0.5f / axis->y * m.m12;
+        }
+        else
+        {
+            // m.m22 is the maximum diagonal term
+            axis->z = 0.5f * Math::sqrt(1.0f + m.m22 - m.m00 - m.m11);
+            axis->x = 0.5f / axis->z * m.m02;
+            axis->y = 0.5f / axis->z * m.m12;
+        }
+    }
+}
+
+float determinant(const Matrix3x3& m)
+{
+    // equivalent to m.row(0) * cross(m.row(1), m.row(2))
+
+    return m.m00 * (m.m11 * m.m22 - m.m12 * m.m21)
+         + m.m01 * (m.m12 * m.m20 - m.m10 * m.m22)
+         + m.m02 * (m.m10 * m.m21 - m.m11 * m.m20);
+}
+
 const Vector3 timesTranspose(const Vector3& v, const Matrix3x3& m)
 {
     return Vector3(
@@ -251,6 +334,33 @@ const Vector3 timesTranspose(const Vector3& v, const Matrix3x3& m)
         v.x * m.m10 + v.y * m.m11 + v.z * m.m12,
         v.x * m.m20 + v.y * m.m21 + v.z * m.m22
     );
+}
+
+const Matrix3x3 adjoint(const Matrix3x3& m)
+{
+    return Matrix3x3(
+        m.m11 * m.m22 - m.m12 * m.m21,
+        m.m02 * m.m21 - m.m01 * m.m22,
+        m.m01 * m.m12 - m.m02 * m.m11,
+
+        m.m12 * m.m20 - m.m10 * m.m22,
+        m.m00 * m.m22 - m.m02 * m.m20,
+        m.m02 * m.m10 - m.m00 * m.m12,
+
+        m.m10 * m.m21 - m.m11 * m.m20,
+        m.m01 * m.m20 - m.m00 * m.m21,
+        m.m00 * m.m11 - m.m01 * m.m10
+    );
+}
+
+const Matrix3x3 inverse(const Matrix3x3& m)
+{
+    const float det = determinant(m);
+
+    // TODO: use tolerances instead of absolute values?
+    GEOMETRY_RUNTIME_ASSERT(det != 0.0f);
+
+    return 1.0f / det * adjoint(m);
 }
 
 const Matrix3x3 orthogonalize(const Matrix3x3& m)
@@ -277,6 +387,19 @@ const Matrix3x3 orthogonalize(const Matrix3x3& m)
     z = normalize(z);
 
     return Matrix3x3(x, y, z);
+}
+
+const Matrix3x3 slerp(const Matrix3x3& a, const Matrix3x3& b, const float t)
+{
+    // conversion from a to b
+    const Matrix3x3 c = timesTranspose(a, b);
+
+    // extract the axis and angle of rotation
+    Vector3 axis;
+    float angle;
+    extractAxisAngle(c, &axis, &angle);
+
+    return a * Matrix3x3::rotation(axis, t * angle);
 }
 
 const Matrix3x3 timesTranspose(const Matrix3x3& a, const Matrix3x3& b)

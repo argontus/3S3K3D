@@ -11,7 +11,7 @@ FragmentShader::~FragmentShader()
 }
 
 FragmentShader::FragmentShader()
-:   Shader(Type::FragmentShader)
+:   Shader(GL_FRAGMENT_SHADER)
 {
     // ...
 }

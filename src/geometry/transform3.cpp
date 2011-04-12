@@ -8,6 +8,7 @@
 #include <geometry/math.h>
 #include <geometry/matrix3x3.h>
 #include <geometry/matrix4x4.h>
+#include <geometry/transform2.h>
 
 const Transform3 Transform3::identity()
 {
@@ -31,6 +32,21 @@ Transform3::Transform3(
     scaling(scaling)
 {
     GEOMETRY_RUNTIME_ASSERT(scaling > 0.0f);
+}
+
+Transform3::Transform3(const Transform2& transform)
+:   scaling(transform.scaling)
+{
+    const Vector2 t = transform.translation;
+    const Matrix2x2 r = transform.rotation;
+
+    translation = Vector3(t.x, t.y, 0.0f);
+
+    rotation = Matrix3x3(
+        r.m00, r.m01,  0.0f,
+        r.m10, r.m11,  0.0f,
+         0.0f,  0.0f,  1.0f
+    );
 }
 
 void Transform3::swap(Transform3& other)
@@ -77,6 +93,18 @@ const Transform3 inverse(const Transform3& t)
         (-s * t.translation) * r,
         r,
         s
+    );
+}
+
+const Transform3 slerp(const Transform3& a, const Transform3& b, const float t)
+{
+    GEOMETRY_RUNTIME_ASSERT(a.scaling > 0.0f);
+    GEOMETRY_RUNTIME_ASSERT(b.scaling > 0.0f);
+
+    return Transform3(
+        mix(a.translation, b.translation, t),
+        slerp(a.rotation, b.rotation, t),
+        Math::mix(a.scaling, b.scaling, t)
     );
 }
 

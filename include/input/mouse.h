@@ -18,14 +18,17 @@ class Mouse
             MOUSEBUTTON_RIGHT
         };
 
+        enum MOUSEMODE {
+            MOUSE_RELATIVE,
+            MOUSE_NORMAL,
+            MOUSE_BOUND
+        };
+
         Mouse();
         virtual ~Mouse();
 
-        virtual int getMouseDeltaX() const = 0;
-        virtual int getMouseDeltaY() const = 0;
-
-        virtual int getMouseX() const = 0;
-        virtual int getMouseY() const = 0;
+        virtual int getMouseX() const { return mouseX; }
+        virtual int getMouseY() const { return mouseY; }
 
         /**
          * Current state of a mouse button.
@@ -67,8 +70,6 @@ class Mouse
 
         /**
          * Sets current state of the mouse as it's previous state.
-         * Sets current mouse X and Y positions as previous positions in order
-         * to calculate the delta values properly.
          *
          * Must be called once in a frame.
          */
@@ -80,86 +81,87 @@ class Mouse
         static int getNumberOfMouseButtons();
 
         /**
-         * Binds the mouse to a point on the screen.
-         * Everytime updateMouse() is called the mouse cursor is set to point
-         * defined as the bind point.
+         * Sets mouse mode. MOUSE_RELATIVE means that the x and y coordinates
+         * of the mouse are returned as relative to their previous positions
+         * (delta values). MOUSE_FIXED means that the coordinates are fixed
+         * coordinates inside the window.
+         *
+         * @param mode mode of the mouse.
          */
-        virtual void bindMouse();
+        virtual void setMouseMode( MOUSEMODE mode );
 
         /**
-         * Releases the mouse bind.
+         * Makes mouse pointer visible
          */
-        virtual void releaseMouse();
+        virtual void showMousePointer() = 0;
 
         /**
-         * Set mouse bind point X coordinate.
+         * Makes mouse pointer visible
          */
-        virtual void setMouseBindPointX( const int x );
+        virtual void hideMousePointer() = 0;
 
         /**
-         * Set mouse bind point Y coordinate.
+         * Moves the mouse pointer to the specified coordinates.
+         *
+         * @param x x coordinate of the mouse.
+         * @param y y coordinate of the mouse.
          */
-        virtual void setMouseBindPointY( const int y );
+        virtual void moveMouse( int x, int y ) = 0;
+
+        virtual void setMouseBindPoint(int x, int y );
 
         /**
-         * Getter for mouseBoundToPoint
+         * Returns mouse delta X coordinate.
+         * @return int mouse delta X
          */
-        virtual inline bool isMouseBoundToPoint() const
-        {
-            return mouseBoundToPoint;
-        }
+        virtual int getMouseDeltaX();
 
         /**
-         * Getter for mouseBindPointX.
+         * Returns mouse delta Y coordinate.
+         * @return int mouse delta Y
          */
-        virtual inline int getMouseBindPointX() const
-        {
-            return mouseBindPointX;
-        }
-
-        /**
-         * Getter for mouseBindPointY.
-         */
-        virtual inline int getMouseBindPointY() const
-        {
-            return mouseBindPointY;
-        }
+        virtual int getMouseDeltaY();
 
     protected:
+
+        int mouseBindPointX;
+        int mouseBindPointY;
+
         /**
          * Current X position of the mouse pointer.
          */
-        int currentMouseX;
+        int mouseX;
 
         /**
          * Current Y position of the mouse pointer.
          */
-        int currentMouseY;
+        int mouseY;
 
         /**
-         * X position of the mouse pointer in the last frame.
+         * Delta for the x coordinate
          */
-        int previousMouseX;
+        int mouseDeltaX;
 
         /**
-         * Y position of the mouse pointer in the last frame.
+         * Delta for the y coordinate
          */
-        int previousMouseY;
+        int mouseDeltaY;
 
         /**
-         * Is mouse bound to a point on the screen.
+         * Mouse X coordinate in last frame
          */
-        bool mouseBoundToPoint;
+        int mouseLastX;
 
         /**
-         * X coordinate of the mouse bound point.
+         * Mouse X coordinate in last frame
          */
-        int mouseBindPointX;
+        int mouseLastY;
+
 
         /**
-         * Y coordinate of the mouse bound point
+         * Current mode of the mouse
          */
-        int mouseBindPointY;
+        MOUSEMODE mouseMode;
 
         /**
          * Number of maximum mouse buttons supported by this class.

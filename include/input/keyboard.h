@@ -63,9 +63,17 @@ class Keyboard
             KEY_F7,
             KEY_F8,
             KEY_F9,
+            KEY_F10,
+            KEY_F11,
+            KEY_F12,
             KEY_SPACE,
             KEY_ENTER,
-            KEY_ESCAPE
+            KEY_ESCAPE,
+            KEY_LEFT,
+            KEY_RIGHT,
+            KEY_UP,
+            KEY_DOWN,
+            NUMBER_OF_KEYS
         };
 
         Keyboard();
@@ -111,8 +119,7 @@ class Keyboard
         virtual void updateKeyboardState() = 0;
 
     protected:
-        static const int numberOfKeys = 48;
-        int keycodes[numberOfKeys];
+        int keycodes[NUMBER_OF_KEYS];
 
         int* keyboardState;
         int* keyboardStateInLastFrame;

@@ -11,7 +11,7 @@ VertexShader::~VertexShader()
 }
 
 VertexShader::VertexShader()
-:   Shader(Type::VertexShader)
+:   Shader(GL_VERTEX_SHADER)
 {
     // ...
 }
