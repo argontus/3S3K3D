@@ -1,11 +1,11 @@
 #version 150
 
-uniform mat4 modelViewMatrix;   // model to view transform
-uniform mat4 projectionMatrix;  // projection transform
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
 
-in vec3 coord;                  // vertex position in world space
+in vec3 position;   // vertex position in world space
 
 void main()
 {
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(coord, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * vec4(position, 1.0);
 }

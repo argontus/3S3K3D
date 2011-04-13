@@ -8,6 +8,7 @@
 
 #include <graphics/staticassert.h>
 
+// TODO: rename this to Color4 and implement a Color3 class
 /**
  * Represents an RGBA color. The components are stored as normalized floating
  * point values.

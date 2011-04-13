@@ -1,19 +1,19 @@
 #version 150
 
-uniform mat4 modelViewMatrix;   // model to view transform
-uniform mat4 projectionMatrix;  // projection transform
-uniform mat3 normalMatrix;      // model to view rotation
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat3 normalMatrix;
 
-in vec3 coord;                  // vertex coordinate in model space
-in vec3 normal;                 // vertex normal in model space
-in vec3 tangent;                // vertex tangent in model space
-in vec2 texCoord;               // vertex texture coordinate
+in vec3 coord;      // vertex position in model space
+in vec3 normal;     // vertex normal in model space
+in vec3 tangent;    // vertex tangent in model space
+in vec2 texCoord;   // vertex texture coordinate
 
-out vec3 coord_;                // fragment coordinate in view space
-out vec3 normal_;               // fragment normal in view space
-out vec3 tangent_;              // fragment tangent in view space
-out vec3 binormal_;             // fragment binormal in view space
-out vec2 texCoord_;             // fragment texture coordinate
+out vec3 coord_;    // fragment position in view space
+out vec3 normal_;   // fragment normal in view space
+out vec3 tangent_;  // fragment tangent in view space
+out vec3 binormal_; // fragment binormal in view space
+out vec2 texCoord_; // fragment texture coordinate
 
 void main()
 {

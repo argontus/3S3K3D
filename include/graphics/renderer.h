@@ -51,7 +51,8 @@ public:
      */
     Renderer();
 
-    // TODO: camera management, stencil state management, ...
+    // TODO: camera management, buffer clearing, shader uniform management,
+    // fill mode management, ...
 
     // there can be no active vertex buffer when this function is called
     // there can be no active textures when this function is called

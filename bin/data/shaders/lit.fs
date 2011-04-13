@@ -1,22 +1,22 @@
 #version 150
 
-uniform vec3 lightPosition;             // light positions in view space
-uniform vec3 lightColor;                // light colors
-uniform float lightRange;               // light ranges in world space
+uniform vec3 lightPosition;     // light positions in view space
+uniform vec3 lightColor;        // light colors
+uniform float lightRange;       // light ranges in world space
 
-uniform float specularExponent;         // specular exponent
+uniform float specularExponent; // specular exponent
 
-uniform sampler2D diffuseMap;           // diffuse map
-uniform sampler2D specularMap;          // specular map
-uniform sampler2D normalMap;            // normal map
+uniform sampler2D diffuseMap;   // diffuse map
+uniform sampler2D specularMap;  // specular map
+uniform sampler2D normalMap;    // normal map
 
-in vec3 coord_;                         // fragment coordinate in view space
-in vec3 normal_;                        // fragment normal in view space
-in vec3 tangent_;                       // fragment tangent in view space
-in vec3 binormal_;                      // fragment binormal in view space
-in vec2 texCoord_;                      // fragment texture coordinate
+in vec3 coord_;                 // fragment position in view space
+in vec3 normal_;                // fragment normal in view space
+in vec3 tangent_;               // fragment tangent in view space
+in vec3 binormal_;              // fragment binormal in view space
+in vec2 texCoord_;              // fragment texture coordinate
 
-out vec4 fragColor;                     // fragment color
+out vec4 fragColor;             // fragment color
 
 void main()
 {

@@ -419,7 +419,7 @@ void GameProgram::render()
     glUseProgram(drawParams.program->id());
 
     glUniformMatrix4fv(
-        glGetUniformLocation(drawParams.program->id(), "modelViewMatrix"),
+        glGetUniformLocation(drawParams.program->id(), "viewMatrix"),
         1,
         false,
         drawParams.viewMatrix.data()
@@ -456,8 +456,9 @@ void GameProgram::render()
                 continue;
             }
 
-            // not quite but close enough
-            const float infinity = 250.0f;
+            // not quite but close enoughfor this demo, increasing this will
+            // decrease fps
+            const float infinity = 150.0f;
 
             const Vector3 s0 = v0 + infinity * lightV0;
             const Vector3 s1 = v1 + infinity * lightV1;
@@ -480,12 +481,14 @@ void GameProgram::render()
                 v2, s0, v0
             };
 
-            const GLint coordLocation = glGetAttribLocation(drawParams.program->id(), "coord");
+            const GLint coordLocation = glGetAttribLocation(drawParams.program->id(), "position");
             glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords->data());
             glEnableVertexAttribArray(coordLocation);
 
-            // disable color and depth buffer writes
+            // disable color buffer writes
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+            // disable depth buffer writes
             glDepthMask(GL_FALSE);
 
             glEnable(GL_STENCIL_TEST);
@@ -515,7 +518,17 @@ void GameProgram::render()
             glDisable(GL_STENCIL_TEST);
             glDepthMask(GL_TRUE);
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
+/*
+            if (lightIndex == 0)
+            {
+                // render shadow volumes
+                glDisable(GL_CULL_FACE);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glDrawArrays(GL_TRIANGLES, 0, 24);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                glEnable(GL_CULL_FACE);
+            }
+*/
             glDisableVertexAttribArray(coordLocation);
         }
     }
@@ -563,11 +576,10 @@ void GameProgram::render()
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_ONE, GL_ONE);
 
-    // lit render pass, should be done for each light source
+    // lit render pass
     renderQueue.draw(drawParams);
 
     glDisable(GL_BLEND);
-
     glDisable(GL_STENCIL_TEST);
 
     litMaterial.unbind();
@@ -633,7 +645,7 @@ void GameProgram::render()
     renderer_.setDepthState(&depthState);
     renderer_.setTexture(0, textureManager_.getResource("particle"));
 
-    const GLint modelViewMatrixLocation = glGetUniformLocation(drawParams.program->id(), "modelViewMatrix");
+    const GLint modelViewMatrixLocation = glGetUniformLocation(drawParams.program->id(), "viewMatrix");
     const GLint projectionMatrixLocation = glGetUniformLocation(drawParams.program->id(), "projectionMatrix");
     glUniformMatrix4fv(modelViewMatrixLocation, 1, false, drawParams.viewMatrix.data());
     glUniformMatrix4fv(projectionMatrixLocation, 1, false, drawParams.projectionMatrix.data());
@@ -743,7 +755,7 @@ void GameProgram::drawExtents(const Node* node, const DrawParams& params)
 
     const Matrix4x4 mvpMatrix = params.viewMatrix * params.projectionMatrix;
 
-    const GLint mvpMatrixLocation = glGetUniformLocation(params.program->id(), "mvpMatrix");
+    const GLint mvpMatrixLocation = glGetUniformLocation(params.program->id(), "viewProjectionMatrix");
     glUniformMatrix4fv(mvpMatrixLocation, 1, false, mvpMatrix.data());
 
     renderer_.setVertexFormat(&vertexFormat);
