@@ -29,8 +29,10 @@ bool GameWindow::init()
     std::cout << "Initializing game engine...";
 
 	//TODO: read these from a configuration file.
-	width       = 1280; // 1280
-	height      = 800;  // 800
+	//width       = 1280;
+	//height      = 1024;
+	width       = 800;
+	height      = 600;
 	int flags   = SDL_HWACCEL | SDL_GL_DOUBLEBUFFER | SDL_OPENGL;
 
 	if( fullscreen )

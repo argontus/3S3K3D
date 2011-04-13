@@ -361,7 +361,7 @@ void GameProgram::render()
 
     Material unlitMaterial;
     unlitMaterial.setProgram(drawParams.program);
-    unlitMaterial.addVariable(new Vec3Variable("ambient", Vector3(0.15f, 0.15f, 0.15f)));
+    unlitMaterial.addVariable(new Vec3Variable("ambient", Vector3(0.0f, 0.0f, 0.0f)));
     unlitMaterial.addVariable(new Sampler2DVariable("diffuseMap", textureManager_.getResource("diffuse")));
     unlitMaterial.addVariable(new Sampler2DVariable("glowMap", textureManager_.getResource("glow")));
 
@@ -1035,8 +1035,8 @@ void GameProgram::test()
         }
     }
 
-    camera_->setTranslation(Vector3(0.0f, 0.0f, 50.0f));
-    camera_->setRotation(Matrix3x3::identity());
+    camera_->setTranslation(Vector3(150.0f, -75.0f, 0.0f));
+    camera_->setRotation(Matrix3x3::yRotation(Math::pi() / 2.0));
 }
 
 GameProgram::~GameProgram()

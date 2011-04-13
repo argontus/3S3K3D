@@ -49,9 +49,9 @@ void main()
     float distance = length(lightPosition - position_);
 
     // distance coefficient, between [0, 1]
-    float kDistance = max(lightRange - distance, 0.0) / lightRange;
+    float kDistance = 1 - (distance * distance) / (lightRange * lightRange);
 
-    // direction vector pointing from light source to the fragment
+    // direction vector pointing from fragment to the light source
     vec3 lightDirection = normalize(lightPosition - position_);
 
     // diffuse coefficient
@@ -64,23 +64,20 @@ void main()
     float kSpecular = max(0.0, dot(eyeDirection, reflection));
     kSpecular = pow(kSpecular, specularExponent);
 
-    // this is an attempt at fixing the shadow jumping problem
-    float kShadowFix = clamp(dot(lightDirection, n), 0.0, 1.0);
-    kShadowFix = pow(min(1.0, kShadowFix / 0.15), 2.0);
-    //kShadowFix = min(1.0, kShadowFix / 0.15);
+    const float correctionTreshold = 0.15;
+    float alpha = asin(clamp(dot(lightDirection, n), 0.0, 1.0));
 
-    color += kDistance * kShadowFix * (kDiffuse * diffuseColor.rgb + kSpecular * specularColor.rgb) * lightColor;
-    //color += kDistance * (kDiffuse * diffuseColor.rgb + kSpecular * specularColor.rgb) * lightColor;
-/*
-    if (kShadowFix < 1.0)
+    if (alpha < correctionTreshold)
     {
-        color += vec3(1.0 - kShadowFix, 0.0, 0.0);
+        float kShadowFix = (alpha * alpha) / (correctionTreshold * correctionTreshold);
+        color += kDistance * kShadowFix * (kDiffuse * diffuseColor.rgb + kSpecular * specularColor.rgb) * lightColor;
+        //color += vec3(1.0 - kShadowFix, 0.0, 0.0);
     }
     else
     {
         color += kDistance * (kDiffuse * diffuseColor.rgb + kSpecular * specularColor.rgb) * lightColor;
     }
-*/
+
     // force alpha component to diffuse color alpha component
     fragColor = vec4(color, diffuseColor.a);
 
