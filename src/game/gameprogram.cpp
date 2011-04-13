@@ -361,7 +361,7 @@ void GameProgram::render()
 
     Material unlitMaterial;
     unlitMaterial.setProgram(drawParams.program);
-    unlitMaterial.addVariable(new Vec3Variable("ambient", Vector3(0.1f, 0.1f, 0.1f)));
+    unlitMaterial.addVariable(new Vec3Variable("ambient", Vector3(0.15f, 0.15f, 0.15f)));
     unlitMaterial.addVariable(new Sampler2DVariable("diffuseMap", textureManager_.getResource("diffuse")));
     unlitMaterial.addVariable(new Sampler2DVariable("glowMap", textureManager_.getResource("glow")));
 
@@ -392,9 +392,9 @@ void GameProgram::render()
     };
 
     const float lightRanges[] = {
-        250.0f,
-        250.0f,
-        250.0f
+        200.0f,
+        200.0f,
+        200.0f
     };
 
     const int numLights = 3;
@@ -438,6 +438,7 @@ void GameProgram::render()
         drawParams.projectionMatrix.data()
     );
 
+    // TODO: this loop could use some optimization
     for (size_t i = 0; i < geometryNodes_.size(); ++i)
     {
         const Transform3 transform = geometryNodes_[i]->worldTransform();
@@ -445,31 +446,55 @@ void GameProgram::render()
 
         for (int iFace = 0; iFace < mesh->numFaces(); ++iFace)
         {
+            // TODO: this algorithm produces incorrect results when the light
+            // source is very close to the triangle, partition the triangle
+            // dynamically when the light source is close to the triangle?
+
             const Vector3 n = mesh->normals()[3 * iFace] * transform.rotation;
 
+            // vertex positions in world space
             Vector3 v0 = ::transform(mesh->vertices()[3 * iFace + 0], transform);
             Vector3 v1 = ::transform(mesh->vertices()[3 * iFace + 1], transform);
             Vector3 v2 = ::transform(mesh->vertices()[3 * iFace + 2], transform);
 
-            // TODO: these do not avoid division by zero
-            const Vector3 lightV0 = normalize(v0 - worldLightPositions[lightIndex]);
-            const Vector3 lightV1 = normalize(v1 - worldLightPositions[lightIndex]);
-            const Vector3 lightV2 = normalize(v2 - worldLightPositions[lightIndex]);
+            // vectors from light source to vertices
+            const Vector3 d0 = v0 - worldLightPositions[lightIndex];
+            const Vector3 d1 = v1 - worldLightPositions[lightIndex];
+            const Vector3 d2 = v2 - worldLightPositions[lightIndex];
 
-            // if the signs do not differ, this is not a front face
-            if (dot(lightV0, n) >= 0.0f)
+            const float length0 = length(d0);
+            const float length1 = length(d1);
+            const float length2 = length(d2);
+
+            // minimum distance from light source to the vertices
+            const float minDistance = Math::min(Math::min(length0, length1), length2);
+            const float projectionDistance = lightRanges[lightIndex] - minDistance;
+
+            if (projectionDistance <= 0.0f)
             {
+                // the triangle vertices are not within the light effect range,
+                // ignore it
                 continue;
             }
 
-            // not quite but close enoughfor this demo, increasing this will
-            // decrease fps
-            const float infinity = 150.0f;
+            // unit length direction vectors from light source to vertices
+            // TODO: these do not avoid division by zero
+            const Vector3 lightV0 = d0 / length0;
+            const Vector3 lightV1 = d1 / length1;
+            const Vector3 lightV2 = d2 / length2;
 
-            const Vector3 s0 = v0 + infinity * lightV0;
-            const Vector3 s1 = v1 + infinity * lightV1;
-            const Vector3 s2 = v2 + infinity * lightV2;
+            if (dot(lightV0, n) >= 0.0f)
+            {
+                // the signs do not differ, this is not a front facing triangle,
+                // ignore it
+                continue;
+            }
 
+            const Vector3 s0 = v0 + projectionDistance * lightV0;
+            const Vector3 s1 = v1 + projectionDistance * lightV1;
+            const Vector3 s2 = v2 + projectionDistance * lightV2;
+
+            // TODO: use OpenGL polygon offset instead of this
             const float offset = 0.1f;
 
             v0 = v0 + offset * lightV0;
