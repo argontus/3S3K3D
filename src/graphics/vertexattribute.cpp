@@ -10,7 +10,7 @@
 VertexAttribute::VertexAttribute()
 :   offset_(0),
     type_(Type::Float3),
-    usage_(Usage::Position)
+    usage_(Usage::Unused)
 {
     // ...
 }

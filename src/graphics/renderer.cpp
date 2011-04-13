@@ -496,8 +496,8 @@ void Renderer::renderPrimitives(
 
 GLenum Renderer::blendEquation(const BlendState::Equation::Enum equation)
 {
-    // TODO: use a lookup table or set enumeration values to corresponding
-    // OpenGL enumeration values?
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
 
     switch (equation)
     {
@@ -524,8 +524,8 @@ GLenum Renderer::blendEquation(const BlendState::Equation::Enum equation)
 
 GLenum Renderer::blendFunc(const BlendState::SrcFactor::Enum srcFactor)
 {
-    // TODO: use a lookup table or set enumeration values to corresponding
-    // OpenGL enumeration values?
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
 
     switch (srcFactor)
     {
@@ -582,8 +582,8 @@ GLenum Renderer::blendFunc(const BlendState::SrcFactor::Enum srcFactor)
 
 GLenum Renderer::blendFunc(const BlendState::DstFactor::Enum dstFactor)
 {
-    // TODO: use a lookup table or set enumeration values to corresponding
-    // OpenGL enumeration values?
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
 
     switch (dstFactor)
     {
@@ -637,8 +637,8 @@ GLenum Renderer::blendFunc(const BlendState::DstFactor::Enum dstFactor)
 
 GLenum Renderer::cullFace(const CullState::CullFace::Enum face)
 {
-    // TODO: use a lookup table or set enumeration values to corresponding
-    // OpenGL enumeration values?
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
 
     switch (face)
     {
@@ -656,8 +656,8 @@ GLenum Renderer::cullFace(const CullState::CullFace::Enum face)
 
 GLenum Renderer::depthFunc(const DepthState::CompareFunc::Enum compareFunc)
 {
-    // TODO: use a lookup table or set enumeration values to corresponding
-    // OpenGL enumeration values?
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
 
     switch (compareFunc)
     {
@@ -693,7 +693,7 @@ GLenum Renderer::depthFunc(const DepthState::CompareFunc::Enum compareFunc)
 
 GLenum Renderer::indexBufferType(const IndexBuffer::Format::Enum format)
 {
-    // TODO: use a lookup table?
+    // TODO: optimize by using a lookup table?
 
     switch (format)
     {
@@ -714,8 +714,8 @@ GLenum Renderer::indexBufferType(const IndexBuffer::Format::Enum format)
 
 GLenum Renderer::primitiveType(const PrimitiveType::Enum type)
 {
-    // TODO: use a lookup table or set enumeration values to corresponding
-    // OpenGL enumeration values?
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
 
     switch (type)
     {
@@ -736,8 +736,8 @@ GLenum Renderer::primitiveType(const PrimitiveType::Enum type)
 
 GLenum Renderer::stencilAction(const StencilState::Action::Enum action)
 {
-    // TODO: use a lookup table or set enumeration values to corresponding
-    // OpenGL enumeration values?
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
 
     switch (action)
     {
@@ -773,8 +773,8 @@ GLenum Renderer::stencilAction(const StencilState::Action::Enum action)
 
 GLenum Renderer::stencilFunc(const StencilState::CompareFunc::Enum compareFunc)
 {
-    // TODO: use a lookup table or set enumeration values to corresponding
-    // OpenGL enumeration values?
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
 
     switch (compareFunc)
     {
@@ -810,7 +810,7 @@ GLenum Renderer::stencilFunc(const StencilState::CompareFunc::Enum compareFunc)
 
 GLenum Renderer::vertexAttributeType(const VertexAttribute::Type::Enum type)
 {
-    // TODO: use a lookup table?
+    // TODO: optimize by using a lookup table?
 
     switch (type)
     {
@@ -838,24 +838,27 @@ void Renderer::bindVertexBuffer(VertexBuffer* const vertexBuffer)
     {
         const VertexAttribute& attribute = vertexFormat_->attribute(i);
 
-        // glGetAttribLocation returns -1 on error
-        const GLint location = glGetAttribLocation(
-            program_->id(),
-            attribute.name().c_str()
-        );
+        if (attribute.usage() != VertexAttribute::Usage::Unused)
+        {
+            // glGetAttribLocation returns -1 on error
+            const GLint location = glGetAttribLocation(
+                program_->id(),
+                attribute.name().c_str()
+            );
 
-        GRAPHICS_RUNTIME_ASSERT(location != -1);
+            GRAPHICS_RUNTIME_ASSERT(location != -1);
 
-        glVertexAttribPointer(
-            location,
-            attribute.numComponents(),
-            vertexAttributeType(attribute.type()),
-            false,
-            vertexFormat_->stride(),
-            reinterpret_cast<const GLvoid*>(attribute.offset())
-        );
+            glVertexAttribPointer(
+                location,
+                attribute.numComponents(),
+                vertexAttributeType(attribute.type()),
+                false,
+                vertexFormat_->stride(),
+                reinterpret_cast<const GLvoid*>(attribute.offset())
+            );
 
-        glEnableVertexAttribArray(location);
+            glEnableVertexAttribArray(location);
+        }
     }
 
     vertexBuffer_ = vertexBuffer;
@@ -871,13 +874,23 @@ void Renderer::unbindVertexBuffer()
     // disable all attribute arrays
     for (int i = 0; i < vertexFormat_->numAttributes(); ++i)
     {
-        // TODO: store the locations when binding the vertex buffer?
-        const GLint location = glGetAttribLocation(
-            program_->id(),
-            vertexFormat_->attribute(i).name().c_str()
-        );
+        const VertexAttribute& attribute = vertexFormat_->attribute(i);
 
-        glDisableVertexAttribArray(location);
+        if (attribute.usage() != VertexAttribute::Usage::Unused)
+        {
+            // TODO: optimize by storing the locations when binding the vertex
+            // buffer?
+
+            // glGetAttribLocation returns -1 on error
+            const GLint location = glGetAttribLocation(
+                program_->id(),
+                attribute.name().c_str()
+            );
+
+            GRAPHICS_RUNTIME_ASSERT(location != -1);
+
+            glDisableVertexAttribArray(location);
+        }
     }
 
     vertexBuffer_ = 0;

@@ -8,11 +8,20 @@
 
 #include <string>
 
+/**
+ * Describes a vertex attribute.
+ */
 class VertexAttribute
 {
 public:
+    /**
+     * Enumeration wrapper for possible vertex attribute types.
+     */
     struct Type
     {
+        /**
+         * Possible vertex attribute types.
+         */
         enum Enum
         {
             Float1,
@@ -24,11 +33,17 @@ public:
         };
     };
 
+    /**
+     * Enumeration wrapper for possible vertex attribute usage tags.
+     */
     struct Usage
     {
+        /**
+         * Possible vertex attribute usage tags.
+         */
         enum Enum
         {
-            // TODO: 'None' for padding/unused attributes?
+            Unused,
             Position,
             Normal,
             Tangent,
@@ -74,6 +89,7 @@ public:
     int size() const;
 
     // TODO: the return value could be const char*
+    // usage cannot be Usage::Unused
     const std::string name() const;
 
 private:
