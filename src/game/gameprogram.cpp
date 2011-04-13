@@ -28,6 +28,8 @@
 #include <graphics/sampler2dvariable.h>
 #include <graphics/vec3variable.h>
 
+#include <geometry/sphere.h>
+
 GameProgram::GameProgram()
 :   configuration(),
     mixer_(),
@@ -361,7 +363,7 @@ void GameProgram::render()
 
     Material unlitMaterial;
     unlitMaterial.setProgram(drawParams.program);
-    unlitMaterial.addVariable(new Vec3Variable("ambient", Vector3(0.0f, 0.0f, 0.0f)));
+    unlitMaterial.addVariable(new Vec3Variable("ambient", Vector3(0.1f, 0.1f, 0.1f)));
     unlitMaterial.addVariable(new Sampler2DVariable("diffuseMap", textureManager_.getResource("diffuse")));
     unlitMaterial.addVariable(new Sampler2DVariable("glowMap", textureManager_.getResource("glow")));
 
@@ -379,25 +381,33 @@ void GameProgram::render()
 
     // ...
 
+    const float step = Math::pi() * 2.0 / 5.0;
+
     Vector3 lightPositions[] = {
-        Vector3(150.0f * Math::cos(Math::radians(0.0f)), -75.0f, 150.0f * Math::sin(Math::radians(0.0f))),
-        Vector3(150.0f * Math::cos(Math::radians(120.0f)), 0.0f, 150.0f * Math::sin(Math::radians(120.0f))),
-        Vector3(150.0f * Math::cos(Math::radians(240.0f)), 75.0f, 150.0f * Math::sin(Math::radians(240.0f)))
+        Vector3(150.0f * Math::cos(0 * step), -75.0f, 150.0f * Math::sin(0 * step)),
+        Vector3(150.0f * Math::cos(1 * step), -37.5f, 150.0f * Math::sin(1 * step)),
+        Vector3(150.0f * Math::cos(2 * step),   0.0f, 150.0f * Math::sin(2 * step)),
+        Vector3(150.0f * Math::cos(3 * step),  37.5f, 150.0f * Math::sin(3 * step)),
+        Vector3(150.0f * Math::cos(4 * step),  75.0f, 150.0f * Math::sin(4 * step))
     };
 
     const Vector3 lightColors[] = {
-        Vector3(1.0f, 0.5f, 0.5f),
-        Vector3(0.5f, 1.0f, 0.5f),
-        Vector3(0.5f, 0.5f, 1.0f)
+        Vector3(1.00f, 0.25f, 0.25f),
+        Vector3(0.75f, 0.75f, 0.25f),
+        Vector3(0.25f, 1.00f, 0.25f),
+        Vector3(0.25f, 0.75f, 0.75f),
+        Vector3(0.25f, 0.25f, 1.00f)
     };
 
     const float lightRanges[] = {
-        200.0f,
-        200.0f,
-        200.0f
+        175.0f,
+        175.0f,
+        175.0f,
+        175.0f,
+        175.0f
     };
 
-    const int numLights = 3;
+    const int numLights = sizeof(lightPositions) / sizeof(lightPositions[0]);
 
     Vector3 worldLightPositions[numLights];
     Vector3 viewLightPositions[numLights];
@@ -416,6 +426,11 @@ void GameProgram::render()
     // for each light
     for (int lightIndex = 0; lightIndex < numLights; ++lightIndex)
     {
+
+    // light effect sphere
+    const Sphere effectSphere(worldLightPositions[lightIndex], lightRanges[lightIndex]);
+
+    // TODO: check if the light effect sphere intersects the view frustum
 
     glClear(GL_STENCIL_BUFFER_BIT);
 
@@ -441,6 +456,12 @@ void GameProgram::render()
     // TODO: this loop could use some optimization
     for (size_t i = 0; i < geometryNodes_.size(); ++i)
     {
+        if (intersect(geometryNodes_[i]->worldExtents(), effectSphere) == false)
+        {
+            // the geometry node is not within the light effect sphere, next
+            continue;
+        }
+
         const Transform3 transform = geometryNodes_[i]->worldTransform();
         const Mesh* mesh = static_cast<MeshNode*>(geometryNodes_[i])->mesh();
 
@@ -468,6 +489,9 @@ void GameProgram::render()
 
             // minimum distance from light source to the vertices
             const float minDistance = Math::min(Math::min(length0, length1), length2);
+
+            // TODO: looks ok in most cases but actually this is not enough,
+            // use some sort of additional value?
             const float projectionDistance = lightRanges[lightIndex] - minDistance;
 
             if (projectionDistance <= 0.0f)
@@ -608,7 +632,15 @@ void GameProgram::render()
     glBlendFunc(GL_ONE, GL_ONE);
 
     // lit render pass
-    renderQueue.draw(drawParams);
+    //renderQueue.draw(drawParams);
+    for (int i = 0; i < renderQueue.numGeometryNodes(); ++i)
+    {
+        // render only if the geometry node is within the light effect sphere
+        if (intersect(renderQueue.geometryNode(i)->worldExtents(), effectSphere))
+        {
+            renderQueue.geometryNode(i)->draw(drawParams);
+        }
+    }
 
     glDisable(GL_BLEND);
     glDisable(GL_STENCIL_TEST);
@@ -999,7 +1031,7 @@ void GameProgram::test()
     meshNode->setMesh(boxMesh);
     meshNode->updateModelExtents();
 
-    const int count = 6;
+    const int count = 8;
     //const float offset = 2.5f * scaling;
     const float offset = 2.5f * 15.0f;
     const float displacement = -(offset * (count - 1)) / 2.0f;
@@ -1035,8 +1067,10 @@ void GameProgram::test()
         }
     }
 
-    camera_->setTranslation(Vector3(150.0f, -75.0f, 0.0f));
-    camera_->setRotation(Matrix3x3::yRotation(Math::pi() / 2.0));
+    //camera_->setTranslation(Vector3(150.0f, -75.0f, 0.0f));
+    //camera_->setRotation(Matrix3x3::yRotation(Math::pi() / 2.0));
+    camera_->setTranslation(Vector3(0.0f, 0.0f, 150.0f));
+    camera_->setRotation(Matrix3x3::identity());
 }
 
 GameProgram::~GameProgram()

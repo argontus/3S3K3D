@@ -15,14 +15,6 @@ VertexAttribute::VertexAttribute()
     // ...
 }
 
-VertexAttribute::VertexAttribute(const Type::Enum type, const Usage::Enum usage)
-:   offset_(0),
-    type_(type),
-    usage_(usage)
-{
-    // ...
-}
-
 void VertexAttribute::setOffset(const int offset)
 {
     GRAPHICS_RUNTIME_ASSERT(offset >= 0);
@@ -56,7 +48,7 @@ VertexAttribute::Usage::Enum VertexAttribute::usage() const
 
 int VertexAttribute::numComponents() const
 {
-    // TODO: use a lookup table?
+    // TODO: optimize by using a lookup table?
 
     switch (type_)
     {
@@ -73,7 +65,7 @@ int VertexAttribute::numComponents() const
 
 int VertexAttribute::size() const
 {
-    // TODO: use a lookup table?
+    // TODO: optimize by using a lookup table?
 
     switch (type_)
     {
@@ -88,9 +80,9 @@ int VertexAttribute::size() const
     }
 }
 
-const std::string VertexAttribute::name() const
+const char* VertexAttribute::name() const
 {
-    // TODO: use a lookup table?
+    // TODO: optimize by using a lookup table?
 
     switch (usage_)
     {
@@ -104,6 +96,6 @@ const std::string VertexAttribute::name() const
 
         default:
             GRAPHICS_RUNTIME_ASSERT(false);
-            return "";
+            return 0;
     }
 }

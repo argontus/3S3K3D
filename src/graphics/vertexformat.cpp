@@ -26,7 +26,8 @@ void VertexFormat::setAttribute(
     const VertexAttribute::Usage::Enum usage)
 {
     GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < numAttributes_);
-    attributes_[index] = VertexAttribute(type, usage);
+    attributes_[index].setType(type);
+    attributes_[index].setUsage(usage);
 }
 
 const VertexAttribute& VertexFormat::attribute(const int index) const

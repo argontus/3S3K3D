@@ -6,8 +6,6 @@
 #ifndef GRAPHICS_VERTEXATTRIBUTE_H_INCLUDED
 #define GRAPHICS_VERTEXATTRIBUTE_H_INCLUDED
 
-#include <string>
-
 /**
  * Describes a vertex attribute.
  */
@@ -59,18 +57,51 @@ public:
     // compiler-generated destructor, copy constructor and assignment operator
     // are fine
 
+    /**
+     * Default constructor.
+     */
     VertexAttribute();
-    VertexAttribute(Type::Enum type, Usage::Enum usage);
 
-    // offset must be >= 0
+    /**
+     * Sets the attribute offset.
+     *
+     * @param offset Attribute offset in bytes, cannot be negative.
+     */
     void setOffset(int offset);
 
+    /**
+     * Gets the attribute offset.
+     *
+     * @return Attribute offset in bytes.
+     */
     int offset() const;
 
+    /**
+     * Sets the attribute type.
+     *
+     * @param type Attribute type.
+     */
     void setType(Type::Enum type);
+
+    /**
+     * Gets the attribute type.
+     *
+     * @return Attribute type.
+     */
     Type::Enum type() const;
 
+    /**
+     * Sets the attribute usage.
+     *
+     * @param usage Attribute usage.
+     */
     void setUsage(Usage::Enum usage);
+
+    /**
+     * Gets the attribute usage.
+     *
+     * @return Attribute usage.
+     */
     Usage::Enum usage() const;
 
     /**
@@ -88,9 +119,14 @@ public:
      */
     int size() const;
 
-    // TODO: the return value could be const char*
-    // usage cannot be Usage::Unused
-    const std::string name() const;
+    /**
+     * Gets the attribute name. Attribute name is the name of the corresponding
+     * GLSL vertex shader input parameter. The attribute usage cannot be
+     * <code>Usage::Unused</code> when this funtion is called.
+     *
+     * @return Attribute name.
+     */
+    const char* name() const;
 
 private:
     int offset_;        ///< Offset in bytes.

@@ -15,7 +15,7 @@ GameWindow::GameWindow()
    height(0),
    mouseVisible(false),
    mouseBoundToScreen(true),
-   fullscreen(false)
+   fullscreen(true)
 {
 }
 
@@ -29,10 +29,8 @@ bool GameWindow::init()
     std::cout << "Initializing game engine...";
 
 	//TODO: read these from a configuration file.
-	//width       = 1280;
-	//height      = 1024;
-	width       = 800;
-	height      = 600;
+	width       = 1280;
+	height      = 800;
 	int flags   = SDL_HWACCEL | SDL_GL_DOUBLEBUFFER | SDL_OPENGL;
 
 	if( fullscreen )

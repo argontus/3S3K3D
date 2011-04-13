@@ -843,7 +843,7 @@ void Renderer::bindVertexBuffer(VertexBuffer* const vertexBuffer)
             // glGetAttribLocation returns -1 on error
             const GLint location = glGetAttribLocation(
                 program_->id(),
-                attribute.name().c_str()
+                attribute.name()
             );
 
             GRAPHICS_RUNTIME_ASSERT(location != -1);
@@ -884,7 +884,7 @@ void Renderer::unbindVertexBuffer()
             // glGetAttribLocation returns -1 on error
             const GLint location = glGetAttribLocation(
                 program_->id(),
-                attribute.name().c_str()
+                attribute.name()
             );
 
             GRAPHICS_RUNTIME_ASSERT(location != -1);
