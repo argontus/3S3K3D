@@ -1,7 +1,7 @@
 #version 150
 
 // requires:
-// glEnable(GL_POINT_SPRITE)
+// glEnable(GL_POINT_SPRITE) (deprecated)
 // glEnable(GL_VERTEX_PROGRAM_POINT_SIZE)
 // glDepthMask(GL_FALSE)
 

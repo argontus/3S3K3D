@@ -10,7 +10,7 @@ uniform sampler2D diffuseMap;   // diffuse map
 uniform sampler2D specularMap;  // specular map
 uniform sampler2D normalMap;    // normal map
 
-in vec3 coord_;                 // fragment position in view space
+in vec3 position_;              // fragment position in view space
 in vec3 normal_;                // fragment normal in view space
 in vec3 tangent_;               // fragment tangent in view space
 in vec3 binormal_;              // fragment binormal in view space
@@ -43,16 +43,16 @@ void main()
 
     // unit vector pointing from fragment to view point, we are in view space,
     // so eye position is the origin
-    vec3 eyeDirection = normalize(-coord_);
+    vec3 eyeDirection = normalize(-position_);
 
     // distance between the light source and the fragment
-    float distance = length(lightPosition - coord_);
+    float distance = length(lightPosition - position_);
 
     // distance coefficient, between [0, 1]
     float kDistance = max(lightRange - distance, 0.0) / lightRange;
 
     // direction vector pointing from light source to the fragment
-    vec3 lightDirection = normalize(lightPosition - coord_);
+    vec3 lightDirection = normalize(lightPosition - position_);
 
     // diffuse coefficient
     float kDiffuse = clamp(dot(lightDirection, normal), 0.0, 1.0);
@@ -70,6 +70,7 @@ void main()
     //kShadowFix = min(1.0, kShadowFix / 0.15);
 
     color += kDistance * kShadowFix * (kDiffuse * diffuseColor.rgb + kSpecular * specularColor.rgb) * lightColor;
+    //color += kDistance * (kDiffuse * diffuseColor.rgb + kSpecular * specularColor.rgb) * lightColor;
 /*
     if (kShadowFix < 1.0)
     {

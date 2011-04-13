@@ -132,6 +132,7 @@ private:
     CameraNode* camera_;
     GroupNode* rootNode_;
     bool drawExtents_;
+    bool drawShadowVolumes_;
     bool diffuseMipmappingOn;
     bool glowMipmappingOn;
     bool normalMipmappingOn;

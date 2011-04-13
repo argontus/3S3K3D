@@ -37,6 +37,7 @@ GameProgram::GameProgram()
     camera_(0),
     rootNode_(0),
     drawExtents_(true),
+    drawShadowVolumes_(false),
     diffuseMipmappingOn(false),
     glowMipmappingOn(false),
     normalMipmappingOn(false),
@@ -205,6 +206,11 @@ int GameProgram::execute()
         if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F8 ) )
         {
             mouseBoundToScreen = !mouseBoundToScreen;
+        }
+
+        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F12 ) )
+        {
+            drawShadowVolumes_ = !drawShadowVolumes_;
         }
 
         // see keyboardcontroller.h for a TODO related to member 'speed'
@@ -518,8 +524,8 @@ void GameProgram::render()
             glDisable(GL_STENCIL_TEST);
             glDepthMask(GL_TRUE);
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-/*
-            if (lightIndex == 0)
+
+            if (drawShadowVolumes_ && lightIndex == 0)
             {
                 // render shadow volumes
                 glDisable(GL_CULL_FACE);
@@ -528,7 +534,7 @@ void GameProgram::render()
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 glEnable(GL_CULL_FACE);
             }
-*/
+
             glDisableVertexAttribArray(coordLocation);
         }
     }

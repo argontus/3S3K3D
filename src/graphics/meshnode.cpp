@@ -133,7 +133,7 @@ void MeshNode::draw(const DrawParams& params) const
         normalMatrix.data()
     );
 
-    const GLint coordLocation = glGetAttribLocation(params.program->id(), "coord");
+    const GLint coordLocation = glGetAttribLocation(params.program->id(), "position");
     glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords[0].data());
     glEnableVertexAttribArray(coordLocation);
 
