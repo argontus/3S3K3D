@@ -10,7 +10,7 @@
 VertexAttribute::VertexAttribute()
 :   offset_(0),
     type_(Type::Float3),
-    usage_(Usage::Coord)
+    usage_(Usage::Position)
 {
     // ...
 }
@@ -94,7 +94,7 @@ const std::string VertexAttribute::name() const
 
     switch (usage_)
     {
-        case Usage::Coord:      return "coord";
+        case Usage::Position:   return "position";
         case Usage::Normal:     return "normal";
         case Usage::Tangent:    return "tangent";
         case Usage::Binormal:   return "binormal";

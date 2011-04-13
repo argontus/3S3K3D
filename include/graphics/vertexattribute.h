@@ -29,7 +29,7 @@ public:
         enum Enum
         {
             // TODO: 'None' for padding/unused attributes?
-            Coord,
+            Position,
             Normal,
             Tangent,
             Binormal,

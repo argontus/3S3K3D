@@ -21,7 +21,6 @@ public:
         VertexAttribute::Type::Enum type,
         VertexAttribute::Usage::Enum usage);
 
-    VertexAttribute& attribute(int index);
     const VertexAttribute& attribute(int index) const;
 
     int numAttributes() const;

@@ -9,8 +9,6 @@
 
 #include <iostream>
 
-#include <graphics/opengl.h>
-
 // TODO: REALLY quick & dirty
 #include <geometry/math.h>
 #include <geometry/transform2.h>
@@ -29,10 +27,6 @@
 #include <graphics/floatvariable.h>
 #include <graphics/sampler2dvariable.h>
 #include <graphics/vec3variable.h>
-
-#include <graphics/indexbuffer.h>
-#include <graphics/vertexbuffer.h>
-#include <graphics/vertexformat.h>
 
 GameProgram::GameProgram()
 :   configuration(),
@@ -265,8 +259,6 @@ int GameProgram::execute()
 	return 0;
 }
 
-void drawExtents(const Node* node, const DrawParams& params);
-
 void GameProgram::render()
 {
     if( diffuseMipmappingOn )
@@ -318,13 +310,15 @@ void GameProgram::render()
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    glDepthRange(0.0f, 1.0f);
-    glClearDepth(1.0f);
+
+    // these are the defaults
+    //glDepthRange(0.0, 1.0);
+    //glClearDepth(1.0);
 
     glEnable(GL_CULL_FACE);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	//glClearColor(0.25f, 0.25f, 0.25f, 0.0f);
+	glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
@@ -380,17 +374,27 @@ void GameProgram::render()
     // ...
 
     Vector3 lightPositions[] = {
-//        Vector3(150.0f * Math::cos(Math::radians(0.0f)), 0.0f, 150.0f * Math::sin(Math::radians(0.0f))),
-//        Vector3(150.0f * Math::cos(Math::radians(120.0f)), 0.0f, 150.0f * Math::sin(Math::radians(120.0f))),
-//        Vector3(150.0f * Math::cos(Math::radians(240.0f)), 0.0f, 150.0f * Math::sin(Math::radians(240.0f)))
-        Vector3(150.0f * Math::cos(Math::radians(0.0f)), 0.0f, 150.0f * Math::sin(Math::radians(0.0f))),
-        Vector3(150.0f * Math::cos(Math::radians(90.0f)), 0.0f, 150.0f * Math::sin(Math::radians(90.0f))),
-        Vector3(150.0f * Math::cos(Math::radians(180.0f)), 0.0f, 150.0f * Math::sin(Math::radians(180.0f))),
-        Vector3(150.0f * Math::cos(Math::radians(270.0f)), 0.0f, 150.0f * Math::sin(Math::radians(270.0f)))
+        Vector3(150.0f * Math::cos(Math::radians(0.0f)), -75.0f, 150.0f * Math::sin(Math::radians(0.0f))),
+        Vector3(150.0f * Math::cos(Math::radians(120.0f)), 0.0f, 150.0f * Math::sin(Math::radians(120.0f))),
+        Vector3(150.0f * Math::cos(Math::radians(240.0f)), 75.0f, 150.0f * Math::sin(Math::radians(240.0f)))
     };
 
-    Vector3 worldLightPositions[4];
-    Vector3 viewLightPositions[4];
+    const Vector3 lightColors[] = {
+        Vector3(1.0f, 0.5f, 0.5f),
+        Vector3(0.5f, 1.0f, 0.5f),
+        Vector3(0.5f, 0.5f, 1.0f)
+    };
+
+    const float lightRanges[] = {
+        250.0f,
+        250.0f,
+        250.0f
+    };
+
+    const int numLights = 3;
+
+    Vector3 worldLightPositions[numLights];
+    Vector3 viewLightPositions[numLights];
 
     static float lightRotation = 0.0f;
 
@@ -400,26 +404,11 @@ void GameProgram::render()
         1.0f
     );
 
-    transform(lightPositions, lightPositions + 4, worldLightPositions, t);
-    transform(worldLightPositions, worldLightPositions + 4, viewLightPositions, inverse(camera_->worldTransform()));
-
-    const Vector3 lightColors[] = {
-        Vector3(1.0f, 0.5f, 0.5f),
-        Vector3(0.5f, 1.0f, 0.5f),
-        Vector3(0.5f, 0.5f, 1.0f),
-        Vector3(1.0f, 1.0f, 1.0f)
-    };
-
-    const float lightRanges[] = {
-        250.0f,
-        250.0f,
-        250.0f,
-        250.0f
-    };
+    transform(lightPositions, lightPositions + numLights, worldLightPositions, t);
+    transform(worldLightPositions, worldLightPositions + numLights, viewLightPositions, inverse(camera_->worldTransform()));
 
     // for each light
-    //for (int lightIndex = 0; lightIndex < 4; ++lightIndex)
-    for (int lightIndex = 0; lightIndex < 3; ++lightIndex)
+    for (int lightIndex = 0; lightIndex < numLights; ++lightIndex)
     {
 
     glClear(GL_STENCIL_BUFFER_BIT);
@@ -499,10 +488,8 @@ void GameProgram::render()
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
             glDepthMask(GL_FALSE);
 
-            //glDisable(GL_CULL_FACE);
-
             glEnable(GL_STENCIL_TEST);
-            glStencilFunc(GL_ALWAYS, 0x00, 0xFF);
+            glStencilFunc(GL_ALWAYS, 0, ~0);
 
             glStencilOpSeparate(
                 GL_BACK,    // set stencil settings for back-facing polygons
@@ -526,7 +513,6 @@ void GameProgram::render()
 
             // restore render state
             glDisable(GL_STENCIL_TEST);
-            //glEnable(GL_CULL_FACE);
             glDepthMask(GL_TRUE);
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
@@ -598,48 +584,31 @@ void GameProgram::render()
     drawParams.program = programManager_.load("data/shaders/particle.vs", "data/shaders/particle.fs");
 
     VertexFormat vertexFormat(3);
-    vertexFormat.setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Coord);
+    vertexFormat.setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
     vertexFormat.setAttribute(1, VertexAttribute::Type::Float4, VertexAttribute::Usage::Color);
     vertexFormat.setAttribute(2, VertexAttribute::Type::Float1, VertexAttribute::Usage::PointSize);
     vertexFormat.compile();
 
-    //const float pointSize = 8.75;
-    const float pointSize = 17.5;
+    float components[numLights * 8];
 
-    float components[] = {
-        worldLightPositions[0].x, worldLightPositions[0].y, worldLightPositions[0].z,
-        lightColors[0].x, lightColors[0].y, lightColors[0].z, 0.5f,
-        4.0f,
+    for (int i = 0; i < numLights; ++i)
+    {
+        float* const data = components + i * 8;
 
-        worldLightPositions[1].x, worldLightPositions[1].y, worldLightPositions[1].z,
-        lightColors[1].x, lightColors[1].y, lightColors[1].z, 0.5f,
-        4.0f,
+        // position
+        data[0] = worldLightPositions[i].x;
+        data[1] = worldLightPositions[i].y;
+        data[2] = worldLightPositions[i].z;
 
-        worldLightPositions[2].x, worldLightPositions[2].y, worldLightPositions[2].z,
-        lightColors[2].x, lightColors[2].y, lightColors[2].z, 0.5f,
-        4.0f,
-/*
-        25.0f, 0.0f, 0.0f,
-        1.0f, 1.0f, 0.5f, 0.25f,
-        pointSize,
+        // color
+        data[3] = lightColors[i].x;
+        data[4] = lightColors[i].y;
+        data[5] = lightColors[i].z;
+        data[6] = 1.0f;
 
-        50.0f, 0.0f, 0.0f,
-        1.0f, 0.75f, 0.375f, 0.225f,
-        pointSize,
-
-        0.0f, 0.0f, 0.0f,
-        1.0f, 0.5f, 0.25f, 0.20f,
-        pointSize,
-
-        -25.0f, 0.0f, 0.0f,
-        1.0f, 0.25f, 0.125f, 0.175f,
-        pointSize,
-
-        -50.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f, 0.15f,
-        pointSize
-*/
-    };
+        // size
+        data[7] = 4.0f;
+    }
 
     VertexBuffer vertexBuffer(
         sizeof(components) / (sizeof(float) * 8),
@@ -648,9 +617,20 @@ void GameProgram::render()
         VertexBuffer::Usage::Static
     );
 
+    BlendState blendState;
+    blendState.setEquation(BlendState::Equation::Add);
+    blendState.setSrcFactor(BlendState::SrcFactor::SrcAlpha);
+    blendState.setDstFactor(BlendState::DstFactor::One);
+
+    DepthState depthState;
+    depthState.writeEnabled = false;
+    depthState.compareFunc = DepthState::CompareFunc::Less;
+
     renderer_.setProgram(drawParams.program);
     renderer_.setVertexFormat(&vertexFormat);
     renderer_.setVertexBuffer(&vertexBuffer);
+    renderer_.setBlendState(&blendState);
+    renderer_.setDepthState(&depthState);
     renderer_.setTexture(0, textureManager_.getResource("particle"));
 
     const GLint modelViewMatrixLocation = glGetUniformLocation(drawParams.program->id(), "modelViewMatrix");
@@ -658,26 +638,31 @@ void GameProgram::render()
     glUniformMatrix4fv(modelViewMatrixLocation, 1, false, drawParams.viewMatrix.data());
     glUniformMatrix4fv(projectionMatrixLocation, 1, false, drawParams.projectionMatrix.data());
 
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    // TODO: this is deprecated
     glEnable(GL_POINT_SPRITE);
-    glEnable(GL_PROGRAM_POINT_SIZE);
-    glDepthMask(GL_FALSE);
+
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     renderer_.renderPrimitives(Renderer::PrimitiveType::Points);
 
-    glDepthMask(GL_TRUE);
+    // TODO: this is deprecated
     glDisable(GL_POINT_SPRITE);
-    glDisable(GL_PROGRAM_POINT_SIZE);
-    glDisable(GL_BLEND);
+
+    glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     renderer_.setTexture(0, 0);
+    renderer_.setDepthState(0);
+    renderer_.setBlendState(0);
     renderer_.setVertexBuffer(0);
     renderer_.setVertexFormat(0);
     renderer_.setProgram(0);
 
     // end of quick & dirty point sprite test
+
+    // needed because not all depth buffer test settings are managed using
+    // renderer_
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
 
     if (drawExtents_)
     {
@@ -711,7 +696,7 @@ void GameProgram::drawExtents(const Node* node, const DrawParams& params)
     const Vector3 max = extents.max;
 
     VertexFormat vertexFormat(1);
-    vertexFormat.setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Coord);
+    vertexFormat.setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
     vertexFormat.compile();
 
     const Vector3 vertices[] = {

@@ -29,12 +29,6 @@ void VertexFormat::setAttribute(
     attributes_[index] = VertexAttribute(type, usage);
 }
 
-VertexAttribute& VertexFormat::attribute(const int index)
-{
-    GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < numAttributes_);
-    return attributes_[index];
-}
-
 const VertexAttribute& VertexFormat::attribute(const int index) const
 {
     GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < numAttributes_);
