@@ -13,6 +13,7 @@
 class Vector3Array;
 
 class Mesh;
+class VertexBuffer;
 
 /**
  * Represents a triangle mesh.
@@ -59,6 +60,9 @@ public:
      */
     Mesh* mesh() const;
 
+    void setVertexBuffer(VertexBuffer* vertexBuffer);
+    VertexBuffer* vertexBuffer() const;
+
     /**
      * @name Node Interface
      */
@@ -99,7 +103,11 @@ private:
     mutable bool worldExtentsValid_;    ///< Are world extents valid?
     mutable Extents3 worldExtents_;     ///< World extents.
     Extents3 modelExtents_;             ///< Model extents.
+
+    // TODO: get rid of this
     Mesh* mesh_;                        ///< Mesh pointer.
+
+    VertexBuffer* vertexBuffer_;        ///< Vertex buffer.
 
     // hide the copy assignment operator
     MeshNode& operator =(const MeshNode&);

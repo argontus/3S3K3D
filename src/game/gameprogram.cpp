@@ -972,12 +972,21 @@ void GameProgram::test()
 
     const float scaling = 17.5f;
 
+    // TODO: quick & dirty
+    static VertexBuffer vertexBuffer(
+        boxMesh->numVertices(),
+        sizeof(Mesh::Vertex),
+        boxMesh->vertices(),
+        VertexBuffer::Usage::Static
+    );
+
     MeshNode* meshNode = new MeshNode();
     meshNode->setScaling(scaling);
     meshNode->setMesh(boxMesh);
+    meshNode->setVertexBuffer(&vertexBuffer);
     meshNode->updateModelExtents();
 
-    const int count = 8;
+    const int count = 10;
     //const float offset = 2.5f * scaling;
     const float offset = 2.5f * 15.0f;
     const float displacement = -(offset * (count - 1)) / 2.0f;

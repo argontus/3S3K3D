@@ -24,7 +24,8 @@ MeshNode::MeshNode()
     worldExtentsValid_(false),
     worldExtents_(),
     modelExtents_(),
-    mesh_(0)
+    mesh_(0),
+    vertexBuffer_(0)
 {
     // ...
 }
@@ -34,7 +35,8 @@ MeshNode::MeshNode(const MeshNode& other)
     worldExtentsValid_(false),
     worldExtents_(),
     modelExtents_(other.modelExtents_),
-    mesh_(other.mesh_)
+    mesh_(other.mesh_),
+    vertexBuffer_(other.vertexBuffer_)
 {
     // ...
 }
@@ -61,6 +63,16 @@ void MeshNode::setMesh(Mesh* const p)
 Mesh* MeshNode::mesh() const
 {
     return mesh_;
+}
+
+void MeshNode::setVertexBuffer(VertexBuffer* const vertexBuffer)
+{
+    vertexBuffer_ = vertexBuffer;
+}
+
+VertexBuffer* MeshNode::vertexBuffer() const
+{
+    return vertexBuffer_;
 }
 
 MeshNode* MeshNode::clone() const
@@ -102,7 +114,7 @@ void MeshNode::invalidateWorldTransform() const
 
 void MeshNode::draw(const DrawParams& params) const
 {
-    GRAPHICS_RUNTIME_ASSERT(mesh_ != 0);
+    GRAPHICS_RUNTIME_ASSERT(vertexBuffer_ != 0);
 
     // TODO: this whole function should be 3 lines of code and the 3rd line
     // could be omitted as an optimization
@@ -113,14 +125,7 @@ void MeshNode::draw(const DrawParams& params) const
 
     const int vertexStride = sizeof(Mesh::Vertex);
 
-    VertexBuffer vertexBuffer(
-        mesh_->numVertices(),
-        vertexStride,
-        mesh_->vertices(),
-        VertexBuffer::Usage::Static
-    );
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.id());
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer_->id());
 
     const Matrix4x4 modelViewMatrix = toMatrix4x4(transformByInverse(worldTransform(), params.cameraToWorld));
     const Matrix3x3 normalMatrix = worldTransform().rotation * params.worldToViewRotation;
@@ -167,7 +172,7 @@ void MeshNode::draw(const DrawParams& params) const
     glVertexAttribPointer(tangentLocation, 3, GL_FLOAT, false, vertexStride, tangentOffset);
     glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, vertexStride, texCoordOffset);
 
-    glDrawArrays(GL_TRIANGLES, 0, mesh_->numVertices());
+    glDrawArrays(GL_TRIANGLES, 0, vertexBuffer_->numElements());
 
     glDisableVertexAttribArray(positionLocation);
     glDisableVertexAttribArray(normalLocation);
