@@ -6,7 +6,7 @@
 #ifndef GRAPHICS_BLENDSTATE_H_INCLUDED
 #define GRAPHICS_BLENDSTATE_H_INCLUDED
 
-#include <graphics/color.h>
+#include <graphics/color4.h>
 
 /**
  * Describes a blending state.
@@ -136,7 +136,8 @@ public:
              */
             SrcAlphaSaturate
 
-            // TODO: this list is out of date for OpenGL 3.3
+            // TODO: this list is out of date for OpenGL 3.3, remember to
+            // update Renderer implementation if you add more values
         };
     };
 
@@ -220,7 +221,8 @@ public:
              */
             OneMinusConstantAlpha
 
-            // TODO: this list is out of date for OpenGL 3.3
+            // TODO: this list is out of date for OpenGL 3.3, remember to
+            // update Renderer implementation if you add more values
         };
     };
 
@@ -289,7 +291,7 @@ public:
     /**
      * Blend color.
      */
-    Color blendColor;
+    Color4 blendColor;
 };
 
 #endif // #ifndef GRAPHICS_BLENDSTATE_H_INCLUDED

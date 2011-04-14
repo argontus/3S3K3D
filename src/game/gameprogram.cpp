@@ -12,7 +12,8 @@
 // TODO: REALLY quick & dirty
 #include <geometry/math.h>
 #include <geometry/transform2.h>
-#include <graphics/color.h>
+#include <graphics/color3.h>
+#include <graphics/color4.h>
 #include <graphics/meshnode.h>
 #include <graphics/cameranode.h>
 #include <graphics/groupnode.h>
@@ -33,7 +34,7 @@
 GameProgram::GameProgram()
 :   configuration(),
     mixer_(),
-    renderer_(),
+    renderer_(0),
     ship(NULL),
     testObject(NULL),
     camera_(0),
@@ -65,7 +66,7 @@ int GameProgram::execute()
 	}
 
     glewInit();
-
+    renderer_ = new Renderer(width, height);
 
     // init textures
 
@@ -358,7 +359,7 @@ void GameProgram::render()
     drawParams.projectionMatrix = camera_->projectionMatrix();
     drawParams.worldToViewRotation = transpose(camera_->worldTransform().rotation);
     drawParams.cameraToWorld = camera_->worldTransform();
-    drawParams.renderer = &renderer_;
+    drawParams.renderer = renderer_;
 
     drawParams.program = programManager_.load("data/shaders/unlit.vs", "data/shaders/unlit.fs");
 
@@ -392,12 +393,12 @@ void GameProgram::render()
         Vector3(150.0f * Math::cos(4 * step),  75.0f, 150.0f * Math::sin(4 * step))
     };
 
-    const Vector3 lightColors[] = {
-        Vector3(1.00f, 0.25f, 0.25f),
-        Vector3(0.75f, 0.75f, 0.25f),
-        Vector3(0.25f, 1.00f, 0.25f),
-        Vector3(0.25f, 0.75f, 0.75f),
-        Vector3(0.25f, 0.25f, 1.00f)
+    const Color3 lightColors[] = {
+        Color3(1.00f, 0.25f, 0.25f),
+        Color3(0.75f, 0.75f, 0.25f),
+        Color3(0.25f, 1.00f, 0.25f),
+        Color3(0.25f, 0.75f, 0.75f),
+        Color3(0.25f, 0.25f, 1.00f)
     };
 
     const float lightRanges[] = {
@@ -682,9 +683,9 @@ void GameProgram::render()
         data[2] = worldLightPositions[i].z;
 
         // color
-        data[3] = lightColors[i].x;
-        data[4] = lightColors[i].y;
-        data[5] = lightColors[i].z;
+        data[3] = lightColors[i].r;
+        data[4] = lightColors[i].g;
+        data[5] = lightColors[i].b;
         data[6] = 1.0f;
 
         // size
@@ -707,12 +708,12 @@ void GameProgram::render()
     depthState.writeEnabled = false;
     depthState.compareFunc = DepthState::CompareFunc::Less;
 
-    renderer_.setProgram(drawParams.program);
-    renderer_.setVertexFormat(&vertexFormat);
-    renderer_.setVertexBuffer(&vertexBuffer);
-    renderer_.setBlendState(&blendState);
-    renderer_.setDepthState(&depthState);
-    renderer_.setTexture(0, textureManager_.getResource("particle"));
+    renderer_->setProgram(drawParams.program);
+    renderer_->setVertexFormat(&vertexFormat);
+    renderer_->setVertexBuffer(&vertexBuffer);
+    renderer_->setBlendState(&blendState);
+    renderer_->setDepthState(&depthState);
+    renderer_->setTexture(0, textureManager_.getResource("particle"));
 
     const GLint modelViewMatrixLocation = glGetUniformLocation(drawParams.program->id(), "viewMatrix");
     const GLint projectionMatrixLocation = glGetUniformLocation(drawParams.program->id(), "projectionMatrix");
@@ -724,19 +725,19 @@ void GameProgram::render()
 
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
-    renderer_.renderPrimitives(Renderer::PrimitiveType::Points);
+    renderer_->renderPrimitives(Renderer::PrimitiveType::Points);
 
     // TODO: this is deprecated
     glDisable(GL_POINT_SPRITE);
 
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
-    renderer_.setTexture(0, 0);
-    renderer_.setDepthState(0);
-    renderer_.setBlendState(0);
-    renderer_.setVertexBuffer(0);
-    renderer_.setVertexFormat(0);
-    renderer_.setProgram(0);
+    renderer_->setTexture(0, 0);
+    renderer_->setDepthState(0);
+    renderer_->setBlendState(0);
+    renderer_->setVertexBuffer(0);
+    renderer_->setVertexFormat(0);
+    renderer_->setProgram(0);
 
     // end of quick & dirty point sprite test
 
@@ -750,7 +751,7 @@ void GameProgram::render()
         glDepthFunc(GL_LEQUAL);
 
         drawParams.program = programManager_.load("data/shaders/extents.vs", "data/shaders/extents.fs");
-        renderer_.setProgram(drawParams.program);
+        renderer_->setProgram(drawParams.program);
 
         for (int i = 0; i < renderQueue.numGeometryNodes(); ++i)
         {
@@ -762,7 +763,7 @@ void GameProgram::render()
             drawExtents(renderQueue.groupNode(i), drawParams);
         }
 
-        renderer_.setProgram(0);
+        renderer_->setProgram(0);
     }
 
     SDL_GL_SwapBuffers();
@@ -827,15 +828,15 @@ void GameProgram::drawExtents(const Node* node, const DrawParams& params)
     const GLint mvpMatrixLocation = glGetUniformLocation(params.program->id(), "viewProjectionMatrix");
     glUniformMatrix4fv(mvpMatrixLocation, 1, false, mvpMatrix.data());
 
-    renderer_.setVertexFormat(&vertexFormat);
-    renderer_.setVertexBuffer(&vertexBuffer);
-    renderer_.setIndexBuffer(&indexBuffer);
+    renderer_->setVertexFormat(&vertexFormat);
+    renderer_->setVertexBuffer(&vertexBuffer);
+    renderer_->setIndexBuffer(&indexBuffer);
 
-    renderer_.renderPrimitives(Renderer::PrimitiveType::Lines);
+    renderer_->renderPrimitives(Renderer::PrimitiveType::Lines);
 
-    renderer_.setIndexBuffer(0);
-    renderer_.setVertexBuffer(0);
-    renderer_.setVertexFormat(0);
+    renderer_->setIndexBuffer(0);
+    renderer_->setVertexBuffer(0);
+    renderer_->setVertexFormat(0);
 }
 
 void GameProgram::tick( const float deltaTime )
@@ -1030,6 +1031,7 @@ void GameProgram::test()
 
 GameProgram::~GameProgram()
 {
+    delete renderer_;
     delete rootNode_;
     delete camera_;
 }

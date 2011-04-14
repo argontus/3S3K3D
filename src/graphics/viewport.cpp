@@ -31,12 +31,12 @@ const RectangleF Viewport::area() const
     return area_;
 }
 
-void Viewport::setClearColor(const Color& color)
+void Viewport::setClearColor(const Color4& color)
 {
     clearColor_ = clamp(color, 0.0f, 1.0f);
 }
 
-const Color Viewport::clearColor() const
+const Color4 Viewport::clearColor() const
 {
     return clearColor_;
 }

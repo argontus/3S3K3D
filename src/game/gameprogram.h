@@ -125,7 +125,7 @@ private:
 
 	Configuration configuration;
 	Mixer mixer_;
-	Renderer renderer_;
+	Renderer* renderer_;
 	Node* ship;
     GameObject* testObject;
     KeyboardController testController;

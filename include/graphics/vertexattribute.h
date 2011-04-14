@@ -27,7 +27,8 @@ public:
             Float3,
             Float4
 
-            // TODO: add more if needed
+            // TODO: add more if needed, remember to update Renderer
+            // implementation
         };
     };
 

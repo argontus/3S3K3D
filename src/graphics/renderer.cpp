@@ -7,18 +7,390 @@
 
 #include <cstring>
 
-#include <algorithm>
 #include <sstream>
 
 #include <graphics/runtimeassert.h>
+
+namespace {
+
+// TODO: move these to a separate compilation unit?
+
+/**
+ * Constructs the mask parameter for <code>glClear(GLbitfield)</code>
+ * indicating which buffers are to be cleared.
+ *
+ * @param color Clear color buffer?
+ * @param depth Clear depth buffer?
+ * @param stencil Clear stencil buffer?
+ *
+ * @return Mask parameter for <code>glClear(GLbitfield)</code> indicating
+ * which buffers are to be cleared.
+ */
+GLbitfield clearMask(const bool color, const bool depth, const bool stencil)
+{
+    GLbitfield mask = 0;
+
+    if (color)
+    {
+        mask |= GL_COLOR_BUFFER_BIT;
+    }
+
+    if (depth)
+    {
+        mask |= GL_DEPTH_BUFFER_BIT;
+    }
+
+    if (stencil)
+    {
+        mask |= GL_STENCIL_BUFFER_BIT;
+    }
+
+    return mask;
+}
+
+GLenum blendEquation(const BlendState::Equation::Enum equation)
+{
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
+
+    switch (equation)
+    {
+        case BlendState::Equation::Add:
+            return GL_FUNC_ADD;
+
+        case BlendState::Equation::Subtract:
+            return GL_FUNC_SUBTRACT;
+
+        case BlendState::Equation::ReverseSubtract:
+            return GL_FUNC_REVERSE_SUBTRACT;
+
+        case BlendState::Equation::Min:
+            return GL_MIN;
+
+        case BlendState::Equation::Max:
+            return GL_MAX;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            return 0;
+    }
+}
+
+GLenum blendFunc(const BlendState::SrcFactor::Enum srcFactor)
+{
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
+
+    switch (srcFactor)
+    {
+        case BlendState::SrcFactor::Zero:
+            return GL_ZERO;
+
+        case BlendState::SrcFactor::One:
+            return GL_ONE;
+
+        case BlendState::SrcFactor::SrcColor:
+            return GL_SRC_COLOR;
+
+        case BlendState::SrcFactor::OneMinusSrcColor:
+            return GL_ONE_MINUS_SRC_COLOR;
+
+        case BlendState::SrcFactor::DstColor:
+            return GL_DST_COLOR;
+
+        case BlendState::SrcFactor::OneMinusDstColor:
+            return GL_ONE_MINUS_DST_COLOR;
+
+        case BlendState::SrcFactor::SrcAlpha:
+            return GL_SRC_ALPHA;
+
+        case BlendState::SrcFactor::OneMinusSrcAlpha:
+            return GL_ONE_MINUS_SRC_ALPHA;
+
+        case BlendState::SrcFactor::DstAlpha:
+            return GL_DST_ALPHA;
+
+        case BlendState::SrcFactor::OneMinusDstAlpha:
+            return GL_ONE_MINUS_DST_ALPHA;
+
+        case BlendState::SrcFactor::ConstantColor:
+            return GL_CONSTANT_COLOR;
+
+        case BlendState::SrcFactor::OneMinusConstantColor:
+            return GL_ONE_MINUS_CONSTANT_COLOR;
+
+        case BlendState::SrcFactor::ConstantAlpha:
+            return GL_CONSTANT_ALPHA;
+
+        case BlendState::SrcFactor::OneMinusConstantAlpha:
+            return GL_ONE_MINUS_CONSTANT_ALPHA;
+
+        case BlendState::SrcFactor::SrcAlphaSaturate:
+            return GL_SRC_ALPHA_SATURATE;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            return 0;
+    }
+}
+
+GLenum blendFunc(const BlendState::DstFactor::Enum dstFactor)
+{
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
+
+    switch (dstFactor)
+    {
+        case BlendState::DstFactor::Zero:
+            return GL_ZERO;
+
+        case BlendState::DstFactor::One:
+            return GL_ONE;
+
+        case BlendState::DstFactor::SrcColor:
+            return GL_SRC_COLOR;
+
+        case BlendState::DstFactor::OneMinusSrcColor:
+            return GL_ONE_MINUS_SRC_COLOR;
+
+        case BlendState::DstFactor::DstColor:
+            return GL_DST_COLOR;
+
+        case BlendState::DstFactor::OneMinusDstColor:
+            return GL_ONE_MINUS_DST_COLOR;
+
+        case BlendState::DstFactor::SrcAlpha:
+            return GL_SRC_ALPHA;
+
+        case BlendState::DstFactor::OneMinusSrcAlpha:
+            return GL_ONE_MINUS_SRC_ALPHA;
+
+        case BlendState::DstFactor::DstAlpha:
+            return GL_DST_ALPHA;
+
+        case BlendState::DstFactor::OneMinusDstAlpha:
+            return GL_ONE_MINUS_DST_ALPHA;
+
+        case BlendState::DstFactor::ConstantColor:
+            return GL_CONSTANT_COLOR;
+
+        case BlendState::DstFactor::OneMinusConstantColor:
+            return GL_ONE_MINUS_CONSTANT_COLOR;
+
+        case BlendState::DstFactor::ConstantAlpha:
+            return GL_CONSTANT_ALPHA;
+
+        case BlendState::DstFactor::OneMinusConstantAlpha:
+            return GL_ONE_MINUS_CONSTANT_ALPHA;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            return 0;
+    }
+}
+
+GLenum cullFace(const CullState::CullFace::Enum face)
+{
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
+
+    switch (face)
+    {
+        case CullState::CullFace::Back:
+            return GL_BACK;
+
+        case CullState::CullFace::Front:
+            return GL_FRONT;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            return 0;
+    }
+}
+
+GLenum depthFunc(const DepthState::CompareFunc::Enum compareFunc)
+{
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
+
+    switch (compareFunc)
+    {
+        case DepthState::CompareFunc::Never:
+            return GL_NEVER;
+
+        case DepthState::CompareFunc::Less:
+            return GL_LESS;
+
+        case DepthState::CompareFunc::LessEqual:
+            return GL_LEQUAL;
+
+        case DepthState::CompareFunc::Equal:
+            return GL_EQUAL;
+
+        case DepthState::CompareFunc::Greater:
+            return GL_GREATER;
+
+        case DepthState::CompareFunc::GreaterEqual:
+            return GL_GEQUAL;
+
+        case DepthState::CompareFunc::NotEqual:
+            return GL_NOTEQUAL;
+
+        case DepthState::CompareFunc::Always:
+            return GL_ALWAYS;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            return 0;
+    }
+}
+
+GLenum indexBufferType(const IndexBuffer::Format::Enum format)
+{
+    // TODO: optimize by using a lookup table?
+
+    switch (format)
+    {
+        case IndexBuffer::Format::UnsignedByte:
+            return GL_UNSIGNED_BYTE;
+
+        case IndexBuffer::Format::UnsignedShort:
+            return GL_UNSIGNED_SHORT;
+
+        case IndexBuffer::Format::UnsignedInt:
+            return GL_UNSIGNED_INT;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            return 0;
+    }
+}
+
+GLenum primitiveType(const Renderer::PrimitiveType::Enum type)
+{
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
+
+    switch (type)
+    {
+        case Renderer::PrimitiveType::Points:
+            return GL_POINTS;
+
+        case Renderer::PrimitiveType::Lines:
+            return GL_LINES;
+
+        case Renderer::PrimitiveType::Triangles:
+            return GL_TRIANGLES;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            return 0;
+    }
+}
+
+GLenum stencilAction(const StencilState::Action::Enum action)
+{
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
+
+    switch (action)
+    {
+        case StencilState::Action::Keep:
+            return GL_KEEP;
+
+        case StencilState::Action::Zero:
+            return GL_ZERO;
+
+        case StencilState::Action::Replace:
+            return GL_REPLACE;
+
+        case StencilState::Action::Increment:
+            return GL_INCR;
+
+        case StencilState::Action::IncrementWrap:
+            return GL_INCR_WRAP;
+
+        case StencilState::Action::Decrement:
+            return GL_DECR;
+
+        case StencilState::Action::DecrementWrap:
+            return GL_DECR_WRAP;
+
+        case StencilState::Action::Invert:
+            return GL_INVERT;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            return 0;
+    }
+}
+
+GLenum stencilFunc(const StencilState::CompareFunc::Enum compareFunc)
+{
+    // TODO: optimize by using a lookup table or by setting the enumeration
+    // values to corresponding OpenGL enumeration values?
+
+    switch (compareFunc)
+    {
+        case StencilState::CompareFunc::Never:
+            return GL_NEVER;
+
+        case StencilState::CompareFunc::Less:
+            return GL_LESS;
+
+        case StencilState::CompareFunc::LessEqual:
+            return GL_LEQUAL;
+
+        case StencilState::CompareFunc::Equal:
+            return GL_EQUAL;
+
+        case StencilState::CompareFunc::Greater:
+            return GL_GREATER;
+
+        case StencilState::CompareFunc::GreaterEqual:
+            return GL_GEQUAL;
+
+        case StencilState::CompareFunc::NotEqual:
+            return GL_NOTEQUAL;
+
+        case StencilState::CompareFunc::Always:
+            return GL_ALWAYS;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            return 0;
+    }
+}
+
+GLenum vertexAttributeType(const VertexAttribute::Type::Enum type)
+{
+    // TODO: optimize by using a lookup table?
+
+    switch (type)
+    {
+        case VertexAttribute::Type::Float1:
+        case VertexAttribute::Type::Float2:
+        case VertexAttribute::Type::Float3:
+        case VertexAttribute::Type::Float4:
+            return GL_FLOAT;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            return 0;
+    }
+}
+
+} // namespace
 
 Renderer::~Renderer()
 {
     // ...
 }
 
-Renderer::Renderer()
-:   program_(0),
+Renderer::Renderer(const int width, const int height)
+:   defaultWidth_(width),
+    defaultHeight_(height),
+    program_(0),
     vertexFormat_(0),
     vertexBuffer_(0),
     indexBuffer_(0),
@@ -28,8 +400,25 @@ Renderer::Renderer()
     depthState_(0),
     stencilState_(0)
 {
+    GRAPHICS_RUNTIME_ASSERT(width > 0);
+    GRAPHICS_RUNTIME_ASSERT(height > 0);
+
     // set all texture pointers to null pointers
     std::memset(textures_, 0, sizeof(textures_));
+}
+
+int Renderer::width() const
+{
+    // TODO: should return the width of the active framebuffer, update this
+    // function if framebuffer management is added
+    return defaultWidth_;
+}
+
+int Renderer::height() const
+{
+    // TODO: should return the height of the active framebuffer, update this
+    // function if framebuffer management is added
+    return defaultHeight_;
 }
 
 void Renderer::setProgram(Program* const program)
@@ -419,6 +808,71 @@ void Renderer::setColorMask(
     glColorMask(r, g, b, a);
 }
 
+void Renderer::setClearColor(const Color4& clearColor)
+{
+    // glClearColor will silently clamp the parameters between [0, 1]
+    glClearColor(
+        clearColor.r,
+        clearColor.g,
+        clearColor.b,
+        clearColor.a
+    );
+}
+
+void Renderer::setClearDepth(const float clearDepth)
+{
+    // glClearDepth will silently clamp the parameter between [0, 1]
+    glClearDepth(clearDepth);
+}
+
+void Renderer::setClearStencil(const uint32_t clearStencil)
+{
+    // glClearStencil will silently mask the parameter with 2^m-1 where m is
+    // the number of bits in the stencil buffer
+    glClearStencil(clearStencil);
+}
+
+void Renderer::clearBuffers(
+    const bool color,
+    const bool depth,
+    const bool stencil)
+{
+    // glClear is affected by various settings, including the scissor test and
+    // the buffer writemasks. If a buffer is not present, then a glClear
+    // directed at that buffer has no effect.
+    glClear(clearMask(color, depth, stencil));
+}
+
+void Renderer::clearBuffers(
+    const bool color,
+    const bool depth,
+    const bool stencil,
+    const RectangleI& area)
+{
+    GRAPHICS_RUNTIME_ASSERT(area.x >= 0);
+    GRAPHICS_RUNTIME_ASSERT(area.y >= 0);
+    GRAPHICS_RUNTIME_ASSERT(area.width >= 0);
+    GRAPHICS_RUNTIME_ASSERT(area.height >= 0);
+    GRAPHICS_RUNTIME_ASSERT(area.x + area.width < width());
+    GRAPHICS_RUNTIME_ASSERT(area.y + area.height < height());
+
+    // TODO: this does not restore previous scissor state, update this function
+    // if scissor state management is added
+
+    glEnable(GL_SCISSOR_TEST);
+
+    // specify scissor rectangle, glClear will only affect pixels that lie
+    // within the scissor rectangle
+    glScissor(area.x, area.y, area.width, area.height);
+
+    // glClear is affected by various settings, including the scissor test and
+    // the buffer writemasks. If a buffer is not present, then a glClear
+    // directed at that buffer has no effect.
+    glClear(clearMask(color, depth, stencil));
+
+    glDisable(GL_SCISSOR_TEST);
+}
+
 void Renderer::renderPrimitives(const PrimitiveType::Enum type)
 {
     GRAPHICS_RUNTIME_ASSERT(program_ != 0);
@@ -491,338 +945,6 @@ void Renderer::renderPrimitives(
             offset,
             count
         );
-    }
-}
-
-GLenum Renderer::blendEquation(const BlendState::Equation::Enum equation)
-{
-    // TODO: optimize by using a lookup table or by setting the enumeration
-    // values to corresponding OpenGL enumeration values?
-
-    switch (equation)
-    {
-        case BlendState::Equation::Add:
-            return GL_FUNC_ADD;
-
-        case BlendState::Equation::Subtract:
-            return GL_FUNC_SUBTRACT;
-
-        case BlendState::Equation::ReverseSubtract:
-            return GL_FUNC_REVERSE_SUBTRACT;
-
-        case BlendState::Equation::Min:
-            return GL_MIN;
-
-        case BlendState::Equation::Max:
-            return GL_MAX;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return 0;
-    }
-}
-
-GLenum Renderer::blendFunc(const BlendState::SrcFactor::Enum srcFactor)
-{
-    // TODO: optimize by using a lookup table or by setting the enumeration
-    // values to corresponding OpenGL enumeration values?
-
-    switch (srcFactor)
-    {
-        case BlendState::SrcFactor::Zero:
-            return GL_ZERO;
-
-        case BlendState::SrcFactor::One:
-            return GL_ONE;
-
-        case BlendState::SrcFactor::SrcColor:
-            return GL_SRC_COLOR;
-
-        case BlendState::SrcFactor::OneMinusSrcColor:
-            return GL_ONE_MINUS_SRC_COLOR;
-
-        case BlendState::SrcFactor::DstColor:
-            return GL_DST_COLOR;
-
-        case BlendState::SrcFactor::OneMinusDstColor:
-            return GL_ONE_MINUS_DST_COLOR;
-
-        case BlendState::SrcFactor::SrcAlpha:
-            return GL_SRC_ALPHA;
-
-        case BlendState::SrcFactor::OneMinusSrcAlpha:
-            return GL_ONE_MINUS_SRC_ALPHA;
-
-        case BlendState::SrcFactor::DstAlpha:
-            return GL_DST_ALPHA;
-
-        case BlendState::SrcFactor::OneMinusDstAlpha:
-            return GL_ONE_MINUS_DST_ALPHA;
-
-        case BlendState::SrcFactor::ConstantColor:
-            return GL_CONSTANT_COLOR;
-
-        case BlendState::SrcFactor::OneMinusConstantColor:
-            return GL_ONE_MINUS_CONSTANT_COLOR;
-
-        case BlendState::SrcFactor::ConstantAlpha:
-            return GL_CONSTANT_ALPHA;
-
-        case BlendState::SrcFactor::OneMinusConstantAlpha:
-            return GL_ONE_MINUS_CONSTANT_ALPHA;
-
-        case BlendState::SrcFactor::SrcAlphaSaturate:
-            return GL_SRC_ALPHA_SATURATE;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return 0;
-    }
-}
-
-GLenum Renderer::blendFunc(const BlendState::DstFactor::Enum dstFactor)
-{
-    // TODO: optimize by using a lookup table or by setting the enumeration
-    // values to corresponding OpenGL enumeration values?
-
-    switch (dstFactor)
-    {
-        case BlendState::DstFactor::Zero:
-            return GL_ZERO;
-
-        case BlendState::DstFactor::One:
-            return GL_ONE;
-
-        case BlendState::DstFactor::SrcColor:
-            return GL_SRC_COLOR;
-
-        case BlendState::DstFactor::OneMinusSrcColor:
-            return GL_ONE_MINUS_SRC_COLOR;
-
-        case BlendState::DstFactor::DstColor:
-            return GL_DST_COLOR;
-
-        case BlendState::DstFactor::OneMinusDstColor:
-            return GL_ONE_MINUS_DST_COLOR;
-
-        case BlendState::DstFactor::SrcAlpha:
-            return GL_SRC_ALPHA;
-
-        case BlendState::DstFactor::OneMinusSrcAlpha:
-            return GL_ONE_MINUS_SRC_ALPHA;
-
-        case BlendState::DstFactor::DstAlpha:
-            return GL_DST_ALPHA;
-
-        case BlendState::DstFactor::OneMinusDstAlpha:
-            return GL_ONE_MINUS_DST_ALPHA;
-
-        case BlendState::DstFactor::ConstantColor:
-            return GL_CONSTANT_COLOR;
-
-        case BlendState::DstFactor::OneMinusConstantColor:
-            return GL_ONE_MINUS_CONSTANT_COLOR;
-
-        case BlendState::DstFactor::ConstantAlpha:
-            return GL_CONSTANT_ALPHA;
-
-        case BlendState::DstFactor::OneMinusConstantAlpha:
-            return GL_ONE_MINUS_CONSTANT_ALPHA;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return 0;
-    }
-}
-
-GLenum Renderer::cullFace(const CullState::CullFace::Enum face)
-{
-    // TODO: optimize by using a lookup table or by setting the enumeration
-    // values to corresponding OpenGL enumeration values?
-
-    switch (face)
-    {
-        case CullState::CullFace::Back:
-            return GL_BACK;
-
-        case CullState::CullFace::Front:
-            return GL_FRONT;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return 0;
-    }
-}
-
-GLenum Renderer::depthFunc(const DepthState::CompareFunc::Enum compareFunc)
-{
-    // TODO: optimize by using a lookup table or by setting the enumeration
-    // values to corresponding OpenGL enumeration values?
-
-    switch (compareFunc)
-    {
-        case DepthState::CompareFunc::Never:
-            return GL_NEVER;
-
-        case DepthState::CompareFunc::Less:
-            return GL_LESS;
-
-        case DepthState::CompareFunc::LessEqual:
-            return GL_LEQUAL;
-
-        case DepthState::CompareFunc::Equal:
-            return GL_EQUAL;
-
-        case DepthState::CompareFunc::Greater:
-            return GL_GREATER;
-
-        case DepthState::CompareFunc::GreaterEqual:
-            return GL_GEQUAL;
-
-        case DepthState::CompareFunc::NotEqual:
-            return GL_NOTEQUAL;
-
-        case DepthState::CompareFunc::Always:
-            return GL_ALWAYS;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return 0;
-    }
-}
-
-GLenum Renderer::indexBufferType(const IndexBuffer::Format::Enum format)
-{
-    // TODO: optimize by using a lookup table?
-
-    switch (format)
-    {
-        case IndexBuffer::Format::UnsignedByte:
-            return GL_UNSIGNED_BYTE;
-
-        case IndexBuffer::Format::UnsignedShort:
-            return GL_UNSIGNED_SHORT;
-
-        case IndexBuffer::Format::UnsignedInt:
-            return GL_UNSIGNED_INT;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return 0;
-    }
-}
-
-GLenum Renderer::primitiveType(const PrimitiveType::Enum type)
-{
-    // TODO: optimize by using a lookup table or by setting the enumeration
-    // values to corresponding OpenGL enumeration values?
-
-    switch (type)
-    {
-        case PrimitiveType::Points:
-            return GL_POINTS;
-
-        case PrimitiveType::Lines:
-            return GL_LINES;
-
-        case PrimitiveType::Triangles:
-            return GL_TRIANGLES;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return 0;
-    }
-}
-
-GLenum Renderer::stencilAction(const StencilState::Action::Enum action)
-{
-    // TODO: optimize by using a lookup table or by setting the enumeration
-    // values to corresponding OpenGL enumeration values?
-
-    switch (action)
-    {
-        case StencilState::Action::Keep:
-            return GL_KEEP;
-
-        case StencilState::Action::Zero:
-            return GL_ZERO;
-
-        case StencilState::Action::Replace:
-            return GL_REPLACE;
-
-        case StencilState::Action::Increment:
-            return GL_INCR;
-
-        case StencilState::Action::IncrementWrap:
-            return GL_INCR_WRAP;
-
-        case StencilState::Action::Decrement:
-            return GL_DECR;
-
-        case StencilState::Action::DecrementWrap:
-            return GL_DECR_WRAP;
-
-        case StencilState::Action::Invert:
-            return GL_INVERT;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return 0;
-    }
-}
-
-GLenum Renderer::stencilFunc(const StencilState::CompareFunc::Enum compareFunc)
-{
-    // TODO: optimize by using a lookup table or by setting the enumeration
-    // values to corresponding OpenGL enumeration values?
-
-    switch (compareFunc)
-    {
-        case StencilState::CompareFunc::Never:
-            return GL_NEVER;
-
-        case StencilState::CompareFunc::Less:
-            return GL_LESS;
-
-        case StencilState::CompareFunc::LessEqual:
-            return GL_LEQUAL;
-
-        case StencilState::CompareFunc::Equal:
-            return GL_EQUAL;
-
-        case StencilState::CompareFunc::Greater:
-            return GL_GREATER;
-
-        case StencilState::CompareFunc::GreaterEqual:
-            return GL_GEQUAL;
-
-        case StencilState::CompareFunc::NotEqual:
-            return GL_NOTEQUAL;
-
-        case StencilState::CompareFunc::Always:
-            return GL_ALWAYS;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return 0;
-    }
-}
-
-GLenum Renderer::vertexAttributeType(const VertexAttribute::Type::Enum type)
-{
-    // TODO: optimize by using a lookup table?
-
-    switch (type)
-    {
-        case VertexAttribute::Type::Float1:
-        case VertexAttribute::Type::Float2:
-        case VertexAttribute::Type::Float3:
-        case VertexAttribute::Type::Float4:
-            return GL_FLOAT;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return 0;
     }
 }
 

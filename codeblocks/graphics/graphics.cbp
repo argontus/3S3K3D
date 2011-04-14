@@ -39,7 +39,8 @@
 		</Compiler>
 		<Unit filename="..\..\include\graphics\blendstate.h" />
 		<Unit filename="..\..\include\graphics\cameranode.h" />
-		<Unit filename="..\..\include\graphics\color.h" />
+		<Unit filename="..\..\include\graphics\color3.h" />
+		<Unit filename="..\..\include\graphics\color4.h" />
 		<Unit filename="..\..\include\graphics\cullstate.h" />
 		<Unit filename="..\..\include\graphics\depthstate.h" />
 		<Unit filename="..\..\include\graphics\drawparams.h" />
@@ -59,6 +60,7 @@
 		<Unit filename="..\..\include\graphics\programmanager.h" />
 		<Unit filename="..\..\include\graphics\projectionsettings.h" />
 		<Unit filename="..\..\include\graphics\rectanglef.h" />
+		<Unit filename="..\..\include\graphics\rectanglei.h" />
 		<Unit filename="..\..\include\graphics\renderer.h" />
 		<Unit filename="..\..\include\graphics\renderqueue.h" />
 		<Unit filename="..\..\include\graphics\rendertarget.h" />
@@ -79,7 +81,8 @@
 		<Unit filename="..\..\include\graphics\visibilitytest.h" />
 		<Unit filename="..\..\src\graphics\blendstate.cpp" />
 		<Unit filename="..\..\src\graphics\cameranode.cpp" />
-		<Unit filename="..\..\src\graphics\color.cpp" />
+		<Unit filename="..\..\src\graphics\color3.cpp" />
+		<Unit filename="..\..\src\graphics\color4.cpp" />
 		<Unit filename="..\..\src\graphics\cullstate.cpp" />
 		<Unit filename="..\..\src\graphics\depthstate.cpp" />
 		<Unit filename="..\..\src\graphics\drawparams.cpp" />

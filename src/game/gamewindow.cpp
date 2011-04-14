@@ -77,7 +77,9 @@ void GameWindow::cleanup()
 
 void GameWindow::resizeWindow( const int width, const int height )
 {
+    // TODO: use Renderer instead of direct OpenGL calls
     glViewport( 0, 0, width, height );
+
     aspectRatio = (float)width/height;
     this->width = width;
     this->height = height;

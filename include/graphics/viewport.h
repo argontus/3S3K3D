@@ -6,7 +6,7 @@
 #ifndef GRAPHICS_VIEWPORT_H_INCLUDED
 #define GRAPHICS_VIEWPORT_H_INCLUDED
 
-#include <graphics/color.h>
+#include <graphics/color4.h>
 #include <graphics/rectanglef.h>
 
 class Camera;
@@ -47,14 +47,14 @@ public:
      * @param color Clear color to set, the components are automatically
      * clamped between [0, 1].
      */
-    void setClearColor(const Color& color);
+    void setClearColor(const Color4& color);
 
     /**
      * Gets the clear color.
      *
      * @return Clear color.
      */
-    const Color clearColor() const;
+    const Color4 clearColor() const;
 
     /**
      * Enables or disables automatic clearing of this viewport. If automatic
@@ -119,7 +119,7 @@ public:
 
 private:
     RectangleF area_;   ///< Viewport area in normalized device coordinates.
-    Color clearColor_;  ///< Clear color.
+    Color4 clearColor_; ///< Clear color.
     bool clearEnabled_; ///< Clear viewport before rendering?
     int zIndex_;        ///< Draw order index for depth sorting.
     Camera* camera_;    ///< Active camera.

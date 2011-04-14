@@ -6,6 +6,9 @@
 #ifndef GRAPHICS_RECTANGLEF_H_INCLUDED
 #define GRAPHICS_RECTANGLEF_H_INCLUDED
 
+/**
+ * Describes a rectange with <code>float</code> values.
+ */
 class RectangleF
 {
 public:
@@ -30,8 +33,8 @@ public:
         // ...
     }
 
-    float x;        ///< x-coordiate for the left border.
-    float y;        ///< y-coordiate for the bottom border.
+    float x;        ///< Minimum x coordinate within the rectangle.
+    float y;        ///< Minimum y coordinate within the rectangle.
     float width;    ///< Width.
     float height;   ///< Height.
 };
