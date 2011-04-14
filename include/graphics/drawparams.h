@@ -10,6 +10,7 @@
 #include <geometry/transform3.h>
 
 class Program;
+class Renderer;
 
 /**
  * Describes draw parameters.
@@ -17,24 +18,20 @@ class Program;
 class DrawParams
 {
 public:
-    // compiler-generated destructor, copy constructor and copy assignment
-    // operator are fine
+    // compiler-generated destructor, copy constructor and assignment operator
+    // are fine
 
     /**
      * Default constructor.
      */
     DrawParams();
 
-    /**
-     * Exchanges the contents of <code>*this</code> and <code>other</code>.
-     *
-     * @param other The object to swap contents with.
-     */
-    void swap(DrawParams& other);
-
+    // TODO: get rid of these
     Matrix4x4 viewMatrix;           ///< World to view transform matrix.
     Matrix4x4 projectionMatrix;     ///< Projection matrix.
     Matrix3x3 worldToViewRotation;  ///< World to view rotation matrix.
+
+    Renderer* renderer;
 
     // TODO: quick & dirty
     Program* program;

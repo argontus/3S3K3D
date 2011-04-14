@@ -6,17 +6,31 @@
 #ifndef GRAPHICS_MESH_H_INCLUDED
 #define GRAPHICS_MESH_H_INCLUDED
 
-#include <vector>
-
 #include <geometry/vector2.h>
 #include <geometry/vector3.h>
 
 /**
- * Represents a 3D triangle mesh.
+ * Represents a 3D triangle mesh. Assumes CCW vertex winding. Useful as a
+ * helper class in generating vertex data for vertex buffers.
  */
 class Mesh
 {
 public:
+    /**
+     * Describes a single vertex.
+     */
+    class Vertex
+    {
+    public:
+        // compiler-generated destructor, default constructor, copy constructor
+        // and assignment operator are fine
+
+        Vector3 position;   ///< Vertex position.
+        Vector3 normal;     ///< Vertex normal.
+        Vector3 tangent;    ///< Vertex tangent.
+        Vector2 texCoord;   ///< Vertex texture coordinate.
+    };
+
     /**
      * Destructor.
      */
@@ -30,145 +44,57 @@ public:
     explicit Mesh(int numFaces);
 
     /**
-     * Copy constructor.
+     * Gets a specified vertex.
      *
-     * @param other The object to copy.
+     * @param index Index of the vertex to return, must be between [0,
+     * <code>numVertices()</code>).
      */
-    Mesh(const Mesh& other);
+    Vertex& vertex(int index);
 
     /**
-     * Copy assignment operator.
+     * Provided for const-correctness.
      *
-     * @param other The object to assign to <code>*this</code>.
-     *
-     * @return Reference to <code>*this</code>.
+     * @see vertex(int)
      */
-    Mesh& operator =(const Mesh& other);
-
-    // TODO: this assumes CCW winding
-    /**
-     * Sets the vertices. The size of the given array must be a multiple of 3.
-     * If vertex data is updated, the normal and texture coordinate data must
-     * also be updated either by supplying the arrays or by generating them.
-     *
-     * @param vertices Vertex array to copy.
-     *
-     * @see setNormals(const Vector3Array&)
-     * @see setTexCoords(const Vector2Array&)
-     * @see generateFlatNormals()
-     * @see generateSmoothNormals()
-     */
-    void setVertices(const std::vector<Vector3>& vertices);
+    const Vertex& vertex(int index) const;
 
     /**
-     * Gets the vertices.
+     * Gets a pointer to the stored vertices.
      *
-     * @return Vertices.
+     * @return Pointer to the stored vertices.
      */
-    std::vector<Vector3>& vertices();
+    Vertex* vertices();
 
     /**
      * Provided for const-correctness.
      *
      * @see vertices()
      */
-    const std::vector<Vector3>& vertices() const;
+    const Vertex* vertices() const;
 
     /**
-     * Sets the vertex normals. The size of the given array must be a multiple
-     * of 3 and should match the vertex array size.
+     * Gets the number of faces.
      *
-     * @param normals Vertex normal array to copy.
-     */
-    void setNormals(const std::vector<Vector3>& normals);
-
-    /**
-     * Gets the vertex normals.
-     *
-     * @return Vertex normals.
-     */
-    std::vector<Vector3>& normals();
-
-    /**
-     * Provided for const-correctness.
-     *
-     * @see normals()
-     */
-    const std::vector<Vector3>& normals() const;
-
-    /**
-     * Sets the vertex tangents. The size of the given array must be a multiple
-     * of 3 and should match the vertex array size.
-     *
-     * @param tangents Vertex tangent array to copy.
-     */
-    void setTangents(const std::vector<Vector3>& tangents);
-
-    /**
-     * Gets the vertex tangents.
-     *
-     * @return Vertex tangents.
-     */
-    std::vector<Vector3>& tangents();
-
-    /**
-     * Provided for const-correctness.
-     *
-     * @see tangents()
-     */
-    const std::vector<Vector3>& tangents() const;
-
-    /**
-     * Sets the vertex texture coordinates. The size of the given array must be
-     * a multiple of 3 and should match the vertex array size.
-     *
-     * @param texCoords Vertex texture coordinate array to copy.
-     */
-    void setTexCoords(const std::vector<Vector2>& texCoords);
-
-    /**
-     * Gets the vertex texture coordinates.
-     *
-     * @return Vertex texture coordinates.
-     */
-    std::vector<Vector2>& texCoords();
-
-    /**
-     * Provided for const-correctness.
-     *
-     * @see texCoords()
-     */
-    const std::vector<Vector2>& texCoords() const;
-
-    /**
-     * Gets the number of faces in this mesh.
-     *
-     * @return Number of faces in this mesh.
+     * @return Number of faces.
      */
     int numFaces() const;
 
-    // TODO: generates tangents, update documentation
     /**
-     * Generates the vertex normals from vertex data. The generated vertex
-     * normals are calculated from face normals without interpolation. This
-     * generation method produces flat surface lighting.
-     */
-    void generateFlatNormals();
-
-    // TODO: is this needed?
-    /**
-     * Generates the vertex normals from vertex data. The generated vertex
-     * normals are calculated by interpolating the normals of adjecent faces.
-     * This generation method produces smooth surface lighting.
-     */
-    void generateSmoothNormals();
-
-    /**
-     * Exchanges the contents of <code>*this</code> and <code>other</code>.
+     * Gets the number of vertices.
      *
-     * @param other The object to swap contents with.
+     * @return Number of vertices.
      */
-    void swap(Mesh& other);
+    int numVertices() const;
+
+    /**
+     * Generates the vertex normals and tangents from vertex data. The
+     * generated vertex normals are calculated from face normals without
+     * interpolation. This generation method produces flat surface lighting.
+     * The tangents are generated from face normals and texture coordinates to
+     * ensure that tangents are defined consistently. Inconsistently defined
+     * tangents could lead to large lighting errors.
+     */
+    void generateNormalsAndTangents();
 
 private:
     /**
@@ -176,17 +102,20 @@ private:
      * calculated due to invalid vertex data or floating point precision
      * errors, the return value is <code>Vector3(1.0f, 0.0f, 0.0f)</code>.
      *
-     * @param index Index of the face whose normal is to be calculated.
+     * @param index Index of the face whose normal is to be calculated, must be
+     * between [0, <code>numFaces()</code>).
      *
      * @return The calculated face normal.
      */
     const Vector3 faceNormal(int index) const;
 
-    // TODO: VBOs
-    std::vector<Vector3> vertices_;     ///< Vertex coordinates.
-    std::vector<Vector3> normals_;      ///< Vertex normals.
-    std::vector<Vector3> tangents_;     ///< Vertex tangents for normal mapping.
-    std::vector<Vector2> texCoords_;    ///< Vertex texture coordinates.
+    Vertex* vertices_;  ///< Vertices.
+    int numFaces_;      ///< Number of faces.
+    int numVertices_;   ///< Number of vertices.
+
+    // prevent copying
+    Mesh(const Mesh&);
+    Mesh& operator =(const Mesh&);
 };
 
 #endif // #ifndef GRAPHICS_MESH_H_INCLUDED

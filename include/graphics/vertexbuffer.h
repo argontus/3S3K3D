@@ -8,6 +8,9 @@
 
 #include <graphics/opengl.h>
 
+// TODO: this class has a lot in common with IndexBuffer, move common
+// implementation to a base class?
+// TODO: comments
 class VertexBuffer
 {
 public:

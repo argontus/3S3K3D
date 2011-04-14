@@ -45,7 +45,6 @@ public:
             Position,
             Normal,
             Tangent,
-            Binormal,
             PointSize,
             TexCoord,
             Color

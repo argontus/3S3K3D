@@ -11,169 +11,85 @@
 
 Mesh::~Mesh()
 {
-    // ...
+    delete [] vertices_;
 }
 
 Mesh::Mesh(const int numFaces)
-:   vertices_(numFaces * 3),
-    normals_(numFaces * 3),
-    tangents_(numFaces * 3),
-    texCoords_(numFaces * 3)
+:   vertices_(0),
+    numFaces_(numFaces),
+    numVertices_(3 * numFaces)
 {
-    // ...
+    GRAPHICS_RUNTIME_ASSERT(numFaces > 0);
+    vertices_ = new Vertex[numVertices_];
 }
 
-Mesh::Mesh(const Mesh& other)
-:   vertices_(other.vertices_),
-    normals_(other.normals_),
-    tangents_(other.tangents_),
-    texCoords_(other.texCoords_)
+Mesh::Vertex& Mesh::vertex(const int index)
 {
-    // ...
+    GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < numVertices_);
+    return vertices_[index];
 }
 
-Mesh& Mesh::operator =(const Mesh& other)
+const Mesh::Vertex& Mesh::vertex(const int index) const
 {
-    Mesh(other).swap(*this);
-    return *this;
+    GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < numVertices_);
+    return vertices_[index];
 }
 
-void Mesh::setVertices(const std::vector<Vector3>& vertices)
-{
-    GRAPHICS_RUNTIME_ASSERT(vertices.size() % 3 == 0);
-    vertices_ = vertices;
-}
-
-std::vector<Vector3>& Mesh::vertices()
+Mesh::Vertex* Mesh::vertices()
 {
     return vertices_;
 }
 
-const std::vector<Vector3>& Mesh::vertices() const
+const Mesh::Vertex* Mesh::vertices() const
 {
     return vertices_;
-}
-
-void Mesh::setNormals(const std::vector<Vector3>& normals)
-{
-    GRAPHICS_RUNTIME_ASSERT(normals.size() % 3 == 0);
-    normals_ = normals;
-}
-
-std::vector<Vector3>& Mesh::normals()
-{
-    return normals_;
-}
-
-const std::vector<Vector3>& Mesh::normals() const
-{
-    return normals_;
-}
-
-void Mesh::setTangents(const std::vector<Vector3>& tangents)
-{
-    GRAPHICS_RUNTIME_ASSERT(tangents.size() % 3 == 0);
-    tangents_ = tangents;
-}
-
-std::vector<Vector3>& Mesh::tangents()
-{
-    return tangents_;
-}
-
-const std::vector<Vector3>& Mesh::tangents() const
-{
-    return tangents_;
-}
-
-void Mesh::setTexCoords(const std::vector<Vector2>& texCoords)
-{
-    GRAPHICS_RUNTIME_ASSERT(texCoords.size() % 3 == 0);
-    texCoords_ = texCoords;
-}
-
-std::vector<Vector2>& Mesh::texCoords()
-{
-    return texCoords_;
-}
-
-const std::vector<Vector2>& Mesh::texCoords() const
-{
-    return texCoords_;
 }
 
 int Mesh::numFaces() const
 {
-    GRAPHICS_RUNTIME_ASSERT(vertices_.size() % 3 == 0);
-    return vertices_.size() / 3;
+    return numFaces_;
 }
 
-void Mesh::generateFlatNormals()
+int Mesh::numVertices() const
 {
-    if (vertices_.size() != normals_.size())
-    {
-        normals_.resize(vertices_.size());
-    }
+    return numVertices_;
+}
 
-    GRAPHICS_RUNTIME_ASSERT(vertices_.size() == normals_.size());
-    GRAPHICS_RUNTIME_ASSERT(vertices_.size() % 3 == 0);
-
+void Mesh::generateNormalsAndTangents()
+{
     // for each face
-    for (int i = 0; i < numFaces(); ++i)
+    for (int i = 0; i < numFaces_; ++i)
     {
-        const Vector3 v0 = vertices_[i * 3 + 0];
-        const Vector3 v1 = vertices_[i * 3 + 1];
+        Vertex& v0 = vertices_[i * 3 + 0];
+        Vertex& v1 = vertices_[i * 3 + 1];
+        Vertex& v2 = vertices_[i * 3 + 2];
 
-        const Vector2 t0 = texCoords_[i * 3 + 0];
-        const Vector2 t1 = texCoords_[i * 3 + 1];
+        const Vector3 dPosition = v1.position - v0.position;
+        const Vector2 dTexCoord = v1.texCoord - v0.texCoord;
 
-        Vector2 t0t1 = t1 - t0;
+        // texture coordinate delta direction
+        const float d = angle(dTexCoord);
 
-        const float tCoordAngle = angle(t0t1);
-
-        // normal
+        // unit length normal vector
         const Vector3 n = faceNormal(i);
 
-        // normalized tangent vector
-        Vector3 t = normalize(v1 - v0);
+        // unit length tangent vector aligned with the horizontal texture
+        // coordinate axis
+        const Vector3 t = normalize(dPosition * Matrix3x3::rotation(n, -d));
 
-        // align tangent with the horizontal texture axis
-        t = normalize(t * Matrix3x3::rotation(n, -tCoordAngle));
-
-        normals_[i * 3 + 0] =
-        normals_[i * 3 + 1] =
-        normals_[i * 3 + 2] = n;
-
-        tangents_[i * 3 + 0] =
-        tangents_[i * 3 + 1] =
-        tangents_[i * 3 + 2] = t;
+        v0.normal = v1.normal = v2.normal = n;
+        v0.tangent = v1.tangent = v2.tangent = t;
     }
-}
-
-void Mesh::generateSmoothNormals()
-{
-    // TODO: ...
-}
-
-void Mesh::swap(Mesh& other)
-{
-    vertices_.swap(other.vertices_);
-    normals_.swap(other.normals_);
-    tangents_.swap(other.tangents_);
-    texCoords_.swap(other.texCoords_);
 }
 
 const Vector3 Mesh::faceNormal(const int index) const
 {
-    GRAPHICS_RUNTIME_ASSERT(index >= 0 && static_cast<size_t>(index) < vertices_.size());
-    GRAPHICS_RUNTIME_ASSERT(vertices_.size() % 3 == 0);
+    GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < numFaces_);
 
-    // face vertices, assume CCW winding
-    const Vector3 v0 = vertices_[index * 3 + 0];
-    const Vector3 v1 = vertices_[index * 3 + 1];
-    const Vector3 v2 = vertices_[index * 3 + 2];
+    // vertex positions for the specified face, assume CCW winding
+    const Vector3 p0 = vertices_[index * 3 + 0].position;
+    const Vector3 p1 = vertices_[index * 3 + 1].position;
+    const Vector3 p2 = vertices_[index * 3 + 2].position;
 
-    // TODO: suffers from loss of precision, use 64-bit precision for
-    // calculating the normal vector?
-    return normalize(cross(v1 - v0, v2 - v0));
+    return normalize(cross(p1 - p0, p2 - p0));
 }

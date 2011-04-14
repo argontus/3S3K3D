@@ -89,7 +89,6 @@ const char* VertexAttribute::name() const
         case Usage::Position:   return "position";
         case Usage::Normal:     return "normal";
         case Usage::Tangent:    return "tangent";
-        case Usage::Binormal:   return "binormal";
         case Usage::PointSize:  return "pointSize";
         case Usage::TexCoord:   return "texCoord";
         case Usage::Color:      return "color";

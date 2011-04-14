@@ -116,9 +116,7 @@ void Renderer::setIndexBuffer(IndexBuffer* const indexBuffer)
         return;
     }
 
-    indexBuffer_ = indexBuffer;
-
-    if (indexBuffer_ == 0)
+    if (indexBuffer == 0)
     {
         // unbind the active index buffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -126,9 +124,11 @@ void Renderer::setIndexBuffer(IndexBuffer* const indexBuffer)
     else
     {
         // bind the given index buffer and update element type
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer_->id());
-        indexBufferType_ = indexBufferType(indexBuffer_->format());
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer->id());
+        indexBufferType_ = indexBufferType(indexBuffer->format());
     }
+
+    indexBuffer_ = indexBuffer;
 }
 
 IndexBuffer* Renderer::indexBuffer() const
@@ -339,8 +339,6 @@ void Renderer::setTexture(const int index, Texture* const texture)
         return;
     }
 
-    textures_[index] = texture;
-
     if (texture == 0)
     {
         // disable the texture unit
@@ -370,6 +368,8 @@ void Renderer::setTexture(const int index, Texture* const texture)
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, texture->getTextureHandle());
     }
+
+    textures_[index] = texture;
 }
 
 Texture* Renderer::texture(const int index) const
@@ -387,8 +387,8 @@ int Renderer::numTextureUnits() const
     glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &b);
 
     // OpenGL specification says that the number of texture units must be at
-    // least 2. The implementation assumes that the number of texture units is
-    // at most MaxTextureUnits.
+    // least 2. Renderer implementation assumes that the number of texture
+    // units is at most MaxTextureUnits.
     GRAPHICS_RUNTIME_ASSERT(std::max(a, b) >= 2);
     GRAPHICS_RUNTIME_ASSERT(std::max(a, b) <= MaxTextureUnits);
 
@@ -828,6 +828,7 @@ GLenum Renderer::vertexAttributeType(const VertexAttribute::Type::Enum type)
 
 void Renderer::bindVertexBuffer(VertexBuffer* const vertexBuffer)
 {
+    // this function assumes that there is no active vertex buffer
     GRAPHICS_RUNTIME_ASSERT(vertexBuffer_ == 0);
 
     // bind the given vertex buffer
@@ -866,6 +867,7 @@ void Renderer::bindVertexBuffer(VertexBuffer* const vertexBuffer)
 
 void Renderer::unbindVertexBuffer()
 {
+    // this function assumes that there is an active vertex buffer
     GRAPHICS_RUNTIME_ASSERT(vertexBuffer_ != 0);
 
     // unbind the active vertex buffer

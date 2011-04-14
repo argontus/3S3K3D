@@ -314,7 +314,7 @@ void GameProgram::render()
         textureManager_.getResource("diffuse")->disableAnisotropicFiltering();
     }
 
-
+    // TODO: get rid of all direct OpenGL calls
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -358,6 +358,7 @@ void GameProgram::render()
     drawParams.projectionMatrix = camera_->projectionMatrix();
     drawParams.worldToViewRotation = transpose(camera_->worldTransform().rotation);
     drawParams.cameraToWorld = camera_->worldTransform();
+    drawParams.renderer = &renderer_;
 
     drawParams.program = programManager_.load("data/shaders/unlit.vs", "data/shaders/unlit.fs");
 
@@ -471,17 +472,21 @@ void GameProgram::render()
             // source is very close to the triangle, partition the triangle
             // dynamically when the light source is close to the triangle?
 
-            const Vector3 n = mesh->normals()[3 * iFace] * transform.rotation;
+            const Mesh::Vertex& vertex0 = mesh->vertex(3 * iFace + 0);
+            const Mesh::Vertex& vertex1 = mesh->vertex(3 * iFace + 1);
+            const Mesh::Vertex& vertex2 = mesh->vertex(3 * iFace + 2);
+
+            const Vector3 n = vertex0.normal * transform.rotation;
 
             // vertex positions in world space
-            Vector3 v0 = ::transform(mesh->vertices()[3 * iFace + 0], transform);
-            Vector3 v1 = ::transform(mesh->vertices()[3 * iFace + 1], transform);
-            Vector3 v2 = ::transform(mesh->vertices()[3 * iFace + 2], transform);
+            Vector3 p0 = ::transform(vertex0.position, transform);
+            Vector3 p1 = ::transform(vertex1.position, transform);
+            Vector3 p2 = ::transform(vertex2.position, transform);
 
             // vectors from light source to vertices
-            const Vector3 d0 = v0 - worldLightPositions[lightIndex];
-            const Vector3 d1 = v1 - worldLightPositions[lightIndex];
-            const Vector3 d2 = v2 - worldLightPositions[lightIndex];
+            const Vector3 d0 = p0 - worldLightPositions[lightIndex];
+            const Vector3 d1 = p1 - worldLightPositions[lightIndex];
+            const Vector3 d2 = p2 - worldLightPositions[lightIndex];
 
             const float length0 = length(d0);
             const float length1 = length(d1);
@@ -491,7 +496,8 @@ void GameProgram::render()
             const float minDistance = Math::min(Math::min(length0, length1), length2);
 
             // TODO: looks ok in most cases but actually this is not enough,
-            // use some sort of additional value?
+            // make it so that the triangle centroid would be extruded to the
+            // light effect sphere boundary
             const float projectionDistance = lightRanges[lightIndex] - minDistance;
 
             if (projectionDistance <= 0.0f)
@@ -514,26 +520,26 @@ void GameProgram::render()
                 continue;
             }
 
-            const Vector3 s0 = v0 + projectionDistance * lightV0;
-            const Vector3 s1 = v1 + projectionDistance * lightV1;
-            const Vector3 s2 = v2 + projectionDistance * lightV2;
+            const Vector3 s0 = p0 + projectionDistance * lightV0;
+            const Vector3 s1 = p1 + projectionDistance * lightV1;
+            const Vector3 s2 = p2 + projectionDistance * lightV2;
 
             // TODO: use OpenGL polygon offset instead of this
             const float offset = 0.1f;
 
-            v0 = v0 + offset * lightV0;
-            v1 = v1 + offset * lightV1;
-            v2 = v2 + offset * lightV2;
+            p0 = p0 + offset * lightV0;
+            p1 = p1 + offset * lightV1;
+            p2 = p2 + offset * lightV2;
 
             const Vector3 coords[] = {
-                v0, v1, v2, // front cap
+                p0, p1, p2, // front cap
                 s0, s2, s1, // back cap
-                v0, s0, s1,
-                v0, s1, v1,
-                v1, s1, s2,
-                v1, s2, v2,
-                v2, s2, s0,
-                v2, s0, v0
+                p0, s0, s1,
+                p0, s1, p1,
+                p1, s1, s2,
+                p1, s2, p2,
+                p2, s2, s0,
+                p2, s0, p0
             };
 
             const GLint coordLocation = glGetAttribLocation(drawParams.program->id(), "position");
@@ -895,126 +901,66 @@ void GameProgram::onQuit()
     running = false;
 }
 
-// dx, dy, and dz are half-widths on x-, y- and z-axes, respectively
+// dx, dy, and dz are half-widths on x, y and z axes, respectively
 Mesh* createBox(const float dx, const float dy, const float dz)
 {
-    const Vector3 min(-dx, -dy, -dz);
-    const Vector3 max( dx,  dy,  dz);
-
-    Vector3 _coords[] = {
-        Vector3(min.x, min.y, max.z),
-        Vector3(max.x, min.y, max.z),
-        Vector3(max.x, max.y, max.z),
-        Vector3(min.x, max.y, max.z),
-        Vector3(min.x, min.y, min.z),
-        Vector3(max.x, min.y, min.z),
-        Vector3(max.x, max.y, min.z),
-        Vector3(min.x, max.y, min.z)
+    const Vector3 positions[] = {
+        Vector3(-dx, -dy,  dz),
+        Vector3( dx, -dy,  dz),
+        Vector3( dx,  dy,  dz),
+        Vector3(-dx,  dy,  dz),
+        Vector3(-dx, -dy, -dz),
+        Vector3( dx, -dy, -dz),
+        Vector3( dx,  dy, -dz),
+        Vector3(-dx,  dy, -dz)
     };
 
-    Vector2 _texCoords[] = {
+    const Vector2 texCoords[] = {
         Vector2(0.0f, 0.0f),
         Vector2(1.0f, 0.0f),
         Vector2(1.0f, 1.0f),
         Vector2(0.0f, 1.0f)
     };
 
-    std::vector<Vector3> coords(36);
-    // front
-    coords[ 0] = _coords[0];
-    coords[ 1] = _coords[1];
-    coords[ 2] = _coords[2];
-    coords[ 3] = _coords[0];
-    coords[ 4] = _coords[2];
-    coords[ 5] = _coords[3];
-    // back
-    coords[ 6] = _coords[5];
-    coords[ 7] = _coords[4];
-    coords[ 8] = _coords[7];
-    coords[ 9] = _coords[5];
-    coords[10] = _coords[7];
-    coords[11] = _coords[6];
-    // left
-    coords[12] = _coords[4];
-    coords[13] = _coords[0];
-    coords[14] = _coords[3];
-    coords[15] = _coords[4];
-    coords[16] = _coords[3];
-    coords[17] = _coords[7];
-    // right
-    coords[18] = _coords[1];
-    coords[19] = _coords[5];
-    coords[20] = _coords[6];
-    coords[21] = _coords[1];
-    coords[22] = _coords[6];
-    coords[23] = _coords[2];
-    // bottom
-    coords[24] = _coords[4];
-    coords[25] = _coords[5];
-    coords[26] = _coords[1];
-    coords[27] = _coords[4];
-    coords[28] = _coords[1];
-    coords[29] = _coords[0];
-    // top
-    coords[30] = _coords[3];
-    coords[31] = _coords[2];
-    coords[32] = _coords[6];
-    coords[33] = _coords[3];
-    coords[34] = _coords[6];
-    coords[35] = _coords[7];
+    const int indices[] = {
+        0, 1, 2,
+        0, 2, 3,
+        5, 4, 7,
+        5, 7, 6,
+        4, 0, 3,
+        4, 3, 7,
+        1, 5, 6,
+        1, 6, 2,
+        4, 5, 1,
+        4, 1, 0,
+        3, 2, 6,
+        3, 6, 7
+    };
 
-    std::vector<Vector2> texCoords(36);
-    // front
-    texCoords[ 0] = _texCoords[0];
-    texCoords[ 1] = _texCoords[1];
-    texCoords[ 2] = _texCoords[2];
-    texCoords[ 3] = _texCoords[0];
-    texCoords[ 4] = _texCoords[2];
-    texCoords[ 5] = _texCoords[3];
-    // back
-    texCoords[ 6] = _texCoords[0];
-    texCoords[ 7] = _texCoords[1];
-    texCoords[ 8] = _texCoords[2];
-    texCoords[ 9] = _texCoords[0];
-    texCoords[10] = _texCoords[2];
-    texCoords[11] = _texCoords[3];
-    // left
-    texCoords[12] = _texCoords[0];
-    texCoords[13] = _texCoords[1];
-    texCoords[14] = _texCoords[2];
-    texCoords[15] = _texCoords[0];
-    texCoords[16] = _texCoords[2];
-    texCoords[17] = _texCoords[3];
-    // right
-    texCoords[18] = _texCoords[0];
-    texCoords[19] = _texCoords[1];
-    texCoords[20] = _texCoords[2];
-    texCoords[21] = _texCoords[0];
-    texCoords[22] = _texCoords[2];
-    texCoords[23] = _texCoords[3];
-    // bottom
-    texCoords[24] = _texCoords[0];
-    texCoords[25] = _texCoords[1];
-    texCoords[26] = _texCoords[2];
-    texCoords[27] = _texCoords[0];
-    texCoords[28] = _texCoords[2];
-    texCoords[29] = _texCoords[3];
-    // top
-    texCoords[30] = _texCoords[0];
-    texCoords[31] = _texCoords[1];
-    texCoords[32] = _texCoords[2];
-    texCoords[33] = _texCoords[0];
-    texCoords[34] = _texCoords[2];
-    texCoords[35] = _texCoords[3];
+    Mesh* const mesh = new Mesh(12);
+    Mesh::Vertex* const vertices = mesh->vertices();
 
-    // create a mesh with 12 faces
-    Mesh* p = new Mesh(12);
+    for (int i = 0; i < 36; ++i)
+    {
+        vertices[i].position = positions[indices[i]];
 
-    p->setVertices(coords);
-    p->setTexCoords(texCoords);
-    p->generateFlatNormals();
+        switch (i % 6)
+        {
+            case 0: vertices[i].texCoord = texCoords[0]; break;
+            case 1: vertices[i].texCoord = texCoords[1]; break;
+            case 2: vertices[i].texCoord = texCoords[2]; break;
+            case 3: vertices[i].texCoord = texCoords[0]; break;
+            case 4: vertices[i].texCoord = texCoords[2]; break;
+            case 5: vertices[i].texCoord = texCoords[3]; break;
 
-    return p;
+            default:
+                GRAPHICS_RUNTIME_ASSERT(false);
+                break;
+        }
+    }
+
+    mesh->generateNormalsAndTangents();
+    return mesh;
 }
 
 void GameProgram::test()
