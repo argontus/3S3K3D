@@ -1,19 +1,18 @@
 /**
- * @file graphics/color.h
+ * @file graphics/color4.h
  * @author Mika Haarahiltunen
  */
 
-#ifndef GRAPHICS_COLOR_H_INCLUDED
-#define GRAPHICS_COLOR_H_INCLUDED
+#ifndef GRAPHICS_COLOR4_H_INCLUDED
+#define GRAPHICS_COLOR4_H_INCLUDED
 
 #include <graphics/staticassert.h>
 
-// TODO: rename this to Color4 and implement a Color3 class
 /**
  * Represents an RGBA color. The components are stored as normalized floating
  * point values.
  */
-class Color
+class Color4
 {
 public:
     // compiler-generated destructor, copy constructor and assignment operator
@@ -22,7 +21,7 @@ public:
     /**
      * Default constructor, constructs an uninitialized color.
      */
-    Color();
+    Color4();
 
     /**
      * Constructor.
@@ -32,17 +31,17 @@ public:
      * @param b The blue component.
      * @param a The alpha component.
      */
-    Color(float r, float g, float b, float a);
+    Color4(float r, float g, float b, float a);
 
     // the assignment operators are members to prevent implicit type
     // conversions of the left hand side object
 
-    Color& operator +=(const Color& c);
-    Color& operator -=(const Color& c);
-    Color& operator *=(const Color& c);
-    Color& operator *=(float k);
-    Color& operator /=(float k);
-    Color& operator /=(const Color& c);
+    Color4& operator +=(const Color4& c);
+    Color4& operator -=(const Color4& c);
+    Color4& operator *=(const Color4& c);
+    Color4& operator *=(float k);
+    Color4& operator /=(float k);
+    Color4& operator /=(const Color4& c);
 
     /**
      * Gets the component array.
@@ -63,7 +62,7 @@ public:
      *
      * @param other The object to swap contents with.
      */
-    void swap(Color& other);
+    void swap(Color4& other);
 
     float r;    ///< The red component.
     float g;    ///< The green component.
@@ -73,17 +72,17 @@ public:
 
 /// @cond
 // verify packing assumptions
-GRAPHICS_STATIC_ASSERT(sizeof(Color[2]) == sizeof(float) * 8);
+GRAPHICS_STATIC_ASSERT(sizeof(Color4[2]) == sizeof(float) * 8);
 /// @endcond
 
-const Color operator +(const Color& a, const Color& b);
-const Color operator -(const Color& a, const Color& b);
-const Color operator -(const Color& c);
-const Color operator *(const Color& a, const Color& b);
-const Color operator *(float k, const Color& c);
-const Color operator *(const Color& c, float k);
-const Color operator /(const Color& c, float k);
-const Color operator /(const Color& a, const Color& b);
+const Color4 operator +(const Color4& a, const Color4& b);
+const Color4 operator -(const Color4& a, const Color4& b);
+const Color4 operator -(const Color4& c);
+const Color4 operator *(const Color4& a, const Color4& b);
+const Color4 operator *(float k, const Color4& c);
+const Color4 operator *(const Color4& c, float k);
+const Color4 operator /(const Color4& c, float k);
+const Color4 operator /(const Color4& a, const Color4& b);
 
 /**
  * Clamps the components of <code>c</code> between [<code>min</code>,
@@ -95,7 +94,7 @@ const Color operator /(const Color& a, const Color& b);
  *
  * @return Clamped <code>c</code>.
  */
-const Color clamp(const Color& c, float min, float max);
+const Color4 clamp(const Color4& c, float min, float max);
 
 /**
  * Linear interpolation between two colors.
@@ -106,6 +105,6 @@ const Color clamp(const Color& c, float min, float max);
  *
  * @return <code>a + t * (b - a)</code>.
  */
-const Color mix(const Color& a, const Color& b, float t);
+const Color4 mix(const Color4& a, const Color4& b, float t);
 
-#endif // #ifndef GRAPHICS_COLOR_H_INCLUDED
+#endif // #ifndef GRAPHICS_COLOR4_H_INCLUDED

@@ -1,22 +1,20 @@
 /**
- * @file graphics/color.cpp
+ * @file graphics/color4.cpp
  * @author Mika Haarahiltunen
  */
 
-#include <graphics/color.h>
-
-#include <algorithm>
+#include <graphics/color4.h>
 
 #include <geometry/math.h>
 
 #include <graphics/runtimeassert.h>
 
-Color::Color()
+Color4::Color4()
 {
     // ...
 }
 
-Color::Color(const float r, const float g, const float b, const float a)
+Color4::Color4(const float r, const float g, const float b, const float a)
 :   r(r),
     g(g),
     b(b),
@@ -25,7 +23,7 @@ Color::Color(const float r, const float g, const float b, const float a)
     // ...
 }
 
-Color& Color::operator +=(const Color& c)
+Color4& Color4::operator +=(const Color4& c)
 {
     r += c.r;
     g += c.g;
@@ -34,7 +32,7 @@ Color& Color::operator +=(const Color& c)
     return *this;
 }
 
-Color& Color::operator -=(const Color& c)
+Color4& Color4::operator -=(const Color4& c)
 {
     r -= c.r;
     g -= c.g;
@@ -43,7 +41,7 @@ Color& Color::operator -=(const Color& c)
     return *this;
 }
 
-Color& Color::operator *=(const Color& c)
+Color4& Color4::operator *=(const Color4& c)
 {
     r *= c.r;
     g *= c.g;
@@ -52,7 +50,7 @@ Color& Color::operator *=(const Color& c)
     return *this;
 }
 
-Color& Color::operator *=(const float k)
+Color4& Color4::operator *=(const float k)
 {
     r *= k;
     g *= k;
@@ -61,7 +59,7 @@ Color& Color::operator *=(const float k)
     return *this;
 }
 
-Color& Color::operator /=(const float k)
+Color4& Color4::operator /=(const float k)
 {
     // TODO: use tolerances instead of absolute values?
     GRAPHICS_RUNTIME_ASSERT(k != 0.0f);
@@ -73,7 +71,7 @@ Color& Color::operator /=(const float k)
     return *this;
 }
 
-Color& Color::operator /=(const Color& c)
+Color4& Color4::operator /=(const Color4& c)
 {
     // TODO: use tolerances instead of absolute values?
     GRAPHICS_RUNTIME_ASSERT(c.r != 0.0f);
@@ -88,27 +86,27 @@ Color& Color::operator /=(const Color& c)
     return *this;
 }
 
-float* Color::data()
+float* Color4::data()
 {
     return &r;
 }
 
-const float* Color::data() const
+const float* Color4::data() const
 {
     return &r;
 }
 
-void Color::swap(Color& other)
+void Color4::swap(Color4& other)
 {
-    std::swap(r, other.r);
-    std::swap(g, other.g);
-    std::swap(b, other.b);
-    std::swap(a, other.a);
+    Math::swap(r, other.r);
+    Math::swap(g, other.g);
+    Math::swap(b, other.b);
+    Math::swap(a, other.a);
 }
 
-const Color operator +(const Color& a, const Color& b)
+const Color4 operator +(const Color4& a, const Color4& b)
 {
-    return Color(
+    return Color4(
         a.r + b.r,
         a.g + b.g,
         a.b + b.b,
@@ -116,9 +114,9 @@ const Color operator +(const Color& a, const Color& b)
     );
 }
 
-const Color operator -(const Color& a, const Color& b)
+const Color4 operator -(const Color4& a, const Color4& b)
 {
-    return Color(
+    return Color4(
         a.r - b.r,
         a.g - b.g,
         a.b - b.b,
@@ -126,9 +124,9 @@ const Color operator -(const Color& a, const Color& b)
     );
 }
 
-const Color operator -(const Color& c)
+const Color4 operator -(const Color4& c)
 {
-    return Color(
+    return Color4(
         -c.r,
         -c.g,
         -c.b,
@@ -136,9 +134,9 @@ const Color operator -(const Color& c)
     );
 }
 
-const Color operator *(const Color& a, const Color& b)
+const Color4 operator *(const Color4& a, const Color4& b)
 {
-    return Color(
+    return Color4(
         a.r * b.r,
         a.g * b.g,
         a.b * b.b,
@@ -146,9 +144,9 @@ const Color operator *(const Color& a, const Color& b)
     );
 }
 
-const Color operator *(const float k, const Color& c)
+const Color4 operator *(const float k, const Color4& c)
 {
-    return Color(
+    return Color4(
         k * c.r,
         k * c.g,
         k * c.b,
@@ -156,9 +154,9 @@ const Color operator *(const float k, const Color& c)
     );
 }
 
-const Color operator *(const Color& c, const float k)
+const Color4 operator *(const Color4& c, const float k)
 {
-    return Color(
+    return Color4(
         k * c.r,
         k * c.g,
         k * c.b,
@@ -166,12 +164,12 @@ const Color operator *(const Color& c, const float k)
     );
 }
 
-const Color operator /(const Color& c, const float k)
+const Color4 operator /(const Color4& c, const float k)
 {
     // TODO: use tolerances instead of absolute values?
     GRAPHICS_RUNTIME_ASSERT(k != 0.0f);
 
-    return Color(
+    return Color4(
         c.r / k,
         c.g / k,
         c.b / k,
@@ -179,7 +177,7 @@ const Color operator /(const Color& c, const float k)
     );
 }
 
-const Color operator /(const Color& a, const Color& b)
+const Color4 operator /(const Color4& a, const Color4& b)
 {
     // TODO: use tolerances instead of absolute values?
     GRAPHICS_RUNTIME_ASSERT(b.r != 0.0f);
@@ -187,7 +185,7 @@ const Color operator /(const Color& a, const Color& b)
     GRAPHICS_RUNTIME_ASSERT(b.b != 0.0f);
     GRAPHICS_RUNTIME_ASSERT(b.a != 0.0f);
 
-    return Color(
+    return Color4(
         a.r / b.r,
         a.g / b.g,
         a.b / b.b,
@@ -195,9 +193,9 @@ const Color operator /(const Color& a, const Color& b)
     );
 }
 
-const Color clamp(const Color& c, const float min, const float max)
+const Color4 clamp(const Color4& c, const float min, const float max)
 {
-    return Color(
+    return Color4(
         Math::clamp(c.r, min, max),
         Math::clamp(c.g, min, max),
         Math::clamp(c.b, min, max),
@@ -205,7 +203,7 @@ const Color clamp(const Color& c, const float min, const float max)
     );
 }
 
-const Color mix(const Color& a, const Color& b, const float t)
+const Color4 mix(const Color4& a, const Color4& b, const float t)
 {
     return a + t * (b - a);
 }
