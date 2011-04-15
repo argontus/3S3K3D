@@ -132,19 +132,6 @@ int GameProgram::execute()
     testObject->attachController( &testController );
 
 
-//    camera_->setOrthographicProjection(
-//        -150.0f * aspectRatio, 150.0f * aspectRatio,
-//        -150.0f, 150.0f,
-//        -250.0f, 250.0f
-//    );
-
-    // for testing the frustum culling
-//    ProjectionSettings s = camera_->projectionSettings();
-//    std::swap(s.left, s.right);
-//    std::swap(s.bottom, s.top);
-//    std::swap(s.near, s.far);
-//    camera_->setProjectionSettings(s);
-
     // TODO: quick & dirty
     test();
 
@@ -752,10 +739,10 @@ void GameProgram::render()
 
     if (rotateLights)
     {
-        lightRotation = Math::mod(lightRotation + deltaTime * 0.1f, 2.0f * Math::pi());
+        lightRotation = Math::mod(lightRotation + deltaTime * 0.075f, 2.0f * Math::pi());
     }
 
-    // quick & dirty point sprite test
+    // begin quick & dirty point sprite test ----------------------------------
 
     drawParams.program = programManager_.load("data/shaders/particle.vs", "data/shaders/particle.fs");
 
@@ -814,17 +801,13 @@ void GameProgram::render()
     glUniformMatrix4fv(modelViewMatrixLocation, 1, false, drawParams.viewMatrix.data());
     glUniformMatrix4fv(projectionMatrixLocation, 1, false, drawParams.projectionMatrix.data());
 
-    // TODO: this is deprecated
-    glEnable(GL_POINT_SPRITE);
-
+    glEnable(GL_POINT_SPRITE);  // TODO: this is deprecated
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     renderer_->renderPrimitives(Renderer::PrimitiveType::Points);
 
-    // TODO: this is deprecated
-    glDisable(GL_POINT_SPRITE);
-
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glDisable(GL_POINT_SPRITE); // TODO: this is deprecated
 
     renderer_->setTexture(0, 0);
     renderer_->setDepthState(0);
@@ -833,7 +816,7 @@ void GameProgram::render()
     renderer_->setVertexFormat(0);
     renderer_->setProgram(0);
 
-    // end of quick & dirty point sprite test
+    // end quick & dirty point sprite test ------------------------------------
 
     // needed because not all depth buffer test settings are managed using
     // renderer_
