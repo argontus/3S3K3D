@@ -46,7 +46,15 @@ class Configuration
          */
         std::map<std::string, std::string>& getProperties();
 
-        // TODO: add functionality for querying a value by id
+        // TODO: property query functions
+        //
+        // bool getBoolean(const std::string& name, bool default) const;
+        //
+        // int getInteger(const std::string& name, int default) const;
+        //
+        // const std::string getString(
+        //     const std::string& name,
+        //     const std::string& default) const;
 
     protected:
 

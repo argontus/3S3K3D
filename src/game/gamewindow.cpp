@@ -39,12 +39,14 @@ bool GameWindow::init()
     height = 600;
     fullscreen = false;
 
-    // TODO: quick & dirty, quess who did this
     Configuration config;
 
     if (config.readConfiguration("config.ini"))
     {
-        // TODO: as you can see, this is very inconvenient
+        // TODO: As you can see, this is very inconvenient. Something like
+        // config.getProperty("name", "default value") would be nice, and maybe
+        // support for querying an integer or a boolean value instead of a
+        // string.
 
         typedef std::map<std::string, std::string> PropertyMap;
         const PropertyMap& properties = config.getProperties();
