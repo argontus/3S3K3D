@@ -7,6 +7,7 @@
 
 #include <cstring>
 
+#include <algorithm>
 #include <sstream>
 
 #include <graphics/runtimeassert.h>
@@ -17,14 +18,14 @@ namespace {
 
 /**
  * Constructs the mask parameter for <code>glClear(GLbitfield)</code>
- * indicating which buffers are to be cleared.
+ * indicating the buffers to be cleared.
  *
  * @param color Clear color buffer?
  * @param depth Clear depth buffer?
  * @param stencil Clear stencil buffer?
  *
  * @return Mask parameter for <code>glClear(GLbitfield)</code> indicating
- * which buffers are to be cleared.
+ * the buffers to be cleared.
  */
 GLbitfield clearMask(const bool color, const bool depth, const bool stencil)
 {
@@ -853,8 +854,8 @@ void Renderer::clearBuffers(
     GRAPHICS_RUNTIME_ASSERT(area.y >= 0);
     GRAPHICS_RUNTIME_ASSERT(area.width >= 0);
     GRAPHICS_RUNTIME_ASSERT(area.height >= 0);
-    GRAPHICS_RUNTIME_ASSERT(area.x + area.width < width());
-    GRAPHICS_RUNTIME_ASSERT(area.y + area.height < height());
+    GRAPHICS_RUNTIME_ASSERT(area.x + area.width <= width());
+    GRAPHICS_RUNTIME_ASSERT(area.y + area.height <= height());
 
     // TODO: this does not restore previous scissor state, update this function
     // if scissor state management is added

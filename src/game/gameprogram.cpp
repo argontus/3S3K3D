@@ -66,7 +66,12 @@ int GameProgram::execute()
 	}
 
     glewInit();
+
     renderer_ = new Renderer(width, height);
+    renderer_->setClearColor(Color4(0.0f, 0.0f, 0.0f, 0.0f));
+    renderer_->setClearDepth(1.0);
+    renderer_->setClearStencil(0);
+
 
     // init textures
 
@@ -326,9 +331,35 @@ void GameProgram::render()
 
     glEnable(GL_CULL_FACE);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClearDepth(1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // TODO: Is there a bug in Renderer implementation or is this a driver bug?
+    //
+    // OpenGL specification says that buffer writemasks affect glClear and that
+    // if color channel writes have been disabled with glColorMask, no change
+    // is made to the disabled components of any pixel in any of the color
+    // buffers, regardless of the drawing operation attempted.
+    //
+    // With EVGA GeForce GTX470 on Windows7 the left border of the screen
+    // starts flickering if one or more color channel writes are disabled. To
+    // my understanding, the left border should preserve maximum color values
+    // for the disabled channels without flickering since all color buffer
+    // channels are initially cleared to their maximum values below.
+
+    // these are for producing the flickering bug descibed above
+    //renderer_->setClearColor(Color4(1.0f, 1.0f, 1.0f, 0.0f));
+    //renderer_->clearBuffers(true, false, false, RectangleI(0, 0, width / 32, height));
+    //renderer_->setClearColor(Color4(0.0f, 0.0f, 0.0f, 0.0f));
+
+    // set, for example, enableBlue to false to produce the flickering bug
+    // descibed above
+
+    // specify which color buffer channels can be written to
+    const bool enableRed = true;
+    const bool enableGreen = true;
+    const bool enableBlue = true;
+    const bool enableAlpha = true;
+
+    renderer_->setColorMask(enableRed, enableGreen, enableBlue, enableAlpha);
+    renderer_->clearBuffers(true, true, false);
 
 
     // TODO: REALLY quick & dirty
@@ -434,7 +465,8 @@ void GameProgram::render()
 
     // TODO: check if the light effect sphere intersects the view frustum
 
-    glClear(GL_STENCIL_BUFFER_BIT);
+    // clear the stencil buffer
+    renderer_->clearBuffers(false, false, true);
 
     // shadow pass
 
@@ -548,7 +580,7 @@ void GameProgram::render()
             glEnableVertexAttribArray(coordLocation);
 
             // disable color buffer writes
-            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+            renderer_->setColorMask(false, false, false, false);
 
             // disable depth buffer writes
             glDepthMask(GL_FALSE);
@@ -579,7 +611,12 @@ void GameProgram::render()
             // restore render state
             glDisable(GL_STENCIL_TEST);
             glDepthMask(GL_TRUE);
-            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+            renderer_->setColorMask(
+                enableRed,
+                enableGreen,
+                enableBlue,
+                enableAlpha);
 
             if (drawShadowVolumes_ && lightIndex == 0)
             {

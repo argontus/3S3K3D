@@ -103,6 +103,7 @@ public:
     void setDepthState(DepthState* depthState);
     DepthState* depthState() const;
 
+    // these are probably not needed
     // TODO: void setScissorState(ScissorState* scissorState); ?
     // TODO: ScissorState* scissorState() const; ?
 
@@ -171,7 +172,8 @@ public:
     // TODO: the active scissor state and buffer writemasks affect this
     // operation, document it
     /**
-     * Clears the specified buffers to their clear values.
+     * Clears the specified buffers to their clear values. If a buffer is not
+     * present, then a clear operation directed at that buffer has no effect.
      *
      * @param color Clear color buffer?
      * @param depth Clear depth buffer?
@@ -191,7 +193,8 @@ public:
      * <code>area.x</code> and <code>area.y</code> specify the bottom left
      * pixel of the area and <code>area.x + area.width - 1</code> and
      * <code>area.y + area.height - 1</code> specify the top right pixel of the
-     * area.
+     * area. If a buffer is not present, then a clear operation directed at
+     * that buffer has no effect.
      *
      * @param color Clear color buffer?
      * @param depth Clear depth buffer?

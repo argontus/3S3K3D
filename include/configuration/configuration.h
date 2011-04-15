@@ -46,6 +46,8 @@ class Configuration
          */
         std::map<std::string, std::string>& getProperties();
 
+        // TODO: add functionality for querying a value by id
+
     protected:
 
     private:

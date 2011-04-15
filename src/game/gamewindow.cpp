@@ -5,9 +5,14 @@
 
 #include "gamewindow.h"
 
-#include <SDL/SDL.h>
-#include <graphics/opengl.h>
 #include <iostream>
+#include <sstream>
+
+#include <SDL/SDL.h>
+
+#include <configuration/configuration.h>
+
+#include <graphics/opengl.h>
 
 GameWindow::GameWindow()
  : aspectRatio(0),
@@ -28,45 +33,86 @@ bool GameWindow::init()
 {
     std::cout << "Initializing game engine...";
 
-	//TODO: read these from a configuration file.
-	width       = 1280;
-	height      = 800;
-	int flags   = SDL_HWACCEL | SDL_GL_DOUBLEBUFFER | SDL_OPENGL;
+    // initialize to valid defaults, these will be overwritten if reading the
+    // configuration succeeds
+    width = 800;
+    height = 600;
+    fullscreen = false;
 
-	if( fullscreen )
-	{
-	    flags = flags | SDL_FULLSCREEN;
-	}
+    // TODO: quick & dirty, quess who did this
+    Configuration config;
 
-	if( SDL_Init(SDL_INIT_EVERYTHING) < 0 )
-	{
-		std::cerr << "SDL initialization failed: " << SDL_GetError();
-		std::cerr << std::endl;
-		return false;
-	}
+    if (config.readConfiguration("config.ini"))
+    {
+        // TODO: as you can see, this is very inconvenient
 
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        typedef std::map<std::string, std::string> PropertyMap;
+        const PropertyMap& properties = config.getProperties();
 
-	//TODO: request the depth value from the driver instead of hardcoding it.
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        PropertyMap::const_iterator i = properties.find("width");
+
+        if (i != properties.end())
+        {
+            // the C++ way of converting a string to an integer
+            std::stringstream ss;
+            ss << i->second;
+            ss >> width;
+        }
+
+        i = properties.find("height");
+
+        if (i != properties.end())
+        {
+            // the C++ way of converting a string to an integer
+            std::stringstream ss;
+            ss << i->second;
+            ss >> height;
+        }
+
+        i = properties.find("fullscreen");
+
+        if (i != properties.end())
+        {
+            fullscreen = i->second != "0";
+        }
+    }
+
+	int flags = SDL_HWACCEL | SDL_GL_DOUBLEBUFFER | SDL_OPENGL;
+
+    if( fullscreen )
+    {
+        flags = flags | SDL_FULLSCREEN;
+    }
+
+    if( SDL_Init(SDL_INIT_EVERYTHING) < 0 )
+    {
+        std::cerr << "SDL initialization failed: " << SDL_GetError();
+        std::cerr << std::endl;
+        return false;
+    }
+
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+    //TODO: request the depth value from the driver instead of hardcoding it.
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     // this is needed for the depth fail shadow volume algorithm
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
     if( (mainwindow = SDL_SetVideoMode( width, height, 32, flags )) == NULL )
     {
-		std::cerr << "SDL initialization failed: " << SDL_GetError();
-		std::cerr << std::endl;
-		return false;
-	}
+        std::cerr << "SDL initialization failed: " << SDL_GetError();
+        std::cerr << std::endl;
+        return false;
+    }
 
-	SDL_ShowCursor( mouseVisible );
+    SDL_ShowCursor( mouseVisible );
 
-	resizeWindow(width, height);
+    resizeWindow(width, height);
 
     std::cout << "game engine initialization succesfull!" << std::endl;
 
-	return true;
+    return true;
 }
 
 void GameWindow::cleanup()
