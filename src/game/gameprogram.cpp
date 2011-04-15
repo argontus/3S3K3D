@@ -49,7 +49,9 @@ GameProgram::GameProgram()
     anisotropicFilteringOn(true),
     programManager_(),
     meshManager_(),
-    textureManager_()
+    textureManager_(),
+    shadowVertexFormat_(0),
+    shadowVertexBuffer_(0)
 {
     running         = true;
     deltaTicks      = 0;
@@ -71,6 +73,21 @@ int GameProgram::execute()
     renderer_->setClearColor(Color4(0.0f, 0.0f, 0.0f, 0.0f));
     renderer_->setClearDepth(1.0);
     renderer_->setClearStencil(0);
+
+    shadowVertexFormat_ = new VertexFormat(1);
+    shadowVertexFormat_->setAttribute(
+        0,
+        VertexAttribute::Type::Float3,
+        VertexAttribute::Usage::Position
+    );
+    shadowVertexFormat_->compile();
+
+    shadowVertexBuffer_ = new VertexBuffer(
+        24,
+        sizeof(Vector3),
+        0,
+        VertexBuffer::Usage::Dynamic
+    );
 
 
     // init textures
@@ -459,35 +476,16 @@ void GameProgram::render()
     // for each light
     for (int lightIndex = 0; lightIndex < numLights; ++lightIndex)
     {
-
     // light effect sphere
     const Sphere effectSphere(worldLightPositions[lightIndex], lightRanges[lightIndex]);
 
     // TODO: check if the light effect sphere intersects the view frustum
 
-    // clear the stencil buffer
-    renderer_->clearBuffers(false, false, true);
+    // static to maintain capacity
+    static std::vector<Vector3> shadowVertices;
+    shadowVertices.clear();
 
-    // shadow pass
-
-    drawParams.program = programManager_.load("data/shaders/shadow.vs", "data/shaders/shadow.fs");
-    glUseProgram(drawParams.program->id());
-
-    glUniformMatrix4fv(
-        glGetUniformLocation(drawParams.program->id(), "viewMatrix"),
-        1,
-        false,
-        drawParams.viewMatrix.data()
-    );
-
-    glUniformMatrix4fv(
-        glGetUniformLocation(drawParams.program->id(), "projectionMatrix"),
-        1,
-        false,
-        drawParams.projectionMatrix.data()
-    );
-
-    // TODO: this loop could use some optimization
+    // generate shadow geometry for this light
     for (size_t i = 0; i < geometryNodes_.size(); ++i)
     {
         if (intersect(geometryNodes_[i]->worldExtents(), effectSphere) == false)
@@ -501,10 +499,6 @@ void GameProgram::render()
 
         for (int iFace = 0; iFace < mesh->numFaces(); ++iFace)
         {
-            // TODO: this algorithm produces incorrect results when the light
-            // source is very close to the triangle, partition the triangle
-            // dynamically when the light source is close to the triangle?
-
             const Mesh::Vertex& vertex0 = mesh->vertex(3 * iFace + 0);
             const Mesh::Vertex& vertex1 = mesh->vertex(3 * iFace + 1);
             const Mesh::Vertex& vertex2 = mesh->vertex(3 * iFace + 2);
@@ -564,75 +558,138 @@ void GameProgram::render()
             p1 = p1 + offset * lightV1;
             p2 = p2 + offset * lightV2;
 
-            const Vector3 coords[] = {
-                p0, p1, p2, // front cap
-                s0, s2, s1, // back cap
-                p0, s0, s1,
-                p0, s1, p1,
-                p1, s1, s2,
-                p1, s2, p2,
-                p2, s2, s0,
-                p2, s0, p0
-            };
+            // TODO: test if indexed rendering is faster
 
-            const GLint coordLocation = glGetAttribLocation(drawParams.program->id(), "position");
-            glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords->data());
-            glEnableVertexAttribArray(coordLocation);
+            // front cap
+            shadowVertices.push_back(p0);
+            shadowVertices.push_back(p1);
+            shadowVertices.push_back(p2);
 
-            // disable color buffer writes
-            renderer_->setColorMask(false, false, false, false);
+            // back cap
+            shadowVertices.push_back(s0);
+            shadowVertices.push_back(s2);
+            shadowVertices.push_back(s1);
 
-            // disable depth buffer writes
-            glDepthMask(GL_FALSE);
+            shadowVertices.push_back(p0);
+            shadowVertices.push_back(s0);
+            shadowVertices.push_back(s1);
 
-            glEnable(GL_STENCIL_TEST);
-            glStencilFunc(GL_ALWAYS, 0, ~0);
+            shadowVertices.push_back(p0);
+            shadowVertices.push_back(s1);
+            shadowVertices.push_back(p1);
 
-            glStencilOpSeparate(
-                GL_BACK,    // set stencil settings for back-facing polygons
-                GL_KEEP,    // stencil fail operation, has no effect
-                GL_INCR,    // depth fail operation, increment stencil value
-                GL_KEEP     // depth pass operation, do nothing
-            );
+            shadowVertices.push_back(p1);
+            shadowVertices.push_back(s1);
+            shadowVertices.push_back(s2);
 
-            glStencilOpSeparate(
-                GL_FRONT,   // set stencil settings for front-facing polygons
-                GL_KEEP,    // stencil fail operation, has no effect
-                GL_DECR,    // depth fail operation, decrement stencil value
-                GL_KEEP     // depth pass operation, do nothing
-            );
+            shadowVertices.push_back(p1);
+            shadowVertices.push_back(s2);
+            shadowVertices.push_back(p2);
 
-            glCullFace(GL_FRONT);
-            glDrawArrays(GL_TRIANGLES, 0, 24);
+            shadowVertices.push_back(p2);
+            shadowVertices.push_back(s2);
+            shadowVertices.push_back(s0);
 
-            glCullFace(GL_BACK);
-            glDrawArrays(GL_TRIANGLES, 0, 24);
-
-            // restore render state
-            glDisable(GL_STENCIL_TEST);
-            glDepthMask(GL_TRUE);
-
-            renderer_->setColorMask(
-                enableRed,
-                enableGreen,
-                enableBlue,
-                enableAlpha);
-
-            if (drawShadowVolumes_ && lightIndex == 0)
-            {
-                // render shadow volumes
-                glDisable(GL_CULL_FACE);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                glDrawArrays(GL_TRIANGLES, 0, 24);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                glEnable(GL_CULL_FACE);
-            }
-
-            glDisableVertexAttribArray(coordLocation);
+            shadowVertices.push_back(p2);
+            shadowVertices.push_back(s0);
+            shadowVertices.push_back(p0);
         }
     }
 
-    // ...
+    // begin shadow pass ------------------------------------------------------
+
+    // clear the stencil buffer
+    renderer_->clearBuffers(false, false, true);
+
+    drawParams.program = programManager_.load("data/shaders/shadow.vs", "data/shaders/shadow.fs");
+
+    renderer_->setProgram(drawParams.program);
+    renderer_->setVertexFormat(shadowVertexFormat_);
+
+    glUniformMatrix4fv(glGetUniformLocation(drawParams.program->id(), "viewMatrix"), 1, false, drawParams.viewMatrix.data());
+    glUniformMatrix4fv(glGetUniformLocation(drawParams.program->id(), "projectionMatrix"), 1, false, drawParams.projectionMatrix.data());
+
+    const GLint coordLocation = glGetAttribLocation(drawParams.program->id(), "position");
+    glEnableVertexAttribArray(coordLocation);
+
+    // HACK: fast vertex buffer update
+    glBindBuffer(GL_ARRAY_BUFFER, shadowVertexBuffer_->id());
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        shadowVertices.size() * shadowVertexBuffer_->elementSize(),
+        &shadowVertices[0],
+        GL_DYNAMIC_DRAW
+    );
+    glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, 0);
+/*
+    glVertexAttribPointer(
+        coordLocation,
+        3,
+        GL_FLOAT,
+        false,
+        0,
+        &shadowVertices[0]
+    );
+*/
+    // disable color buffer writes
+    renderer_->setColorMask(false, false, false, false);
+
+    // disable depth buffer writes
+    glDepthMask(GL_FALSE);
+
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_ALWAYS, 0, ~0);
+
+    glStencilOpSeparate(
+        GL_BACK,    // set stencil settings for back-facing polygons
+        GL_KEEP,    // stencil fail operation, has no effect
+        GL_INCR,    // depth fail operation, increment stencil value
+        GL_KEEP     // depth pass operation, do nothing
+    );
+
+    glStencilOpSeparate(
+        GL_FRONT,   // set stencil settings for front-facing polygons
+        GL_KEEP,    // stencil fail operation, has no effect
+        GL_DECR,    // depth fail operation, decrement stencil value
+        GL_KEEP     // depth pass operation, do nothing
+    );
+
+    glCullFace(GL_FRONT);
+    glDrawArrays(GL_TRIANGLES, 0, shadowVertices.size());
+
+    glCullFace(GL_BACK);
+    glDrawArrays(GL_TRIANGLES, 0, shadowVertices.size());
+
+    // restore render state
+    glDisable(GL_STENCIL_TEST);
+    glDepthMask(GL_TRUE);
+
+    renderer_->setColorMask(
+        enableRed,
+        enableGreen,
+        enableBlue,
+        enableAlpha);
+
+    //if (drawShadowVolumes_ && lightIndex == 0)
+    if (drawShadowVolumes_)
+    {
+        // render shadow volumes
+        glDisable(GL_CULL_FACE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDrawArrays(GL_TRIANGLES, 0, shadowVertices.size());
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glEnable(GL_CULL_FACE);
+    }
+
+    // HACK: fast vertex buffer update
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glDisableVertexAttribArray(coordLocation);
+
+    renderer_->setVertexFormat(0);
+    renderer_->setProgram(0);
+
+    // end shadow pass --------------------------------------------------------
 
     drawParams.program = programManager_.load("data/shaders/lit.vs", "data/shaders/lit.fs");
 
@@ -1071,4 +1128,6 @@ GameProgram::~GameProgram()
     delete renderer_;
     delete rootNode_;
     delete camera_;
+    delete shadowVertexFormat_;
+    delete shadowVertexBuffer_;
 }

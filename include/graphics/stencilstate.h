@@ -152,6 +152,7 @@ public:
          */
         GLuint mask;
 
+        // TODO: move stencil buffer writemask control to Renderer?
         /**
          * Write mask value, controls writing of individual bits of stencil
          * buffer values.

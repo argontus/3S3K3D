@@ -223,6 +223,9 @@ public:
     // the specified range [offset, offset + count) must be valid
     void renderPrimitives(PrimitiveType::Enum type, int offset, int count);
 
+    // TODO: renderPrimitives function that takes a pointer to vertex data in
+    // client memory?
+
 private:
     enum { MaxTextureUnits = 32 };
 

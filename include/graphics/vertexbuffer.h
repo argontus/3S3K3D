@@ -41,6 +41,9 @@ public:
         const void* data,
         Usage::Enum usage);
 
+    // TODO: updating the contents by locking the vertex buffer is ridiculously
+    // slow, provide a faster alternative that uses glBufferData
+
     void* lock(Access::Enum access);
     void* lock(int offset, int count, Access::Enum access);
 

@@ -152,8 +152,10 @@ private:
 	float cameraSpeedY;
 	float cameraSpeedZ;
 
-    // TODO: quick & dirty
+    VertexFormat* shadowVertexFormat_;
+    VertexBuffer* shadowVertexBuffer_;
 
+    // TODO: quick & dirty
     std::vector<GeometryNode*> geometryNodes_;
 };
 
