@@ -6,8 +6,11 @@
 #ifndef GRAPHICS_INDEXBUFFER_H_INCLUDED
 #define GRAPHICS_INDEXBUFFER_H_INCLUDED
 
+// TODO: get rid of this include?
 #include <graphics/opengl.h>
 
+// TODO: this class has a lot in common with VertexBuffer, move common
+// implementation to a base class?
 /**
  * Represents an OpenGL index buffer.
  */
@@ -48,17 +51,39 @@ public:
      */
     ~IndexBuffer();
 
-    // TODO: comments
+    /**
+     * Constructor.
+     *
+     * @param format Index format.
+     * @param numElements Number of elements to allocate.
+     * @param data Data to copy to the buffer. If this is a null pointer, the
+     * buffer contents are not initialized. If this is not a null pointer, the
+     * pointed data must contain <code>numElements</code> indices and their
+     * type must match <code>format</code>.
+     * @param usage Usage hint.
+     */
     IndexBuffer(
+        Format::Enum format,
         int numElements,
         const void* data,
-        Format::Enum format,
         Usage::Enum usage);
 
     /**
-     * Locks the whole index buffer. Remember to call <code>unlock()</code>
-     * once done accessing the buffer contents. Only one index buffer can be
-     * locked at a time, nested locks are not allowed.
+     * Updates the buffer contents.
+     *
+     * @param format Index format.
+     * @param numElements Number of elements to allocate.
+     * @param data Data to copy to the buffer. If this is a null pointer, the
+     * buffer contents are not initialized. If this is not a null pointer, the
+     * pointed data must contain <code>numElements</code> indices and their
+     * type must match <code>format</code>.
+     */
+    void update(Format::Enum format, int numElements, const void* data);
+
+    /**
+     * Locks this buffer. Remember to call <code>unlock()</code> once done
+     * accessing the buffer contents. Only one index buffer can be locked at a
+     * time, nested locks are not allowed.
      *
      * @param access Access policy.
      *
@@ -66,15 +91,16 @@ public:
      * is unlocked.
      *
      * @see unlock()
+     * @see isLocked() const
      */
     void* lock(Access::Enum access);
 
     /**
-     * Locks a range of elements from the index buffer. Remember to call
+     * Locks a range of elements from this buffer. Remember to call
      * <code>unlock()</code> once done accessing the buffer contents. Only one
      * index buffer can be locked at a time, nested locks are not allowed.
      *
-     * @param offset Offset from the beginning of the index buffer as elements.
+     * @param offset Offset from the beginning of this buffer as elements.
      * @param count Number of elements to lock.
      * @param access Access policy.
      *
@@ -82,15 +108,33 @@ public:
      * is unlocked.
      *
      * @see unlock()
+     * @see isLocked() const
      */
     void* lock(int offset, int count, Access::Enum access);
 
     /**
-     * Unlocks a previously locked index buffer.
+     * Unlocks this buffer. This buffer must be locked when this function is
+     * called.
+     *
+     * @see lock(Access::Enum)
+     * @see isLocked() const
      */
     void unlock();
 
-    // TODO: bool isLocked() const;
+    /**
+     * Gets a boolean value indicating whether or not this buffer is locked.
+     *
+     * @return <code>true</code> if this buffer is locked, <code>false</code>
+     * otherwise.
+     */
+    bool isLocked() const;
+
+    /**
+     * Gets the size of a single element in bytes.
+     *
+     * @return Size of a single element in bytes.
+     */
+    int elementSize() const;
 
     /**
      * Gets the number of elements.
@@ -100,41 +144,29 @@ public:
     int numElements() const;
 
     /**
-     * Gets the size of a single index in bytes.
+     * Gets the buffer Id.
      *
-     * @return Size of a single index in bytes.
-     */
-    int elementSize() const;
-
-    /**
-     * Gets the index buffer Id.
-     *
-     * @return Index buffer Id.
+     * @return Buffer Id.
      */
     GLuint id() const;
 
     /**
-     * Gets the index buffer format.
+     * Gets the index format.
      *
-     * @return Index buffer format.
+     * @return Index format.
      */
     Format::Enum format() const;
 
     /**
-     * Gets the index buffer usage hint.
+     * Gets the usage hint.
      *
-     * @return Index buffer usage hint.
+     * @return Usage hint.
      */
     Usage::Enum usage() const;
 
 private:
-    static int elementSize(Format::Enum format);
-    static GLbitfield convert(Access::Enum access);
-    static GLenum convert(Usage::Enum usage);
-    static GLuint activeId();
-
-    int numElements_;       ///< Number of elements.
     int elementSize_;       ///< Element size in bytes.
+    int numElements_;       ///< Number of elements.
     GLuint id_;             ///< Buffer id.
     GLuint previousId_;     ///< Used in buffer locking implementation.
     Format::Enum format_;   ///< Index format.

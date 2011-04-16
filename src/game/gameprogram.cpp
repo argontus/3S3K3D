@@ -83,8 +83,8 @@ int GameProgram::execute()
     shadowVertexFormat_->compile();
 
     shadowVertexBuffer_ = new VertexBuffer(
-        24,
         sizeof(Vector3),
+        24,
         0,
         VertexBuffer::Usage::Dynamic
     );
@@ -335,27 +335,6 @@ void GameProgram::render()
 
     glEnable(GL_CULL_FACE);
 
-    // TODO: Is there a bug in Renderer implementation or is this a driver bug?
-    //
-    // OpenGL specification says that buffer writemasks affect glClear and that
-    // if color channel writes have been disabled with glColorMask, no change
-    // is made to the disabled components of any pixel in any of the color
-    // buffers, regardless of the drawing operation attempted.
-    //
-    // With EVGA GeForce GTX470 on Windows7 the left border of the screen
-    // starts flickering if one or more color channel writes are disabled. To
-    // my understanding, the left border should preserve maximum color values
-    // for the disabled channels without flickering since all color buffer
-    // channels are initially cleared to their maximum values below.
-
-    // these are for producing the flickering bug descibed above
-    //renderer_->setClearColor(Color4(1.0f, 1.0f, 1.0f, 0.0f));
-    //renderer_->clearBuffers(true, false, false, RectangleI(0, 0, width / 32, height));
-    //renderer_->setClearColor(Color4(0.0f, 0.0f, 0.0f, 0.0f));
-
-    // set, for example, enableBlue to false to produce the flickering bug
-    // descibed above
-
     // specify which color buffer channels can be written to
     const bool enableRed = true;
     const bool enableGreen = true;
@@ -592,32 +571,18 @@ void GameProgram::render()
 
     renderer_->setProgram(drawParams.program);
     renderer_->setVertexFormat(shadowVertexFormat_);
+    renderer_->setVertexBuffer(shadowVertexBuffer_);
 
     glUniformMatrix4fv(glGetUniformLocation(drawParams.program->id(), "viewMatrix"), 1, false, drawParams.viewMatrix.data());
     glUniformMatrix4fv(glGetUniformLocation(drawParams.program->id(), "projectionMatrix"), 1, false, drawParams.projectionMatrix.data());
 
-    const GLint coordLocation = glGetAttribLocation(drawParams.program->id(), "position");
-    glEnableVertexAttribArray(coordLocation);
-
-    // HACK: fast vertex buffer update
-    glBindBuffer(GL_ARRAY_BUFFER, shadowVertexBuffer_->id());
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        shadowVertices.size() * shadowVertexBuffer_->elementSize(),
-        &shadowVertices[0],
-        GL_DYNAMIC_DRAW
-    );
-    glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, 0);
-/*
-    glVertexAttribPointer(
-        coordLocation,
-        3,
-        GL_FLOAT,
-        false,
-        0,
+    // load the shadow geometry to a vertex buffer
+    shadowVertexBuffer_->update(
+        shadowVertexBuffer_->elementSize(),
+        shadowVertices.size(),
         &shadowVertices[0]
     );
-*/
+
     // disable color buffer writes
     renderer_->setColorMask(false, false, false, false);
 
@@ -668,11 +633,7 @@ void GameProgram::render()
         glEnable(GL_CULL_FACE);
     }
 
-    // HACK: fast vertex buffer update
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glDisableVertexAttribArray(coordLocation);
-
+    renderer_->setVertexBuffer(0);
     renderer_->setVertexFormat(0);
     renderer_->setProgram(0);
 
@@ -774,11 +735,19 @@ void GameProgram::render()
     }
 
     VertexBuffer vertexBuffer(
-        sizeof(components) / (sizeof(float) * 8),
         sizeof(float) * 8,
+        sizeof(components) / (sizeof(float) * 8),
         components,
         VertexBuffer::Usage::Static
     );
+
+    // begin test vertex buffer locking ----------------------------------------
+//    GRAPHICS_RUNTIME_ASSERT(vertexBuffer.isLocked() == false);
+//    vertexBuffer.lock(VertexBuffer::Access::ReadOnly);
+//    GRAPHICS_RUNTIME_ASSERT(vertexBuffer.isLocked() == true);
+//    vertexBuffer.unlock();
+//    GRAPHICS_RUNTIME_ASSERT(vertexBuffer.isLocked() == false);
+    // end test vertex buffer locking ------------------------------------------
 
     BlendState blendState;
     blendState.setEquation(BlendState::Equation::Add);
@@ -872,8 +841,8 @@ void GameProgram::drawExtents(const Node* node, const DrawParams& params)
     const int vertexSize = sizeof(Vector3);
 
     VertexBuffer vertexBuffer(
-        sizeof(vertices) / vertexSize,
         vertexSize,
+        sizeof(vertices) / vertexSize,
         vertices,
         VertexBuffer::Usage::Static
     );
@@ -894,11 +863,19 @@ void GameProgram::drawExtents(const Node* node, const DrawParams& params)
     };
 
     IndexBuffer indexBuffer(
+        IndexBuffer::Format::UnsignedShort,
         sizeof(indices) / sizeof(indices[0]),
         indices,
-        IndexBuffer::Format::UnsignedShort,
         IndexBuffer::Usage::Static
     );
+
+    // begin test index buffer locking ----------------------------------------
+//    GRAPHICS_RUNTIME_ASSERT(indexBuffer.isLocked() == false);
+//    indexBuffer.lock(IndexBuffer::Access::ReadOnly);
+//    GRAPHICS_RUNTIME_ASSERT(indexBuffer.isLocked() == true);
+//    indexBuffer.unlock();
+//    GRAPHICS_RUNTIME_ASSERT(indexBuffer.isLocked() == false);
+    // end test index buffer locking ------------------------------------------
 
     const Matrix4x4 mvpMatrix = params.viewMatrix * params.projectionMatrix;
 
@@ -1052,8 +1029,8 @@ void GameProgram::test()
 
     // TODO: quick & dirty
     static VertexBuffer vertexBuffer(
-        boxMesh->numVertices(),
         sizeof(Mesh::Vertex),
+        boxMesh->numVertices(),
         boxMesh->vertices(),
         VertexBuffer::Usage::Static
     );

@@ -78,7 +78,6 @@ public:
      */
     DepthState();
 
-    // TODO: move depth buffer writemask control to Renderer?
     /**
      * Is depth buffer write enabled?
      */
