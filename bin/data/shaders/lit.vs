@@ -17,14 +17,14 @@ out vec2 texCoord_; // fragment texture coordinate
 
 void main()
 {
+    // TODO: some of the heavy lighting calculations done in the fragment
+    // shader could be moved here
+
     position_ = (modelViewMatrix * vec4(position, 1.0)).xyz;
     normal_ = normalMatrix * normal;
     tangent_ = normalMatrix * tangent;
     binormal_ = cross(normal_, tangent_);
     texCoord_ = texCoord;
-
-    // TODO: some of the lighting calculations done in the fragment shader
-    // could be moved here
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }

@@ -383,6 +383,21 @@ GLenum vertexAttributeType(const VertexAttribute::Type::Enum type)
 
 } // namespace
 
+const char* Renderer::modelViewMatrixName()
+{
+    return "modelViewMatrix";
+}
+
+const char* Renderer::projectionMatrixName()
+{
+    return "projectionMatrix";
+}
+
+const char* Renderer::normalMatrixName()
+{
+    return "normalMatrix";
+}
+
 Renderer::~Renderer()
 {
     // ...
@@ -391,6 +406,9 @@ Renderer::~Renderer()
 Renderer::Renderer(const int width, const int height)
 :   defaultWidth_(width),
     defaultHeight_(height),
+    modelViewMatrix_(Matrix4x4::identity()),
+    projectionMatrix_(Matrix4x4::identity()),
+    normalMatrix_(Matrix3x3::identity()),
     program_(0),
     vertexFormat_(0),
     vertexBuffer_(0),
@@ -422,6 +440,57 @@ int Renderer::height() const
     return defaultHeight_;
 }
 
+void Renderer::setModelViewMatrix(const Matrix4x4& modelViewMatrix)
+{
+    if (program_ != 0)
+    {
+        // there is an active program, load the model-view matrix to the
+        // corresponding uniform variable if it exists
+        setUniform(modelViewMatrixName(), modelViewMatrix);
+    }
+
+    modelViewMatrix_ = modelViewMatrix;
+}
+
+const Matrix4x4 Renderer::modelViewMatrix() const
+{
+    return modelViewMatrix_;
+}
+
+void Renderer::setProjectionMatrix(const Matrix4x4& projectionMatrix)
+{
+    if (program_ != 0)
+    {
+        // there is an active program, load the projection matrix to the
+        // corresponding uniform variable if it exists
+        setUniform(projectionMatrixName(), projectionMatrix);
+    }
+
+    projectionMatrix_ = projectionMatrix;
+}
+
+const Matrix4x4 Renderer::projectionMatrix() const
+{
+    return projectionMatrix_;
+}
+
+void Renderer::setNormalMatrix(const Matrix3x3& normalMatrix)
+{
+    if (program_ != 0)
+    {
+        // there is an active program, load the normal matrix to the
+        // corresponding uniform variable if it exists
+        setUniform(normalMatrixName(), normalMatrix);
+    }
+
+    normalMatrix_ = normalMatrix;
+}
+
+const Matrix3x3 Renderer::normalMatrix() const
+{
+    return normalMatrix_;
+}
+
 void Renderer::setProgram(Program* const program)
 {
     GRAPHICS_RUNTIME_ASSERT(vertexBuffer_ == 0);
@@ -444,6 +513,12 @@ void Renderer::setProgram(Program* const program)
     {
         // bind the given program
         glUseProgram(program_->id());
+
+        // load the transform matrices to their corresponding uniform variables
+        // if they exist
+        setUniform(modelViewMatrixName(), modelViewMatrix_);
+        setUniform(projectionMatrixName(), projectionMatrix_);
+        setUniform(normalMatrixName(), normalMatrix_);
     }
 }
 
@@ -945,6 +1020,52 @@ void Renderer::renderPrimitives(
             primitiveType(type),
             offset,
             count
+        );
+    }
+}
+
+void Renderer::setUniform(const char* const name, const Matrix3x3& value)
+{
+    GRAPHICS_RUNTIME_ASSERT(program_ != 0);
+    GRAPHICS_RUNTIME_ASSERT(name != 0);
+
+    // glGetUniformLocation returns -1 on error
+    const GLint location = glGetUniformLocation(program_->id(), name);
+
+    if (location != -1)
+    {
+        // TODO: this assumes that the type of the specified uniform variable
+        // is mat3, verify this assumption?
+
+        // the specified uniform variable exists, set it to the given value
+        glUniformMatrix3fv(
+            location,
+            1,
+            false,
+            value.data()
+        );
+    }
+}
+
+void Renderer::setUniform(const char* const name, const Matrix4x4& value)
+{
+    GRAPHICS_RUNTIME_ASSERT(program_ != 0);
+    GRAPHICS_RUNTIME_ASSERT(name != 0);
+
+    // glGetUniformLocation returns -1 on error
+    const GLint location = glGetUniformLocation(program_->id(), name);
+
+    if (location != -1)
+    {
+        // TODO: this assumes that the type of the specified uniform variable
+        // is mat4, verify this assumption?
+
+        // the specified uniform variable exists, set it to the given value
+        glUniformMatrix4fv(
+            location,
+            1,
+            false,
+            value.data()
         );
     }
 }

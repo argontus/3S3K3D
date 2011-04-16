@@ -5,7 +5,7 @@
 // glEnable(GL_VERTEX_PROGRAM_POINT_SIZE)
 // glDepthMask(GL_FALSE)
 
-uniform mat4 viewMatrix;
+uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 
 in vec3 position;   // particle center point in world space
@@ -16,7 +16,7 @@ out vec4 color_;    // particle color
 
 void main()
 {
-    vec4 viewCoord = viewMatrix *  vec4(position, 1.0);
+    vec4 viewCoord = modelViewMatrix *  vec4(position, 1.0);
 
     // distance from camera to particle center point along z-axis
     float d = -viewCoord.z;

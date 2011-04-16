@@ -54,22 +54,22 @@ void main()
     float kSpecular = max(0.0, dot(eyeDirection, reflection));
     kSpecular = pow(kSpecular, specularExponent);
 
+    vec3 color = vec3(0.0, 0.0, 0.0);
+
+    vec4 diffuseColor = texture(diffuseMap, texCoord_);
+    vec4 specularColor = texture(specularMap, texCoord_);
+
     // TODO: make this a uniform variable?
     // diffuse and specular lighting correction threshold angle in radians, the
     // lighting correction will be applied when the angle between 'n' and
     // 'lightDirection' is between [0, 'correctionThreshold')
     const float correctionThreshold = 0.165;
 
-    float alpha = asin(clamp(dot(lightDirection, n), 0.0, 1.0));
+    float correction = asin(clamp(dot(lightDirection, n), 0.0, 1.0));
 
-    vec3 color = vec3(0.0, 0.0, 0.0);
-
-    vec4 diffuseColor = texture(diffuseMap, texCoord_);
-    vec4 specularColor = texture(specularMap, texCoord_);
-
-    if (alpha < correctionThreshold)
+    if (correction < correctionThreshold)
     {
-        float kShadowFix = (alpha * alpha) / (correctionThreshold * correctionThreshold);
+        float kShadowFix = (correction * correction) / (correctionThreshold * correctionThreshold);
         color += kDistance * kShadowFix * (kDiffuse * diffuseColor.rgb + kSpecular * specularColor.rgb) * lightColor;
 
         // for debugging, shows which pixels are affected by the correction

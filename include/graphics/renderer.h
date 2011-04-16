@@ -7,6 +7,10 @@
 #define GRAPHICS_RENDERER_H_INCLUDED
 
 // no forward declarations, just include everything
+
+#include <geometry/matrix3x3.h>
+#include <geometry/matrix4x4.h>
+
 #include <graphics/blendstate.h>
 #include <graphics/cullstate.h>
 #include <graphics/depthstate.h>
@@ -44,6 +48,33 @@ public:
     };
 
     /**
+     * Gets the GLSL uniform variable name for model-view matrix that the
+     * implementation assumes.
+     *
+     * @return GLSL uniform variable name for model-view matrix that the
+     * implementation assumes.
+     */
+    static const char* modelViewMatrixName();
+
+    /**
+     * Gets the GLSL uniform variable name for projection matrix that the
+     * implementation assumes.
+     *
+     * @return GLSL uniform variable name for projection matrix that the
+     * implementation assumes.
+     */
+    static const char* projectionMatrixName();
+
+    /**
+     * Gets the GLSL uniform variable name for normal matrix that the
+     * implementation assumes.
+     *
+     * @return GLSL uniform variable name for normal matrix that the
+     * implementation assumes.
+     */
+    static const char* normalMatrixName();
+
+    /**
      * Destructor.
      */
     ~Renderer();
@@ -59,7 +90,7 @@ public:
     // TODO: camera management, shader uniform management, fill mode
     // management, framebuffer management, viewport management, ...
 
-    // this must be called if the client area is resized
+    // this must be called if the default framebuffer is resized
     // width and height must be > 0
     // TODO: resize(int width, int height); ?
 
@@ -76,6 +107,15 @@ public:
      * @return Height of the active framebuffer in pixels.
      */
     int height() const;
+
+    void setModelViewMatrix(const Matrix4x4& modelViewMatrix);
+    const Matrix4x4 modelViewMatrix() const;
+
+    void setProjectionMatrix(const Matrix4x4& projectionMatrix);
+    const Matrix4x4 projectionMatrix() const;
+
+    void setNormalMatrix(const Matrix3x3& normalMatrix);
+    const Matrix3x3 normalMatrix() const;
 
     // there can be no active vertex buffer when this function is called
     // there can be no active textures when this function is called
@@ -229,11 +269,21 @@ public:
 private:
     enum { MaxTextureUnits = 32 };
 
+    // There must be an active program when this functions is called. If a
+    // uniform variable with the specified name does not exist, this function
+    // does nothing. 'name' cannot be a null pointer.
+    void setUniform(const char* name, const Matrix3x3& value);
+    void setUniform(const char* name, const Matrix4x4& value);
+
     void bindVertexBuffer(VertexBuffer* vertexBuffer);
     void unbindVertexBuffer();
 
     int defaultWidth_;  ///< Width of the default framebuffer in pixels.
     int defaultHeight_; ///< Height of the default framebuffer in pixels.
+
+    Matrix4x4 modelViewMatrix_;     ///< Model-view matrix.
+    Matrix4x4 projectionMatrix_;    ///< Projection matrix.
+    Matrix3x3 normalMatrix_;        ///< Normal matrix.
 
     // TODO: make these pointers to const?
     Program* program_;                      ///< Active program.

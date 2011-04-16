@@ -5,14 +5,11 @@
 
 #include <graphics/meshnode.h>
 
-#include <geometry/matrix4x4.h>
-
 #include <graphics/drawparams.h>
 #include <graphics/groupnode.h>
 #include <graphics/mesh.h>
-#include <graphics/program.h>
+#include <graphics/renderer.h>
 #include <graphics/runtimeassert.h>
-#include <graphics/vertexbuffer.h>
 
 MeshNode::~MeshNode()
 {
@@ -116,70 +113,16 @@ void MeshNode::draw(const DrawParams& params) const
 {
     GRAPHICS_RUNTIME_ASSERT(vertexBuffer_ != 0);
 
-    // TODO: this whole function should be 3 lines of code and the 3rd line
-    // could be omitted as an optimization
-    //
-    // params.renderer->setVertexBuffer(vertexBuffer_);
-    // params.renderer->renderPrimitives(Renderer::PrimitiveType::Triangles);
-    // params.renderer->setVertexBuffer(0);
-
-    const int vertexStride = sizeof(Mesh::Vertex);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer_->id());
-
     const Matrix4x4 modelViewMatrix = toMatrix4x4(transformByInverse(worldTransform(), params.cameraToWorld));
     const Matrix3x3 normalMatrix = worldTransform().rotation * params.worldToViewRotation;
 
-    glUniformMatrix4fv(
-        glGetUniformLocation(params.program->id(), "modelViewMatrix"),
-        1,
-        false,
-        modelViewMatrix.data()
-    );
+    params.renderer->setModelViewMatrix(modelViewMatrix);
+    params.renderer->setNormalMatrix(normalMatrix);
+    params.renderer->setVertexBuffer(vertexBuffer_);
 
-    // TODO: can be loaded in the draw initialization step
-    glUniformMatrix4fv(
-        glGetUniformLocation(params.program->id(), "projectionMatrix"),
-        1,
-        false,
-        params.projectionMatrix.data()
-    );
+    params.renderer->renderPrimitives(Renderer::PrimitiveType::Triangles);
 
-    glUniformMatrix3fv(
-        glGetUniformLocation(params.program->id(), "normalMatrix"),
-        1,
-        false,
-        normalMatrix.data()
-    );
-
-    const GLint positionLocation    = glGetAttribLocation(params.program->id(), "position");
-    const GLint normalLocation      = glGetAttribLocation(params.program->id(), "normal");
-    const GLint tangentLocation     = glGetAttribLocation(params.program->id(), "tangent");
-    const GLint texCoordLocation    = glGetAttribLocation(params.program->id(), "texCoord");
-
-    const GLvoid* positionOffset    = 0;
-    const GLvoid* normalOffset      = reinterpret_cast<GLvoid*>(1 * sizeof(Vector3));
-    const GLvoid* tangentOffset     = reinterpret_cast<GLvoid*>(2 * sizeof(Vector3));
-    const GLvoid* texCoordOffset    = reinterpret_cast<GLvoid*>(3 * sizeof(Vector3));
-
-    glEnableVertexAttribArray(positionLocation);
-    glEnableVertexAttribArray(normalLocation);
-    glEnableVertexAttribArray(tangentLocation);
-    glEnableVertexAttribArray(texCoordLocation);
-
-    glVertexAttribPointer(positionLocation, 3, GL_FLOAT, false, vertexStride, positionOffset);
-    glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, vertexStride, normalOffset);
-    glVertexAttribPointer(tangentLocation, 3, GL_FLOAT, false, vertexStride, tangentOffset);
-    glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, vertexStride, texCoordOffset);
-
-    glDrawArrays(GL_TRIANGLES, 0, vertexBuffer_->numElements());
-
-    glDisableVertexAttribArray(positionLocation);
-    glDisableVertexAttribArray(normalLocation);
-    glDisableVertexAttribArray(tangentLocation);
-    glDisableVertexAttribArray(texCoordLocation);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    params.renderer->setVertexBuffer(0);
 }
 
 void MeshNode::invalidateWorldExtents() const

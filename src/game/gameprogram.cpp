@@ -43,14 +43,17 @@ GameProgram::GameProgram()
     drawShadowVolumes_(false),
     diffuseMipmappingOn(true),
     glowMipmappingOn(true),
-    normalMipmappingOn(false),
+    normalMipmappingOn(true),
     specularMipmappingOn(true),
     rotateLights(false),
     anisotropicFilteringOn(true),
     programManager_(),
     meshManager_(),
     textureManager_(),
+    extentsVertexFormat_(0),
+    litMeshVertexFormat_(0),
     shadowVertexFormat_(0),
+    unlitMeshVertexFormat_(0),
     shadowVertexBuffer_(0)
 {
     running         = true;
@@ -74,13 +77,37 @@ int GameProgram::execute()
     renderer_->setClearDepth(1.0);
     renderer_->setClearStencil(0);
 
+
+
+    // init vertex formats
+
+    // vertex format for Vector3
+    extentsVertexFormat_ = new VertexFormat(1);
+    extentsVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
+    extentsVertexFormat_->compile();
+
+    // vertex format for Mesh::Vertex
+    litMeshVertexFormat_ = new VertexFormat(4);
+    litMeshVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
+    litMeshVertexFormat_->setAttribute(1, VertexAttribute::Type::Float3, VertexAttribute::Usage::Normal);
+    litMeshVertexFormat_->setAttribute(2, VertexAttribute::Type::Float3, VertexAttribute::Usage::Tangent);
+    litMeshVertexFormat_->setAttribute(3, VertexAttribute::Type::Float2, VertexAttribute::Usage::TexCoord);
+    litMeshVertexFormat_->compile();
+
+    // vertex format for Vector3
     shadowVertexFormat_ = new VertexFormat(1);
-    shadowVertexFormat_->setAttribute(
-        0,
-        VertexAttribute::Type::Float3,
-        VertexAttribute::Usage::Position
-    );
+    shadowVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
     shadowVertexFormat_->compile();
+
+    // vertex format for Mesh::Vertex where only position and texCoord are used
+    unlitMeshVertexFormat_ = new VertexFormat(4);
+    unlitMeshVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
+    unlitMeshVertexFormat_->setAttribute(1, VertexAttribute::Type::Float3, VertexAttribute::Usage::Unused);
+    unlitMeshVertexFormat_->setAttribute(2, VertexAttribute::Type::Float3, VertexAttribute::Usage::Unused);
+    unlitMeshVertexFormat_->setAttribute(3, VertexAttribute::Type::Float2, VertexAttribute::Usage::TexCoord);
+    unlitMeshVertexFormat_->compile();
+
+
 
     shadowVertexBuffer_ = new VertexBuffer(
         sizeof(Vector3),
@@ -95,26 +122,35 @@ int GameProgram::execute()
     Texture* texture = new Texture();
     texture->loadImage("data/textures/diffuse.tga");
     texture->generateMipmap();
+    texture->activateAnisotropicFiltering();
+    texture->setFilters(Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR);
     textureManager_.loadResource("diffuse", texture);
 
     texture = new Texture();
     texture->loadImage("data/textures/specular.tga");
     texture->generateMipmap();
+    texture->activateAnisotropicFiltering();
+    texture->setFilters(Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR);
     textureManager_.loadResource("specular", texture);
 
     texture = new Texture();
     texture->loadImage("data/textures/glow.tga");
     texture->generateMipmap();
+    texture->activateAnisotropicFiltering();
+    texture->setFilters(Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR);
     textureManager_.loadResource("glow", texture);
 
     texture = new Texture();
     texture->loadImage("data/textures/normal.tga");
     texture->generateMipmap();
+    texture->activateAnisotropicFiltering();
+    texture->setFilters(Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR);
     textureManager_.loadResource("normal", texture);
 
     texture = new Texture();
     texture->loadImage("data/textures/particle.tga");
     texture->generateMipmap();
+    texture->setFilters(Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR);
     textureManager_.loadResource("particle", texture);
 
     // init scene
@@ -187,21 +223,57 @@ int GameProgram::execute()
         if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F2))
         {
             diffuseMipmappingOn = !diffuseMipmappingOn;
+
+            if( diffuseMipmappingOn )
+            {
+                textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
+            }
+            else
+            {
+                textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+            }
         }
 
         if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F3))
         {
             glowMipmappingOn = !glowMipmappingOn;
+
+            if( glowMipmappingOn )
+            {
+                textureManager_.getResource("glow")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
+            }
+            else
+            {
+                textureManager_.getResource("glow")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+            }
         }
 
         if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F4))
         {
             normalMipmappingOn = !normalMipmappingOn;
+
+            if( normalMipmappingOn )
+            {
+                textureManager_.getResource("normal")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
+            }
+            else
+            {
+                textureManager_.getResource("normal")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+            }
         }
 
         if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F5))
         {
             specularMipmappingOn = !specularMipmappingOn;
+
+            if( specularMipmappingOn )
+            {
+                textureManager_.getResource("specular")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
+            }
+            else
+            {
+                textureManager_.getResource("specular")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
+            }
         }
 
         if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F6))
@@ -212,8 +284,22 @@ int GameProgram::execute()
         if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F7 ) )
         {
             anisotropicFilteringOn = !anisotropicFilteringOn;
-        }
 
+            if( anisotropicFilteringOn )
+            {
+                textureManager_.getResource("diffuse")->activateAnisotropicFiltering();
+                textureManager_.getResource("specular")->activateAnisotropicFiltering();
+                textureManager_.getResource("normal")->activateAnisotropicFiltering();
+                textureManager_.getResource("glow")->activateAnisotropicFiltering();
+            }
+            else
+            {
+                textureManager_.getResource("diffuse")->disableAnisotropicFiltering();
+                textureManager_.getResource("specular")->disableAnisotropicFiltering();
+                textureManager_.getResource("normal")->disableAnisotropicFiltering();
+                textureManager_.getResource("glow")->disableAnisotropicFiltering();
+            }
+        }
 
         if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F8 ) )
         {
@@ -279,51 +365,6 @@ int GameProgram::execute()
 
 void GameProgram::render()
 {
-    if( diffuseMipmappingOn )
-    {
-        textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-    }
-    else
-    {
-        textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-    }
-
-    if( glowMipmappingOn )
-    {
-        textureManager_.getResource("glow")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-    }
-    else
-    {
-        textureManager_.getResource("glow")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-    }
-
-    if( normalMipmappingOn )
-    {
-        textureManager_.getResource("normal")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-    }
-    else
-    {
-        textureManager_.getResource("normal")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-    }
-
-    if( specularMipmappingOn )
-    {
-        textureManager_.getResource("specular")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-    }
-    else
-    {
-        textureManager_.getResource("specular")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-    }
-
-    if( anisotropicFilteringOn )
-    {
-        textureManager_.getResource("diffuse")->activateAnisotropicFiltering();
-    }
-    else
-    {
-        textureManager_.getResource("diffuse")->disableAnisotropicFiltering();
-    }
-
     // TODO: get rid of all direct OpenGL calls
 
     glEnable(GL_DEPTH_TEST);
@@ -343,6 +384,8 @@ void GameProgram::render()
 
     renderer_->setColorMask(enableRed, enableGreen, enableBlue, enableAlpha);
     renderer_->clearBuffers(true, true, false);
+
+    renderer_->setProjectionMatrix(camera_->projectionMatrix());
 
 
     // TODO: REALLY quick & dirty
@@ -390,10 +433,16 @@ void GameProgram::render()
 
     unlitMaterial.bind();
 
+    renderer_->setProgram(drawParams.program);
+    renderer_->setVertexFormat(unlitMeshVertexFormat_);
+
     // unlit render pass
     renderQueue.draw(drawParams);
 
     unlitMaterial.unbind();
+
+    renderer_->setVertexFormat(0);
+    renderer_->setProgram(0);
 
     // ...
 
@@ -569,12 +618,12 @@ void GameProgram::render()
 
     drawParams.program = programManager_.load("data/shaders/shadow.vs", "data/shaders/shadow.fs");
 
+    renderer_->setModelViewMatrix(drawParams.viewMatrix);
+    renderer_->setProjectionMatrix(drawParams.projectionMatrix);
+
     renderer_->setProgram(drawParams.program);
     renderer_->setVertexFormat(shadowVertexFormat_);
     renderer_->setVertexBuffer(shadowVertexBuffer_);
-
-    glUniformMatrix4fv(glGetUniformLocation(drawParams.program->id(), "viewMatrix"), 1, false, drawParams.viewMatrix.data());
-    glUniformMatrix4fv(glGetUniformLocation(drawParams.program->id(), "projectionMatrix"), 1, false, drawParams.projectionMatrix.data());
 
     // load the shadow geometry to a vertex buffer
     shadowVertexBuffer_->update(
@@ -641,6 +690,9 @@ void GameProgram::render()
 
     drawParams.program = programManager_.load("data/shaders/lit.vs", "data/shaders/lit.fs");
 
+    renderer_->setProgram(drawParams.program);
+    renderer_->setVertexFormat(litMeshVertexFormat_);
+
     Material litMaterial;
     litMaterial.setProgram(drawParams.program);
     litMaterial.addVariable(new FloatVariable("specularExponent", 128.0f));
@@ -695,6 +747,9 @@ void GameProgram::render()
     glDisable(GL_STENCIL_TEST);
 
     litMaterial.unbind();
+
+    renderer_->setVertexFormat(0);
+    renderer_->setProgram(0);
 
     } // for each light
 
@@ -758,17 +813,14 @@ void GameProgram::render()
     depthState.writeEnabled = false;
     depthState.compareFunc = DepthState::CompareFunc::Less;
 
+    renderer_->setModelViewMatrix(drawParams.viewMatrix);
+
     renderer_->setProgram(drawParams.program);
     renderer_->setVertexFormat(&vertexFormat);
     renderer_->setVertexBuffer(&vertexBuffer);
     renderer_->setBlendState(&blendState);
     renderer_->setDepthState(&depthState);
     renderer_->setTexture(0, textureManager_.getResource("particle"));
-
-    const GLint modelViewMatrixLocation = glGetUniformLocation(drawParams.program->id(), "viewMatrix");
-    const GLint projectionMatrixLocation = glGetUniformLocation(drawParams.program->id(), "projectionMatrix");
-    glUniformMatrix4fv(modelViewMatrixLocation, 1, false, drawParams.viewMatrix.data());
-    glUniformMatrix4fv(projectionMatrixLocation, 1, false, drawParams.projectionMatrix.data());
 
     glEnable(GL_POINT_SPRITE);  // TODO: this is deprecated
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
@@ -795,6 +847,8 @@ void GameProgram::render()
     if (drawExtents_)
     {
         glDepthFunc(GL_LEQUAL);
+
+        renderer_->setModelViewMatrix(drawParams.viewMatrix);
 
         drawParams.program = programManager_.load("data/shaders/extents.vs", "data/shaders/extents.fs");
         renderer_->setProgram(drawParams.program);
@@ -823,10 +877,6 @@ void GameProgram::drawExtents(const Node* node, const DrawParams& params)
     const Vector3 min = extents.min;
     const Vector3 max = extents.max;
 
-    VertexFormat vertexFormat(1);
-    vertexFormat.setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
-    vertexFormat.compile();
-
     const Vector3 vertices[] = {
         Vector3(min.x, min.y, max.z),
         Vector3(max.x, min.y, max.z),
@@ -838,11 +888,9 @@ void GameProgram::drawExtents(const Node* node, const DrawParams& params)
         Vector3(max.x, max.y, min.z)
     };
 
-    const int vertexSize = sizeof(Vector3);
-
     VertexBuffer vertexBuffer(
-        vertexSize,
-        sizeof(vertices) / vertexSize,
+        sizeof(vertices[0]),
+        sizeof(vertices) / sizeof(vertices[0]),
         vertices,
         VertexBuffer::Usage::Static
     );
@@ -877,12 +925,7 @@ void GameProgram::drawExtents(const Node* node, const DrawParams& params)
 //    GRAPHICS_RUNTIME_ASSERT(indexBuffer.isLocked() == false);
     // end test index buffer locking ------------------------------------------
 
-    const Matrix4x4 mvpMatrix = params.viewMatrix * params.projectionMatrix;
-
-    const GLint mvpMatrixLocation = glGetUniformLocation(params.program->id(), "viewProjectionMatrix");
-    glUniformMatrix4fv(mvpMatrixLocation, 1, false, mvpMatrix.data());
-
-    renderer_->setVertexFormat(&vertexFormat);
+    renderer_->setVertexFormat(extentsVertexFormat_);
     renderer_->setVertexBuffer(&vertexBuffer);
     renderer_->setIndexBuffer(&indexBuffer);
 
@@ -1088,6 +1131,11 @@ GameProgram::~GameProgram()
     delete renderer_;
     delete rootNode_;
     delete camera_;
+
+    delete extentsVertexFormat_;
+    delete litMeshVertexFormat_;
     delete shadowVertexFormat_;
+    delete unlitMeshVertexFormat_;
+
     delete shadowVertexBuffer_;
 }

@@ -152,7 +152,11 @@ private:
 	float cameraSpeedY;
 	float cameraSpeedZ;
 
+    VertexFormat* extentsVertexFormat_;
+    VertexFormat* litMeshVertexFormat_;
     VertexFormat* shadowVertexFormat_;
+    VertexFormat* unlitMeshVertexFormat_;
+
     VertexBuffer* shadowVertexBuffer_;
 
     // TODO: quick & dirty
