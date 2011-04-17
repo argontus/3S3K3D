@@ -825,7 +825,7 @@ void GameProgram::render()
     glEnable(GL_POINT_SPRITE);  // TODO: this is deprecated
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
-    renderer_->renderPrimitives(Renderer::PrimitiveType::Points);
+    renderer_->drawPrimitives(Renderer::PrimitiveType::Points);
 
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glDisable(GL_POINT_SPRITE); // TODO: this is deprecated
@@ -929,7 +929,7 @@ void GameProgram::drawExtents(const Node* node, const DrawParams& params)
     renderer_->setVertexBuffer(&vertexBuffer);
     renderer_->setIndexBuffer(&indexBuffer);
 
-    renderer_->renderPrimitives(Renderer::PrimitiveType::Lines);
+    renderer_->drawPrimitives(Renderer::PrimitiveType::Lines);
 
     renderer_->setIndexBuffer(0);
     renderer_->setVertexBuffer(0);

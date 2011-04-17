@@ -120,7 +120,7 @@ void MeshNode::draw(const DrawParams& params) const
     params.renderer->setNormalMatrix(normalMatrix);
     params.renderer->setVertexBuffer(vertexBuffer_);
 
-    params.renderer->renderPrimitives(Renderer::PrimitiveType::Triangles);
+    params.renderer->drawPrimitives(Renderer::PrimitiveType::Triangles);
 
     params.renderer->setVertexBuffer(0);
 }

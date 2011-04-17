@@ -14,8 +14,6 @@ Node::~Node()
 {
     // make sure we are not deleting a node that is still attached
     GRAPHICS_RUNTIME_ASSERT(hasParent() == false);
-
-    // TODO: unregister from scene
 }
 
 void Node::invalidateWorldTransform() const

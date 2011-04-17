@@ -949,7 +949,7 @@ void Renderer::clearBuffers(
     glDisable(GL_SCISSOR_TEST);
 }
 
-void Renderer::renderPrimitives(const PrimitiveType::Enum type)
+void Renderer::drawPrimitives(const PrimitiveType::Enum type)
 {
     GRAPHICS_RUNTIME_ASSERT(program_ != 0);
     GRAPHICS_RUNTIME_ASSERT(vertexFormat_ != 0);
@@ -980,7 +980,7 @@ void Renderer::renderPrimitives(const PrimitiveType::Enum type)
     }
 }
 
-void Renderer::renderPrimitives(
+void Renderer::drawPrimitives(
     const PrimitiveType::Enum type,
     const int offset,
     const int count)

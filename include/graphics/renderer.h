@@ -255,13 +255,13 @@ public:
     // there must be an active program when this function is called
     // there must be an active vertex format when this function is called
     // there must be an active vertex buffer when this function is called
-    void renderPrimitives(PrimitiveType::Enum type);
+    void drawPrimitives(PrimitiveType::Enum type);
 
     // there must be an active program when this function is called
     // there must be an active vertex format when this function is called
     // there must be an active vertex buffer when this function is called
     // the specified range [offset, offset + count) must be valid
-    void renderPrimitives(PrimitiveType::Enum type, int offset, int count);
+    void drawPrimitives(PrimitiveType::Enum type, int offset, int count);
 
     // TODO: renderPrimitives function that takes a pointer to vertex data in
     // client memory?
