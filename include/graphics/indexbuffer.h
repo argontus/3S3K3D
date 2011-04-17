@@ -80,6 +80,8 @@ public:
      */
     void update(Format::Enum format, int numElements, const void* data);
 
+    // TODO: partial buffer update with glBufferSubData
+
     /**
      * Locks this buffer. Remember to call <code>unlock()</code> once done
      * accessing the buffer contents. Only one index buffer can be locked at a

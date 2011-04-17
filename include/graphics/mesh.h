@@ -52,7 +52,7 @@ public:
     Vertex& vertex(int index);
 
     /**
-     * Provided for const-correctness.
+     * Provided for const correctness.
      *
      * @see vertex(int)
      */
@@ -66,7 +66,7 @@ public:
     Vertex* vertices();
 
     /**
-     * Provided for const-correctness.
+     * Provided for const correctness.
      *
      * @see vertices()
      */

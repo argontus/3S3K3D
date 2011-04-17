@@ -50,7 +50,7 @@ public:
     float* data();
 
     /**
-     * Provided for const-correctness.
+     * Provided for const correctness.
      *
      * @see data()
      */
