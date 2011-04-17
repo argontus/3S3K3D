@@ -58,8 +58,6 @@ public:
     // invalidates the world transform of this node and all direct and indirect
     // child nodes
     virtual void invalidateWorldTransform() const;
-
-    virtual void setScene(Scene*);
     //@}
 
 private:

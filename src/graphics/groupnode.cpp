@@ -53,8 +53,7 @@ void GroupNode::attachChild(Node* const p)
 
     children_.push_back(p);
 
-    // update back pointers
-    p->setScene(scene());
+    // update back pointer
     p->setParent(this);
 }
 
@@ -181,18 +180,6 @@ void GroupNode::invalidateWorldTransform() const
         // invalidates the world extents of this group node if any of the
         // direct or indirect child nodes is a geometry node
         children_[i]->invalidateWorldTransform();
-    }
-}
-
-void GroupNode::setScene(Scene* const scene)
-{
-    // call the base class version
-    Node::setScene(scene);
-
-    // propagate the call to all attached child nodes
-    for (size_t i = 0; i < children_.size(); ++i)
-    {
-        children_[i]->setScene(scene);
     }
 }
 

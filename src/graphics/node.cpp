@@ -177,19 +177,6 @@ const Matrix4x4 Node::modelToWorldMatrix() const
     return toMatrix4x4(worldTransform());
 }
 
-void Node::setScene(Scene* const scene)
-{
-    // make sure that this node is not being registered to multiple scenes
-    GRAPHICS_RUNTIME_ASSERT(scene_ == 0 || scene == 0);
-
-    scene_ = scene;
-}
-
-Scene* Node::scene() const
-{
-    return scene_;
-}
-
 void Node::setParent(GroupNode* const parent)
 {
     // make sure we are not doing any unnecessary function calls and that this
@@ -216,7 +203,6 @@ Node::Node()
     localTransform_(),
     rotationLocked_(false),
     scalingLocked_(false),
-    scene_(0),
     parent_(0)
 {
     // ...
@@ -228,7 +214,6 @@ Node::Node(const Node& other)
     localTransform_(other.localTransform_),
     rotationLocked_(other.rotationLocked_),
     scalingLocked_(other.scalingLocked_),
-    scene_(0),
     parent_(0)
 {
     // ...

@@ -13,7 +13,6 @@ class Matrix4x4;
 
 class GroupNode;
 class PredrawParams;
-class Scene;
 
 /**
  * Abstract base class for all scene graph nodes.
@@ -199,23 +198,6 @@ public:
     const Matrix4x4 modelToWorldMatrix() const;
 
     /**
-     * Sets the scene. Only <code>GroupNode</code> class should override this
-     * member function.
-     *
-     * @param scene Scene.
-     *
-     * @warning For internal use only.
-     */
-    virtual void setScene(Scene* scene);
-
-    /**
-     * Gets the scene.
-     *
-     * @return Scene.
-     */
-    Scene* scene() const;
-
-    /**
      * Sets the parent node.
      *
      * @param parent Parent node.
@@ -275,7 +257,6 @@ private:
     Transform3 localTransform_;         ///< Local transform.
     bool rotationLocked_;               ///< Is rotation locked to local rotation?
     bool scalingLocked_;                ///< Is scaling locked to local scaling?
-    Scene* scene_;                      ///< Scene.
     GroupNode* parent_;                 ///< Parent node.
 
     // hide the copy assignment operator
