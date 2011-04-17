@@ -55,6 +55,8 @@ void GroupNode::attachChild(Node* const p)
 
     // update back pointer
     p->setParent(this);
+
+    // TODO: shouldn't the world extents be invalidated here?
 }
 
 void GroupNode::detachChild(Node* const p)
@@ -70,6 +72,7 @@ void GroupNode::detachChild(Node* const p)
             // detach, do not delete
             children_.erase(i);
             p->setParent(0);
+            // TODO: shouldn't the world extents be invalidated here?
             return;
         }
 
