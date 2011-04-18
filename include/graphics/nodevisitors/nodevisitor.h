@@ -18,14 +18,14 @@ public:
     virtual ~NodeVisitor() {}
 
     // TODO: try these as an optimization when FSP can be compared
-    //virtual void pushState() {}
-    //virtual void popState() {}
+    //virtual void pushState() = 0;
+    //virtual void popState() = 0;
 
     // parameter cannot be a null pointer, returns true if child nodes should
     // be visited
-    virtual bool visit(CameraNode*) { return true; }
-    virtual bool visit(MeshNode*) { return true; }
-    virtual bool visit(Node*) { return true; }
+    virtual bool visit(CameraNode*) = 0;
+    virtual bool visit(MeshNode*) = 0;
+    virtual bool visit(Node*) = 0;
     // TODO: add more node types when they are implemented
 
 protected:

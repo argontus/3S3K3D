@@ -52,9 +52,11 @@
 		<Unit filename="..\..\include\graphics\nodes\cameranode.h" />
 		<Unit filename="..\..\include\graphics\nodes\meshnode.h" />
 		<Unit filename="..\..\include\graphics\nodes\node.h" />
+		<Unit filename="..\..\include\graphics\nodevisitors\nodecountquery.h" />
 		<Unit filename="..\..\include\graphics\nodevisitors\nodevisitor.h" />
+		<Unit filename="..\..\include\graphics\nodevisitors\visibleextentsquery.h" />
 		<Unit filename="..\..\include\graphics\nodevisitors\visiblegeometryquery.h" />
-		<Unit filename="..\..\include\graphics\nodevisitors\visiblelightquery.h" />
+		<Unit filename="..\..\include\graphics\nodevisitors\visiblelightsquery.h" />
 		<Unit filename="..\..\include\graphics\opengl.h" />
 		<Unit filename="..\..\include\graphics\program.h" />
 		<Unit filename="..\..\include\graphics\programmanager.h" />
@@ -93,8 +95,10 @@
 		<Unit filename="..\..\src\graphics\nodes\cameranode.cpp" />
 		<Unit filename="..\..\src\graphics\nodes\meshnode.cpp" />
 		<Unit filename="..\..\src\graphics\nodes\node.cpp" />
+		<Unit filename="..\..\src\graphics\nodevisitors\nodecountquery.cpp" />
+		<Unit filename="..\..\src\graphics\nodevisitors\visibleextentsquery.cpp" />
 		<Unit filename="..\..\src\graphics\nodevisitors\visiblegeometryquery.cpp" />
-		<Unit filename="..\..\src\graphics\nodevisitors\visiblelightquery.cpp" />
+		<Unit filename="..\..\src\graphics\nodevisitors\visiblelightsquery.cpp" />
 		<Unit filename="..\..\src\graphics\program.cpp" />
 		<Unit filename="..\..\src\graphics\programmanager.cpp" />
 		<Unit filename="..\..\src\graphics\projectionsettings.cpp" />

@@ -438,6 +438,8 @@ void Node::updateSubtreeExtents() const
     // make sure we are not doing any unnecessary function calls
     GRAPHICS_RUNTIME_ASSERT(subtreeExtentsValid_ == false);
 
+    // TODO: should visibility flags affect the extents calculation?
+
     subtreeExtents_ = extents();
 
     for (size_t i = 0; i < children_.size(); ++i)
@@ -457,6 +459,8 @@ void Node::updateExtents() const
 {
     // make sure we are not doing any unnecessary function calls
     GRAPHICS_RUNTIME_ASSERT(extentsValid_ == false);
+
+    // TODO: should visibility flags affect the extents calculation?
 
     // querying the world transform may trigger a recursive update all the way
     // to the root node

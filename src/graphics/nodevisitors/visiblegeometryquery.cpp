@@ -15,17 +15,32 @@ VisibleGeometryQuery::~VisibleGeometryQuery()
 }
 
 VisibleGeometryQuery::VisibleGeometryQuery()
-:   test(),
-    meshNodes(),
-    otherNodes()
+:   NodeVisitor(),
+    test_(),
+    meshNodes_()
 {
     // ...
 }
 
-void VisibleGeometryQuery::clear()
+void VisibleGeometryQuery::reset()
 {
-    meshNodes.clear();
-    otherNodes.clear();
+    meshNodes_.clear();
+}
+
+void VisibleGeometryQuery::init(const CameraNode& camera)
+{
+    test_.init(camera);
+}
+
+MeshNode* VisibleGeometryQuery::meshNode(const int index) const
+{
+    GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < numMeshNodes());
+    return meshNodes_[index];
+}
+
+int VisibleGeometryQuery::numMeshNodes() const
+{
+    return meshNodes_.size();
 }
 
 bool VisibleGeometryQuery::visit(CameraNode* const p)
@@ -35,7 +50,12 @@ bool VisibleGeometryQuery::visit(CameraNode* const p)
 
 bool VisibleGeometryQuery::visit(MeshNode* const p)
 {
-    const VisibilityState::Enum state = test.test(p->subtreeExtents());
+    if (p->isSubtreeVisible() == false)
+    {
+        return false;
+    }
+
+    const VisibilityState::Enum state = test_.test(p->subtreeExtents());
 
     switch (state)
     {
@@ -43,13 +63,18 @@ bool VisibleGeometryQuery::visit(MeshNode* const p)
             // TODO: the visibility test could be disabled here
             // the subtree is completely visible, no need to test individual
             // nodes
-            meshNodes.push_back(p);
+            if (p->isVisible())
+            {
+                meshNodes_.push_back(p);
+            }
+
             return true;
 
         case VisibilityState::PartiallyVisible:
-            if (test.test(p->extents()) != VisibilityState::Invisible)
+            if (p->isVisible()
+            &&  test_.test(p->extents()) != VisibilityState::Invisible)
             {
-                meshNodes.push_back(p);
+                meshNodes_.push_back(p);
             }
 
             return true;
@@ -71,28 +96,10 @@ bool VisibleGeometryQuery::visit(Node* const p)
 
 bool VisibleGeometryQuery::visitOther(Node* const p)
 {
-    const VisibilityState::Enum state = test.test(p->subtreeExtents());
-
-    switch (state)
+    if (p->isSubtreeVisible() == false)
     {
-        case VisibilityState::CompletelyVisible:
-            // TODO: the visibility test could be disabled here
-            // the subtree is completely visible, no need to test individual
-            // nodes
-            otherNodes.push_back(p);
-            return true;
-
-        case VisibilityState::PartiallyVisible:
-            // objects of type Node do not have own extents
-            otherNodes.push_back(p);
-            return true;
-
-        case VisibilityState::Invisible:
-            // the subtree is invisible, no need to test individual nodes
-            return false;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return false;
+        return false;
     }
+
+    return test_.test(p->subtreeExtents()) != VisibilityState::Invisible;
 }

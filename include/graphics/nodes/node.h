@@ -14,6 +14,7 @@
 class DrawParams;
 class NodeVisitor;
 
+// TODO: rename this to group node?
 /**
  * Base class for all scene graph nodes. This class can be used as a group node
  * in node hierarchies.

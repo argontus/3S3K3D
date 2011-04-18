@@ -26,6 +26,8 @@
 #include <graphics/sampler2dvariable.h>
 #include <graphics/vec3variable.h>
 
+#include <graphics/nodevisitors/nodecountquery.h>
+#include <graphics/nodevisitors/visibleextentsquery.h>
 #include <graphics/nodevisitors/visiblegeometryquery.h>
 
 #include <geometry/sphere.h>
@@ -383,29 +385,28 @@ void GameProgram::render()
 
     renderer_->setColorMask(enableRed, enableGreen, enableBlue, enableAlpha);
     renderer_->clearBuffers(true, true, false);
-
     renderer_->setProjectionMatrix(camera_->projectionMatrix());
 
 
     // TODO: REALLY quick & dirty
 
+    static VisibleExtentsQuery visibleExtentsQuery;
     static VisibleGeometryQuery visibleGeometryQuery;
 
 
     // predraw step
 
-    visibleGeometryQuery.clear();
-    visibleGeometryQuery.test.init(*camera_);
+    visibleGeometryQuery.reset();
+    visibleGeometryQuery.init(*camera_);
 
     rootNode_->accept(&visibleGeometryQuery);
 
     // unlit render pass
 
     DrawParams drawParams;
-    drawParams.viewMatrix = camera_->viewMatrix();
-    // TODO: load projection matrix directly to the shader?
-    drawParams.viewRotation = transpose(camera_->worldTransform().rotation);
     drawParams.renderer = renderer_;
+    drawParams.viewMatrix = camera_->viewMatrix();
+    drawParams.viewRotation = transpose(camera_->worldTransform().rotation);
 
     Program* program = programManager_.load("data/shaders/unlit.vs", "data/shaders/unlit.fs");
 
@@ -426,9 +427,9 @@ void GameProgram::render()
     renderer_->setVertexFormat(unlitMeshVertexFormat_);
 
     // unlit render pass
-    for (size_t i = 0; i < visibleGeometryQuery.meshNodes.size(); ++i)
+    for (int i = 0; i < visibleGeometryQuery.numMeshNodes(); ++i)
     {
-        visibleGeometryQuery.meshNodes[i]->draw(drawParams);
+        visibleGeometryQuery.meshNode(i)->draw(drawParams);
     }
 
     unlitMaterial.unbind();
@@ -724,12 +725,12 @@ void GameProgram::render()
     glBlendFunc(GL_ONE, GL_ONE);
 
     // lit render pass
-    for (size_t i = 0; i < visibleGeometryQuery.meshNodes.size(); ++i)
+    for (int i = 0; i < visibleGeometryQuery.numMeshNodes(); ++i)
     {
         // render only if the geometry node is within the light effect sphere
-        if (intersect(visibleGeometryQuery.meshNodes[i]->extents(), effectSphere))
+        if (intersect(visibleGeometryQuery.meshNode(i)->extents(), effectSphere))
         {
-            visibleGeometryQuery.meshNodes[i]->draw(drawParams);
+            visibleGeometryQuery.meshNode(i)->draw(drawParams);
         }
     }
 
@@ -793,13 +794,13 @@ void GameProgram::render()
         VertexBuffer::Usage::Static
     );
 
-    // begin test vertex buffer locking ----------------------------------------
+    // begin test vertex buffer locking ---------------------------------------
 //    GRAPHICS_RUNTIME_ASSERT(vertexBuffer.isLocked() == false);
 //    vertexBuffer.lock(VertexBuffer::Access::ReadOnly);
 //    GRAPHICS_RUNTIME_ASSERT(vertexBuffer.isLocked() == true);
 //    vertexBuffer.unlock();
 //    GRAPHICS_RUNTIME_ASSERT(vertexBuffer.isLocked() == false);
-    // end test vertex buffer locking ------------------------------------------
+    // end test vertex buffer locking -----------------------------------------
 
     BlendState blendState;
     blendState.setEquation(BlendState::Equation::Add);
@@ -843,6 +844,10 @@ void GameProgram::render()
 
     if (drawExtents_)
     {
+        visibleExtentsQuery.init(*camera_);
+        visibleExtentsQuery.reset();
+        rootNode_->accept(&visibleExtentsQuery);
+
         glDepthFunc(GL_LEQUAL);
 
         renderer_->setModelViewMatrix(drawParams.viewMatrix);
@@ -850,22 +855,9 @@ void GameProgram::render()
         program = programManager_.load("data/shaders/extents.vs", "data/shaders/extents.fs");
         renderer_->setProgram(program);
 
-        for (size_t i = 0; i < visibleGeometryQuery.meshNodes.size(); ++i)
+        for (int i = 0; i < visibleExtentsQuery.numExtents(); ++i)
         {
-            drawExtents(visibleGeometryQuery.meshNodes[i]->extents(), drawParams);
-
-            if (visibleGeometryQuery.meshNodes[i]->hasChildren())
-            {
-                drawExtents(visibleGeometryQuery.meshNodes[i]->subtreeExtents(), drawParams);
-            }
-        }
-
-        for (size_t i = 0; i < visibleGeometryQuery.otherNodes.size(); ++i)
-        {
-            if (visibleGeometryQuery.otherNodes[i]->hasChildren())
-            {
-                drawExtents(visibleGeometryQuery.otherNodes[i]->subtreeExtents(), drawParams);
-            }
+            drawExtents(visibleExtentsQuery.extents(i), drawParams);
         }
 
         renderer_->setProgram(0);
@@ -941,6 +933,15 @@ void GameProgram::drawExtents(const Extents3& extents, const DrawParams& params)
 
 void GameProgram::tick( const float deltaTime )
 {
+/*
+    NodeCountQuery query;
+    rootNode_->accept(&query);
+
+    const int numCameraNodes = query.numCameraNodes();
+    const int numMeshNodes = query.numMeshNodes();
+    const int numNodes = query.numNodes();
+    const int total = query.total();
+*/
     return;
 
     const float kx = 75.0f;
@@ -1101,6 +1102,9 @@ void GameProgram::test()
                 meshNode = meshNode->clone();
             }
 
+            // test the visibility flags
+            //meshNode->setVisible(i != j);
+
             meshNode->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
             groupNode->attachChild(meshNode);
             meshNodes_.push_back(meshNode);
@@ -1113,6 +1117,10 @@ void GameProgram::test()
         {
             groupNode = groupNode->clone();
         }
+
+        // test the visibility flags
+        //groupNode->setVisible(false);
+        //groupNode->setSubtreeVisible(i % 2 == 0);
 
         groupNode->setTranslation(Vector3(0.0f, displacement + i * offset, 0.0f));
         rootNode_->attachChild(groupNode);
