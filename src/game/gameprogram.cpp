@@ -1002,22 +1002,26 @@ void GameProgram::test()
 
     rootNode_->attachChild(groupNode);
 
-    testMenuObject1 = new MenuObject();
+    testMenuObject1 = new MenuObject( this );
     testMenuObject1->setGraphicalPresentation( menu1 );
     testMenuObject1->attachController( &menuController1 );
 
-    testMenuObject2 = new MenuObject();
+    testMenuObject2 = new MenuObject( this );
     testMenuObject2->setGraphicalPresentation( menu2 );
     testMenuObject2->attachController( &menuController2 );
 
-    testMenuObject3 = new MenuObject();
+    testMenuObject3 = new MenuObject( this );
     testMenuObject3->setGraphicalPresentation( menu3 );
     testMenuObject3->attachController( &menuController3 );
 
-    testMenuObject4 = new MenuObject();
+    testMenuObject4 = new MenuObject( this );
     testMenuObject4->setGraphicalPresentation( menu4 );
     testMenuObject4->attachController( &menuController4 );
 
+    testMenuObject1->setType(MenuObject::TYPE_NEWGAME);
+    testMenuObject2->setType(MenuObject::TYPE_OPTIONS);
+    testMenuObject3->setType(MenuObject::TYPE_CREDITS);
+    testMenuObject4->setType(MenuObject::TYPE_EXIT);
 
     testMenuObject1->setDown(testMenuObject2);
 

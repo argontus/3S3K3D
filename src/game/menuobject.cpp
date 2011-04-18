@@ -1,9 +1,10 @@
 #include "menuobject.h"
 #include "graphics/node.h"
+#include "gameprogram.h"
 #include <iostream>
 #include <geometry/vector3.h>
 
-MenuObject::MenuObject()
+MenuObject::MenuObject( GameProgram* backpointer )
     : up(NULL),
       down(NULL),
       left(NULL),
@@ -13,8 +14,8 @@ MenuObject::MenuObject()
       highlightSize(0.5f),
       currentSize(0.1f),
       timer(0.0f),
-      active(false)
-
+      active(false),
+      owner( backpointer )
 {
 }
 
@@ -38,7 +39,7 @@ void MenuObject::getFocus()
 
 void MenuObject::giveFocus(char direction)
 {
-    if(active && timer>0.5f)
+    if(active && timer>0.2f)
     {
         switch (direction)
         {
@@ -113,7 +114,27 @@ void MenuObject::update(float deltaTime)
 
 void MenuObject::activate()
 {
+    switch( type )
+    {
+        case TYPE_NEWGAME:
+            owner->changeState(GameProgram::STATE_GAME);
+            break;
 
+        case TYPE_OPTIONS:
+            owner->addState(GameProgram::STATE_GAMEMENU);
+            break;
+
+        case TYPE_CREDITS:
+            owner->addState(GameProgram::STATE_CREDITS);
+            break;
+
+        case TYPE_EXIT:
+            owner->changeState(GameProgram::STATE_QUIT);
+            break;
+
+        default:
+            break;
+    }
 }
 
 

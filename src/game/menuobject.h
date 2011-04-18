@@ -6,7 +6,14 @@
 class MenuObject : public GameObject
 {
     public:
-        MenuObject();
+        enum TYPES {
+            TYPE_NEWGAME,
+            TYPE_OPTIONS,
+            TYPE_CREDITS,
+            TYPE_EXIT
+        };
+
+        MenuObject( GameProgram* backpointer );
         virtual ~MenuObject();
 
         inline void setUp(MenuObject* newUp) { up = newUp; }
@@ -18,6 +25,8 @@ class MenuObject : public GameObject
         inline void setAnimationSpeed( float newAnimationSpeed) { animationSpeed = newAnimationSpeed; }
         inline void setNormalSize( float newNormalSize ) { normalSize = newNormalSize; }
         inline void setHighlightSize( float newHliglightSize ) { highlightSize = newHliglightSize; }
+
+        inline void setType (TYPES newType) { type = newType; }
 
         void getFocus();
         void giveFocus(char direction);
@@ -39,8 +48,11 @@ class MenuObject : public GameObject
         float currentSize;
         float timer;
 
+        int type;
+
         bool active;
 
+        GameProgram* owner;
 };
 
 #endif // MENUOBJECT_H

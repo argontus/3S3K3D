@@ -23,23 +23,23 @@ void MenuKeyboardController::update(float deltaTime)
         {
             attachedMenuObject = (MenuObject*)objectAttachedTo;
 
-            if( keyboard->keyIsDown( Keyboard::KEY_W) )
+            if( keyboard->keyWasPressedInThisFrame( Keyboard::KEY_W) )
             {
                 attachedMenuObject->giveFocus('u');
             }
-            else if( keyboard->keyIsDown( Keyboard::KEY_S ) )
+            else if( keyboard->keyWasPressedInThisFrame( Keyboard::KEY_S ) )
             {
                 attachedMenuObject->giveFocus('d');
             }
-            else if( keyboard->keyIsDown( Keyboard::KEY_A ) )
+            else if( keyboard->keyWasPressedInThisFrame( Keyboard::KEY_A ) )
             {
                 attachedMenuObject->giveFocus('l');
             }
-            else if( keyboard->keyIsDown( Keyboard::KEY_D ) )
+            else if( keyboard->keyWasPressedInThisFrame( Keyboard::KEY_D ) )
             {
                 attachedMenuObject->giveFocus('r');
             }
-            else if( keyboard->keyIsDown( Keyboard::KEY_ENTER ) )
+            else if( keyboard->keyWasPressedInThisFrame( Keyboard::KEY_ENTER ) )
             {
                 attachedMenuObject->activate();
             }
