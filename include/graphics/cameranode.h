@@ -80,18 +80,18 @@ public:
         float far);
 
     /**
+     * Calculates the world to view transform matrix.
+     *
+     * @return The calculated world to view transform matrix.
+     */
+    const Matrix4x4 viewMatrix() const;
+
+    /**
      * Calculates the projection matrix for the current settings.
      *
      * @return The calculated projection matrix.
      */
     const Matrix4x4 projectionMatrix() const;
-
-    /**
-     * Calculates the world to view transform matrix.
-     *
-     * @return The calculated world to view transform matrix.
-     */
-    const Matrix4x4 worldToViewMatrix() const;
 
     /**
      * @name Node Interface

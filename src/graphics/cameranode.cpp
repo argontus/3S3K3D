@@ -69,18 +69,18 @@ void CameraNode::setPerspectiveProjection(
     );
 }
 
-const Matrix4x4 CameraNode::projectionMatrix() const
-{
-    return projectionSettings_.projectionMatrix();
-}
-
-const Matrix4x4 CameraNode::worldToViewMatrix() const
+const Matrix4x4 CameraNode::viewMatrix() const
 {
     // construct the world to view transform, reset scaling just in case
     Transform3 t = inverse(worldTransform());
     t.scaling = 1.0f;
 
     return toMatrix4x4(t);
+}
+
+const Matrix4x4 CameraNode::projectionMatrix() const
+{
+    return projectionSettings_.projectionMatrix();
 }
 
 CameraNode* CameraNode::clone() const

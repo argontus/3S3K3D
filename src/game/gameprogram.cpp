@@ -411,7 +411,7 @@ void GameProgram::render()
     // unlit render pass
 
     DrawParams drawParams;
-    drawParams.viewMatrix = camera_->worldToViewMatrix();
+    drawParams.viewMatrix = camera_->viewMatrix();
     // TODO: load projection matrix directly to the shader?
     drawParams.projectionMatrix = camera_->projectionMatrix();
     drawParams.worldToViewRotation = transpose(camera_->worldTransform().rotation);
