@@ -24,8 +24,7 @@ public:
 
     /**
      * Destructor. <code>*this</code> must be detached from its parent node
-     * before the destructor is called. Calling the destructor will
-     * automatically unregister the node from the scene.
+     * before the destructor is called.
      */
     virtual ~Node();
 
