@@ -21,13 +21,14 @@
 #include <geometry/vector3.h>
 #include <graphics/texture.h>
 
-#include <graphics/geometrynode.h>
-
 #include <graphics/renderer.h>
+
+class Extents3;
 
 // TODO: quick & dirty
 class CameraNode;
-class GroupNode;
+class DrawParams;
+class MeshNode;
 class Node;
 
 typedef ResourceManager<Mesh> MeshManager;
@@ -121,7 +122,7 @@ public:
 
 private:
     void test();
-    void drawExtents(const Node* node, const DrawParams& params);
+    void drawExtents(const Extents3& extents, const DrawParams& params);
 
 	Configuration configuration;
 	Mixer mixer_;
@@ -130,7 +131,7 @@ private:
     GameObject* testObject;
     KeyboardController testController;
     CameraNode* camera_;
-    GroupNode* rootNode_;
+    Node* rootNode_;
     bool drawExtents_;
     bool drawShadowVolumes_;
     bool diffuseMipmappingOn;
@@ -160,7 +161,7 @@ private:
     VertexBuffer* shadowVertexBuffer_;
 
     // TODO: quick & dirty
-    std::vector<GeometryNode*> geometryNodes_;
+    std::vector<MeshNode*> meshNodes_;
 };
 
 #endif /* GAMEPROGRAM_H_ */

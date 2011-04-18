@@ -9,8 +9,8 @@
 #include <geometry/interval.h>
 #include <geometry/math.h>
 
-#include <graphics/cameranode.h>
 #include <graphics/runtimeassert.h>
+#include <graphics/nodes/cameranode.h>
 
 VisibilityTest::VisibilityTest()
 {

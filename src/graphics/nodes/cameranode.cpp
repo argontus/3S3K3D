@@ -1,12 +1,13 @@
 /**
- * @file graphics/cameranode.cpp
+ * @file graphics/nodes/cameranode.cpp
  * @author Mika Haarahiltunen
  */
 
-#include <graphics/cameranode.h>
+#include <graphics/nodes/cameranode.h>
 
-#include <geometry/extents3.h>
 #include <geometry/matrix4x4.h>
+
+#include <graphics/nodevisitors/nodevisitor.h>
 
 CameraNode::~CameraNode()
 {
@@ -16,13 +17,6 @@ CameraNode::~CameraNode()
 CameraNode::CameraNode()
 :   Node(),
     projectionSettings_()
-{
-    // ...
-}
-
-CameraNode::CameraNode(const CameraNode& other)
-:   Node(other),
-    projectionSettings_(other.projectionSettings_)
 {
     // ...
 }
@@ -88,13 +82,19 @@ CameraNode* CameraNode::clone() const
     return new CameraNode(*this);
 }
 
-void CameraNode::predraw(const PredrawParams&, const bool) const
+void CameraNode::draw(const DrawParams&) const
 {
-    // nothing to do
+    // ...
 }
 
-const Extents3 CameraNode::worldExtents() const
+CameraNode::CameraNode(const CameraNode& other)
+:   Node(other),
+    projectionSettings_(other.projectionSettings_)
 {
-    // return empty extents
-    return Extents3();
+    // ...
+}
+
+bool CameraNode::acceptImpl(NodeVisitor* const visitor)
+{
+    return visitor->visit(this);
 }

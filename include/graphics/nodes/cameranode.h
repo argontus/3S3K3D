@@ -1,13 +1,13 @@
 /**
- * @file graphics/cameranode.h
+ * @file graphics/nodes/cameranode.h
  * @author Mika Haarahiltunen
  */
 
-#ifndef GRAPHICS_CAMERANODE_H_INCLUDED
-#define GRAPHICS_CAMERANODE_H_INCLUDED
+#ifndef GRAPHICS_NODES_CAMERANODE_H_INCLUDED
+#define GRAPHICS_NODES_CAMERANODE_H_INCLUDED
 
-#include <graphics/node.h>
 #include <graphics/projectionsettings.h>
+#include <graphics/nodes/node.h>
 
 /**
  * Represents a camera node.
@@ -24,13 +24,6 @@ public:
      * Default constructor.
      */
     CameraNode();
-
-    /**
-     * Copy constructor.
-     *
-     * @param other The object to copy.
-     */
-    CameraNode(const CameraNode& other);
 
     /**
      * Sets the projection settings.
@@ -80,16 +73,16 @@ public:
         float far);
 
     /**
-     * Calculates the world to view transform matrix.
+     * Gets the world to view transform matrix.
      *
-     * @return The calculated world to view transform matrix.
+     * @return World to view transform matrix.
      */
     const Matrix4x4 viewMatrix() const;
 
     /**
-     * Calculates the projection matrix for the current settings.
+     * Gets the projection matrix.
      *
-     * @return The calculated projection matrix.
+     * @return Projection matrix.
      */
     const Matrix4x4 projectionMatrix() const;
 
@@ -98,15 +91,30 @@ public:
      */
     //@{
     virtual CameraNode* clone() const;
-    virtual void predraw(const PredrawParams&, bool) const;
-    virtual const Extents3 worldExtents() const;
+    virtual void draw(const DrawParams&) const;
     //@}
 
+protected:
+    /**
+     * Copy constructor. This is used only for implementing the clone
+     * functionality and is protected to prevent slicing.
+     *
+     * @param other The object to copy.
+     */
+    CameraNode(const CameraNode& other);
+
 private:
+    /**
+     * @name Private Node Interface
+     */
+    //@{
+    virtual bool acceptImpl(NodeVisitor*);
+    //@}
+
     ProjectionSettings projectionSettings_; ///< Projection settings.
 
     // hide the copy assignment operator
     CameraNode& operator =(const CameraNode&);
 };
 
-#endif // #ifndef GRAPHICS_CAMERANODE_H_INCLUDED
+#endif // #ifndef GRAPHICS_NODES_CAMERANODE_H_INCLUDED

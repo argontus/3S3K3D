@@ -14,12 +14,9 @@
 #include <geometry/transform2.h>
 #include <graphics/color3.h>
 #include <graphics/color4.h>
-#include <graphics/meshnode.h>
-#include <graphics/cameranode.h>
-#include <graphics/groupnode.h>
+#include <graphics/nodes/meshnode.h>
+#include <graphics/nodes/cameranode.h>
 #include <graphics/drawparams.h>
-#include <graphics/predrawparams.h>
-#include <graphics/renderqueue.h>
 #include <graphics/runtimeassert.h>
 #include <graphics/modelreader.h>
 #include <graphics/visibilitytest.h>
@@ -28,6 +25,8 @@
 #include <graphics/floatvariable.h>
 #include <graphics/sampler2dvariable.h>
 #include <graphics/vec3variable.h>
+
+#include <graphics/nodevisitors/visiblegeometryquery.h>
 
 #include <geometry/sphere.h>
 
@@ -155,7 +154,7 @@ int GameProgram::execute()
 
     // init scene
 
-    rootNode_ = new GroupNode();
+    rootNode_ = new Node();
 
 
     // init camera
@@ -390,38 +389,28 @@ void GameProgram::render()
 
     // TODO: REALLY quick & dirty
 
-    static RenderQueue renderQueue;
-    static VisibilityTest visibilityTest;
+    static VisibleGeometryQuery visibleGeometryQuery;
 
 
     // predraw step
 
-    renderQueue.clear();
-    visibilityTest.init(*camera_);
+    visibleGeometryQuery.clear();
+    visibleGeometryQuery.test.init(*camera_);
 
-    PredrawParams predrawParams;
-    predrawParams.setRenderQueue(&renderQueue);
-    predrawParams.setVisibilityTest(&visibilityTest);
-
-    // setting the second parameter to false disables frustum culling
-    rootNode_->predraw(predrawParams, true);
-    renderQueue.sort();
-
+    rootNode_->accept(&visibleGeometryQuery);
 
     // unlit render pass
 
     DrawParams drawParams;
     drawParams.viewMatrix = camera_->viewMatrix();
     // TODO: load projection matrix directly to the shader?
-    drawParams.projectionMatrix = camera_->projectionMatrix();
-    drawParams.worldToViewRotation = transpose(camera_->worldTransform().rotation);
-    drawParams.cameraToWorld = camera_->worldTransform();
+    drawParams.viewRotation = transpose(camera_->worldTransform().rotation);
     drawParams.renderer = renderer_;
 
-    drawParams.program = programManager_.load("data/shaders/unlit.vs", "data/shaders/unlit.fs");
+    Program* program = programManager_.load("data/shaders/unlit.vs", "data/shaders/unlit.fs");
 
     Material unlitMaterial;
-    unlitMaterial.setProgram(drawParams.program);
+    unlitMaterial.setProgram(program);
     unlitMaterial.addVariable(new Vec3Variable("ambient", Vector3(0.1f, 0.1f, 0.1f)));
     unlitMaterial.addVariable(new Sampler2DVariable("diffuseMap", textureManager_.getResource("diffuse")));
     unlitMaterial.addVariable(new Sampler2DVariable("glowMap", textureManager_.getResource("glow")));
@@ -433,11 +422,14 @@ void GameProgram::render()
 
     unlitMaterial.bind();
 
-    renderer_->setProgram(drawParams.program);
+    renderer_->setProgram(program);
     renderer_->setVertexFormat(unlitMeshVertexFormat_);
 
     // unlit render pass
-    renderQueue.draw(drawParams);
+    for (size_t i = 0; i < visibleGeometryQuery.meshNodes.size(); ++i)
+    {
+        visibleGeometryQuery.meshNodes[i]->draw(drawParams);
+    }
 
     unlitMaterial.unbind();
 
@@ -501,16 +493,16 @@ void GameProgram::render()
     shadowVertices.clear();
 
     // generate shadow geometry for this light
-    for (size_t i = 0; i < geometryNodes_.size(); ++i)
+    for (size_t i = 0; i < meshNodes_.size(); ++i)
     {
-        if (intersect(geometryNodes_[i]->worldExtents(), effectSphere) == false)
+        if (intersect(meshNodes_[i]->extents(), effectSphere) == false)
         {
             // the geometry node is not within the light effect sphere, next
             continue;
         }
 
-        const Transform3 transform = geometryNodes_[i]->worldTransform();
-        const Mesh* mesh = static_cast<MeshNode*>(geometryNodes_[i])->mesh();
+        const Transform3 transform = meshNodes_[i]->worldTransform();
+        const Mesh* mesh = static_cast<MeshNode*>(meshNodes_[i])->mesh();
 
         for (int iFace = 0; iFace < mesh->numFaces(); ++iFace)
         {
@@ -616,12 +608,11 @@ void GameProgram::render()
     // clear the stencil buffer
     renderer_->clearBuffers(false, false, true);
 
-    drawParams.program = programManager_.load("data/shaders/shadow.vs", "data/shaders/shadow.fs");
+    program = programManager_.load("data/shaders/shadow.vs", "data/shaders/shadow.fs");
 
     renderer_->setModelViewMatrix(drawParams.viewMatrix);
-    renderer_->setProjectionMatrix(drawParams.projectionMatrix);
 
-    renderer_->setProgram(drawParams.program);
+    renderer_->setProgram(program);
     renderer_->setVertexFormat(shadowVertexFormat_);
     renderer_->setVertexBuffer(shadowVertexBuffer_);
 
@@ -688,13 +679,13 @@ void GameProgram::render()
 
     // end shadow pass --------------------------------------------------------
 
-    drawParams.program = programManager_.load("data/shaders/lit.vs", "data/shaders/lit.fs");
+    program = programManager_.load("data/shaders/lit.vs", "data/shaders/lit.fs");
 
-    renderer_->setProgram(drawParams.program);
+    renderer_->setProgram(program);
     renderer_->setVertexFormat(litMeshVertexFormat_);
 
     Material litMaterial;
-    litMaterial.setProgram(drawParams.program);
+    litMaterial.setProgram(program);
     litMaterial.addVariable(new FloatVariable("specularExponent", 128.0f));
     litMaterial.addVariable(new Sampler2DVariable("diffuseMap", textureManager_.getResource("diffuse")));
     litMaterial.addVariable(new Sampler2DVariable("specularMap", textureManager_.getResource("specular")));
@@ -709,9 +700,9 @@ void GameProgram::render()
 
     // ...
 
-    const GLint lightPositionLocation = glGetUniformLocation(drawParams.program->id(), "lightPosition");
-    const GLint lightColorLocation = glGetUniformLocation(drawParams.program->id(), "lightColor");
-    const GLint lightRangeLocation = glGetUniformLocation(drawParams.program->id(), "lightRange");
+    const GLint lightPositionLocation = glGetUniformLocation(program->id(), "lightPosition");
+    const GLint lightColorLocation = glGetUniformLocation(program->id(), "lightColor");
+    const GLint lightRangeLocation = glGetUniformLocation(program->id(), "lightRange");
 
     glUniform3fv(lightPositionLocation, 1, viewLightPositions[lightIndex].data());
     glUniform3fv(lightColorLocation, 1, lightColors[lightIndex].data());
@@ -733,13 +724,12 @@ void GameProgram::render()
     glBlendFunc(GL_ONE, GL_ONE);
 
     // lit render pass
-    //renderQueue.draw(drawParams);
-    for (int i = 0; i < renderQueue.numGeometryNodes(); ++i)
+    for (size_t i = 0; i < visibleGeometryQuery.meshNodes.size(); ++i)
     {
         // render only if the geometry node is within the light effect sphere
-        if (intersect(renderQueue.geometryNode(i)->worldExtents(), effectSphere))
+        if (intersect(visibleGeometryQuery.meshNodes[i]->extents(), effectSphere))
         {
-            renderQueue.geometryNode(i)->draw(drawParams);
+            visibleGeometryQuery.meshNodes[i]->draw(drawParams);
         }
     }
 
@@ -757,10 +747,17 @@ void GameProgram::render()
     {
         lightRotation = Math::mod(lightRotation + deltaTime * 0.075f, 2.0f * Math::pi());
     }
-
+/*
+    // quick & dirty box rotation for testing the extents updates with lazy
+    // evaluation
+    for (int i = 0; i < rootNode_->numChildren(); ++i)
+    {
+        rootNode_->child(i)->rotateBy(Matrix3x3::yRotation(-0.0025f * (i * i + 1) * deltaTime));
+    }
+*/
     // begin quick & dirty point sprite test ----------------------------------
 
-    drawParams.program = programManager_.load("data/shaders/particle.vs", "data/shaders/particle.fs");
+    program = programManager_.load("data/shaders/particle.vs", "data/shaders/particle.fs");
 
     VertexFormat vertexFormat(3);
     vertexFormat.setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
@@ -815,7 +812,7 @@ void GameProgram::render()
 
     renderer_->setModelViewMatrix(drawParams.viewMatrix);
 
-    renderer_->setProgram(drawParams.program);
+    renderer_->setProgram(program);
     renderer_->setVertexFormat(&vertexFormat);
     renderer_->setVertexBuffer(&vertexBuffer);
     renderer_->setBlendState(&blendState);
@@ -850,17 +847,25 @@ void GameProgram::render()
 
         renderer_->setModelViewMatrix(drawParams.viewMatrix);
 
-        drawParams.program = programManager_.load("data/shaders/extents.vs", "data/shaders/extents.fs");
-        renderer_->setProgram(drawParams.program);
+        program = programManager_.load("data/shaders/extents.vs", "data/shaders/extents.fs");
+        renderer_->setProgram(program);
 
-        for (int i = 0; i < renderQueue.numGeometryNodes(); ++i)
+        for (size_t i = 0; i < visibleGeometryQuery.meshNodes.size(); ++i)
         {
-            drawExtents(renderQueue.geometryNode(i), drawParams);
+            drawExtents(visibleGeometryQuery.meshNodes[i]->extents(), drawParams);
+
+            if (visibleGeometryQuery.meshNodes[i]->hasChildren())
+            {
+                drawExtents(visibleGeometryQuery.meshNodes[i]->subtreeExtents(), drawParams);
+            }
         }
 
-        for (int i = 0; i < renderQueue.numGroupNodes(); ++i)
+        for (size_t i = 0; i < visibleGeometryQuery.otherNodes.size(); ++i)
         {
-            drawExtents(renderQueue.groupNode(i), drawParams);
+            if (visibleGeometryQuery.otherNodes[i]->hasChildren())
+            {
+                drawExtents(visibleGeometryQuery.otherNodes[i]->subtreeExtents(), drawParams);
+            }
         }
 
         renderer_->setProgram(0);
@@ -870,10 +875,8 @@ void GameProgram::render()
 }
 
 // TODO: quick & dirty, this does not belong here
-void GameProgram::drawExtents(const Node* node, const DrawParams& params)
+void GameProgram::drawExtents(const Extents3& extents, const DrawParams& params)
 {
-    const Extents3 extents = node->worldExtents();
-
     const Vector3 min = extents.min;
     const Vector3 max = extents.max;
 
@@ -1066,7 +1069,7 @@ void GameProgram::test()
     Mesh* const boxMesh = createBox(0.5f, 0.5f, 0.5f);
     meshManager_.loadResource("box", boxMesh);
 
-    GroupNode* groupNode = new GroupNode();
+    Node* groupNode = new Node();
 
     const float scaling = 17.5f;
 
@@ -1100,7 +1103,7 @@ void GameProgram::test()
 
             meshNode->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
             groupNode->attachChild(meshNode);
-            geometryNodes_.push_back(meshNode);
+            meshNodes_.push_back(meshNode);
         }
     }
 
@@ -1116,14 +1119,15 @@ void GameProgram::test()
 
         for (int j = 0; j < groupNode->numChildren(); ++j)
         {
-            geometryNodes_.push_back(static_cast<GeometryNode*>(groupNode->child(j)));
+            meshNodes_.push_back(static_cast<MeshNode*>(groupNode->child(j)));
         }
     }
 
     //camera_->setTranslation(Vector3(150.0f, -75.0f, 0.0f));
     //camera_->setRotation(Matrix3x3::yRotation(Math::pi() / 2.0));
     camera_->setTranslation(Vector3(0.0f, 0.0f, 150.0f));
-    camera_->setRotation(Matrix3x3::identity());
+    //camera_->setRotation(Matrix3x3::identity());
+    camera_->setRotation(Matrix3x3::yRotation(Math::pi() / 2.0));
 }
 
 GameProgram::~GameProgram()

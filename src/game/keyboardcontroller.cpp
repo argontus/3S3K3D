@@ -2,7 +2,7 @@
 #include "input/keyboard.h"
 #include "input/sdlkeyboard.h"
 #include "geometry/matrix3x3.h"
-#include "graphics/node.h"
+#include "graphics/nodes/node.h"
 
 
 KeyboardController::KeyboardController()

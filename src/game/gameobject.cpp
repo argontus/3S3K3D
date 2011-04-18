@@ -1,7 +1,7 @@
 #include "gameobject.h"
 #include "controller.h"
 #include "gameprogram.h"
-#include "graphics/node.h"
+#include "graphics/nodes/node.h"
 
 
 GameObject::GameObject()

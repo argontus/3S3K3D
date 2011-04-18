@@ -6,10 +6,9 @@
 #ifndef GRAPHICS_DRAWPARAMS_H_INCLUDED
 #define GRAPHICS_DRAWPARAMS_H_INCLUDED
 
+#include <geometry/matrix3x3.h>
 #include <geometry/matrix4x4.h>
-#include <geometry/transform3.h>
 
-class Program;
 class Renderer;
 
 /**
@@ -26,16 +25,9 @@ public:
      */
     DrawParams();
 
-    // TODO: get rid of these
-    Matrix4x4 viewMatrix;           ///< World to view transform matrix.
-    Matrix4x4 projectionMatrix;     ///< Projection matrix.
-    Matrix3x3 worldToViewRotation;  ///< World to view rotation matrix.
-
-    Renderer* renderer;
-
-    // TODO: quick & dirty
-    Program* program;
-    Transform3 cameraToWorld;
+    Renderer* renderer;         ///< The renderer to use for drawing.
+    Matrix4x4 viewMatrix;       ///< World to view transform matrix.
+    Matrix3x3 viewRotation;     ///< World to view rotation matrix.
 };
 
 #endif // #ifndef GRAPHICS_DRAWPARAMS_H_INCLUDED
