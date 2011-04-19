@@ -21,6 +21,10 @@ MeshNode::~MeshNode()
 
 MeshNode::MeshNode()
 :   GeometryNode(),
+    diffuseMap(0),
+    specularMap(0),
+    glowMap(0),
+    normalMap(0),
     worldExtentsValid_(false),
     worldExtents_(),
     modelExtents_(),
@@ -31,6 +35,10 @@ MeshNode::MeshNode()
 
 MeshNode::MeshNode(const MeshNode& other)
 :   GeometryNode(other),
+    diffuseMap(other.diffuseMap),
+    specularMap(other.specularMap),
+    glowMap(other.glowMap),
+    normalMap(other.normalMap),
     worldExtentsValid_(false),
     worldExtents_(),
     modelExtents_(other.modelExtents_),
@@ -108,6 +116,51 @@ void MeshNode::draw(const DrawParams& params) const
     GRAPHICS_RUNTIME_ASSERT(coords.size() == tangents.size());
     GRAPHICS_RUNTIME_ASSERT(coords.size() == texCoords.size());
 
+    // begin super hack
+    const GLint _diffuseMapLocation = glGetUniformLocation(params.program->id(), "diffuseMap");
+    const GLint _specularMapLocation = glGetUniformLocation(params.program->id(), "specularMap");
+    const GLint _glowMapLocation = glGetUniformLocation(params.program->id(), "glowMap");
+    const GLint _normalMapLocation = glGetUniformLocation(params.program->id(), "normalMap");
+
+    int unit = 0;
+
+    if (_diffuseMapLocation != -1)
+    {
+        glUniform1i(_diffuseMapLocation, unit);
+        glActiveTexture(GL_TEXTURE0 + unit);
+        glEnable(GL_TEXTURE_2D);
+        diffuseMap->bindTexture();
+        ++unit;
+    }
+
+    if (_specularMapLocation != -1)
+    {
+        glUniform1i(_specularMapLocation, unit);
+        glActiveTexture(GL_TEXTURE0 + unit);
+        glEnable(GL_TEXTURE_2D);
+        specularMap->bindTexture();
+        ++unit;
+    }
+
+    if (_glowMapLocation != -1)
+    {
+        glUniform1i(_glowMapLocation, unit);
+        glActiveTexture(GL_TEXTURE0 + unit);
+        glEnable(GL_TEXTURE_2D);
+        glowMap->bindTexture();
+        ++unit;
+    }
+
+    if (_normalMapLocation != -1)
+    {
+        glUniform1i(_normalMapLocation, unit);
+        glActiveTexture(GL_TEXTURE0 + unit);
+        glEnable(GL_TEXTURE_2D);
+        normalMap->bindTexture();
+        ++unit;
+    }
+    // end super hack
+
     const Matrix4x4 modelViewMatrix = toMatrix4x4(transformByInverse(worldTransform(), params.cameraToWorld));
     const Matrix3x3 normalMatrix = worldTransform().rotation * params.worldToViewRotation;
 
@@ -155,6 +208,17 @@ void MeshNode::draw(const DrawParams& params) const
     glDisableVertexAttribArray(normalLocation);
     glDisableVertexAttribArray(tangentLocation);
     glDisableVertexAttribArray(texCoordLocation);
+
+//     begin super hack
+//    glActiveTexture(GL_TEXTURE0);
+//    glDisable(GL_TEXTURE_2D);
+//    glActiveTexture(GL_TEXTURE1);
+//    glDisable(GL_TEXTURE_2D);
+//    glActiveTexture(GL_TEXTURE2);
+//    glDisable(GL_TEXTURE_2D);
+//    glActiveTexture(GL_TEXTURE3);
+//    glDisable(GL_TEXTURE_2D);
+//     end super hack
 }
 
 void MeshNode::invalidateWorldExtents() const

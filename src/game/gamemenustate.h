@@ -2,6 +2,7 @@
 #define GAMEMENUSTATE_H
 
 #include "state.h"
+#include "graphics/mesh.h"
 
 
 class GameMenuState : public State
@@ -12,7 +13,14 @@ class GameMenuState : public State
 
         virtual void update( float deltaTime );
     protected:
+
     private:
+        MenuKeyboardController menuController1;
+        MenuKeyboardController menuController2;
+        MenuKeyboardController menuController3;
+        MenuKeyboardController menuController4;
+
+
 };
 
 #endif // GAMEMENUSTATE_H

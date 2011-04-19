@@ -27,7 +27,7 @@ GameScene::~GameScene()
 
 void GameScene::update( float deltaTime )
 {
-    int i;
+    size_t i;
     for( i = 0; i < gameObjects_.size(); i++ )
     {
         GameObject* current = gameObjects_.at( i );

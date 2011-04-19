@@ -74,7 +74,7 @@ public:
 	 * Renders the scene
 	 *
 	 */
-	void render();
+	void render(Node* rootNode);
 
 	/**
 	 *
@@ -150,6 +150,8 @@ public:
 	 */
     virtual State* InitNewState(STATES state);
 
+    static Mesh* createBox( const float dx, const float dy, const float dz);
+
 	/*
 	 * Called when user presses key on the keyboard.
 	 *
@@ -186,11 +188,14 @@ private:
     bool specularMipmappingOn;
     bool rotateLights;
     bool anisotropicFilteringOn;
+//HACKITY HACK :-------------D
+public:
     VertexShaderManager vertexShaderManager_;
     FragmentShaderManager fragmentShaderManager_;
     ProgramManager programManager_;
     MeshManager meshManager_;
     TextureManager textureManager_;
+private:
 
     MenuKeyboardController menuController1;
     MenuKeyboardController menuController2;

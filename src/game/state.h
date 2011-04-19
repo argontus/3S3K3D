@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "gameprogram.h"
-#include <graphics/groupnode.h>
+#include <graphics/node.h>
 #include "gamescene.h"
 
 /**
@@ -51,12 +51,12 @@ class State
         /**
          * Root node of the state. Used to draw geometry of the state.
          */
-        GroupNode* rootNode;
+        Node* rootNode;
 
         /**
          * Scene that plays in this state.
          */
-         GameScene* scene;
+        GameScene* scene;
 
 
     private:

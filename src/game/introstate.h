@@ -2,6 +2,7 @@
 #define INTROSTATE_H
 
 #include "state.h"
+#include "graphics/mesh.h"
 
 class GameProgram;
 
@@ -13,6 +14,8 @@ class IntroState : public State
 
         virtual void update( float deltaTime );
     protected:
+        float elapsedTime;
+        Mesh* mesh;
     private:
 };
 

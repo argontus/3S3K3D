@@ -9,6 +9,7 @@
 #include <geometry/extents3.h>
 
 #include <graphics/geometrynode.h>
+#include <graphics/texture.h>
 
 class Vector3Array;
 
@@ -83,6 +84,11 @@ public:
      */
     virtual void draw(const DrawParams& params) const;
     //@}
+
+    Texture* diffuseMap;
+    Texture* specularMap;
+    Texture* glowMap;
+    Texture* normalMap;
 
 private:
     /**

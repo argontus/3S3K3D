@@ -1,4 +1,5 @@
 #include "state.h"
+#include "graphics/groupnode.h"
 
 State::State( GameProgram* backpointer )
  :  owner( backpointer ),
