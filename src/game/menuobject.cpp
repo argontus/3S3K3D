@@ -114,26 +114,33 @@ void MenuObject::update(float deltaTime)
 
 void MenuObject::activate()
 {
-    switch( type )
+    if(active && timer>0.2f)
     {
-        case TYPE_NEWGAME:
-            owner->changeState(GameProgram::STATE_GAME);
-            break;
+        switch( type )
+        {
+            case TYPE_NEWGAME:
+                timer = 0.0f;
+                owner->changeState(GameProgram::STATE_GAME);
+                break;
 
-        case TYPE_OPTIONS:
-            owner->addState(GameProgram::STATE_GAMEMENU);
-            break;
+            case TYPE_OPTIONS:
+                timer = 0.0f;
+                owner->addState(GameProgram::STATE_GAMEMENU);
+                break;
 
-        case TYPE_CREDITS:
-            owner->addState(GameProgram::STATE_CREDITS);
-            break;
+            case TYPE_CREDITS:
+                timer = 0.0f;
+                owner->addState(GameProgram::STATE_CREDITS);
+                break;
 
-        case TYPE_EXIT:
-            owner->changeState(GameProgram::STATE_QUIT);
-            break;
+            case TYPE_EXIT:
+                timer = 0.0f;
+                owner->changeState(GameProgram::STATE_QUIT);
+                break;
 
-        default:
-            break;
+            default:
+                break;
+        }
     }
 }
 
