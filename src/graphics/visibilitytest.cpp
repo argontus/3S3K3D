@@ -5,7 +5,6 @@
 
 #include <graphics/visibilitytest.h>
 
-#include <geometry/extents3.h>
 #include <geometry/interval.h>
 #include <geometry/math.h>
 
@@ -19,16 +18,19 @@ VisibilityTest::VisibilityTest()
 
 void VisibilityTest::init(const CameraNode& camera)
 {
-    const ProjectionSettings s = camera.projectionSettings();
+    switch (camera.projectionType())
+    {
+        case CameraNode::ProjectionType::Orthographic:
+            initOrthographic(camera);
+            break;
 
-    if (s.type == ProjectionType::Orthographic)
-    {
-        initOrthographic(s, camera.worldTransform());
-    }
-    else
-    {
-        GRAPHICS_RUNTIME_ASSERT(s.type == ProjectionType::Perspective);
-        initPerspective(s, camera.worldTransform());
+        case CameraNode::ProjectionType::Perspective:
+            initPerspective(camera);
+            break;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            break;
     }
 }
 
@@ -68,11 +70,25 @@ void VisibilityTest::swap(VisibilityTest& other)
     planes_[5].swap(other.planes_[5]);
 }
 
-void VisibilityTest::initOrthographic(
-    const ProjectionSettings& s,
-    const Transform3& t)
+void VisibilityTest::initOrthographic(const CameraNode& camera)
 {
-    GRAPHICS_RUNTIME_ASSERT(s.type == ProjectionType::Orthographic);
+    float left;
+    float right;
+    float bottom;
+    float top;
+    float near;
+    float far;
+
+    camera.getFrustumParams(
+        &left,
+        &right,
+        &bottom,
+        &top,
+        &near,
+        &far
+    );
+
+    const Transform3 t = camera.worldTransform();
 
     // camera position and rotation in world space
     const Vector3 position = t.translation;
@@ -83,12 +99,12 @@ void VisibilityTest::initOrthographic(
     const Vector3 r =  rotation.row(0);
     const Vector3 u =  rotation.row(1);
 
-    const float xMin = Math::min(s.left, s.right);
-    const float xMax = Math::max(s.left, s.right);
-    const float yMin = Math::min(s.bottom, s.top);
-    const float yMax = Math::max(s.bottom, s.top);
-    const float zMin = Math::min(s.near, s.far);
-    const float zMax = Math::max(s.near, s.far);
+    const float xMin = Math::min(left, right);
+    const float xMax = Math::max(left, right);
+    const float yMin = Math::min(bottom, top);
+    const float yMax = Math::max(bottom, top);
+    const float zMin = Math::min(near, far);
+    const float zMax = Math::max(near, far);
 
     // initialize from plane normal and a point on the plane
     planes_[0] = Plane3( d, position + zMin * d);   // near
@@ -99,13 +115,28 @@ void VisibilityTest::initOrthographic(
     planes_[5] = Plane3(-u, position + yMax * u);   // top
 }
 
-void VisibilityTest::initPerspective(
-    const ProjectionSettings& s,
-    const Transform3& t)
+void VisibilityTest::initPerspective(const CameraNode& camera)
 {
-    GRAPHICS_RUNTIME_ASSERT(s.type == ProjectionType::Perspective);
-    GRAPHICS_RUNTIME_ASSERT(s.near > 0.0f);
-    GRAPHICS_RUNTIME_ASSERT(s.near < s.far);
+    float left;
+    float right;
+    float bottom;
+    float top;
+    float near;
+    float far;
+
+    camera.getFrustumParams(
+        &left,
+        &right,
+        &bottom,
+        &top,
+        &near,
+        &far
+    );
+
+    GRAPHICS_RUNTIME_ASSERT(near > 0.0f);
+    GRAPHICS_RUNTIME_ASSERT(near < far);
+
+    const Transform3 t = camera.worldTransform();
 
     // camera position and rotation in world space
     const Vector3 position = t.translation;
@@ -116,13 +147,13 @@ void VisibilityTest::initPerspective(
     const Vector3 r =  rotation.row(0);
     const Vector3 u =  rotation.row(1);
 
-    const float xMin = Math::min(s.left, s.right);
-    const float xMax = Math::max(s.left, s.right);
-    const float yMin = Math::min(s.bottom, s.top);
-    const float yMax = Math::max(s.bottom, s.top);
+    const float xMin = Math::min(left, right);
+    const float xMax = Math::max(left, right);
+    const float yMin = Math::min(bottom, top);
+    const float yMax = Math::max(bottom, top);
 
-    const Vector3 center        = position + s.near * d;
-    const Vector3 centerFar     = position + s.far * d;
+    const Vector3 center        = position + near * d;
+    const Vector3 centerFar     = position + far * d;
     const Vector3 bottomLeft    = center + xMin * r + yMin * u;
     const Vector3 topLeft       = center + xMin * r + yMax * u;
     const Vector3 bottomRight   = center + xMax * r + yMin * u;

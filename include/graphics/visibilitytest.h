@@ -72,18 +72,18 @@ private:
     /**
      * Initializes the test parameters for an orthographic projection.
      *
-     * @param s Projection settings, must describe an orthographic projection.
-     * @param t Camera transform.
+     * @param camera The camera from whose state the visibility test parameters
+     * are initialized.
      */
-    void initOrthographic(const ProjectionSettings& s, const Transform3& t);
+    void initOrthographic(const CameraNode& camera);
 
     /**
      * Initializes the test parameters for a perspective projection.
      *
-     * @param s Projection settings, must describe a perspective projection.
-     * @param t Camera transform.
+     * @param camera The camera from whose state the visibility test parameters
+     * are initialized.
      */
-    void initPerspective(const ProjectionSettings& s, const Transform3& t);
+    void initPerspective(const CameraNode& camera);
 
     Plane3 planes_[6];  ///< Frustum planes.
 };

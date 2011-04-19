@@ -6,15 +6,32 @@
 #ifndef GRAPHICS_NODES_CAMERANODE_H_INCLUDED
 #define GRAPHICS_NODES_CAMERANODE_H_INCLUDED
 
-#include <graphics/projectionsettings.h>
+#include <geometry/matrix4x4.h>
+
 #include <graphics/nodes/node.h>
 
+// TODO: implement a separate Camera class?
 /**
  * Represents a camera node.
  */
 class CameraNode : public Node
 {
 public:
+    /**
+     * Enumeration wrapper for possible projection types.
+     */
+    struct ProjectionType
+    {
+        /**
+         * Possible projection types.
+         */
+        enum Enum
+        {
+            Orthographic,   ///< Orthographic projection.
+            Perspective     ///< Perspective projection.
+        };
+    };
+
     /**
      * Destructor.
      */
@@ -24,20 +41,6 @@ public:
      * Default constructor.
      */
     CameraNode();
-
-    /**
-     * Sets the projection settings.
-     *
-     * @param settings Projection settings.
-     */
-    void setProjectionSettings(const ProjectionSettings& settings);
-
-    /**
-     * Gets the projection settings.
-     *
-     * @return Projection settings.
-     */
-    const ProjectionSettings projectionSettings() const;
 
     /**
      * Sets an orthographic projection.
@@ -57,14 +60,15 @@ public:
         float near,
         float far);
 
-    // TODO: document valid parameter values
     /**
      * Sets a perspective projection.
      *
-     * @param fovy Field of view along the y-axis in degrees.
-     * @param aspectRatio Aspect ratio, that is width divided by height.
-     * @param near Distance to the near clipping plane.
-     * @param far Distance to the far clipping plane.
+     * @param fovy Field of view along the y-axis in degrees, between (0, 180).
+     * @param aspectRatio Aspect ratio, that is, width divided by height, must
+     * be > 0.
+     * @param near Distance to the near clipping plane, must be > 0.
+     * @param far Distance to the far clipping plane, must be >
+     * <code>near</code>.
      */
     void setPerspectiveProjection(
         float fovy,
@@ -85,6 +89,38 @@ public:
      * @return Projection matrix.
      */
     const Matrix4x4 projectionMatrix() const;
+
+    /**
+     * Gets the projection type.
+     *
+     * @return Projection type.
+     */
+    ProjectionType::Enum projectionType() const;
+
+    // TODO: use some helper class as the return value?
+    /**
+     * Gets the frustum parameters.
+     *
+     * @param left Pointer to the variable to which the coordinate for the left
+     * clipping plane is stored, cannot be a null pointer.
+     * @param right Pointer to the variable to which the coordinate for the
+     * right clipping plane is stored, cannot be a null pointer.
+     * @param bottom Pointer to the variable to which the coordinate for the
+     * bottom clipping plane is stored, cannot be a null pointer.
+     * @param top Pointer to the variable to which the coordinate for the top
+     * clipping plane is stored, cannot be a null pointer.
+     * @param near Pointer to the variable to which the distance to the near
+     * clipping plane is stored, cannot be a null pointer.
+     * @param far Pointer to the variable to which the distance to the far
+     * clipping plane is stored, cannot be a null pointer.
+     */
+    void getFrustumParams(
+        float* left,
+        float* right,
+        float* bottom,
+        float* top,
+        float* near,
+        float* far) const;
 
     /**
      * @name Node Interface
@@ -111,7 +147,15 @@ private:
     virtual bool acceptImpl(NodeVisitor*);
     //@}
 
-    ProjectionSettings projectionSettings_; ///< Projection settings.
+    float left_;    ///< Coordinate for the left clipping plane.
+    float right_;   ///< Coordinate for the right clipping plane.
+    float bottom_;  ///< Coordinate for the bottom clipping plane.
+    float top_;     ///< Coordinate for the top clipping plane.
+    float near_;    ///< Distance to the near clipping plane.
+    float far_;     ///< Distance to the far clipping plane.
+
+    ProjectionType::Enum projectionType_;   ///< Projection type.
+    Matrix4x4 projectionMatrix_;            ///< Projection matrix.
 
     // hide the copy assignment operator
     CameraNode& operator =(const CameraNode&);
