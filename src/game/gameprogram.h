@@ -159,9 +159,6 @@ private:
     VertexFormat* unlitMeshVertexFormat_;
 
     VertexBuffer* shadowVertexBuffer_;
-
-    // TODO: quick & dirty
-    std::vector<MeshNode*> meshNodes_;
 };
 
 #endif /* GAMEPROGRAM_H_ */

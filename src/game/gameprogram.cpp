@@ -27,6 +27,7 @@
 #include <graphics/vec3variable.h>
 
 #include <graphics/nodevisitors/nodecountquery.h>
+#include <graphics/nodevisitors/pointlitgeometryquery.h>
 #include <graphics/nodevisitors/visibleextentsquery.h>
 #include <graphics/nodevisitors/visiblegeometryquery.h>
 
@@ -493,17 +494,25 @@ void GameProgram::render()
     static std::vector<Vector3> shadowVertices;
     shadowVertices.clear();
 
+    static PointLitGeometryQuery pointLitGeometryQuery;
+    pointLitGeometryQuery.reset();
+    pointLitGeometryQuery.init(effectSphere);
+    rootNode_->accept(&pointLitGeometryQuery);
+
     // generate shadow geometry for this light
-    for (size_t i = 0; i < meshNodes_.size(); ++i)
+    //for (size_t i = 0; i < meshNodes_.size(); ++i)
+    for (int i = 0; i < pointLitGeometryQuery.numMeshNodes(); ++i)
     {
-        if (intersect(meshNodes_[i]->extents(), effectSphere) == false)
+        const MeshNode* const meshNode = pointLitGeometryQuery.meshNode(i);
+
+        if (intersect(meshNode->extents(), effectSphere) == false)
         {
             // the geometry node is not within the light effect sphere, next
             continue;
         }
 
-        const Transform3 transform = meshNodes_[i]->worldTransform();
-        const Mesh* mesh = static_cast<MeshNode*>(meshNodes_[i])->mesh();
+        const Transform3 transform = meshNode->worldTransform();
+        const Mesh* mesh = meshNode->mesh();
 
         for (int iFace = 0; iFace < mesh->numFaces(); ++iFace)
         {
@@ -1107,7 +1116,6 @@ void GameProgram::test()
 
             meshNode->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
             groupNode->attachChild(meshNode);
-            meshNodes_.push_back(meshNode);
         }
     }
 
@@ -1124,18 +1132,12 @@ void GameProgram::test()
 
         groupNode->setTranslation(Vector3(0.0f, displacement + i * offset, 0.0f));
         rootNode_->attachChild(groupNode);
-
-        for (int j = 0; j < groupNode->numChildren(); ++j)
-        {
-            meshNodes_.push_back(static_cast<MeshNode*>(groupNode->child(j)));
-        }
     }
 
     //camera_->setTranslation(Vector3(150.0f, -75.0f, 0.0f));
     //camera_->setRotation(Matrix3x3::yRotation(Math::pi() / 2.0));
     camera_->setTranslation(Vector3(0.0f, 0.0f, 150.0f));
-    //camera_->setRotation(Matrix3x3::identity());
-    camera_->setRotation(Matrix3x3::yRotation(Math::pi() / 2.0));
+    camera_->setRotation(Matrix3x3::identity());
 }
 
 GameProgram::~GameProgram()
