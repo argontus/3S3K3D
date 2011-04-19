@@ -4,6 +4,7 @@
 #include <vector>
 #include "gameprogram.h"
 #include <graphics/groupnode.h>
+#include "gamescene.h"
 
 /**
  * @file game/state.h
@@ -29,6 +30,18 @@ class State
          */
         inline Node* getRootNode() const { return rootNode; }
 
+        /**
+         * Sets the scene that contains the objects in this state.
+         * @param scene a pointer to a GameScene object.
+         */
+         inline void setScene( GameScene* scene ) { this->scene = scene; }
+
+         /**
+          * Gets the scene that contains the objects in this state.
+          * @return scene a GameScene object.
+          */
+          inline GameScene* getScene() const { return scene; }
+
     protected:
         /**
          * backpointer to the GameProgram that own's this state
@@ -39,6 +52,11 @@ class State
          * Root node of the state. Used to draw geometry of the state.
          */
         GroupNode* rootNode;
+
+        /**
+         * Scene that plays in this state.
+         */
+         GameScene* scene;
 
 
     private:

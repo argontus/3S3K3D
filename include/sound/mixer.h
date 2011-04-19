@@ -103,6 +103,11 @@ public:
      */
     inline bool isMusicPlaying() {  return (Mix_PlayingMusic() ? true : false); }
 
+    /**
+     * Toggles music playback.
+     */
+     void toggleMusic();
+
 private:
     /**
      * Frees the loaded sounds and music
@@ -113,6 +118,11 @@ private:
      * Contains both chunk and music data
      */
     std::vector<AudioData*>     soundList_;
+
+    /**
+     * Name of the music track that was played last.
+     */
+     std::string lastPlayed;
 };
 
 #endif // MIXER_H

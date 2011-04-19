@@ -66,15 +66,29 @@
 		<Unit filename="../../include/input/mouse.h" />
 		<Unit filename="../../src/game/controller.cpp" />
 		<Unit filename="../../src/game/controller.h" />
+		<Unit filename="../../src/game/creditsstate.cpp" />
+		<Unit filename="../../src/game/creditsstate.h" />
+		<Unit filename="../../src/game/gamemenustate.cpp" />
+		<Unit filename="../../src/game/gamemenustate.h" />
 		<Unit filename="../../src/game/gameobject.cpp" />
 		<Unit filename="../../src/game/gameobject.h" />
 		<Unit filename="../../src/game/gameprogram.cpp" />
 		<Unit filename="../../src/game/gameprogram.h" />
+		<Unit filename="../../src/game/gamescene.cpp" />
+		<Unit filename="../../src/game/gamescene.h" />
+		<Unit filename="../../src/game/gamestate.cpp" />
+		<Unit filename="../../src/game/gamestate.h" />
 		<Unit filename="../../src/game/gamewindow.cpp" />
 		<Unit filename="../../src/game/gamewindow.h" />
+		<Unit filename="../../src/game/introstate.cpp" />
+		<Unit filename="../../src/game/introstate.h" />
 		<Unit filename="../../src/game/keyboardcontroller.cpp" />
 		<Unit filename="../../src/game/keyboardcontroller.h" />
 		<Unit filename="../../src/game/main.cpp" />
+		<Unit filename="../../src/game/mainmenustate.cpp" />
+		<Unit filename="../../src/game/mainmenustate.h" />
+		<Unit filename="../../src/game/state.cpp" />
+		<Unit filename="../../src/game/state.h" />
 		<Unit filename="../../src/input/mouse.cpp" />
 		<Extensions>
 			<code_completion />
