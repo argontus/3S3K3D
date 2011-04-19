@@ -7,8 +7,6 @@
 
 #include <cstring>
 
-#include <iostream>
-
 // TODO: REALLY quick & dirty
 #include <geometry/math.h>
 #include <geometry/transform2.h>
