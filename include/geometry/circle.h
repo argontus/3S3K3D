@@ -8,6 +8,7 @@
 
 #include <geometry/vector2.h>
 
+// TODO: rename this to Circle2 and implement a Circle3 class
 /**
  * Describes a circle.
  */
