@@ -60,7 +60,6 @@
 		<Unit filename="..\..\include\graphics\opengl.h" />
 		<Unit filename="..\..\include\graphics\program.h" />
 		<Unit filename="..\..\include\graphics\programmanager.h" />
-		<Unit filename="..\..\include\graphics\projectionsettings.h" />
 		<Unit filename="..\..\include\graphics\rectanglef.h" />
 		<Unit filename="..\..\include\graphics\rectanglei.h" />
 		<Unit filename="..\..\include\graphics\renderer.h" />
@@ -101,7 +100,6 @@
 		<Unit filename="..\..\src\graphics\nodevisitors\visiblelightsquery.cpp" />
 		<Unit filename="..\..\src\graphics\program.cpp" />
 		<Unit filename="..\..\src\graphics\programmanager.cpp" />
-		<Unit filename="..\..\src\graphics\projectionsettings.cpp" />
 		<Unit filename="..\..\src\graphics\renderer.cpp" />
 		<Unit filename="..\..\src\graphics\rendertarget.cpp" />
 		<Unit filename="..\..\src\graphics\sampler2dvariable.cpp" />
