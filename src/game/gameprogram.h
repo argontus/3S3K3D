@@ -12,6 +12,7 @@
 #include "keyboardcontroller.h"
 #include "menukeyboardcontroller.h"
 #include "menuobject.h"
+#include "scriptengine.h"
 
 #include "configuration/configuration.h"
 
@@ -188,6 +189,7 @@ private:
     bool specularMipmappingOn;
     bool rotateLights;
     bool anisotropicFilteringOn;
+    ScriptEngine scriptEngine;
 //HACKITY HACK :-------------D
 public:
     VertexShaderManager vertexShaderManager_;
@@ -196,11 +198,6 @@ public:
     MeshManager meshManager_;
     TextureManager textureManager_;
 private:
-
-    MenuKeyboardController menuController1;
-    MenuKeyboardController menuController2;
-    MenuKeyboardController menuController3;
-    MenuKeyboardController menuController4;
 
     /**
      * State stack.

@@ -56,7 +56,12 @@ void IntroState::update( float deltaTime )
 
     if( elapsedTime >= 5.0f )
     {
-        owner->changeState( GameProgram::STATE_MAINMENU );
+        owner->addState( GameProgram::STATE_MAINMENU );
+    }
+
+    if( keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F12) )
+    {
+        owner->addState( GameProgram::STATE_MAINMENU );
     }
 
 }

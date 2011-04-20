@@ -54,8 +54,6 @@ GameProgram::GameProgram()
     textureManager_(),
     currentState(NULL),
     nextState(NULL)
-
-
 {
     running         = true;
     deltaTicks      = 0;
@@ -309,6 +307,11 @@ int GameProgram::execute()
         if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F8 ) )
         {
             mouseBoundToScreen = !mouseBoundToScreen;
+        }
+
+        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F11 ))
+        {
+            scriptEngine.executeScript("data/scripts/helloworld.lua");
         }
 
         // see keyboardcontroller.h for a TODO related to member 'speed'

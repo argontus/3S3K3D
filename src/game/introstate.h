@@ -3,6 +3,7 @@
 
 #include "state.h"
 #include "graphics/mesh.h"
+#include "input/sdlkeyboard.h"
 
 class GameProgram;
 
@@ -16,6 +17,8 @@ class IntroState : public State
     protected:
         float elapsedTime;
         Mesh* mesh;
+        SDLKeyboard keyboard;
+
     private:
 };
 
