@@ -1,9 +1,9 @@
 /**
- * @file graphics/floatvariable.cpp
+ * @file graphics/variables/floatvariable.cpp
  * @author Mika Haarahiltunen
  */
 
-#include <graphics/floatvariable.h>
+#include <graphics/variables/floatvariable.h>
 
 FloatVariable::~FloatVariable()
 {

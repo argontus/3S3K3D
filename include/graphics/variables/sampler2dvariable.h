@@ -1,12 +1,12 @@
 /**
- * @file graphics/sampler2dvariable.h
+ * @file graphics/variables/sampler2dvariable.h
  * @author Mika Haarahiltunen
  */
 
-#ifndef GRAPHICS_SAMPLER2DVARIABLE_H_INCLUDED
-#define GRAPHICS_SAMPLER2DVARIABLE_H_INCLUDED
+#ifndef GRAPHICS_VARIABLES_SAMPLER2DVARIABLE_H_INCLUDED
+#define GRAPHICS_VARIABLES_SAMPLER2DVARIABLE_H_INCLUDED
 
-#include <graphics/variable.h>
+#include <graphics/variables/variable.h>
 
 class Texture;
 
@@ -35,4 +35,4 @@ private:
     Sampler2DVariable& operator =(const Sampler2DVariable&);
 };
 
-#endif // #ifndef GRAPHICS_SAMPLER2DVARIABLE_H_INCLUDED
+#endif // #ifndef GRAPHICS_VARIABLES_SAMPLER2DVARIABLE_H_INCLUDED

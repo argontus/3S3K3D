@@ -1,9 +1,9 @@
 /**
- * @file graphics/variable.cpp
+ * @file graphics/variables/variable.cpp
  * @author Mika Haarahiltunen
  */
 
-#include <graphics/variable.h>
+#include <graphics/variables/variable.h>
 
 #include <graphics/material.h>
 #include <graphics/program.h>

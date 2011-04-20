@@ -1,14 +1,14 @@
 /**
- * @file graphics/vec3variable.h
+ * @file graphics/variables/vec3variable.h
  * @author Mika Haarahiltunen
  */
 
-#ifndef GRAPHICS_VEC3VARIABLE_H_INCLUDED
-#define GRAPHICS_VEC3VARIABLE_H_INCLUDED
-
-#include <graphics/variable.h>
+#ifndef GRAPHICS_VARIABLES_VEC3VARIABLE_H_INCLUDED
+#define GRAPHICS_VARIABLES_VEC3VARIABLE_H_INCLUDED
 
 #include <geometry/vector3.h>
+
+#include <graphics/variables/variable.h>
 
 class Vec3Variable : public Variable
 {
@@ -32,4 +32,4 @@ private:
     Vec3Variable& operator =(const Vec3Variable&);
 };
 
-#endif // #ifndef GRAPHICS_VEC3VARIABLE_H_INCLUDED
+#endif // #ifndef GRAPHICS_VARIABLES_VEC3VARIABLE_H_INCLUDED

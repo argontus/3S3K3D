@@ -1,10 +1,10 @@
 /**
- * @file graphics/variable.h
+ * @file graphics/variables/variable.h
  * @author Mika Haarahiltunen
  */
 
-#ifndef GRAPHICS_VARIABLE_H_INCLUDED
-#define GRAPHICS_VARIABLE_H_INCLUDED
+#ifndef GRAPHICS_VARIABLES_VARIABLE_H_INCLUDED
+#define GRAPHICS_VARIABLES_VARIABLE_H_INCLUDED
 
 #include <string>
 
@@ -47,4 +47,4 @@ private:
     Variable& operator =(const Variable&);
 };
 
-#endif // #ifndef GRAPHICS_VARIABLE_H_INCLUDED
+#endif // #ifndef GRAPHICS_VARIABLES_VARIABLE_H_INCLUDED

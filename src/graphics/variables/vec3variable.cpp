@@ -1,9 +1,9 @@
 /**
- * @file graphics/vec3variable.cpp
+ * @file graphics/variables/vec3variable.cpp
  * @author Mika Haarahiltunen
  */
 
-#include <graphics/vec3variable.h>
+#include <graphics/variables/vec3variable.h>
 
 Vec3Variable::~Vec3Variable()
 {

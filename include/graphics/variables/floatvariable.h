@@ -1,12 +1,12 @@
 /**
- * @file graphics/floatvariable.h
+ * @file graphics/variables/floatvariable.h
  * @author Mika Haarahiltunen
  */
 
-#ifndef GRAPHICS_FLOATVARIABLE_H_INCLUDED
-#define GRAPHICS_FLOATVARIABLE_H_INCLUDED
+#ifndef GRAPHICS_VARIABLES_FLOATVARIABLE_H_INCLUDED
+#define GRAPHICS_VARIABLES_FLOATVARIABLE_H_INCLUDED
 
-#include <graphics/variable.h>
+#include <graphics/variables/variable.h>
 
 class FloatVariable : public Variable
 {
@@ -30,4 +30,4 @@ private:
     FloatVariable& operator =(const FloatVariable&);
 };
 
-#endif // #ifndef GRAPHICS_FLOATVARIABLE_H_INCLUDED
+#endif // #ifndef GRAPHICS_VARIABLES_FLOATVARIABLE_H_INCLUDED

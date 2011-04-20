@@ -7,7 +7,7 @@
 
 #include <graphics/program.h>
 #include <graphics/runtimeassert.h>
-#include <graphics/variable.h>
+#include <graphics/variables/variable.h>
 
 Material::~Material()
 {

@@ -20,9 +20,9 @@
 #include <graphics/visibilitytest.h>
 
 #include <graphics/material.h>
-#include <graphics/floatvariable.h>
-#include <graphics/sampler2dvariable.h>
-#include <graphics/vec3variable.h>
+#include <graphics/variables/floatvariable.h>
+#include <graphics/variables/sampler2dvariable.h>
+#include <graphics/variables/vec3variable.h>
 
 #include <graphics/nodevisitors/nodecountquery.h>
 #include <graphics/nodevisitors/pointlitgeometryquery.h>
@@ -411,7 +411,7 @@ void GameProgram::render()
 
     Material unlitMaterial;
     unlitMaterial.setProgram(program);
-    unlitMaterial.addVariable(new Vec3Variable("ambient", Vector3(0.1f, 0.1f, 0.1f)));
+    unlitMaterial.addVariable(new Vec3Variable("ambient", Vector3(0.2f, 0.2f, 0.2f)));
     unlitMaterial.addVariable(new Sampler2DVariable("diffuseMap", textureManager_.getResource("diffuse")));
     unlitMaterial.addVariable(new Sampler2DVariable("glowMap", textureManager_.getResource("glow")));
 
@@ -1134,7 +1134,7 @@ void GameProgram::test()
 
     //camera_->setTranslation(Vector3(150.0f, -75.0f, 0.0f));
     //camera_->setRotation(Matrix3x3::yRotation(Math::pi() / 2.0));
-    camera_->setTranslation(Vector3(0.0f, 0.0f, 150.0f));
+    camera_->setTranslation(Vector3(-75.0f - 37.5f / 2.0f, 0.0f, 150.0f));
     camera_->setRotation(Matrix3x3::identity());
 }
 

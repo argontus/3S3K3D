@@ -1,9 +1,9 @@
 /**
- * @file graphics/sampler2dvariable.cpp
+ * @file graphics/variables/sampler2dvariable.cpp
  * @author Mika Haarahiltunen
  */
 
-#include <graphics/sampler2dvariable.h>
+#include <graphics/variables/sampler2dvariable.h>
 
 #include <graphics/material.h>
 #include <graphics/runtimeassert.h>
