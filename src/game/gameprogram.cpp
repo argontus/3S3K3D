@@ -411,7 +411,7 @@ void GameProgram::render()
 
     Material unlitMaterial;
     unlitMaterial.setProgram(program);
-    unlitMaterial.addVariable(new Vec3Variable("ambient", Vector3(0.2f, 0.2f, 0.2f)));
+    unlitMaterial.addVariable(new Vec3Variable("ambient", Color3(0.25f, 0.25f, 0.25f)));
     unlitMaterial.addVariable(new Sampler2DVariable("diffuseMap", textureManager_.getResource("diffuse")));
     unlitMaterial.addVariable(new Sampler2DVariable("glowMap", textureManager_.getResource("glow")));
 

@@ -10,11 +10,14 @@
 
 #include <graphics/variables/variable.h>
 
+class Color3;
+
 class Vec3Variable : public Variable
 {
 public:
     virtual ~Vec3Variable();
 
+    Vec3Variable(const std::string& name, const Color3& value);
     Vec3Variable(const std::string& name, const Vector3& value);
 
     /**
