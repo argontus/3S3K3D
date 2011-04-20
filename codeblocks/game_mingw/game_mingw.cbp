@@ -25,6 +25,7 @@
 					<Add library="..\..\lib\libsoundd.a" />
 					<Add library="..\..\lib\lib3ds.dll.a" />
 					<Add library="..\..\lib\libglew.dll.a" />
+					<Add library="..\..\lib\liblua.dll.a" />
 					<Add library="..\..\lib\libSDL.dll.a" />
 					<Add library="..\..\lib\libSDL_image.dll.a" />
 					<Add library="..\..\lib\libSDL_mixer.dll.a" />
@@ -51,6 +52,7 @@
 					<Add library="..\..\lib\libsound.a" />
 					<Add library="..\..\lib\lib3ds.dll.a" />
 					<Add library="..\..\lib\libglew.dll.a" />
+					<Add library="..\..\lib\liblua.dll.a" />
 					<Add library="..\..\lib\libSDL.dll.a" />
 					<Add library="..\..\lib\libSDL_image.dll.a" />
 					<Add library="..\..\lib\libSDL_mixer.dll.a" />
@@ -92,6 +94,8 @@
 		<Unit filename="..\..\src\game\menukeyboardcontroller.h" />
 		<Unit filename="..\..\src\game\menuobject.cpp" />
 		<Unit filename="..\..\src\game\menuobject.h" />
+		<Unit filename="..\..\src\game\scriptengine.cpp" />
+		<Unit filename="..\..\src\game\scriptengine.h" />
 		<Unit filename="..\..\src\game\state.cpp" />
 		<Unit filename="..\..\src\game\state.h" />
 		<Extensions>

@@ -3,11 +3,19 @@
 
 #include <string>
 
+#define LUA_BUILD_AS_DLL
+
 extern "C"
 {
-    #include "lua.h"
-    #include "lualib.h"
-    #include "lauxlib.h"
+#ifdef WIN32
+#   include <lua/lua.h>
+#   include <lua/lualib.h>
+#   include <lua/lauxlib.h>
+#else
+#   include "lua.h"
+#   include "lualib.h"
+#   include "lauxlib.h"
+#endif
 }
 
 class ScriptEngine
