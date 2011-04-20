@@ -8,10 +8,10 @@
 extern "C"
 {
 #ifdef WIN32
+#   define LUA_BUILD_AS_DLL
 #   include <lua/lua.h>
 #   include <lua/lualib.h>
 #   include <lua/lauxlib.h>
-#   define LUA_BUILD_AS_DLL
 #else
 #   include "lua.h"
 #   include "lualib.h"
