@@ -3,6 +3,7 @@
 
 
 #include "geometry/transform2.h"
+#include "graphics/node.h"
 #include <list>
 
 /**
@@ -13,7 +14,6 @@
  * class is inherited by all objects in the game.
  */
 
-class Node;
 class Controller;
 class GameProgram;
 
@@ -145,8 +145,6 @@ class GameObject
         void destroyController( Controller* controller );
 
     protected:
-
-    private:
     /**
      * Graphical presentation of the object
      */
@@ -186,6 +184,7 @@ class GameObject
      */
     GameObject* parent;
 
+    private:
 };
 
 #endif // GAMEOBJECT_H
