@@ -23,11 +23,11 @@ VertexFormat::VertexFormat(const int numAttributes)
 void VertexFormat::setAttribute(
     const int index,
     const VertexAttribute::Type::Enum type,
-    const VertexAttribute::Usage::Enum usage)
+    const std::string& name)
 {
     GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < numAttributes_);
     attributes_[index].setType(type);
-    attributes_[index].setUsage(usage);
+    attributes_[index].setName(name);
 }
 
 const VertexAttribute& VertexFormat::attribute(const int index) const

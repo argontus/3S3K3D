@@ -10,7 +10,7 @@
 VertexAttribute::VertexAttribute()
 :   offset_(0),
     type_(Type::Float3),
-    usage_(Usage::Unused)
+    name_()
 {
     // ...
 }
@@ -36,14 +36,14 @@ VertexAttribute::Type::Enum VertexAttribute::type() const
     return type_;
 }
 
-void VertexAttribute::setUsage(const Usage::Enum usage)
+void VertexAttribute::setName(const std::string& name)
 {
-    usage_ = usage;
+    name_ = name;
 }
 
-VertexAttribute::Usage::Enum VertexAttribute::usage() const
+const std::string& VertexAttribute::name() const
 {
-    return usage_;
+    return name_;
 }
 
 int VertexAttribute::numComponents() const
@@ -73,25 +73,6 @@ int VertexAttribute::size() const
         case Type::Float2:  return 8;
         case Type::Float3:  return 12;
         case Type::Float4:  return 16;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return 0;
-    }
-}
-
-const char* VertexAttribute::name() const
-{
-    // TODO: optimize by using a lookup table?
-
-    switch (usage_)
-    {
-        case Usage::Position:   return "position";
-        case Usage::Normal:     return "normal";
-        case Usage::Tangent:    return "tangent";
-        case Usage::PointSize:  return "pointSize";
-        case Usage::TexCoord:   return "texCoord";
-        case Usage::Color:      return "color";
 
         default:
             GRAPHICS_RUNTIME_ASSERT(false);

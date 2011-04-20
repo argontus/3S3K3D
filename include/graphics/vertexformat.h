@@ -34,14 +34,14 @@ public:
      * @param index Attribute index, must be between [0,
      * <code>numAttributes()</code>).
      * @param type Attribute type.
-     * @param usage Attribute usage.
+     * @param name Attribute name, empty string indicates an unused attribute.
      *
      * @see compile()
      */
     void setAttribute(
         int index,
         VertexAttribute::Type::Enum type,
-        VertexAttribute::Usage::Enum usage);
+        const std::string& name);
 
     /**
      * Gets a specified vertex attribute.

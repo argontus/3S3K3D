@@ -1083,12 +1083,12 @@ void Renderer::bindVertexBuffer(VertexBuffer* const vertexBuffer)
     {
         const VertexAttribute& attribute = vertexFormat_->attribute(i);
 
-        if (attribute.usage() != VertexAttribute::Usage::Unused)
+        if (attribute.name().empty() == false)
         {
             // glGetAttribLocation returns -1 on error
             const GLint location = glGetAttribLocation(
                 program_->id(),
-                attribute.name()
+                attribute.name().c_str()
             );
 
             GRAPHICS_RUNTIME_ASSERT(location != -1);
@@ -1122,7 +1122,7 @@ void Renderer::unbindVertexBuffer()
     {
         const VertexAttribute& attribute = vertexFormat_->attribute(i);
 
-        if (attribute.usage() != VertexAttribute::Usage::Unused)
+        if (attribute.name().empty() == false)
         {
             // TODO: optimize by storing the locations when binding the vertex
             // buffer?
@@ -1130,7 +1130,7 @@ void Renderer::unbindVertexBuffer()
             // glGetAttribLocation returns -1 on error
             const GLint location = glGetAttribLocation(
                 program_->id(),
-                attribute.name()
+                attribute.name().c_str()
             );
 
             GRAPHICS_RUNTIME_ASSERT(location != -1);

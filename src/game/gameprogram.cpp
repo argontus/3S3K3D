@@ -83,28 +83,28 @@ int GameProgram::execute()
 
     // vertex format for Vector3
     extentsVertexFormat_ = new VertexFormat(1);
-    extentsVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
+    extentsVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, "position");
     extentsVertexFormat_->compile();
 
     // vertex format for Mesh::Vertex
     litMeshVertexFormat_ = new VertexFormat(4);
-    litMeshVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
-    litMeshVertexFormat_->setAttribute(1, VertexAttribute::Type::Float3, VertexAttribute::Usage::Normal);
-    litMeshVertexFormat_->setAttribute(2, VertexAttribute::Type::Float3, VertexAttribute::Usage::Tangent);
-    litMeshVertexFormat_->setAttribute(3, VertexAttribute::Type::Float2, VertexAttribute::Usage::TexCoord);
+    litMeshVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, "position");
+    litMeshVertexFormat_->setAttribute(1, VertexAttribute::Type::Float3, "normal");
+    litMeshVertexFormat_->setAttribute(2, VertexAttribute::Type::Float3, "tangent");
+    litMeshVertexFormat_->setAttribute(3, VertexAttribute::Type::Float2, "texCoord");
     litMeshVertexFormat_->compile();
 
     // vertex format for Vector3
     shadowVertexFormat_ = new VertexFormat(1);
-    shadowVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
+    shadowVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, "position");
     shadowVertexFormat_->compile();
 
     // vertex format for Mesh::Vertex where only position and texCoord are used
     unlitMeshVertexFormat_ = new VertexFormat(4);
-    unlitMeshVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
-    unlitMeshVertexFormat_->setAttribute(1, VertexAttribute::Type::Float3, VertexAttribute::Usage::Unused);
-    unlitMeshVertexFormat_->setAttribute(2, VertexAttribute::Type::Float3, VertexAttribute::Usage::Unused);
-    unlitMeshVertexFormat_->setAttribute(3, VertexAttribute::Type::Float2, VertexAttribute::Usage::TexCoord);
+    unlitMeshVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, "position");
+    unlitMeshVertexFormat_->setAttribute(1, VertexAttribute::Type::Float3, "");
+    unlitMeshVertexFormat_->setAttribute(2, VertexAttribute::Type::Float3, "");
+    unlitMeshVertexFormat_->setAttribute(3, VertexAttribute::Type::Float2, "texCoord");
     unlitMeshVertexFormat_->compile();
 
 
@@ -768,9 +768,9 @@ void GameProgram::render()
     program = programManager_.load("data/shaders/particle.vs", "data/shaders/particle.fs");
 
     VertexFormat vertexFormat(3);
-    vertexFormat.setAttribute(0, VertexAttribute::Type::Float3, VertexAttribute::Usage::Position);
-    vertexFormat.setAttribute(1, VertexAttribute::Type::Float4, VertexAttribute::Usage::Color);
-    vertexFormat.setAttribute(2, VertexAttribute::Type::Float1, VertexAttribute::Usage::PointSize);
+    vertexFormat.setAttribute(0, VertexAttribute::Type::Float3, "position");
+    vertexFormat.setAttribute(1, VertexAttribute::Type::Float4, "color");
+    vertexFormat.setAttribute(2, VertexAttribute::Type::Float1, "pointSize");
     vertexFormat.compile();
 
     float components[numLights * 8];

@@ -6,6 +6,8 @@
 #ifndef GRAPHICS_VERTEXATTRIBUTE_H_INCLUDED
 #define GRAPHICS_VERTEXATTRIBUTE_H_INCLUDED
 
+#include <string>
+
 /**
  * Describes a vertex attribute.
  */
@@ -32,28 +34,6 @@ public:
         };
     };
 
-    /**
-     * Enumeration wrapper for possible vertex attribute usage tags.
-     */
-    struct Usage
-    {
-        /**
-         * Possible vertex attribute usage tags.
-         */
-        enum Enum
-        {
-            Unused,
-            Position,
-            Normal,
-            Tangent,
-            PointSize,
-            TexCoord,
-            Color
-
-            // TODO: add more if needed
-        };
-    };
-
     // compiler-generated destructor, copy constructor and assignment operator
     // are fine
 
@@ -63,7 +43,8 @@ public:
     VertexAttribute();
 
     /**
-     * Sets the attribute offset.
+     * Sets the attribute offset. Only <code>VertexFormat::compile()</code>
+     * should call this member function.
      *
      * @param offset Attribute offset in bytes, cannot be negative.
      */
@@ -91,18 +72,19 @@ public:
     Type::Enum type() const;
 
     /**
-     * Sets the attribute usage.
+     * Sets the attribute name.
      *
-     * @param usage Attribute usage.
+     * @param name Attribute name, empty string indicates an unused attribute.
      */
-    void setUsage(Usage::Enum usage);
+    void setName(const std::string& name);
 
     /**
-     * Gets the attribute usage.
+     * Gets the attribute name. Attribute name is the name of the corresponding
+     * GLSL vertex shader input parameter.
      *
-     * @return Attribute usage.
+     * @return Attribute name, empty string indicates an unused attribute.
      */
-    Usage::Enum usage() const;
+    const std::string& name() const;
 
     /**
      * Gets the number of components. For example, <code>vec4</code>
@@ -119,21 +101,10 @@ public:
      */
     int size() const;
 
-    // TODO: custom attribute names?
-
-    /**
-     * Gets the attribute name. Attribute name is the name of the corresponding
-     * GLSL vertex shader input parameter. The attribute usage cannot be
-     * <code>Usage::Unused</code> when this funtion is called.
-     *
-     * @return Attribute name.
-     */
-    const char* name() const;
-
 private:
     int offset_;        ///< Offset in bytes.
     Type::Enum type_;   ///< Type.
-    Usage::Enum usage_; ///< Usage.
+    std::string name_;  ///< Name, empty string indicates an unused attribute.
 };
 
 #endif // #ifndef GRAPHICS_VERTEXATTRIBUTE_H_INCLUDED
