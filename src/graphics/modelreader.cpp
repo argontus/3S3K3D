@@ -42,6 +42,8 @@ Node* ModelReader::read(const std::string& path)
     // open the model file
     Lib3dsFile* const file = lib3ds_file_open(path.c_str());
 
+    if( file == NULL )
+        std::cout << path << std::endl;
     // TODO: decide how errors should be reported
     GRAPHICS_RUNTIME_ASSERT(file != 0);
 

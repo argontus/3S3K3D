@@ -2,6 +2,7 @@
 #define GAMESTATE_H
 
 #include "state.h"
+#include "gamescene.h"
 
 class GameState : public State
 {
@@ -11,6 +12,8 @@ class GameState : public State
 
         virtual void update( float deltaTime );
     protected:
+        GameScene* gameScene;
+
     private:
 };
 

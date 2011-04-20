@@ -15,11 +15,6 @@ class GameMenuState : public State
     protected:
 
     private:
-        MenuKeyboardController menuController1;
-        MenuKeyboardController menuController2;
-        MenuKeyboardController menuController3;
-        MenuKeyboardController menuController4;
-
 
 };
 

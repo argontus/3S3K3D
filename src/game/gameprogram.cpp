@@ -40,9 +40,9 @@ GameProgram::GameProgram()
     testMenuObject4(NULL),
     camera_(0),
     rootNode_(0),
-    drawExtents_(true),
-    diffuseMipmappingOn(false),
-    glowMipmappingOn(false),
+    drawExtents_(false),
+    diffuseMipmappingOn(true),
+    glowMipmappingOn(true),
     normalMipmappingOn(false),
     specularMipmappingOn(false),
     rotateLights(false),
@@ -52,15 +52,14 @@ GameProgram::GameProgram()
     programManager_(),
     meshManager_(),
     textureManager_(),
-    currentState(NULL)
+    currentState(NULL),
+    nextState(NULL)
 
 
 {
     running         = true;
     deltaTicks      = 0;
     deltaTime       = 0;
-
-    changeState(STATE_INTRO);
 }
 
 int GameProgram::execute()
@@ -70,6 +69,7 @@ int GameProgram::execute()
 	}
 
     glewInit();
+    changeState(STATE_INTRO);
 
 
     // init shader stuff
@@ -194,25 +194,6 @@ int GameProgram::execute()
 
     // init textures
 
-    Texture* texture = new Texture();
-    texture->loadImage("data/textures/ship2.tga");
-    texture->generateMipmap();
-    textureManager_.loadResource("diffuse", texture);
-
-    texture = new Texture();
-    texture->loadImage("data/textures/ship2SpC.tga");
-    texture->generateMipmap();
-    textureManager_.loadResource("specular", texture);
-
-    texture = new Texture();
-    texture->loadImage("data/textures/ship2SL.tga");
-    texture->generateMipmap();
-    textureManager_.loadResource("glow", texture);
-
-    texture = new Texture();
-    texture->loadImage("data/textures/ship2Nor.tga");
-    texture->generateMipmap();
-    textureManager_.loadResource("normal", texture);
 
     // init scene
 
@@ -281,7 +262,7 @@ int GameProgram::execute()
 
         if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_ESCAPE))
         {
-            changeState( STATE_CREDITS );
+            addState( STATE_QUIT );
         }
 
         if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F1))
@@ -365,19 +346,14 @@ int GameProgram::execute()
 		tick( deltaTime );
 		if( currentState == NULL )
         {
-            std::cerr << "ERROR! OH SHI-!" << std::endl;
             running = false;
+            break;
         }
 		currentState->update( deltaTime );
 
 		keyboard.updateKeyboardState();
 
-		mouse.updateMouse();
-		//testObject->update( deltaTime );
-        testMenuObject1->update( deltaTime );
-        testMenuObject2->update( deltaTime );
-        testMenuObject3->update( deltaTime );
-        testMenuObject4->update( deltaTime );
+		//mouse.updateMouse();
 
 		render( currentState->getRootNode() );
 		lastTicks = currentTicks;
@@ -440,316 +416,9 @@ void GameProgram::render(Node* rootNode_)
     drawParams.program = programManager_.getResource("unlit");
     glUseProgram(drawParams.program->id());
 
-    const GLint _diffuseMapLocation = glGetUniformLocation(drawParams.program->id(), "diffuseMap");
-    const GLint _specularMapLocation = glGetUniformLocation(drawParams.program->id(), "specularMap");
-    const GLint _glowMapLocation = glGetUniformLocation(drawParams.program->id(), "glowMap");
-    const GLint _normalMapLocation = glGetUniformLocation(drawParams.program->id(), "normalMap");
-
-    glUniform1i(_diffuseMapLocation, 0);
-    glUniform1i(_specularMapLocation, 1);
-    glUniform1i(_glowMapLocation, 2);
-    glUniform1i(_normalMapLocation, 3);
-
-    glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("diffuse")->bindTexture();
-
-    glActiveTexture(GL_TEXTURE1);
-    glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("specular")->bindTexture();
-
-    glActiveTexture(GL_TEXTURE2);
-    glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("glow")->bindTexture();
-
-    glActiveTexture(GL_TEXTURE3);
-    glEnable(GL_TEXTURE_2D);
-    textureManager_.getResource("normal")->bindTexture();
-
     // unlit render pass
     renderQueue.draw(drawParams);
 
-    glActiveTexture(GL_TEXTURE0);
-    glDisable(GL_TEXTURE_2D);
-
-    glActiveTexture(GL_TEXTURE1);
-    glDisable(GL_TEXTURE_2D);
-
-    glActiveTexture(GL_TEXTURE2);
-    glDisable(GL_TEXTURE_2D);
-
-    glActiveTexture(GL_TEXTURE3);
-    glDisable(GL_TEXTURE_2D);
-
-    // ...
-
-
-    // shadow pass
-//////
-//////    drawParams.program = programManager_.getResource("shadow");
-//////    glUseProgram(drawParams.program->id());
-//////
-//////    glUniformMatrix4fv(
-//////        glGetUniformLocation(drawParams.program->id(), "modelViewMatrix"),
-//////        1,
-//////        false,
-//////        drawParams.viewMatrix.data()
-//////    );
-//////
-//////    glUniformMatrix4fv(
-//////        glGetUniformLocation(drawParams.program->id(), "projectionMatrix"),
-//////        1,
-//////        false,
-//////        drawParams.projectionMatrix.data()
-//////    );
-//////
-//////    for (size_t i = 0; i < geometryNodes_.size(); ++i)
-//////    {
-//////        const Transform3 transform = geometryNodes_[i]->worldTransform();
-//////        const Mesh* mesh = static_cast<MeshNode*>(geometryNodes_[i])->mesh();
-//////
-//////        for (int iFace = 0; iFace < mesh->numFaces(); ++iFace)
-//////        {
-//////            const Vector3 n = mesh->normals()[3 * iFace] * transform.rotation;
-//////
-//////            Vector3 v0 = ::transform(mesh->vertices()[3 * iFace + 0], transform);
-//////            Vector3 v1 = ::transform(mesh->vertices()[3 * iFace + 1], transform);
-//////            Vector3 v2 = ::transform(mesh->vertices()[3 * iFace + 2], transform);
-//////
-//////            // TODO: these do not avoid division by zero
-//////            const Vector3 lightV0 = normalize(v0 - lightPosition_);
-//////            const Vector3 lightV1 = normalize(v1 - lightPosition_);
-//////            const Vector3 lightV2 = normalize(v2 - lightPosition_);
-//////
-//////            // if the signs do not differ, this is not a front face
-//////            if (dot(lightV0, n) >= 0.0f)
-//////            {
-//////                continue;
-//////            }
-//////
-//////            // not quite but close enough
-//////            const float infinity = 250.0f;
-//////
-//////            const Vector3 s0 = v0 + infinity * lightV0;
-//////            const Vector3 s1 = v1 + infinity * lightV1;
-//////            const Vector3 s2 = v2 + infinity * lightV2;
-//////
-//////            const float offset = 0.1f;
-//////
-//////            v0 = v0 + offset * lightV0;
-//////            v1 = v1 + offset * lightV1;
-//////            v2 = v2 + offset * lightV2;
-//////
-//////            const Vector3 coords[] = {
-//////                v0, v1, v2, // front cap
-//////                s0, s2, s1, // back cap
-//////                v0, s0, s1,
-//////                v0, s1, v1,
-//////                v1, s1, s2,
-//////                v1, s2, v2,
-//////                v2, s2, s0,
-//////                v2, s0, v0
-//////            };
-//////
-//////            const GLint coordLocation = glGetAttribLocation(drawParams.program->id(), "coord");
-//////            glVertexAttribPointer(coordLocation, 3, GL_FLOAT, false, 0, coords->data());
-//////            glEnableVertexAttribArray(coordLocation);
-//////
-//////            // disable color and depth buffer writes
-//////            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-//////            glDepthMask(GL_FALSE);
-//////
-//////            //glDisable(GL_CULL_FACE);
-//////
-//////            glEnable(GL_STENCIL_TEST);
-//////            glStencilFunc(GL_ALWAYS, 0x00, 0xFF);
-//////
-//////            glStencilOpSeparate(
-//////                GL_BACK,    // set stencil settings for back-facing polygons
-//////                GL_KEEP,    // stencil fail operation, has no effect
-//////                GL_INCR,    // depth fail operation, increment stencil value
-//////                GL_KEEP     // depth pass operation, do nothing
-//////            );
-//////
-//////            glStencilOpSeparate(
-//////                GL_FRONT,   // set stencil settings for front-facing polygons
-//////                GL_KEEP,    // stencil fail operation, has no effect
-//////                GL_DECR,    // depth fail operation, decrement stencil value
-//////                GL_KEEP     // depth pass operation, do nothing
-//////            );
-//////
-//////            glCullFace(GL_FRONT);
-//////            glDrawArrays(GL_TRIANGLES, 0, 24);
-//////
-//////            glCullFace(GL_BACK);
-//////            glDrawArrays(GL_TRIANGLES, 0, 24);
-//////
-//////            // restore render state
-//////            glDisable(GL_STENCIL_TEST);
-//////            //glEnable(GL_CULL_FACE);
-//////            glDepthMask(GL_TRUE);
-//////            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-//////
-//////            glDisableVertexAttribArray(coordLocation);
-//////        }
-//////    }
-//////
-//////    // ...
-//////
-//////    drawParams.program = programManager_.getResource("test");
-//////    glUseProgram(drawParams.program->id());
-//////
-//////    // ...
-//////
-//////    const GLint lightPositionsLocation = glGetUniformLocation(drawParams.program->id(), "lightPositions");
-//////    const GLint lightColorsLocation = glGetUniformLocation(drawParams.program->id(), "lightColors");
-//////    const GLint lightRangesLocation = glGetUniformLocation(drawParams.program->id(), "lightRanges");
-//////    const GLint numLightsLocation = glGetUniformLocation(drawParams.program->id(), "numLights");
-///////*
-//////    const GLint diffuseMapLocation = glGetUniformLocation(drawParams.program->id(), "diffuseMap");
-//////    const GLint specularMapLocation = glGetUniformLocation(drawParams.program->id(), "specularMap");
-//////    const GLint glowMapLocation = glGetUniformLocation(drawParams.program->id(), "glowMap");
-//////    const GLint normalMapLocation = glGetUniformLocation(drawParams.program->id(), "normalMap");
-//////*/
-//////    lightPosition_.x = 150.0f * Math::cos(Math::radians(0.0f));
-//////    lightPosition_.y = 0.0f;
-//////    lightPosition_.z = 150.0f * Math::sin(Math::radians(0.0f));
-//////
-//////    Vector3 lightPositions[] = {
-//////        Vector3(150.0f * Math::cos(Math::radians(0.0f)), 0.0f, 150.0f * Math::sin(Math::radians(0.0f))),
-//////        Vector3(150.0f * Math::cos(Math::radians(120.0f)), 0.0f, 150.0f * Math::sin(Math::radians(120.0f))),
-//////        Vector3(150.0f * Math::cos(Math::radians(240.0f)), 0.0f, 150.0f * Math::sin(Math::radians(240.0f)))
-//////    };
-//////
-//////    static float lightRotation = 0.0f;
-//////
-//////    const Transform3 t(
-//////        Vector3::zero(),
-//////        Matrix3x3::yRotation(lightRotation),
-//////        1.0f
-//////    );
-//////
-//////    transform(lightPositions, lightPositions + 3, lightPositions, t);
-//////
-//////    lightPosition_ = lightPositions[0];
-//////
-//////    transform(lightPositions, lightPositions + 3, lightPositions, inverse(camera_->worldTransform()));
-//////
-//////    const Vector3 lightColors[] = {
-//////        Vector3(2.00f, 2.00f, 2.00f),
-//////        Vector3(0.50f, 2.00f, 0.50f),
-//////        Vector3(0.50f, 0.50f, 2.00f)
-//////    };
-//////
-//////    const float lightRanges[] = {
-//////        750.0f,
-//////        250.0f,
-//////        250.0f
-//////    };
-//////
-//////    glUniform3fv(lightPositionsLocation, 3, lightPositions->data());
-//////    glUniform3fv(lightColorsLocation, 3, lightColors->data());
-//////    glUniform1fv(lightRangesLocation, 3, lightRanges);
-//////    glUniform1i(numLightsLocation, 1);  // number of active lights
-///////*
-//////    glUniform1i(diffuseMapLocation, 0);
-//////    glUniform1i(specularMapLocation, 1);
-//////    glUniform1i(glowMapLocation, 2);
-//////    glUniform1i(normalMapLocation, 3);
-//////*/
-//////    // ...
-//////
-//////    if( diffuseMipmappingOn )
-//////    {
-//////        textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-//////    }
-//////    else
-//////    {
-//////        textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-//////    }
-//////
-//////    if( glowMipmappingOn )
-//////    {
-//////        textureManager_.getResource("glow")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-//////    }
-//////    else
-//////    {
-//////        textureManager_.getResource("glow")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-//////    }
-//////
-//////    if( normalMipmappingOn )
-//////    {
-//////        textureManager_.getResource("normal")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-//////    }
-//////    else
-//////    {
-//////        textureManager_.getResource("normal")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-//////    }
-//////
-//////    if( specularMipmappingOn )
-//////    {
-//////        textureManager_.getResource("specular")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-//////    }
-//////    else
-//////    {
-//////        textureManager_.getResource("specular")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-//////    }
-//////    if( anisotropicFilteringOn )
-//////    {
-//////        textureManager_.getResource("diffuse")->activateAnisotropicFiltering();
-//////    }
-//////    else
-//////    {
-//////        textureManager_.getResource("diffuse")->disableAnisotropicFiltering();
-//////    }
-///////*
-//////    glActiveTexture(GL_TEXTURE0);
-//////    glEnable(GL_TEXTURE_2D);
-//////    textureManager_.getResource("diffuse")->bindTexture();
-//////
-//////    glActiveTexture(GL_TEXTURE1);
-//////    glEnable(GL_TEXTURE_2D);
-//////    textureManager_.getResource("specular")->bindTexture();
-//////
-//////    glActiveTexture(GL_TEXTURE2);
-//////    glEnable(GL_TEXTURE_2D);
-//////    textureManager_.getResource("glow")->bindTexture();
-//////
-//////    glActiveTexture(GL_TEXTURE3);
-//////    glEnable(GL_TEXTURE_2D);
-//////    textureManager_.getResource("normal")->bindTexture();
-//////*/
-//////    glDepthFunc(GL_LEQUAL);
-//////
-//////    //GLint stencilBits;
-//////    //glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
-//////
-//////    glEnable(GL_STENCIL_TEST);
-//////    glStencilFunc(GL_EQUAL, 0x00, 0xFF);
-//////    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-//////
-//////    // lit render pass, should be done for each light source
-//////    renderQueue.draw(drawParams);
-//////
-//////    glDisable(GL_STENCIL_TEST);
-///////*
-//////    glActiveTexture(GL_TEXTURE0);
-//////    glDisable(GL_TEXTURE_2D);
-//////
-//////    glActiveTexture(GL_TEXTURE1);
-//////    glDisable(GL_TEXTURE_2D);
-//////
-//////    glActiveTexture(GL_TEXTURE2);
-//////    glDisable(GL_TEXTURE_2D);
-//////
-//////    glActiveTexture(GL_TEXTURE3);
-//////    glDisable(GL_TEXTURE_2D);
-//////*/
-//////    if (rotateLights)
-//////    {
-//////        //lightRotation = Math::wrapTo2Pi(lightRotation + deltaTime * 0.125f);
-//////        lightRotation = Math::mod(lightRotation + deltaTime * 0.125f, 2.0f * Math::pi());
-//////    }
 
     if (drawExtents_)
     {
@@ -965,125 +634,6 @@ void GameProgram::test()
     Mesh* const boxMesh = createBox(0.5f, 0.5f, 0.5f);
     meshManager_.loadResource("box", boxMesh);
 
-    GroupNode* groupNode = new GroupNode();
-
-    const float scaling = 0.1f;
-
-    menu1 = modelReader.read("data/models/menuitem.3DS");
-    menu1->setScaling(scaling);
-
-    menu2 = modelReader.read("data/models/menuitem.3DS");
-    menu2->setScaling(scaling);
-
-    menu3 = modelReader.read("data/models/menuitem.3DS");
-    menu3->setScaling(scaling);
-
-    menu4 = modelReader.read("data/models/menuitem.3DS");
-    menu4->setScaling(scaling);
-
-
-
-    //ship->setMesh(boxMesh);
-    //ship->updateModelExtents();
-
-    //const int count = 6;
-    //const float offset = 2.5f * scaling;
-    //const float displacement = -(offset * (count - 1)) / 2.0f;
-
-
-    menu1->setTranslation(Vector3(0.0f, 20.0f, -50.0f));
-    menu2->setTranslation(Vector3(0.0f, 0.0f, -50.0f));
-    menu3->setTranslation(Vector3(0.0f, -20.0f, -50.0f));
-    menu4->setTranslation(Vector3(0.0f, -40.0f, -50.0f));
-
-    groupNode->attachChild(menu1);
-    groupNode->attachChild(menu2);
-    groupNode->attachChild(menu3);
-    groupNode->attachChild(menu4);
-
-    rootNode_->attachChild(groupNode);
-
-    testMenuObject1 = new MenuObject( this );
-    testMenuObject1->setGraphicalPresentation( menu1 );
-    testMenuObject1->attachController( &menuController1 );
-
-    testMenuObject2 = new MenuObject( this );
-    testMenuObject2->setGraphicalPresentation( menu2 );
-    testMenuObject2->attachController( &menuController2 );
-
-    testMenuObject3 = new MenuObject( this );
-    testMenuObject3->setGraphicalPresentation( menu3 );
-    testMenuObject3->attachController( &menuController3 );
-
-    testMenuObject4 = new MenuObject( this );
-    testMenuObject4->setGraphicalPresentation( menu4 );
-    testMenuObject4->attachController( &menuController4 );
-
-    testMenuObject1->setType(MenuObject::TYPE_NEWGAME);
-    testMenuObject2->setType(MenuObject::TYPE_OPTIONS);
-    testMenuObject3->setType(MenuObject::TYPE_CREDITS);
-    testMenuObject4->setType(MenuObject::TYPE_EXIT);
-
-    testMenuObject1->setDown(testMenuObject2);
-
-    testMenuObject2->setUp(testMenuObject1);
-    testMenuObject2->setDown(testMenuObject3);
-
-    testMenuObject3->setUp(testMenuObject2);
-    testMenuObject3->setDown(testMenuObject4);
-
-    testMenuObject4->setUp(testMenuObject3);
-
-    testMenuObject1->setActive(true);
-
-
-//    MeshNode* meshNode = new MeshNode();
-//    meshNode->setMesh(boxMesh);
-//    meshNode->setTranslation(Vector3(0.0f, 0.0f, -50.0f));
-//    meshNode->setScaling(50.0f);
-
-//    ModelReader modelReader;
-//    modelReader.setMeshManager(&meshManager_);
-//
-//    Node* p = 0;
-//
-//    // heavy geometry with tanks
-//
-//    p = modelReader.read("data/models/abrams_tank.3ds");
-//    p->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
-//    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
-//    p->setScaling(0.15f);
-//
-//    const int count = 6;
-//    const float offset = 75.0f;
-//    const float displacement = -(offset * (count - 1)) / 2.0f;
-//
-//    for (int i = 0; i < count; ++i)
-//    {
-//        for (int j = 0; j < count; ++j)
-//        {
-//            if (i != 0 || j != 0)
-//            {
-//                p = p->clone();
-//            }
-//
-//            p->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
-//            rootNode_->attachChild(p);
-//        }
-//    }
-//
-//    p = modelReader.read("data/models/platform.3ds");
-//    p->setTranslation(Vector3(0.0f, -472.0f, 0.0f));
-//    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
-//    p->setScaling(3.0f);
-//    rootNode_->attachChild(p);
-//
-//    p = modelReader.read("data/models/ship2.3ds");
-//    p->setTranslation(Vector3(0.0f, 25.0f, 0.0f));
-//    p->setRotation(Matrix3x3::xRotation(-Math::halfPi()));
-//    //p->setScaling(3.0f);
-//    rootNode_->attachChild(p);
-
     camera_->setTranslation(Vector3(0.0f, 0.0f, 50.0f));
     camera_->setRotation(Matrix3x3::identity());
     //camera_->setTranslation(Vector3(-0.5f * offset, -0.5f * offset, 0.0f));
@@ -1109,6 +659,7 @@ void GameProgram::changeState( STATES state )
     if( tmpState == NULL )
     {
         running = false;
+        nextState = NULL;
         return;
     }
 

@@ -11,6 +11,8 @@ class MainMenuState : public State
 
         virtual void update( float deltaTime );
     protected:
+        TextureManager textureManager_;
+
     private:
 };
 

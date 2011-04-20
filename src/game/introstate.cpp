@@ -1,39 +1,46 @@
 #include "introstate.h"
-#include "gameprogram.h"
 #include "graphics/meshnode.h"
-#include "graphics/texture.h"
+
 
 #include <iostream>
 
 IntroState::IntroState( GameProgram* backpointer)
  : State( backpointer )
 {
-    rootNode = new MeshNode();
+    MeshNode* asd = new MeshNode();
+    rootNode->attachChild( asd );
+
     mesh = backpointer->createBox( 5.0f, 5.0f, 5.0f );
 
     //load textures
     Texture* diffuse = new Texture();
     diffuse->loadImage("data/textures/diffuse.tga");
+    diffuse->generateMipmap();
     backpointer->textureManager_.loadResource("diffuseMap", diffuse);
 
     Texture* specular = new Texture();
     specular->loadImage("data/textures/specular.tga");
+    specular->generateMipmap();
     backpointer->textureManager_.loadResource("specularMap", specular);
 
     Texture* glow = new Texture();
     glow->loadImage("data/textures/glow.tga");
-    backpointer->textureManager_.loadResource("glowMap", specular);
+    glow->generateMipmap();
+    backpointer->textureManager_.loadResource("glowMap", glow);
 
     Texture* normal = new Texture();
     normal->loadImage("data/textures/normal.tga");
-    backpointer->textureManager_.loadResource("normalMap", specular);
+    normal->generateMipmap();
+    backpointer->textureManager_.loadResource("normalMap", normal);
 
-    ((MeshNode*)rootNode)->diffuseMap = backpointer->textureManager_.getResource("diffuseMap");
-    ((MeshNode*)rootNode)->specularMap = backpointer->textureManager_.getResource("specularMap");
-    ((MeshNode*)rootNode)->glowMap = backpointer->textureManager_.getResource("glowMap");
-    ((MeshNode*)rootNode)->normalMap = backpointer->textureManager_.getResource("normalMap");
+    asd->setMesh(mesh);
+    asd->updateModelExtents();
 
-    ((MeshNode*)rootNode)->setMesh(mesh);
+    asd->diffuseMap = diffuse;
+    asd->specularMap = specular;
+    asd->glowMap = glow;
+    asd->normalMap = normal;
+
 }
 
 IntroState::~IntroState()

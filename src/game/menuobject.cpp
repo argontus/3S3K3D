@@ -10,9 +10,9 @@ MenuObject::MenuObject( GameProgram* backpointer )
       left(NULL),
       right(NULL),
       animationSpeed(5.0f),
-      normalSize(0.1f),
+      normalSize(0.3f),
       highlightSize(0.5f),
-      currentSize(0.1f),
+      currentSize(0.3f),
       timer(0.0f),
       active(false),
       owner( backpointer )
@@ -21,14 +21,6 @@ MenuObject::MenuObject( GameProgram* backpointer )
 
 MenuObject::~MenuObject()
 {
-    if( up )
-        delete up;
-    if( down )
-        delete down;
-    if( left )
-        delete left;
-    if( right )
-        delete right;
 }
 
 void MenuObject::getFocus()
@@ -101,15 +93,15 @@ void MenuObject::update(float deltaTime)
         currentSize += animationSpeed*deltaTime;
         if (currentSize>highlightSize)
             currentSize=highlightSize;
-        graphicalPresentation->setScaling(currentSize);
     }
     else if (!active && currentSize > normalSize)
     {
         currentSize -= animationSpeed*deltaTime;
         if (currentSize<normalSize)
             currentSize=normalSize;
-        graphicalPresentation->setScaling(currentSize);
     }
+
+    graphicalPresentation->setScaling(currentSize);
 }
 
 void MenuObject::activate()
@@ -120,7 +112,7 @@ void MenuObject::activate()
         {
             case TYPE_NEWGAME:
                 timer = 0.0f;
-                owner->changeState(GameProgram::STATE_GAME);
+                owner->addState(GameProgram::STATE_GAME);
                 break;
 
             case TYPE_OPTIONS:
@@ -135,7 +127,7 @@ void MenuObject::activate()
 
             case TYPE_EXIT:
                 timer = 0.0f;
-                owner->changeState(GameProgram::STATE_QUIT);
+                owner->addState(GameProgram::STATE_QUIT);
                 break;
 
             default:

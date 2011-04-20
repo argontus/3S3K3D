@@ -12,10 +12,10 @@ State::~State()
 {
     delete rootNode;
     rootNode = NULL;
-    if( scene != NULL )
-    {
-        delete scene;
-        scene = NULL;
-    }
+//    if( scene != NULL )
+//    {
+//        delete scene;
+//        scene = NULL;
+//    }
 }
 

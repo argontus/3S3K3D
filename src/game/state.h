@@ -5,6 +5,7 @@
 #include "gameprogram.h"
 #include <graphics/node.h>
 #include "gamescene.h"
+#include <graphics/groupnode.h>
 
 /**
  * @file game/state.h
@@ -28,7 +29,7 @@ class State
          * Getter for the root node. Needed for rendering tha geometry of the
          * state
          */
-        inline Node* getRootNode() const { return rootNode; }
+        inline GroupNode* getRootNode() const { return rootNode; }
 
         /**
          * Sets the scene that contains the objects in this state.
@@ -51,7 +52,7 @@ class State
         /**
          * Root node of the state. Used to draw geometry of the state.
          */
-        Node* rootNode;
+        GroupNode* rootNode;
 
         /**
          * Scene that plays in this state.

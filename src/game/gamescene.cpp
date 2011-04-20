@@ -50,9 +50,9 @@ void GameScene::removeObject( GameObject* object )
         {
             if( *iter == object )
             {
-                gameObjects_.erase( iter );
                 delete *iter;
-                *iter = NULL;
+                gameObjects_.erase( iter );
+                //*iter = NULL;
 
                 break;
             }

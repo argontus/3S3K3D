@@ -208,6 +208,7 @@ private:
     std::vector<State*> states;
 
     State* currentState;
+    State* nextState;
 
 	bool running;
 	Uint32 deltaTicks; /* ticks between last frame and current frame */

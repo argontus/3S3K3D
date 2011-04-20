@@ -145,7 +145,7 @@ void GameObject::detachController( Controller* controller )
     if( controller == NULL )
         return;
 
-    controller->setObjectAttachedTo(NULL);
+    //controller->setObjectAttachedTo(NULL);
     controllers.remove( controller );
 }
 

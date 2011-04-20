@@ -110,6 +110,8 @@ void Node::setScaling(const float scaling)
     GRAPHICS_RUNTIME_ASSERT(scaling > 0.0f);
 
     localTransform_.scaling = scaling;
+
+
     invalidateWorldTransform();
 
     // invalidateWorlTransform() should invalidate the world transform
