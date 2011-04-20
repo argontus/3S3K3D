@@ -119,6 +119,8 @@ public:
      */
     int size() const;
 
+    // TODO: custom attribute names?
+
     /**
      * Gets the attribute name. Attribute name is the name of the corresponding
      * GLSL vertex shader input parameter. The attribute usage cannot be

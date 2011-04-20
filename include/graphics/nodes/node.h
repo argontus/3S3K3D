@@ -323,6 +323,8 @@ public:
      */
     bool isSubtreeVisible() const;
 
+    // TODO: is node specific visibility state needed?
+
     /**
      * Sets the node visibility state. If the subtree visibility state has been
      * set to <code>false</code>, i.e.,

@@ -53,6 +53,9 @@ public:
     void setVertexBuffer(VertexBuffer* vertexBuffer);
     VertexBuffer* vertexBuffer() const;
 
+    // TODO: ambient pass material management
+    // TODO: lit pass material management
+
     /**
      * @name Node Interface
      */
