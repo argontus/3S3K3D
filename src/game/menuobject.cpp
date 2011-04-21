@@ -127,7 +127,7 @@ void MenuObject::activate()
 
             case TYPE_EXIT:
                 timer = 0.0f;
-                owner->addState(GameProgram::STATE_QUIT);
+                owner->changeState(GameProgram::STATE_QUIT);
                 break;
 
             default:

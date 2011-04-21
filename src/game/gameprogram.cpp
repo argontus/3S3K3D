@@ -52,8 +52,7 @@ GameProgram::GameProgram()
     programManager_(),
     meshManager_(),
     textureManager_(),
-    currentState(NULL),
-    nextState(NULL)
+    currentState(NULL)
 {
     running         = true;
     deltaTicks      = 0;
@@ -67,7 +66,8 @@ int GameProgram::execute()
 	}
 
     glewInit();
-    changeState(STATE_INTRO);
+    nextState = STATE_INTRO;
+    updateState();
 
 
     // init shader stuff
@@ -360,6 +360,12 @@ int GameProgram::execute()
 
 		render( currentState->getRootNode() );
 		lastTicks = currentTicks;
+
+		if(changingState)
+		{
+		    updateState();
+		    changingState = false;
+		}
 	}
 
     std::cout << "Leaving main loop." << std::endl;
@@ -644,6 +650,12 @@ void GameProgram::test()
 
 void GameProgram::changeState( STATES state )
 {
+    changingState = true;
+    nextState = state;
+}
+
+void GameProgram::updateState()
+{
     State* tmpState = NULL;
 
     if( states.size() > 0 )
@@ -657,12 +669,11 @@ void GameProgram::changeState( STATES state )
         delete tmpState;
     }
 
-    tmpState = InitNewState( state );
+    tmpState = InitNewState( nextState );
 
     if( tmpState == NULL )
     {
         running = false;
-        nextState = NULL;
         return;
     }
 

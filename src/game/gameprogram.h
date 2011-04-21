@@ -134,6 +134,8 @@ public:
      */
 	virtual void changeState( STATES state );
 
+    virtual void updateState();
+
 	/**
 	 * Initializes and sets the state defined by the parameter as the current
 	 * state instantly.
@@ -205,12 +207,15 @@ private:
     std::vector<State*> states;
 
     State* currentState;
-    State* nextState;
 
 	bool running;
 	Uint32 deltaTicks; /* ticks between last frame and current frame */
 	float deltaTime;
 	static const Uint32 ticksPerSecond = 1000;
+
+    bool changingState;
+    STATES nextState;
+
 
     // TODO: quick & dirty
 
