@@ -5,48 +5,41 @@
 
 #include "gameprogram.h"
 
-#include <cstring>
+#include "effects.h"
 
 // TODO: REALLY quick & dirty
 #include <geometry/math.h>
-#include <geometry/transform2.h>
-#include <graphics/color3.h>
-#include <graphics/color4.h>
-#include <graphics/nodes/meshnode.h>
 #include <graphics/nodes/cameranode.h>
+#include <graphics/nodes/meshnode.h>
+#include <graphics/nodes/pointlightnode.h>
 #include <graphics/drawparams.h>
 #include <graphics/runtimeassert.h>
 #include <graphics/modelreader.h>
-#include <graphics/visibilitytest.h>
 
-#include <graphics/material.h>
-#include <graphics/variables/floatvariable.h>
-#include <graphics/variables/sampler2dvariable.h>
-#include <graphics/variables/vec3variable.h>
+#include <graphics/device.h>
+#include <graphics/effect.h>
+#include <graphics/pass.h>
+#include <graphics/technique.h>
+#include <graphics/parameters/parameter.h>
 
 #include <graphics/nodevisitors/nodecountquery.h>
 #include <graphics/nodevisitors/pointlitgeometryquery.h>
 #include <graphics/nodevisitors/visibleextentsquery.h>
 #include <graphics/nodevisitors/visiblegeometryquery.h>
-
-#include <geometry/sphere.h>
+#include <graphics/nodevisitors/visiblelightsquery.h>
 
 GameProgram::GameProgram()
 :   configuration(),
     mixer_(),
-    renderer_(0),
+    device_(0),
     ship(NULL),
     testObject(NULL),
     camera_(0),
     rootNode_(0),
+    drawShadows_(true),
     drawExtents_(false),
     drawShadowVolumes_(false),
-    diffuseMipmappingOn(true),
-    glowMipmappingOn(true),
-    normalMipmappingOn(true),
-    specularMipmappingOn(true),
     rotateLights(false),
-    anisotropicFilteringOn(true),
     programManager_(),
     meshManager_(),
     textureManager_(),
@@ -54,7 +47,11 @@ GameProgram::GameProgram()
     litMeshVertexFormat_(0),
     shadowVertexFormat_(0),
     unlitMeshVertexFormat_(0),
-    shadowVertexBuffer_(0)
+    shadowVertexBuffer_(0),
+    dgnsTextureMeshEffect_(0),
+    noTextureMeshEffect_(0),
+    extentsEffect_(0),
+    shadowEffect_(0)
 {
     running         = true;
     deltaTicks      = 0;
@@ -72,10 +69,10 @@ int GameProgram::execute()
 
     glewInit();
 
-    renderer_ = new Renderer(width, height);
-    renderer_->setClearColor(Color4(0.0f, 0.0f, 0.0f, 0.0f));
-    renderer_->setClearDepth(1.0);
-    renderer_->setClearStencil(0);
+    device_ = new Device(width, height);
+    device_->setClearColor(Color4(0.0f, 0.0f, 0.0f, 0.0f));
+    device_->setClearDepth(1.0);
+    device_->setClearStencil(0);
 
 
 
@@ -93,6 +90,12 @@ int GameProgram::execute()
     litMeshVertexFormat_->setAttribute(2, VertexAttribute::Type::Float3, "tangent");
     litMeshVertexFormat_->setAttribute(3, VertexAttribute::Type::Float2, "texCoord");
     litMeshVertexFormat_->compile();
+
+    particleVertexFormat_ = new VertexFormat(3);
+    particleVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, "position");
+    particleVertexFormat_->setAttribute(1, VertexAttribute::Type::Float4, "color");
+    particleVertexFormat_->setAttribute(2, VertexAttribute::Type::Float1, "pointSize");
+    particleVertexFormat_->compile();
 
     // vertex format for Vector3
     shadowVertexFormat_ = new VertexFormat(1);
@@ -153,6 +156,8 @@ int GameProgram::execute()
     texture->setFilters(Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR);
     textureManager_.loadResource("particle", texture);
 
+
+
     // init scene
 
     rootNode_ = new Node();
@@ -169,6 +174,7 @@ int GameProgram::execute()
 
 
     // TODO: quick & dirty
+    initEffects();
     test();
 
 
@@ -217,98 +223,27 @@ int GameProgram::execute()
 
         if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F1))
         {
-            drawExtents_ = !drawExtents_;
+            rotateLights = !rotateLights;
         }
 
         if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F2))
         {
-            diffuseMipmappingOn = !diffuseMipmappingOn;
-
-            if( diffuseMipmappingOn )
-            {
-                textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-            }
-            else
-            {
-                textureManager_.getResource("diffuse")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-            }
+            drawExtents_ = !drawExtents_;
         }
 
         if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F3))
         {
-            glowMipmappingOn = !glowMipmappingOn;
-
-            if( glowMipmappingOn )
-            {
-                textureManager_.getResource("glow")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-            }
-            else
-            {
-                textureManager_.getResource("glow")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-            }
+            drawShadows_ = !drawShadows_;
         }
 
-        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F4))
-        {
-            normalMipmappingOn = !normalMipmappingOn;
-
-            if( normalMipmappingOn )
-            {
-                textureManager_.getResource("normal")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-            }
-            else
-            {
-                textureManager_.getResource("normal")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-            }
-        }
-
-        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F5))
-        {
-            specularMipmappingOn = !specularMipmappingOn;
-
-            if( specularMipmappingOn )
-            {
-                textureManager_.getResource("specular")->setFilters( Texture::FILTER_LINEAR_MIPMAP_LINEAR, Texture::FILTER_LINEAR_MIPMAP_LINEAR );
-            }
-            else
-            {
-                textureManager_.getResource("specular")->setFilters( Texture::FILTER_NEAREST, Texture::FILTER_NEAREST );
-            }
-        }
-
-        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F6))
-        {
-            rotateLights = !rotateLights;
-        }
-
-        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F7 ) )
-        {
-            anisotropicFilteringOn = !anisotropicFilteringOn;
-
-            if( anisotropicFilteringOn )
-            {
-                textureManager_.getResource("diffuse")->activateAnisotropicFiltering();
-                textureManager_.getResource("specular")->activateAnisotropicFiltering();
-                textureManager_.getResource("normal")->activateAnisotropicFiltering();
-                textureManager_.getResource("glow")->activateAnisotropicFiltering();
-            }
-            else
-            {
-                textureManager_.getResource("diffuse")->disableAnisotropicFiltering();
-                textureManager_.getResource("specular")->disableAnisotropicFiltering();
-                textureManager_.getResource("normal")->disableAnisotropicFiltering();
-                textureManager_.getResource("glow")->disableAnisotropicFiltering();
-            }
-        }
-
-        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F8 ) )
-        {
-            mouseBoundToScreen = !mouseBoundToScreen;
-        }
-
-        if( keyboard.keyWasPressedInThisFrame( Keyboard::KEY_F12 ) )
+        if( keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F4))
         {
             drawShadowVolumes_ = !drawShadowVolumes_;
+        }
+
+        if( keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F5))
+        {
+            mouseBoundToScreen = !mouseBoundToScreen;
         }
 
         // see keyboardcontroller.h for a TODO related to member 'speed'
@@ -330,23 +265,9 @@ int GameProgram::execute()
             camera_->rotateBy(Matrix3x3::rotation(camera_->rotation().row(0), deltaY * -rotationFactor));
         }
 
-        if( mouse.mouseButtonPressedInThisFrame( Mouse::MOUSEBUTTON_LEFT ) )
-        {
-            std::cout << "left mouse button pressed!" << std::endl;
-        }
-        if( mouse.mouseButtonPressedInThisFrame( Mouse::MOUSEBUTTON_RIGHT ) )
-        {
-            std::cout << "right mouse button pressed!" << std::endl;
-        }
-        if( mouse.mouseButtonPressedInThisFrame( Mouse::MOUSEBUTTON_MIDDLE ) )
-        {
-            std::cout << "middle mouse button pressed!" << std::endl;
-        }
-
 		tick( deltaTime );
 
 		keyboard.updateKeyboardState();
-
 		mouse.updateMouse();
 		testObject->update( deltaTime );
 
@@ -367,24 +288,15 @@ void GameProgram::render()
 {
     // TODO: get rid of all direct OpenGL calls
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
-    // these are the defaults
-    //glDepthRange(0.0, 1.0);
-    //glClearDepth(1.0);
-
     glEnable(GL_CULL_FACE);
 
-    // specify which color buffer channels can be written to
-    const bool enableRed = true;
-    const bool enableGreen = true;
-    const bool enableBlue = true;
-    const bool enableAlpha = true;
+    // TODO: make sure the stencil writemasks are ~0
+    // HACK: make sure depth buffer write mask is GL_TRUE
+    device_->setDepthState(DepthState::lessEqual());
 
-    renderer_->setColorMask(enableRed, enableGreen, enableBlue, enableAlpha);
-    renderer_->clearBuffers(true, true, false);
-    renderer_->setProjectionMatrix(camera_->projectionMatrix());
+    device_->setColorMask(true, true, true, true);
+    device_->clearBuffers(true, true, true);
+    //renderer_->setProjectionMatrix(camera_->projectionMatrix());
 
 
     // TODO: REALLY quick & dirty
@@ -400,94 +312,67 @@ void GameProgram::render()
 
     rootNode_->accept(&visibleGeometryQuery);
 
-    // unlit render pass
-
     DrawParams drawParams;
-    drawParams.renderer = renderer_;
+    drawParams.device = device_;
     drawParams.viewMatrix = camera_->viewMatrix();
+    drawParams.projectionMatrix = camera_->projectionMatrix();
     drawParams.viewRotation = transpose(camera_->worldTransform().rotation);
 
-    Program* program = programManager_.load("data/shaders/unlit.vs", "data/shaders/unlit.fs");
+    // begin ambient render pass
 
-    Material unlitMaterial;
-    unlitMaterial.setProgram(program);
-    unlitMaterial.addVariable(new Vec3Variable("ambient", Color3(0.25f, 0.25f, 0.25f)));
-    unlitMaterial.addVariable(new Sampler2DVariable("diffuseMap", textureManager_.getResource("diffuse")));
-    unlitMaterial.addVariable(new Sampler2DVariable("glowMap", textureManager_.getResource("glow")));
+    const Vector3 ambientLightColor(0.1f, 0.1f, 0.1f);
 
-    if (unlitMaterial.link() == false)
-    {
-        GRAPHICS_RUNTIME_ASSERT(false);
-    }
-
-    unlitMaterial.bind();
-
-    renderer_->setProgram(program);
-    renderer_->setVertexFormat(unlitMeshVertexFormat_);
-
-    // unlit render pass
     for (int i = 0; i < visibleGeometryQuery.numMeshNodes(); ++i)
     {
-        visibleGeometryQuery.meshNode(i)->draw(drawParams);
+        MeshNode* const p = visibleGeometryQuery.meshNode(i);
+        GRAPHICS_RUNTIME_ASSERT(p->vertexBuffer() != 0);
+
+        const Transform3 t = p->worldTransform();
+
+        const Matrix4x4 worldMatrix = toMatrix4x4(t);
+        const Matrix4x4 modelViewMatrix = worldMatrix * drawParams.viewMatrix;
+        const Matrix3x3 normalMatrix = t.rotation * drawParams.viewRotation;
+
+        // TODO: quick & dirty
+        Pass* const pass = p->effect()->technique("ambientLight")->pass(0);
+        pass->parameter("modelViewMatrix")->setValue(modelViewMatrix);
+        pass->parameter("projectionMatrix")->setValue(drawParams.projectionMatrix);
+        pass->parameter("normalMatrix")->setValue(normalMatrix);
+        pass->parameter("ambientLightColor")->setValue(ambientLightColor);
+        pass->bind(drawParams.device);
+
+        drawParams.device->setVertexFormat(unlitMeshVertexFormat_);
+        drawParams.device->setVertexBuffer(p->vertexBuffer());
+        drawParams.device->drawPrimitives(Device::PrimitiveType::Triangles);
+
+        // TODO: are these needed?
+        drawParams.device->setVertexBuffer(0);
+        drawParams.device->setVertexFormat(0);
     }
 
-    unlitMaterial.unbind();
+    // end ambient render pass
 
-    renderer_->setVertexFormat(0);
-    renderer_->setProgram(0);
+    static VisibleLightsQuery visibleLightsQuery;
+    visibleLightsQuery.reset();
+    visibleLightsQuery.init(*camera_);
 
-    // ...
-
-    const float step = Math::pi() * 2.0 / 5.0;
-
-    Vector3 lightPositions[] = {
-        Vector3(150.0f * Math::cos(0 * step), -75.0f, 150.0f * Math::sin(0 * step)),
-        Vector3(150.0f * Math::cos(1 * step), -37.5f, 150.0f * Math::sin(1 * step)),
-        Vector3(150.0f * Math::cos(2 * step),   0.0f, 150.0f * Math::sin(2 * step)),
-        Vector3(150.0f * Math::cos(3 * step),  37.5f, 150.0f * Math::sin(3 * step)),
-        Vector3(150.0f * Math::cos(4 * step),  75.0f, 150.0f * Math::sin(4 * step))
-    };
-
-    const Color3 lightColors[] = {
-        Color3(1.00f, 0.25f, 0.25f),
-        Color3(0.75f, 0.75f, 0.25f),
-        Color3(0.25f, 1.00f, 0.25f),
-        Color3(0.25f, 0.75f, 0.75f),
-        Color3(0.25f, 0.25f, 1.00f)
-    };
-
-    const float lightRanges[] = {
-        175.0f,
-        175.0f,
-        175.0f,
-        175.0f,
-        175.0f
-    };
-
-    const int numLights = sizeof(lightPositions) / sizeof(lightPositions[0]);
-
-    Vector3 worldLightPositions[numLights];
-    Vector3 viewLightPositions[numLights];
-
-    static float lightRotation = 0.0f;
-
-    const Transform3 t(
-        Vector3::zero(),
-        Matrix3x3::yRotation(lightRotation),
-        1.0f
-    );
-
-    transform(lightPositions, lightPositions + numLights, worldLightPositions, t);
-    transform(worldLightPositions, worldLightPositions + numLights, viewLightPositions, inverse(camera_->worldTransform()));
+    rootNode_->accept(&visibleLightsQuery);
 
     // for each light
-    for (int lightIndex = 0; lightIndex < numLights; ++lightIndex)
+    for (int lightIndex = 0; lightIndex < visibleLightsQuery.numPointLightNodes(); ++lightIndex)
     {
+    const PointLightNode* const pointLight = visibleLightsQuery.pointLightNode(lightIndex);
+
+    const Vector3 lightWorldPosition = pointLight->worldTransform().translation;
+    const Vector3 lightViewPosition = transform(lightWorldPosition, inverse(camera_->worldTransform()));
+    const Vector3 lightColor = pointLight->lightColor();
+    const float lightRange = pointLight->lightRange();;
+
     // light effect sphere
-    const Sphere effectSphere(worldLightPositions[lightIndex], lightRanges[lightIndex]);
+    const Sphere effectSphere(lightWorldPosition, lightRange);
 
-    // TODO: check if the light effect sphere intersects the view frustum
-
+    if (drawShadows_)
+    {
     // static to maintain capacity
     static std::vector<Vector3> shadowVertices;
     shadowVertices.clear();
@@ -526,9 +411,9 @@ void GameProgram::render()
             Vector3 p2 = ::transform(vertex2.position, transform);
 
             // vectors from light source to vertices
-            const Vector3 d0 = p0 - worldLightPositions[lightIndex];
-            const Vector3 d1 = p1 - worldLightPositions[lightIndex];
-            const Vector3 d2 = p2 - worldLightPositions[lightIndex];
+            const Vector3 d0 = p0 - lightWorldPosition;
+            const Vector3 d1 = p1 - lightWorldPosition;
+            const Vector3 d2 = p2 - lightWorldPosition;
 
             const float length0 = length(d0);
             const float length1 = length(d1);
@@ -540,7 +425,7 @@ void GameProgram::render()
             // TODO: looks ok in most cases but actually this is not enough,
             // make it so that the triangle centroid would be extruded to the
             // light effect sphere boundary
-            const float projectionDistance = lightRanges[lightIndex] - minDistance;
+            const float projectionDistance = lightRange - minDistance;
 
             if (projectionDistance <= 0.0f)
             {
@@ -613,16 +498,17 @@ void GameProgram::render()
 
     // begin shadow pass ------------------------------------------------------
 
-    // clear the stencil buffer
-    renderer_->clearBuffers(false, false, true);
+    // TODO: make sure the stencil buffer writemasks are ~0
+    // clear stencil buffer
+    device_->clearBuffers(false, false, true);
 
-    program = programManager_.load("data/shaders/shadow.vs", "data/shaders/shadow.fs");
+    Pass* const pass = shadowEffect_->technique("singlePass")->pass(0);
+    pass->parameter("modelViewMatrix")->setValue(drawParams.viewMatrix);
+    pass->parameter("projectionMatrix")->setValue(drawParams.projectionMatrix);
+    pass->bind(drawParams.device);
 
-    renderer_->setModelViewMatrix(drawParams.viewMatrix);
-
-    renderer_->setProgram(program);
-    renderer_->setVertexFormat(shadowVertexFormat_);
-    renderer_->setVertexBuffer(shadowVertexBuffer_);
+    device_->setVertexFormat(shadowVertexFormat_);
+    device_->setVertexBuffer(shadowVertexBuffer_);
 
     // load the shadow geometry to a vertex buffer
     shadowVertexBuffer_->update(
@@ -632,104 +518,43 @@ void GameProgram::render()
     );
 
     // disable color buffer writes
-    renderer_->setColorMask(false, false, false, false);
+    device_->setColorMask(false, false, false, false);
 
-    // disable depth buffer writes
-    glDepthMask(GL_FALSE);
+    glDisable(GL_CULL_FACE);
+    device_->drawPrimitives(Device::PrimitiveType::Triangles);
+    //glDrawArrays(GL_TRIANGLES, 0, shadowVertices.size());
+    glEnable(GL_CULL_FACE);
 
-    glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_ALWAYS, 0, ~0);
+    device_->setColorMask(true, true, true, true);
 
-    glStencilOpSeparate(
-        GL_BACK,    // set stencil settings for back-facing polygons
-        GL_KEEP,    // stencil fail operation, has no effect
-        GL_INCR,    // depth fail operation, increment stencil value
-        GL_KEEP     // depth pass operation, do nothing
-    );
-
-    glStencilOpSeparate(
-        GL_FRONT,   // set stencil settings for front-facing polygons
-        GL_KEEP,    // stencil fail operation, has no effect
-        GL_DECR,    // depth fail operation, decrement stencil value
-        GL_KEEP     // depth pass operation, do nothing
-    );
-
-    glCullFace(GL_FRONT);
-    glDrawArrays(GL_TRIANGLES, 0, shadowVertices.size());
-
-    glCullFace(GL_BACK);
-    glDrawArrays(GL_TRIANGLES, 0, shadowVertices.size());
-
-    // restore render state
-    glDisable(GL_STENCIL_TEST);
-    glDepthMask(GL_TRUE);
-
-    renderer_->setColorMask(
-        enableRed,
-        enableGreen,
-        enableBlue,
-        enableAlpha);
+    device_->setVertexBuffer(0);
+    device_->setVertexFormat(0);
 
     //if (drawShadowVolumes_ && lightIndex == 0)
     if (drawShadowVolumes_)
     {
+        Pass* const pass = shadowEffect_->technique("wireframe")->pass(0);
+        pass->parameter("modelViewMatrix")->setValue(drawParams.viewMatrix);
+        pass->parameter("projectionMatrix")->setValue(drawParams.projectionMatrix);
+        pass->bind(drawParams.device);
+
+        device_->setVertexFormat(shadowVertexFormat_);
+        device_->setVertexBuffer(shadowVertexBuffer_);
+
         // render shadow volumes
         glDisable(GL_CULL_FACE);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glDrawArrays(GL_TRIANGLES, 0, shadowVertices.size());
+        device_->drawPrimitives(Device::PrimitiveType::Triangles);
+        //glDrawArrays(GL_TRIANGLES, 0, shadowVertices.size());
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_CULL_FACE);
-    }
 
-    renderer_->setVertexBuffer(0);
-    renderer_->setVertexFormat(0);
-    renderer_->setProgram(0);
+        device_->setVertexBuffer(0);
+        device_->setVertexFormat(0);
+    }
 
     // end shadow pass --------------------------------------------------------
-
-    program = programManager_.load("data/shaders/lit.vs", "data/shaders/lit.fs");
-
-    renderer_->setProgram(program);
-    renderer_->setVertexFormat(litMeshVertexFormat_);
-
-    Material litMaterial;
-    litMaterial.setProgram(program);
-    litMaterial.addVariable(new FloatVariable("specularExponent", 128.0f));
-    litMaterial.addVariable(new Sampler2DVariable("diffuseMap", textureManager_.getResource("diffuse")));
-    litMaterial.addVariable(new Sampler2DVariable("specularMap", textureManager_.getResource("specular")));
-    litMaterial.addVariable(new Sampler2DVariable("normalMap", textureManager_.getResource("normal")));
-
-    if (litMaterial.link() == false)
-    {
-        GRAPHICS_RUNTIME_ASSERT(false);
     }
-
-    litMaterial.bind();
-
-    // ...
-
-    const GLint lightPositionLocation = glGetUniformLocation(program->id(), "lightPosition");
-    const GLint lightColorLocation = glGetUniformLocation(program->id(), "lightColor");
-    const GLint lightRangeLocation = glGetUniformLocation(program->id(), "lightRange");
-
-    glUniform3fv(lightPositionLocation, 1, viewLightPositions[lightIndex].data());
-    glUniform3fv(lightColorLocation, 1, lightColors[lightIndex].data());
-    glUniform1f(lightRangeLocation, lightRanges[lightIndex]);
-
-    // ...
-
-    glDepthFunc(GL_LEQUAL);
-
-    //GLint stencilBits;
-    //glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
-
-    glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_EQUAL, 0x00, 0xFF);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_ONE, GL_ONE);
 
     // lit render pass
     for (int i = 0; i < visibleGeometryQuery.numMeshNodes(); ++i)
@@ -737,24 +562,42 @@ void GameProgram::render()
         // render only if the geometry node is within the light effect sphere
         if (intersect(visibleGeometryQuery.meshNode(i)->extents(), effectSphere))
         {
-            visibleGeometryQuery.meshNode(i)->draw(drawParams);
+            MeshNode* const p = visibleGeometryQuery.meshNode(i);
+
+            GRAPHICS_RUNTIME_ASSERT(p->vertexBuffer() != 0);
+
+            const Transform3 t = p->worldTransform();
+
+            const Matrix4x4 worldMatrix = toMatrix4x4(t);
+            const Matrix4x4 modelViewMatrix = worldMatrix * drawParams.viewMatrix;
+            const Matrix3x3 normalMatrix = t.rotation * drawParams.viewRotation;
+
+            // TODO: quick & dirty
+            Pass* const pass = p->effect()->technique("pointLight")->pass(0);
+            pass->parameter("modelViewMatrix")->setValue(modelViewMatrix);
+            pass->parameter("projectionMatrix")->setValue(drawParams.projectionMatrix);
+            pass->parameter("normalMatrix")->setValue(normalMatrix);
+            pass->parameter("lightPosition")->setValue(lightViewPosition);
+            pass->parameter("lightColor")->setValue(lightColor);
+            pass->parameter("lightRange")->setValue(lightRange);
+            pass->bind(drawParams.device);
+
+            drawParams.device->setVertexFormat(litMeshVertexFormat_);
+            drawParams.device->setVertexBuffer(p->vertexBuffer());
+            drawParams.device->drawPrimitives(Device::PrimitiveType::Triangles);
+
+            // TODO: are these needed?
+            drawParams.device->setVertexBuffer(0);
+            drawParams.device->setVertexFormat(0);
         }
     }
 
-    glDisable(GL_BLEND);
-    glDisable(GL_STENCIL_TEST);
-
-    litMaterial.unbind();
-
-    renderer_->setVertexFormat(0);
-    renderer_->setProgram(0);
-
     } // for each light
 
-    if (rotateLights)
-    {
-        lightRotation = Math::mod(lightRotation + deltaTime * 0.075f, 2.0f * Math::pi());
-    }
+//    if (rotateLights)
+//    {
+//        lightRotation = Math::mod(lightRotation + deltaTime * 0.075f, 2.0f * Math::pi());
+//    }
 /*
     // quick & dirty box rotation for testing the extents updates with lazy
     // evaluation
@@ -763,15 +606,10 @@ void GameProgram::render()
         rootNode_->child(i)->rotateBy(Matrix3x3::yRotation(-0.0025f * (i * i + 1) * deltaTime));
     }
 */
+/*
     // begin quick & dirty point sprite test ----------------------------------
 
     program = programManager_.load("data/shaders/particle.vs", "data/shaders/particle.fs");
-
-    VertexFormat vertexFormat(3);
-    vertexFormat.setAttribute(0, VertexAttribute::Type::Float3, "position");
-    vertexFormat.setAttribute(1, VertexAttribute::Type::Float4, "color");
-    vertexFormat.setAttribute(2, VertexAttribute::Type::Float1, "pointSize");
-    vertexFormat.compile();
 
     float components[numLights * 8];
 
@@ -801,14 +639,6 @@ void GameProgram::render()
         VertexBuffer::Usage::Static
     );
 
-    // begin test vertex buffer locking ---------------------------------------
-//    GRAPHICS_RUNTIME_ASSERT(vertexBuffer.isLocked() == false);
-//    vertexBuffer.lock(VertexBuffer::Access::ReadOnly);
-//    GRAPHICS_RUNTIME_ASSERT(vertexBuffer.isLocked() == true);
-//    vertexBuffer.unlock();
-//    GRAPHICS_RUNTIME_ASSERT(vertexBuffer.isLocked() == false);
-    // end test vertex buffer locking -----------------------------------------
-
     BlendState blendState;
     blendState.setEquation(BlendState::Equation::Add);
     blendState.setSrcFactor(BlendState::SrcFactor::SrcAlpha);
@@ -818,56 +648,48 @@ void GameProgram::render()
     depthState.writeEnabled = false;
     depthState.compareFunc = DepthState::CompareFunc::Less;
 
-    renderer_->setModelViewMatrix(drawParams.viewMatrix);
+    //renderer_->setModelViewMatrix(drawParams.viewMatrix);
 
-    renderer_->setProgram(program);
-    renderer_->setVertexFormat(&vertexFormat);
-    renderer_->setVertexBuffer(&vertexBuffer);
-    renderer_->setBlendState(&blendState);
-    renderer_->setDepthState(&depthState);
-    renderer_->setTexture(0, textureManager_.getResource("particle"));
+    device_->setProgram(program);
+    device_->setVertexFormat(particleVertexFormat_);
+    device_->setVertexBuffer(&vertexBuffer);
+    device_->setBlendState(&blendState);
+    device_->setDepthState(&depthState);
+    //renderer_->setTexture(0, textureManager_.getResource("particle"));
+    //renderer_->setTexture(0, textureManager_.getResource("particle"), "texture0");
 
     glEnable(GL_POINT_SPRITE);  // TODO: this is deprecated
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
-    renderer_->drawPrimitives(Renderer::PrimitiveType::Points);
+    device_->drawPrimitives(Device::PrimitiveType::Points);
 
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glDisable(GL_POINT_SPRITE); // TODO: this is deprecated
 
-    renderer_->setTexture(0, 0);
-    renderer_->setDepthState(0);
-    renderer_->setBlendState(0);
-    renderer_->setVertexBuffer(0);
-    renderer_->setVertexFormat(0);
-    renderer_->setProgram(0);
+    //renderer_->setTexture(0, 0, 0);
+    //device_->setDepthState(0);
+    //device_->setBlendState(0);
+    device_->setVertexBuffer(0);
+    device_->setVertexFormat(0);
+    device_->setProgram(0);
 
     // end quick & dirty point sprite test ------------------------------------
-
-    // needed because not all depth buffer test settings are managed using
-    // renderer_
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
-
+*/
     if (drawExtents_)
     {
         visibleExtentsQuery.init(*camera_);
         visibleExtentsQuery.reset();
         rootNode_->accept(&visibleExtentsQuery);
 
-        glDepthFunc(GL_LEQUAL);
-
-        renderer_->setModelViewMatrix(drawParams.viewMatrix);
-
-        program = programManager_.load("data/shaders/extents.vs", "data/shaders/extents.fs");
-        renderer_->setProgram(program);
+        Pass* const pass = extentsEffect_->technique(0)->pass(0);
+        pass->parameter("modelViewMatrix")->setValue(drawParams.viewMatrix);
+        pass->parameter("projectionMatrix")->setValue(drawParams.projectionMatrix);
+        pass->bind(drawParams.device);
 
         for (int i = 0; i < visibleExtentsQuery.numExtents(); ++i)
         {
             drawExtents(visibleExtentsQuery.extents(i), drawParams);
         }
-
-        renderer_->setProgram(0);
     }
 
     SDL_GL_SwapBuffers();
@@ -919,23 +741,15 @@ void GameProgram::drawExtents(const Extents3& extents, const DrawParams& params)
         IndexBuffer::Usage::Static
     );
 
-    // begin test index buffer locking ----------------------------------------
-//    GRAPHICS_RUNTIME_ASSERT(indexBuffer.isLocked() == false);
-//    indexBuffer.lock(IndexBuffer::Access::ReadOnly);
-//    GRAPHICS_RUNTIME_ASSERT(indexBuffer.isLocked() == true);
-//    indexBuffer.unlock();
-//    GRAPHICS_RUNTIME_ASSERT(indexBuffer.isLocked() == false);
-    // end test index buffer locking ------------------------------------------
+    device_->setVertexFormat(extentsVertexFormat_);
+    device_->setVertexBuffer(&vertexBuffer);
+    device_->setIndexBuffer(&indexBuffer);
 
-    renderer_->setVertexFormat(extentsVertexFormat_);
-    renderer_->setVertexBuffer(&vertexBuffer);
-    renderer_->setIndexBuffer(&indexBuffer);
+    device_->drawPrimitives(Device::PrimitiveType::Lines);
 
-    renderer_->drawPrimitives(Renderer::PrimitiveType::Lines);
-
-    renderer_->setIndexBuffer(0);
-    renderer_->setVertexBuffer(0);
-    renderer_->setVertexFormat(0);
+    device_->setIndexBuffer(0);
+    device_->setVertexBuffer(0);
+    device_->setVertexFormat(0);
 }
 
 void GameProgram::tick( const float deltaTime )
@@ -1089,11 +903,11 @@ void GameProgram::test()
         VertexBuffer::Usage::Static
     );
 
-    MeshNode* meshNode = new MeshNode();
-    meshNode->setScaling(scaling);
-    meshNode->setMesh(boxMesh);
-    meshNode->setVertexBuffer(&vertexBuffer);
-    meshNode->updateModelExtents();
+    MeshNode* prototype = new MeshNode();
+    prototype->setScaling(scaling);
+    prototype->setMesh(boxMesh);
+    prototype->setVertexBuffer(&vertexBuffer);
+    prototype->updateModelExtents();
 
     const int count = 10;
     //const float offset = 2.5f * scaling;
@@ -1104,13 +918,35 @@ void GameProgram::test()
     {
         for (int j = 0; j < count; ++j)
         {
-            if (i != 0 || j != 0)
-            {
-                meshNode = meshNode->clone();
-            }
+            MeshNode* const meshNode = prototype->clone();
 
             // test the visibility flags
             //meshNode->setVisible(i != j);
+
+            if (i == 0 && j == 0)
+            {
+                meshNode->setEffect(createNoTextureMeshEffect(
+                    &programManager_,
+                    Vector3(1.0f, 1.0f, 1.0f),
+                    Vector3(1.0f, 1.0f, 1.0f),
+                    Vector3(0.75f, 0.0f, 0.0f),
+                    Vector3(1.0f, 1.0f, 1.0f),
+                    128.0f)
+                );
+            }
+            else
+            {
+                const int fix = j % 2;
+
+                if ((j * count + i + fix) % 2 == 0)
+                {
+                    meshNode->setEffect(noTextureMeshEffect_->clone());
+                }
+                else
+                {
+                    meshNode->setEffect(dgnsTextureMeshEffect_->clone());
+                }
+            }
 
             meshNode->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
             groupNode->attachChild(meshNode);
@@ -1132,6 +968,43 @@ void GameProgram::test()
         rootNode_->attachChild(groupNode);
     }
 
+    // add some point lights
+
+    const float angleStep = Math::pi() * 2.0 / 5.0;
+    const float heightStep = 75.0f;
+
+    PointLightNode* p = new PointLightNode();
+    p->setTranslation(Vector3(150.0f * Math::cos(0 * angleStep), -2 * heightStep, 150.0f * Math::sin(0 * angleStep)));
+    p->setLightColor(Vector3(1.00f, 0.25f, 0.25f));
+    p->setLightRange(150.0f);
+    rootNode_->attachChild(p);
+
+    p = new PointLightNode();
+    p->setTranslation(Vector3(150.0f * Math::cos(1 * angleStep), -1 * heightStep, 150.0f * Math::sin(1 * angleStep)));
+    p->setLightColor(Vector3(0.75f, 0.75f, 0.25f));
+    p->setLightRange(150.0f);
+    rootNode_->attachChild(p);
+
+    p = new PointLightNode();
+    p->setTranslation(Vector3(150.0f * Math::cos(2 * angleStep), 0 * heightStep, 150.0f * Math::sin(2 * angleStep)));
+    p->setLightColor(Vector3(0.25f, 1.00f, 0.25f));
+    p->setLightRange(150.0f);
+    rootNode_->attachChild(p);
+
+    p = new PointLightNode();
+    p->setTranslation(Vector3(150.0f * Math::cos(3 * angleStep), 1 * heightStep, 150.0f * Math::sin(3 * angleStep)));
+    p->setLightColor(Vector3(0.25f, 0.75f, 0.75f));
+    p->setLightRange(150.0f);
+    rootNode_->attachChild(p);
+
+    p = new PointLightNode();
+    p->setTranslation(Vector3(150.0f * Math::cos(4 * angleStep), 2 * heightStep, 150.0f * Math::sin(4 * angleStep)));
+    p->setLightColor(Vector3(0.25f, 0.25f, 1.00f));
+    p->setLightRange(150.0f);
+    rootNode_->attachChild(p);
+
+    // TODO: test ModelReader
+
     //camera_->setTranslation(Vector3(150.0f, -75.0f, 0.0f));
     //camera_->setRotation(Matrix3x3::yRotation(Math::pi() / 2.0));
     camera_->setTranslation(Vector3(-75.0f - 37.5f / 2.0f, 0.0f, 150.0f));
@@ -1140,14 +1013,44 @@ void GameProgram::test()
 
 GameProgram::~GameProgram()
 {
-    delete renderer_;
+    delete device_;
     delete rootNode_;
     delete camera_;
 
     delete extentsVertexFormat_;
     delete litMeshVertexFormat_;
+    delete particleVertexFormat_;
     delete shadowVertexFormat_;
     delete unlitMeshVertexFormat_;
 
     delete shadowVertexBuffer_;
+
+    delete dgnsTextureMeshEffect_;
+    delete noTextureMeshEffect_;
+    delete extentsEffect_;
+    delete shadowEffect_;
+}
+
+void GameProgram::initEffects()
+{
+    dgnsTextureMeshEffect_ = createDGNSTextureMeshEffect(
+        &programManager_,
+        textureManager_.getResource("diffuse"),
+        textureManager_.getResource("glow"),
+        textureManager_.getResource("normal"),
+        textureManager_.getResource("specular"),
+        128.0f
+    );
+
+    noTextureMeshEffect_ = createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(1.0f, 1.0f, 1.0f),
+        Vector3(1.0f, 1.0f, 1.0f),
+        Vector3(0.0f, 0.0f, 0.0f),
+        Vector3(1.0f, 1.0f, 1.0f),
+        128.0f
+    );
+
+    extentsEffect_ = createExtentsEffect(&programManager_);
+    shadowEffect_ = createShadowEffect(&programManager_);
 }

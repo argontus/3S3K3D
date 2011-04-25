@@ -24,12 +24,13 @@ public:
          */
         enum Enum
         {
+            // TODO: rename these to Float, Vec2, Vec3 and Vec4?
             Float1,
             Float2,
             Float3,
             Float4
 
-            // TODO: add more if needed, remember to update Renderer
+            // TODO: add more if needed, remember to update Device
             // implementation
         };
     };

@@ -127,7 +127,6 @@ public:
      */
     //@{
     virtual CameraNode* clone() const;
-    virtual void draw(const DrawParams&) const;
     //@}
 
 protected:

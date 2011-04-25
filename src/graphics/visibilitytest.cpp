@@ -7,6 +7,7 @@
 
 #include <geometry/interval.h>
 #include <geometry/math.h>
+#include <geometry/sphere.h>
 
 #include <graphics/runtimeassert.h>
 #include <graphics/nodes/cameranode.h>
@@ -41,8 +42,32 @@ VisibilityState::Enum VisibilityTest::test(const Extents3& extents) const
     // for each frustum plane
     for (int i = 0; i < 6; ++i)
     {
-        //const Interval interval = extents.intervalAlong(planes_[i].normal);
         const Interval interval = ::interval(extents, planes_[i].normal);
+
+        if (interval.max < planes_[i].constant)
+        {
+            // invisible, early out
+            return VisibilityState::Invisible;
+        }
+
+        if (interval.min <= planes_[i].constant)
+        {
+            // partially visible
+            state = VisibilityState::PartiallyVisible;
+        }
+    }
+
+    return state;
+}
+
+VisibilityState::Enum VisibilityTest::test(const Sphere& sphere) const
+{
+    VisibilityState::Enum state = VisibilityState::CompletelyVisible;
+
+    // for each frustum plane
+    for (int i = 0; i < 6; ++i)
+    {
+        const Interval interval = ::interval(sphere, planes_[i].normal);
 
         if (interval.max < planes_[i].constant)
         {

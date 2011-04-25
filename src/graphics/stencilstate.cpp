@@ -17,8 +17,31 @@ StencilState::FaceSettings::FaceSettings()
     // ...
 }
 
+const StencilState* StencilState::disabled()
+{
+    static bool initialized = false;
+    static StencilState state;
+
+    if (initialized == false)
+    {
+        state.setCompareFunc(CompareFunc::Always);
+        state.setReference(0);
+        state.setMask(~0);
+        state.setWriteMask(~0);
+        state.setStencilFailAction(Action::Keep);
+        state.setDepthFailAction(Action::Keep);
+        state.setDepthPassAction(Action::Keep);
+        state.enabled = false;
+
+        initialized = true;
+    }
+
+    return &state;
+}
+
 StencilState::StencilState()
-:   backFace(),
+:   enabled(false),
+    backFace(),
     frontFace()
 {
     // ...

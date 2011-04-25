@@ -8,6 +8,7 @@
 #include <graphics/runtimeassert.h>
 #include <graphics/nodes/cameranode.h>
 #include <graphics/nodes/meshnode.h>
+#include <graphics/nodes/pointlightnode.h>
 
 VisibleGeometryQuery::~VisibleGeometryQuery()
 {
@@ -90,6 +91,11 @@ bool VisibleGeometryQuery::visit(MeshNode* const p)
 }
 
 bool VisibleGeometryQuery::visit(Node* const p)
+{
+    return visitOther(p);
+}
+
+bool VisibleGeometryQuery::visit(PointLightNode* const p)
 {
     return visitOther(p);
 }

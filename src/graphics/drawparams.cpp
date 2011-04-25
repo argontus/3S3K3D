@@ -6,8 +6,9 @@
 #include <graphics/drawparams.h>
 
 DrawParams::DrawParams()
-:   renderer(0),
+:   device(0),
     viewMatrix(Matrix4x4::identity()),
+    projectionMatrix(Matrix4x4::identity()),
     viewRotation(Matrix3x3::identity())
 {
     // ...

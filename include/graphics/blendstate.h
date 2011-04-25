@@ -137,7 +137,7 @@ public:
             SrcAlphaSaturate
 
             // TODO: this list is out of date for OpenGL 3.3, remember to
-            // update Renderer implementation if you add more values
+            // update Device implementation if you add more values
         };
     };
 
@@ -222,9 +222,14 @@ public:
             OneMinusConstantAlpha
 
             // TODO: this list is out of date for OpenGL 3.3, remember to
-            // update Renderer implementation if you add more values
+            // update Device implementation if you add more values
         };
     };
+
+    static const BlendState* additive();
+    static const BlendState* additiveBlend();
+    static const BlendState* disabled();
+    static const BlendState* translucent();
 
     // compiler-generated destructor, copy constructor and assignment operator
     // are fine
@@ -257,6 +262,11 @@ public:
      * @param factor Destination blend factor.
      */
     void setDstFactor(DstFactor::Enum factor);
+
+    /**
+     * Is blending enabled?
+     */
+    bool enabled;
 
     /**
      * Blend equation for RGB components.

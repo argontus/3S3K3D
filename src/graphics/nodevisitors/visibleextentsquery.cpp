@@ -8,6 +8,7 @@
 #include <graphics/runtimeassert.h>
 #include <graphics/nodes/cameranode.h>
 #include <graphics/nodes/meshnode.h>
+#include <graphics/nodes/pointlightnode.h>
 
 VisibleExtentsQuery::~VisibleExtentsQuery()
 {
@@ -54,6 +55,11 @@ bool VisibleExtentsQuery::visit(MeshNode* const p)
 }
 
 bool VisibleExtentsQuery::visit(Node* const p)
+{
+    return visitImpl(p);
+}
+
+bool VisibleExtentsQuery::visit(PointLightNode* const p)
 {
     return visitImpl(p);
 }

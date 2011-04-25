@@ -9,7 +9,7 @@
 #include <geometry/matrix3x3.h>
 #include <geometry/matrix4x4.h>
 
-class Renderer;
+class Device;
 
 /**
  * Describes draw parameters.
@@ -25,8 +25,9 @@ public:
      */
     DrawParams();
 
-    Renderer* renderer;         ///< The renderer to use for drawing.
+    Device* device;             ///< The device to use for drawing.
     Matrix4x4 viewMatrix;       ///< World to view transform matrix.
+    Matrix4x4 projectionMatrix; ///< World to view transform matrix.
     Matrix3x3 viewRotation;     ///< World to view rotation matrix.
 };
 

@@ -11,7 +11,6 @@
 #include <geometry/extents3.h>
 #include <geometry/transform3.h>
 
-class DrawParams;
 class NodeVisitor;
 
 // TODO: rename this to group node?
@@ -44,14 +43,6 @@ public:
      * deleting it via a C++ <code>delete</code> expression.
      */
     virtual Node* clone() const;
-
-    // TODO: this might not be needed at all
-    /**
-     * Draws this node.
-     *
-     * @param params Draw parameters.
-     */
-    virtual void draw(const DrawParams& params) const;
 
     // recursive depth-first tree traversal, supports generic scene graph
     // queries

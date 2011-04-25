@@ -174,6 +174,8 @@ public:
         Action::Enum depthPassAction;
     };
 
+    static const StencilState* disabled();
+
     // compiler-generated destructor, copy constructor and assignment operator
     // are fine
 
@@ -238,6 +240,11 @@ public:
      * @param action Action to take when both stencil and depth tests pass.
      */
     void setDepthPassAction(Action::Enum action);
+
+    /**
+     * Is stencil test enabled?
+     */
+    bool enabled;
 
     /**
      * Settings for back facing polygons.

@@ -8,6 +8,7 @@
 #include <graphics/runtimeassert.h>
 #include <graphics/nodes/cameranode.h>
 #include <graphics/nodes/meshnode.h>
+#include <graphics/nodes/pointlightnode.h>
 
 PointLitGeometryQuery::~PointLitGeometryQuery()
 {
@@ -69,6 +70,11 @@ bool PointLitGeometryQuery::visit(MeshNode* const p)
 }
 
 bool PointLitGeometryQuery::visit(Node* const p)
+{
+    return visitOther(p);
+}
+
+bool PointLitGeometryQuery::visit(PointLightNode* const p)
 {
     return visitOther(p);
 }

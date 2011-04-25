@@ -8,6 +8,7 @@
 
 #include <graphics/nodes/node.h>
 
+class Effect;
 class Mesh;
 class VertexBuffer;
 
@@ -53,15 +54,16 @@ public:
     void setVertexBuffer(VertexBuffer* vertexBuffer);
     VertexBuffer* vertexBuffer() const;
 
-    // TODO: ambient pass material management
-    // TODO: lit pass material management
+    // TODO: the effect should be reference counted, now assumes ownership
+    void setEffect(Effect* effect);
+    Effect* effect();
+    const Effect* effect() const;
 
     /**
      * @name Node Interface
      */
     //@{
     virtual MeshNode* clone() const;
-    virtual void draw(const DrawParams& params) const;
     //@}
 
 protected:
@@ -84,6 +86,7 @@ private:
     // TODO: get rid of the mesh pointer?
     Mesh* mesh_;                    ///< Mesh pointer.
     VertexBuffer* vertexBuffer_;    ///< Vertex buffer.
+    Effect* effect_;                ///< Effect.
 
     // hide the copy assignment operator
     MeshNode& operator =(const MeshNode&);

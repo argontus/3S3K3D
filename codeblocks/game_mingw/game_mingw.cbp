@@ -67,6 +67,8 @@
 		</Linker>
 		<Unit filename="..\..\src\game\controller.cpp" />
 		<Unit filename="..\..\src\game\controller.h" />
+		<Unit filename="..\..\src\game\effects.cpp" />
+		<Unit filename="..\..\src\game\effects.h" />
 		<Unit filename="..\..\src\game\gameobject.cpp" />
 		<Unit filename="..\..\src\game\gameobject.h" />
 		<Unit filename="..\..\src\game\gameprogram.cpp" />

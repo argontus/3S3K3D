@@ -70,6 +70,10 @@ public:
         };
     };
 
+    static const DepthState* disabled();
+    static const DepthState* lessEqual();
+    static const DepthState* lessEqualReadOnly();
+
     // compiler-generated destructor, copy constructor and assignment operator
     // are fine
 
@@ -77,6 +81,11 @@ public:
      * Default constructor.
      */
     DepthState();
+
+    /**
+     * Is depth buffering enabled?
+     */
+    bool enabled;
 
     /**
      * Is depth buffer write enabled?

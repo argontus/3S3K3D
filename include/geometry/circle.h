@@ -8,6 +8,8 @@
 
 #include <geometry/vector2.h>
 
+class Interval;
+
 // TODO: rename this to Circle2 and implement a Circle3 class
 /**
  * Describes a circle.
@@ -41,5 +43,16 @@ public:
     Vector2 center; ///< Center point.
     float radius;   ///< Radius.
 };
+
+/**
+ * Calculates the interval of <code>x</code> along <code>axis</code>. If
+ * <code>x.radius < 0.0f</code>, the returned interval will be empty.
+ *
+ * @param x The circle whose interval is to be calculated.
+ * @param axis The axis along which the interval is to be calculated.
+ *
+ * @return The calculated interval.
+ */
+const Interval interval(const Circle& x, const Vector2& axis);
 
 #endif // #ifndef GEOMETRY_CIRCLE_H_INCLUDED

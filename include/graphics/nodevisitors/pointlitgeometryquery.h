@@ -32,6 +32,7 @@ public:
     virtual bool visit(CameraNode*);
     virtual bool visit(MeshNode*);
     virtual bool visit(Node*);
+    virtual bool visit(PointLightNode*);
     //@}
 
 private:

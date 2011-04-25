@@ -21,7 +21,8 @@ public:
     void reset();
     void init(const CameraNode& camera);
 
-    // TODO: ...
+    PointLightNode* pointLightNode(int index) const;
+    int numPointLightNodes() const;
 
     /**
      * @name NodeVisitor Interface
@@ -30,10 +31,14 @@ public:
     virtual bool visit(CameraNode*);
     virtual bool visit(MeshNode*);
     virtual bool visit(Node*);
+    virtual bool visit(PointLightNode*);
     //@}
 
 private:
-    // TODO: ...
+    bool visitOther(Node* p);
+
+    VisibilityTest test_;
+    std::vector<PointLightNode*> pointLightNodes_;
 
     // prevent copying
     VisibleLightsQuery(const VisibleLightsQuery&);

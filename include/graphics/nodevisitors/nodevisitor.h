@@ -9,6 +9,7 @@
 class CameraNode;
 class MeshNode;
 class Node;
+class PointLightNode;
 // TODO: add more node types when they are implemented
 
 // TODO: rename this to Visitor?
@@ -26,6 +27,7 @@ public:
     virtual bool visit(CameraNode*) = 0;
     virtual bool visit(MeshNode*) = 0;
     virtual bool visit(Node*) = 0;
+    virtual bool visit(PointLightNode*) = 0;
     // TODO: add more node types when they are implemented
 
 protected:

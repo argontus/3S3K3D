@@ -5,21 +5,27 @@
 
 #include <graphics/nodes/meshnode.h>
 
+#include <graphics/device.h>
 #include <graphics/drawparams.h>
+#include <graphics/effect.h>
 #include <graphics/mesh.h>
-#include <graphics/renderer.h>
+#include <graphics/pass.h>
 #include <graphics/runtimeassert.h>
+#include <graphics/technique.h>
 #include <graphics/nodevisitors/nodevisitor.h>
+#include <graphics/parameters/parameter.h>
 
 MeshNode::~MeshNode()
 {
-    // ...
+    // TODO: the effect should be reference counted
+    delete effect_;
 }
 
 MeshNode::MeshNode()
 :   Node(),
     mesh_(0),
-    vertexBuffer_(0)
+    vertexBuffer_(0),
+    effect_(0)
 {
     // ...
 }
@@ -59,36 +65,39 @@ VertexBuffer* MeshNode::vertexBuffer() const
     return vertexBuffer_;
 }
 
+void MeshNode::setEffect(Effect* const effect)
+{
+    // TODO: the effect should be reference counted
+    GRAPHICS_RUNTIME_ASSERT(effect_ == 0);
+    effect_ = effect;
+}
+
+Effect* MeshNode::effect()
+{
+    return effect_;
+}
+
+const Effect* MeshNode::effect() const
+{
+    return effect_;
+}
+
 MeshNode* MeshNode::clone() const
 {
     return new MeshNode(*this);
 }
 
-void MeshNode::draw(const DrawParams& params) const
-{
-    GRAPHICS_RUNTIME_ASSERT(vertexBuffer_ != 0);
-
-    const Transform3 t = worldTransform();
-
-    const Matrix4x4 modelMatrix = toMatrix4x4(t);
-    const Matrix4x4 modelViewMatrix = modelMatrix * params.viewMatrix;
-    const Matrix3x3 normalMatrix = t.rotation * params.viewRotation;
-
-    params.renderer->setModelViewMatrix(modelViewMatrix);
-    params.renderer->setNormalMatrix(normalMatrix);
-    params.renderer->setVertexBuffer(vertexBuffer_);
-
-    params.renderer->drawPrimitives(Renderer::PrimitiveType::Triangles);
-
-    params.renderer->setVertexBuffer(0);
-}
-
 MeshNode::MeshNode(const MeshNode& other)
 :   Node(other),
     mesh_(other.mesh_),
-    vertexBuffer_(other.vertexBuffer_)
+    vertexBuffer_(other.vertexBuffer_),
+    effect_(0)
 {
-    // ...
+    if (other.effect_ != 0)
+    {
+        // TODO: the effect should be reference counted
+        effect_ = other.effect_->clone();
+    }
 }
 
 bool MeshNode::acceptImpl(NodeVisitor* const visitor)

@@ -18,17 +18,18 @@
 #include <graphics/resourcemanager.h>
 #include <graphics/programmanager.h>
 #include <graphics/mesh.h>
-#include <geometry/vector3.h>
 #include <graphics/texture.h>
 
-#include <graphics/renderer.h>
+class Device;
+class Effect;
+class VertexBuffer;
+class VertexFormat;
 
 class Extents3;
 
 // TODO: quick & dirty
 class CameraNode;
 class DrawParams;
-class MeshNode;
 class Node;
 
 typedef ResourceManager<Mesh> MeshManager;
@@ -123,23 +124,20 @@ public:
 private:
     void test();
     void drawExtents(const Extents3& extents, const DrawParams& params);
+    void initEffects();
 
 	Configuration configuration;
 	Mixer mixer_;
-	Renderer* renderer_;
+	Device* device_;
 	Node* ship;
     GameObject* testObject;
     KeyboardController testController;
     CameraNode* camera_;
     Node* rootNode_;
+    bool drawShadows_;
     bool drawExtents_;
     bool drawShadowVolumes_;
-    bool diffuseMipmappingOn;
-    bool glowMipmappingOn;
-    bool normalMipmappingOn;
-    bool specularMipmappingOn;
     bool rotateLights;
-    bool anisotropicFilteringOn;
     ProgramManager programManager_;
     MeshManager meshManager_;
     TextureManager textureManager_;
@@ -155,10 +153,16 @@ private:
 
     VertexFormat* extentsVertexFormat_;
     VertexFormat* litMeshVertexFormat_;
+    VertexFormat* particleVertexFormat_;
     VertexFormat* shadowVertexFormat_;
     VertexFormat* unlitMeshVertexFormat_;
 
     VertexBuffer* shadowVertexBuffer_;
+
+    Effect* dgnsTextureMeshEffect_;
+    Effect* noTextureMeshEffect_;
+    Effect* extentsEffect_;
+    Effect* shadowEffect_;
 };
 
 #endif /* GAMEPROGRAM_H_ */

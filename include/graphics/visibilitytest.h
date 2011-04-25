@@ -9,6 +9,7 @@
 #include <geometry/plane3.h>
 
 class Extents3;
+class Sphere;
 class Transform3;
 
 class CameraNode;
@@ -60,6 +61,8 @@ public:
      * @return The visibility state of <code>extents</code>.
      */
     VisibilityState::Enum test(const Extents3& extents) const;
+
+    VisibilityState::Enum test(const Sphere& sphere) const;
 
     /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.

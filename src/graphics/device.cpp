@@ -1,13 +1,12 @@
 /**
- * @file graphics/renderer.cpp
+ * @file graphics/device.cpp
  * @author Mika Haarahiltunen
  */
 
-#include <graphics/renderer.h>
+#include <graphics/device.h>
 
 #include <cstring>
 
-#include <algorithm>
 #include <sstream>
 
 #include <graphics/runtimeassert.h>
@@ -267,20 +266,20 @@ GLenum indexBufferType(const IndexBuffer::Format::Enum format)
     }
 }
 
-GLenum primitiveType(const Renderer::PrimitiveType::Enum type)
+GLenum primitiveType(const Device::PrimitiveType::Enum type)
 {
     // TODO: optimize by using a lookup table or by setting the enumeration
     // values to corresponding OpenGL enumeration values?
 
     switch (type)
     {
-        case Renderer::PrimitiveType::Points:
+        case Device::PrimitiveType::Points:
             return GL_POINTS;
 
-        case Renderer::PrimitiveType::Lines:
+        case Device::PrimitiveType::Lines:
             return GL_LINES;
 
-        case Renderer::PrimitiveType::Triangles:
+        case Device::PrimitiveType::Triangles:
             return GL_TRIANGLES;
 
         default:
@@ -383,32 +382,14 @@ GLenum vertexAttributeType(const VertexAttribute::Type::Enum type)
 
 } // namespace
 
-const char* Renderer::modelViewMatrixName()
-{
-    return "modelViewMatrix";
-}
-
-const char* Renderer::projectionMatrixName()
-{
-    return "projectionMatrix";
-}
-
-const char* Renderer::normalMatrixName()
-{
-    return "normalMatrix";
-}
-
-Renderer::~Renderer()
+Device::~Device()
 {
     // ...
 }
 
-Renderer::Renderer(const int width, const int height)
+Device::Device(const int width, const int height)
 :   defaultWidth_(width),
     defaultHeight_(height),
-    modelViewMatrix_(Matrix4x4::identity()),
-    projectionMatrix_(Matrix4x4::identity()),
-    normalMatrix_(Matrix3x3::identity()),
     program_(0),
     vertexFormat_(0),
     vertexBuffer_(0),
@@ -417,84 +398,35 @@ Renderer::Renderer(const int width, const int height)
     blendState_(0),
     cullState_(0),
     depthState_(0),
-    stencilState_(0)
+    stencilState_(0),
+    textures_(static_cast<size_t>(numTextureUnits()), 0) // fill with null ptrs
 {
     GRAPHICS_RUNTIME_ASSERT(width > 0);
     GRAPHICS_RUNTIME_ASSERT(height > 0);
 
-    // set all texture pointers to null pointers
-    std::memset(textures_, 0, sizeof(textures_));
+    setBlendState(BlendState::disabled());
+    setDepthState(DepthState::disabled());
+    setStencilState(StencilState::disabled());
 }
 
-int Renderer::width() const
+int Device::width() const
 {
     // TODO: should return the width of the active framebuffer, update this
     // function if framebuffer management is added
     return defaultWidth_;
 }
 
-int Renderer::height() const
+int Device::height() const
 {
     // TODO: should return the height of the active framebuffer, update this
     // function if framebuffer management is added
     return defaultHeight_;
 }
 
-void Renderer::setModelViewMatrix(const Matrix4x4& modelViewMatrix)
-{
-    if (program_ != 0)
-    {
-        // there is an active program, load the model-view matrix to the
-        // corresponding uniform variable if it exists
-        setUniform(modelViewMatrixName(), modelViewMatrix);
-    }
-
-    modelViewMatrix_ = modelViewMatrix;
-}
-
-const Matrix4x4 Renderer::modelViewMatrix() const
-{
-    return modelViewMatrix_;
-}
-
-void Renderer::setProjectionMatrix(const Matrix4x4& projectionMatrix)
-{
-    if (program_ != 0)
-    {
-        // there is an active program, load the projection matrix to the
-        // corresponding uniform variable if it exists
-        setUniform(projectionMatrixName(), projectionMatrix);
-    }
-
-    projectionMatrix_ = projectionMatrix;
-}
-
-const Matrix4x4 Renderer::projectionMatrix() const
-{
-    return projectionMatrix_;
-}
-
-void Renderer::setNormalMatrix(const Matrix3x3& normalMatrix)
-{
-    if (program_ != 0)
-    {
-        // there is an active program, load the normal matrix to the
-        // corresponding uniform variable if it exists
-        setUniform(normalMatrixName(), normalMatrix);
-    }
-
-    normalMatrix_ = normalMatrix;
-}
-
-const Matrix3x3 Renderer::normalMatrix() const
-{
-    return normalMatrix_;
-}
-
-void Renderer::setProgram(Program* const program)
+void Device::setProgram(Program* const program)
 {
     GRAPHICS_RUNTIME_ASSERT(vertexBuffer_ == 0);
-    GRAPHICS_RUNTIME_ASSERT(numActiveTextureUnits() == 0);
+    //GRAPHICS_RUNTIME_ASSERT(numActiveTextureUnits() == 0);
 
     if (program_ == program)
     {
@@ -513,32 +445,26 @@ void Renderer::setProgram(Program* const program)
     {
         // bind the given program
         glUseProgram(program_->id());
-
-        // load the transform matrices to their corresponding uniform variables
-        // if they exist
-        setUniform(modelViewMatrixName(), modelViewMatrix_);
-        setUniform(projectionMatrixName(), projectionMatrix_);
-        setUniform(normalMatrixName(), normalMatrix_);
     }
 }
 
-Program* Renderer::program() const
+Program* Device::program() const
 {
     return program_;
 }
 
-void Renderer::setVertexFormat(VertexFormat* const vertexFormat)
+void Device::setVertexFormat(VertexFormat* const vertexFormat)
 {
     GRAPHICS_RUNTIME_ASSERT(vertexBuffer_ == 0);
     vertexFormat_ = vertexFormat;
 }
 
-VertexFormat* Renderer::vertexFormat() const
+VertexFormat* Device::vertexFormat() const
 {
     return vertexFormat_;
 }
 
-void Renderer::setVertexBuffer(VertexBuffer* const vertexBuffer)
+void Device::setVertexBuffer(VertexBuffer* const vertexBuffer)
 {
     GRAPHICS_RUNTIME_ASSERT(program_ != 0);
     GRAPHICS_RUNTIME_ASSERT(vertexFormat_ != 0);
@@ -568,12 +494,12 @@ void Renderer::setVertexBuffer(VertexBuffer* const vertexBuffer)
     }
 }
 
-VertexBuffer* Renderer::vertexBuffer() const
+VertexBuffer* Device::vertexBuffer() const
 {
     return vertexBuffer_;
 }
 
-void Renderer::setIndexBuffer(IndexBuffer* const indexBuffer)
+void Device::setIndexBuffer(IndexBuffer* const indexBuffer)
 {
     if (indexBuffer_ == indexBuffer)
     {
@@ -596,13 +522,15 @@ void Renderer::setIndexBuffer(IndexBuffer* const indexBuffer)
     indexBuffer_ = indexBuffer;
 }
 
-IndexBuffer* Renderer::indexBuffer() const
+IndexBuffer* Device::indexBuffer() const
 {
     return indexBuffer_;
 }
 
-void Renderer::setBlendState(BlendState* const blendState)
+void Device::setBlendState(const BlendState* const blendState)
 {
+    GRAPHICS_RUNTIME_ASSERT(blendState != 0);
+
     if (blendState_ == blendState)
     {
         // TODO: this assumes that the active blend state has not been
@@ -612,7 +540,7 @@ void Renderer::setBlendState(BlendState* const blendState)
         return;
     }
 
-    if (blendState == 0)
+    if (blendState->enabled == false)
     {
         // disable blending
         glDisable(GL_BLEND);
@@ -648,13 +576,15 @@ void Renderer::setBlendState(BlendState* const blendState)
     blendState_ = blendState;
 }
 
-BlendState* Renderer::blendState() const
+const BlendState* Device::blendState() const
 {
     return blendState_;
 }
 
-void Renderer::setCullState(CullState* const cullState)
+void Device::setCullState(const CullState* const cullState)
 {
+    // TODO: cull mode goes to rasterizer state
+
     if (cullState_ == cullState)
     {
         // TODO: this assumes that the active cull state has not been modified,
@@ -682,13 +612,15 @@ void Renderer::setCullState(CullState* const cullState)
     cullState_ = cullState;
 }
 
-CullState* Renderer::cullState() const
+const CullState* Device::cullState() const
 {
     return cullState_;
 }
 
-void Renderer::setDepthState(DepthState* const depthState)
+void Device::setDepthState(const DepthState* const depthState)
 {
+    GRAPHICS_RUNTIME_ASSERT(depthState != 0);
+
     if (depthState_ == depthState)
     {
         // TODO: this assumes that the active depth buffer test state has not
@@ -698,12 +630,10 @@ void Renderer::setDepthState(DepthState* const depthState)
         return;
     }
 
-    if (depthState == 0)
+    if (depthState->enabled == false)
     {
         // disable depth buffer test
         glDisable(GL_DEPTH_TEST);
-        // TODO: is glDepthMask(GL_FALSE) needed for completely disabling depth
-        // buffer operations?
     }
     else
     {
@@ -722,13 +652,15 @@ void Renderer::setDepthState(DepthState* const depthState)
     depthState_ = depthState;
 }
 
-DepthState* Renderer::depthState() const
+const DepthState* Device::depthState() const
 {
     return depthState_;
 }
 
-void Renderer::setStencilState(StencilState* const stencilState)
+void Device::setStencilState(const StencilState* const stencilState)
 {
+    GRAPHICS_RUNTIME_ASSERT(stencilState != 0);
+
     if (stencilState_ == stencilState)
     {
         // TODO: this assumes that the active stencil test state has not been
@@ -738,7 +670,7 @@ void Renderer::setStencilState(StencilState* const stencilState)
         return;
     }
 
-    if (stencilState_ == 0)
+    if (stencilState->enabled == false)
     {
         // disable stencil test
         glDisable(GL_STENCIL_TEST);
@@ -788,14 +720,14 @@ void Renderer::setStencilState(StencilState* const stencilState)
     stencilState_ = stencilState;
 }
 
-StencilState* Renderer::stencilState() const
+const StencilState* Device::stencilState() const
 {
     return stencilState_;
 }
 
-void Renderer::setTexture(const int index, Texture* const texture)
+void Device::setTexture(const int index, Texture* const texture)
 {
-    GRAPHICS_RUNTIME_ASSERT(program_ != 0);
+    //GRAPHICS_RUNTIME_ASSERT(program_ != 0);
     GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < numTextureUnits());
 
     if (textures_[index] == texture)
@@ -804,32 +736,17 @@ void Renderer::setTexture(const int index, Texture* const texture)
         return;
     }
 
+    // activate the specified texture unit
+    glActiveTexture(GL_TEXTURE0 + index);
+
     if (texture == 0)
     {
-        // disable the texture unit
-        glActiveTexture(GL_TEXTURE0 + index);
+        // disable the specified texture unit
         glDisable(GL_TEXTURE_2D);
-        // TODO: is glBindTexture(GL_TEXTURE_2D, 0) needed?
     }
     else
     {
-        // the C++ way of saying variableName = "texture" + index
-        std::stringstream ss;
-        ss << "texture" << index;
-        const std::string variableName = ss.str();
-
-        // glGetUniformLocation returns -1 on error
-        const GLint location = glGetUniformLocation(
-            program_->id(),
-            variableName.c_str()
-        );
-
-        GRAPHICS_RUNTIME_ASSERT(location != -1);
-
-        // map the texture unit to the corresponding uniform variable, enable
-        // the texture unit and bind the given texture to it
-        glUniform1i(location, index);
-        glActiveTexture(GL_TEXTURE0 + index);
+        // enable the specified texture unit and bind the given texture to it
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, texture->getTextureHandle());
     }
@@ -837,34 +754,29 @@ void Renderer::setTexture(const int index, Texture* const texture)
     textures_[index] = texture;
 }
 
-Texture* Renderer::texture(const int index) const
+Texture* Device::texture(const int index) const
 {
     GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < numTextureUnits());
     return textures_[index];
 }
 
-int Renderer::numTextureUnits() const
+int Device::numTextureUnits() const
 {
-    GLint a = 0;
-    GLint b = 0;
-
-    glGetIntegerv(GL_MAX_TEXTURE_COORDS, &a);
-    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &b);
+    GLint result = 0;
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &result);
 
     // OpenGL specification says that the number of texture units must be at
-    // least 2. Renderer implementation assumes that the number of texture
-    // units is at most MaxTextureUnits.
-    GRAPHICS_RUNTIME_ASSERT(std::max(a, b) >= 2);
-    GRAPHICS_RUNTIME_ASSERT(std::max(a, b) <= MaxTextureUnits);
+    // least 2
+    GRAPHICS_RUNTIME_ASSERT(result >= 2);
 
-    return std::max(a, b);
+    return result;
 }
 
-int Renderer::numActiveTextureUnits() const
+int Device::numActiveTextureUnits() const
 {
     int count = 0;
 
-    for (int i = 0; i < MaxTextureUnits; ++i)
+    for (int i = 0; i < numTextureUnits(); ++i)
     {
         if (textures_[i] != 0)
         {
@@ -875,7 +787,7 @@ int Renderer::numActiveTextureUnits() const
     return count;
 }
 
-void Renderer::setColorMask(
+void Device::setColorMask(
     const bool r,
     const bool g,
     const bool b,
@@ -884,7 +796,7 @@ void Renderer::setColorMask(
     glColorMask(r, g, b, a);
 }
 
-void Renderer::setClearColor(const Color4& clearColor)
+void Device::setClearColor(const Color4& clearColor)
 {
     // glClearColor will silently clamp the parameters between [0, 1]
     glClearColor(
@@ -895,20 +807,20 @@ void Renderer::setClearColor(const Color4& clearColor)
     );
 }
 
-void Renderer::setClearDepth(const float clearDepth)
+void Device::setClearDepth(const float clearDepth)
 {
     // glClearDepth will silently clamp the parameter between [0, 1]
     glClearDepth(clearDepth);
 }
 
-void Renderer::setClearStencil(const uint32_t clearStencil)
+void Device::setClearStencil(const uint32_t clearStencil)
 {
     // glClearStencil will silently mask the parameter with 2^m-1 where m is
     // the number of bits in the stencil buffer
     glClearStencil(clearStencil);
 }
 
-void Renderer::clearBuffers(
+void Device::clearBuffers(
     const bool color,
     const bool depth,
     const bool stencil)
@@ -919,7 +831,7 @@ void Renderer::clearBuffers(
     glClear(clearMask(color, depth, stencil));
 }
 
-void Renderer::clearBuffers(
+void Device::clearBuffers(
     const bool color,
     const bool depth,
     const bool stencil,
@@ -949,7 +861,7 @@ void Renderer::clearBuffers(
     glDisable(GL_SCISSOR_TEST);
 }
 
-void Renderer::drawPrimitives(const PrimitiveType::Enum type)
+void Device::drawPrimitives(const PrimitiveType::Enum type)
 {
     GRAPHICS_RUNTIME_ASSERT(program_ != 0);
     GRAPHICS_RUNTIME_ASSERT(vertexFormat_ != 0);
@@ -980,7 +892,7 @@ void Renderer::drawPrimitives(const PrimitiveType::Enum type)
     }
 }
 
-void Renderer::drawPrimitives(
+void Device::drawPrimitives(
     const PrimitiveType::Enum type,
     const int offset,
     const int count)
@@ -1024,53 +936,7 @@ void Renderer::drawPrimitives(
     }
 }
 
-void Renderer::setUniform(const char* const name, const Matrix3x3& value)
-{
-    GRAPHICS_RUNTIME_ASSERT(program_ != 0);
-    GRAPHICS_RUNTIME_ASSERT(name != 0);
-
-    // glGetUniformLocation returns -1 on error
-    const GLint location = glGetUniformLocation(program_->id(), name);
-
-    if (location != -1)
-    {
-        // TODO: this assumes that the type of the specified uniform variable
-        // is mat3, verify this assumption?
-
-        // the specified uniform variable exists, set it to the given value
-        glUniformMatrix3fv(
-            location,
-            1,
-            false,
-            value.data()
-        );
-    }
-}
-
-void Renderer::setUniform(const char* const name, const Matrix4x4& value)
-{
-    GRAPHICS_RUNTIME_ASSERT(program_ != 0);
-    GRAPHICS_RUNTIME_ASSERT(name != 0);
-
-    // glGetUniformLocation returns -1 on error
-    const GLint location = glGetUniformLocation(program_->id(), name);
-
-    if (location != -1)
-    {
-        // TODO: this assumes that the type of the specified uniform variable
-        // is mat4, verify this assumption?
-
-        // the specified uniform variable exists, set it to the given value
-        glUniformMatrix4fv(
-            location,
-            1,
-            false,
-            value.data()
-        );
-    }
-}
-
-void Renderer::bindVertexBuffer(VertexBuffer* const vertexBuffer)
+void Device::bindVertexBuffer(VertexBuffer* const vertexBuffer)
 {
     // this function assumes that there is no active vertex buffer
     GRAPHICS_RUNTIME_ASSERT(vertexBuffer_ == 0);
@@ -1091,25 +957,26 @@ void Renderer::bindVertexBuffer(VertexBuffer* const vertexBuffer)
                 attribute.name().c_str()
             );
 
-            GRAPHICS_RUNTIME_ASSERT(location != -1);
+            if (location != -1)
+            {
+                glVertexAttribPointer(
+                    location,
+                    attribute.numComponents(),
+                    vertexAttributeType(attribute.type()),
+                    false,
+                    vertexFormat_->stride(),
+                    reinterpret_cast<const GLvoid*>(attribute.offset())
+                );
 
-            glVertexAttribPointer(
-                location,
-                attribute.numComponents(),
-                vertexAttributeType(attribute.type()),
-                false,
-                vertexFormat_->stride(),
-                reinterpret_cast<const GLvoid*>(attribute.offset())
-            );
-
-            glEnableVertexAttribArray(location);
+                glEnableVertexAttribArray(location);
+            }
         }
     }
 
     vertexBuffer_ = vertexBuffer;
 }
 
-void Renderer::unbindVertexBuffer()
+void Device::unbindVertexBuffer()
 {
     // this function assumes that there is an active vertex buffer
     GRAPHICS_RUNTIME_ASSERT(vertexBuffer_ != 0);
@@ -1133,9 +1000,10 @@ void Renderer::unbindVertexBuffer()
                 attribute.name().c_str()
             );
 
-            GRAPHICS_RUNTIME_ASSERT(location != -1);
-
-            glDisableVertexAttribArray(location);
+            if (location != -1)
+            {
+                glDisableVertexAttribArray(location);
+            }
         }
     }
 

@@ -177,11 +177,6 @@ CameraNode* CameraNode::clone() const
     return new CameraNode(*this);
 }
 
-void CameraNode::draw(const DrawParams&) const
-{
-    // ...
-}
-
 CameraNode::CameraNode(const CameraNode& other)
 :   Node(other),
     left_(other.left_),

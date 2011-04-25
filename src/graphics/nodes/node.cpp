@@ -43,11 +43,6 @@ Node* Node::clone() const
     return new Node(*this);
 }
 
-void Node::draw(const DrawParams&) const
-{
-    // ...
-}
-
 void Node::accept(NodeVisitor* const visitor)
 {
     GRAPHICS_RUNTIME_ASSERT(visitor != 0);

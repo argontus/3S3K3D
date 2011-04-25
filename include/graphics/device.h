@@ -1,15 +1,14 @@
 /**
- * @file graphics/renderer.h
+ * @file graphics/device.h
  * @author Mika Haarahiltunen
  */
 
-#ifndef GRAPHICS_RENDERER_H_INCLUDED
-#define GRAPHICS_RENDERER_H_INCLUDED
+#ifndef GRAPHICS_DEVICE_H_INCLUDED
+#define GRAPHICS_DEVICE_H_INCLUDED
+
+#include <vector>
 
 // no forward declarations, just include everything
-
-#include <geometry/matrix3x3.h>
-#include <geometry/matrix4x4.h>
 
 #include <graphics/blendstate.h>
 #include <graphics/cullstate.h>
@@ -25,7 +24,7 @@
 /**
  * Helper class for managing OpenGL render state.
  */
-class Renderer
+class Device
 {
 public:
     /**
@@ -42,42 +41,14 @@ public:
             Lines,
             Triangles
 
-            // TODO: add more if needed, remember to update Renderer
-            // implementation
+            // TODO: add more if needed, remember to update the implementation
         };
     };
 
     /**
-     * Gets the GLSL uniform variable name for model-view matrix that the
-     * implementation assumes.
-     *
-     * @return GLSL uniform variable name for model-view matrix that the
-     * implementation assumes.
-     */
-    static const char* modelViewMatrixName();
-
-    /**
-     * Gets the GLSL uniform variable name for projection matrix that the
-     * implementation assumes.
-     *
-     * @return GLSL uniform variable name for projection matrix that the
-     * implementation assumes.
-     */
-    static const char* projectionMatrixName();
-
-    /**
-     * Gets the GLSL uniform variable name for normal matrix that the
-     * implementation assumes.
-     *
-     * @return GLSL uniform variable name for normal matrix that the
-     * implementation assumes.
-     */
-    static const char* normalMatrixName();
-
-    /**
      * Destructor.
      */
-    ~Renderer();
+    ~Device();
 
     /**
      * Constructor.
@@ -85,10 +56,9 @@ public:
      * @param width Default framebuffer width in pixels, must be > 0.
      * @param height Default framebuffer height in pixels, must be > 0.
      */
-    Renderer(int width, int height);
+    Device(int width, int height);
 
-    // TODO: camera management, shader uniform management, fill mode
-    // management, framebuffer management, viewport management, ...
+    // TODO: fill mode management, framebuffer management, viewport management
 
     // this must be called if the default framebuffer is resized
     // width and height must be > 0
@@ -108,15 +78,6 @@ public:
      */
     int height() const;
 
-    void setModelViewMatrix(const Matrix4x4& modelViewMatrix);
-    const Matrix4x4 modelViewMatrix() const;
-
-    void setProjectionMatrix(const Matrix4x4& projectionMatrix);
-    const Matrix4x4 projectionMatrix() const;
-
-    void setNormalMatrix(const Matrix3x3& normalMatrix);
-    const Matrix3x3 normalMatrix() const;
-
     // there can be no active vertex buffer when this function is called
     // there can be no active textures when this function is called
     void setProgram(Program* program);
@@ -134,21 +95,21 @@ public:
     void setIndexBuffer(IndexBuffer* indexBuffer);
     IndexBuffer* indexBuffer() const;
 
-    void setBlendState(BlendState* blendState);
-    BlendState* blendState() const;
+    void setBlendState(const BlendState* blendState);
+    const BlendState* blendState() const;
 
-    void setCullState(CullState* cullState);
-    CullState* cullState() const;
+    void setCullState(const CullState* cullState);
+    const CullState* cullState() const;
 
-    void setDepthState(DepthState* depthState);
-    DepthState* depthState() const;
+    void setDepthState(const DepthState* depthState);
+    const DepthState* depthState() const;
 
     // these are probably not needed
-    // TODO: void setScissorState(ScissorState* scissorState); ?
-    // TODO: ScissorState* scissorState() const; ?
+    // TODO: void setScissorState(const ScissorState* scissorState); ?
+    // TODO: const ScissorState* scissorState() const; ?
 
-    void setStencilState(StencilState* stencilState);
-    StencilState* stencilState() const;
+    void setStencilState(const StencilState* stencilState);
+    const StencilState* stencilState() const;
 
     // there must be an active program when this function is called
     // index must be between [0, numTextureUnits())
@@ -263,43 +224,31 @@ public:
     // the specified range [offset, offset + count) must be valid
     void drawPrimitives(PrimitiveType::Enum type, int offset, int count);
 
-    // TODO: renderPrimitives function that takes a pointer to vertex data in
+    // TODO: drawPrimitives function that takes a pointer to vertex data in
     // client memory?
 
 private:
-    enum { MaxTextureUnits = 32 };
-
-    // There must be an active program when this functions is called. If a
-    // uniform variable with the specified name does not exist, this function
-    // does nothing. 'name' cannot be a null pointer.
-    void setUniform(const char* name, const Matrix3x3& value);
-    void setUniform(const char* name, const Matrix4x4& value);
-
     void bindVertexBuffer(VertexBuffer* vertexBuffer);
     void unbindVertexBuffer();
 
     int defaultWidth_;  ///< Width of the default framebuffer in pixels.
     int defaultHeight_; ///< Height of the default framebuffer in pixels.
 
-    Matrix4x4 modelViewMatrix_;     ///< Model-view matrix.
-    Matrix4x4 projectionMatrix_;    ///< Projection matrix.
-    Matrix3x3 normalMatrix_;        ///< Normal matrix.
-
     // TODO: make these pointers to const?
-    Program* program_;                      ///< Active program.
-    VertexFormat* vertexFormat_;            ///< Active vertex format.
-    VertexBuffer* vertexBuffer_;            ///< Active vertex buffer.
-    IndexBuffer* indexBuffer_;              ///< Active index buffer.
-    GLenum indexBufferType_;                ///< Index buffer element type.
-    BlendState* blendState_;                ///< Active blend state.
-    CullState* cullState_;                  ///< Active cull state.
-    DepthState* depthState_;                ///< Active depth state.
-    StencilState* stencilState_;            ///< Active stencil state.
-    Texture* textures_[MaxTextureUnits];    ///< Active textures.
+    Program* program_;                  ///< Active program.
+    VertexFormat* vertexFormat_;        ///< Active vertex format.
+    VertexBuffer* vertexBuffer_;        ///< Active vertex buffer.
+    IndexBuffer* indexBuffer_;          ///< Active index buffer.
+    GLenum indexBufferType_;            ///< Index buffer element type.
+    const BlendState* blendState_;      ///< Active blend state.
+    const CullState* cullState_;        ///< Active cull state.
+    const DepthState* depthState_;      ///< Active depth state.
+    const StencilState* stencilState_;  ///< Active stencil state.
+    std::vector<Texture*> textures_;    ///< Active textures.
 
     // prevent copying
-    Renderer(const Renderer&);
-    Renderer& operator =(const Renderer&);
+    Device(const Device&);
+    Device& operator =(const Device&);
 };
 
-#endif // #ifndef GRAPHICS_RENDERER_H_INCLUDED
+#endif // #ifndef GRAPHICS_DEVICE_H_INCLUDED
