@@ -98,6 +98,9 @@ public:
      */
     Node* detachChild(int index);
 
+    // TODO: comments
+    void detachChild(Node* child);
+
     /**
      * Gets a specified child node.
      *

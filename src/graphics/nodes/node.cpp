@@ -103,6 +103,21 @@ Node* Node::detachChild(const int index)
     return p;
 }
 
+void Node::detachChild(Node* const p)
+{
+    for (int i = 0; i < numChildren(); ++i)
+    {
+        if (child(i) == p)
+        {
+            detachChild(i);
+            return;
+        }
+    }
+
+    // not found
+    GRAPHICS_RUNTIME_ASSERT(false);
+}
+
 Node* Node::child(const int index) const
 {
     GRAPHICS_RUNTIME_ASSERT(index >= 0 && index < numChildren());

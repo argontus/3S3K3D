@@ -15,14 +15,16 @@
 
 #include "sound/mixer.h"
 
+#include <geometry/sphere.h>
+
 #include <graphics/resourcemanager.h>
 #include <graphics/programmanager.h>
 #include <graphics/mesh.h>
 #include <graphics/texture.h>
+#include <graphics/vertexbuffer.h>
 
 class Device;
 class Effect;
-class VertexBuffer;
 class VertexFormat;
 
 class Extents3;
@@ -34,6 +36,15 @@ class Node;
 
 typedef ResourceManager<Mesh> MeshManager;
 typedef ResourceManager<Texture> TextureManager;
+typedef ResourceManager<VertexBuffer> VertexBufferManager;
+
+struct Bullet
+{
+    float life;
+    Sphere shape;
+    Vector3 velocity;
+    Node* visual;
+};
 
 /**
  * The 'main' class of the game. Does event handling for keyboard and mouse
@@ -141,6 +152,7 @@ private:
     ProgramManager programManager_;
     MeshManager meshManager_;
     TextureManager textureManager_;
+    VertexBufferManager vertexBufferManager_;
 
 	bool running;
 	Uint32 deltaTicks; /* ticks between last frame and current frame */
@@ -152,10 +164,9 @@ private:
 	float cameraSpeedZ;
 
     VertexFormat* extentsVertexFormat_;
-    VertexFormat* litMeshVertexFormat_;
+    VertexFormat* meshVertexFormat_;
     VertexFormat* particleVertexFormat_;
     VertexFormat* shadowVertexFormat_;
-    VertexFormat* unlitMeshVertexFormat_;
 
     VertexBuffer* shadowVertexBuffer_;
 
@@ -163,6 +174,10 @@ private:
     Effect* noTextureMeshEffect_;
     Effect* extentsEffect_;
     Effect* shadowEffect_;
+
+    // TODO: guess who
+    typedef std::vector<Bullet*> BulletVector;
+    BulletVector bullets_;
 };
 
 #endif /* GAMEPROGRAM_H_ */

@@ -53,7 +53,6 @@
 		<Unit filename="..\..\include\graphics\nodes\meshnode.h" />
 		<Unit filename="..\..\include\graphics\nodes\node.h" />
 		<Unit filename="..\..\include\graphics\nodes\pointlightnode.h" />
-		<Unit filename="..\..\include\graphics\nodevisitors\nodecountquery.h" />
 		<Unit filename="..\..\include\graphics\nodevisitors\nodevisitor.h" />
 		<Unit filename="..\..\include\graphics\nodevisitors\pointlitgeometryquery.h" />
 		<Unit filename="..\..\include\graphics\nodevisitors\visibleextentsquery.h" />
@@ -105,7 +104,6 @@
 		<Unit filename="..\..\src\graphics\nodes\meshnode.cpp" />
 		<Unit filename="..\..\src\graphics\nodes\node.cpp" />
 		<Unit filename="..\..\src\graphics\nodes\pointlightnode.cpp" />
-		<Unit filename="..\..\src\graphics\nodevisitors\nodecountquery.cpp" />
 		<Unit filename="..\..\src\graphics\nodevisitors\pointlitgeometryquery.cpp" />
 		<Unit filename="..\..\src\graphics\nodevisitors\visibleextentsquery.cpp" />
 		<Unit filename="..\..\src\graphics\nodevisitors\visiblegeometryquery.cpp" />

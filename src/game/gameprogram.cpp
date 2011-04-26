@@ -22,7 +22,6 @@
 #include <graphics/technique.h>
 #include <graphics/parameters/parameter.h>
 
-#include <graphics/nodevisitors/nodecountquery.h>
 #include <graphics/nodevisitors/pointlitgeometryquery.h>
 #include <graphics/nodevisitors/visibleextentsquery.h>
 #include <graphics/nodevisitors/visiblegeometryquery.h>
@@ -43,10 +42,10 @@ GameProgram::GameProgram()
     programManager_(),
     meshManager_(),
     textureManager_(),
+    vertexBufferManager_(),
     extentsVertexFormat_(0),
-    litMeshVertexFormat_(0),
+    meshVertexFormat_(0),
     shadowVertexFormat_(0),
-    unlitMeshVertexFormat_(0),
     shadowVertexBuffer_(0),
     dgnsTextureMeshEffect_(0),
     noTextureMeshEffect_(0),
@@ -84,12 +83,12 @@ int GameProgram::execute()
     extentsVertexFormat_->compile();
 
     // vertex format for Mesh::Vertex
-    litMeshVertexFormat_ = new VertexFormat(4);
-    litMeshVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, "position");
-    litMeshVertexFormat_->setAttribute(1, VertexAttribute::Type::Float3, "normal");
-    litMeshVertexFormat_->setAttribute(2, VertexAttribute::Type::Float3, "tangent");
-    litMeshVertexFormat_->setAttribute(3, VertexAttribute::Type::Float2, "texCoord");
-    litMeshVertexFormat_->compile();
+    meshVertexFormat_ = new VertexFormat(4);
+    meshVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, "position");
+    meshVertexFormat_->setAttribute(1, VertexAttribute::Type::Float3, "normal");
+    meshVertexFormat_->setAttribute(2, VertexAttribute::Type::Float3, "tangent");
+    meshVertexFormat_->setAttribute(3, VertexAttribute::Type::Float2, "texCoord");
+    meshVertexFormat_->compile();
 
     particleVertexFormat_ = new VertexFormat(3);
     particleVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, "position");
@@ -101,14 +100,6 @@ int GameProgram::execute()
     shadowVertexFormat_ = new VertexFormat(1);
     shadowVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, "position");
     shadowVertexFormat_->compile();
-
-    // vertex format for Mesh::Vertex where only position and texCoord are used
-    unlitMeshVertexFormat_ = new VertexFormat(4);
-    unlitMeshVertexFormat_->setAttribute(0, VertexAttribute::Type::Float3, "position");
-    unlitMeshVertexFormat_->setAttribute(1, VertexAttribute::Type::Float3, "");
-    unlitMeshVertexFormat_->setAttribute(2, VertexAttribute::Type::Float3, "");
-    unlitMeshVertexFormat_->setAttribute(3, VertexAttribute::Type::Float2, "texCoord");
-    unlitMeshVertexFormat_->compile();
 
 
 
@@ -216,34 +207,65 @@ int GameProgram::execute()
 			onEvent( event );
 		}
 
-        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_ESCAPE))
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_ESCAPE))
         {
             running = false;
         }
 
-        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F1))
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F1))
         {
             rotateLights = !rotateLights;
         }
 
-        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F2))
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F2))
         {
             drawExtents_ = !drawExtents_;
         }
 
-        if(keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F3))
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F3))
         {
             drawShadows_ = !drawShadows_;
         }
 
-        if( keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F4))
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F4))
         {
             drawShadowVolumes_ = !drawShadowVolumes_;
         }
 
-        if( keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F5))
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_F5))
         {
             mouseBoundToScreen = !mouseBoundToScreen;
+        }
+
+        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_SPACE))
+        {
+            const Transform3 t = camera_->worldTransform();
+
+            Bullet* const bullet = new Bullet;
+            bullet->life = 2.0f;
+            bullet->shape.center = t.translation;
+            bullet->shape.radius = 2.0f;
+            bullet->velocity = -7.5f * t.rotation.row(2);
+
+            MeshNode* const bulletMesh = new MeshNode;
+            bulletMesh->setScaling(bullet->shape.radius);
+            bulletMesh->setMesh(meshManager_.getResource("box"));
+            bulletMesh->setVertexBuffer(vertexBufferManager_.getResource("box"));
+            bulletMesh->updateModelExtents();
+            bulletMesh->setEffect(createNoTextureMeshEffect(
+                &programManager_,
+                Vector3(0.0f, 0.0f, 0.0f),
+                Vector3(0.0f, 0.0f, 0.0f),
+                Vector3(1.0f, 1.0f, 1.0f),
+                Vector3(0.0f, 0.0f, 0.0f),
+                128.0f)
+            );
+
+            rootNode_->attachChild(bulletMesh);
+
+            bullet->visual = bulletMesh;
+
+            bullets_.push_back(bullet);
         }
 
         // see keyboardcontroller.h for a TODO related to member 'speed'
@@ -336,7 +358,7 @@ void GameProgram::render()
         pass->parameter("ambientLightColor")->setValue(ambientLightColor);
         pass->bind(drawParams.device);
 
-        drawParams.device->setVertexFormat(unlitMeshVertexFormat_);
+        drawParams.device->setVertexFormat(meshVertexFormat_);
         drawParams.device->setVertexBuffer(p->vertexBuffer());
         drawParams.device->drawPrimitives(Device::PrimitiveType::Triangles);
 
@@ -559,7 +581,7 @@ void GameProgram::render()
             pass->parameter("lightRange")->setValue(lightRange);
             pass->bind(drawParams.device);
 
-            drawParams.device->setVertexFormat(litMeshVertexFormat_);
+            drawParams.device->setVertexFormat(meshVertexFormat_);
             drawParams.device->setVertexBuffer(p->vertexBuffer());
             drawParams.device->drawPrimitives(Device::PrimitiveType::Triangles);
 
@@ -733,15 +755,74 @@ void GameProgram::drawExtents(const Extents3& extents, const DrawParams& params)
 
 void GameProgram::tick( const float deltaTime )
 {
-/*
-    NodeCountQuery query;
-    rootNode_->accept(&query);
+    // update bullets
 
-    const int numCameraNodes = query.numCameraNodes();
-    const int numMeshNodes = query.numMeshNodes();
-    const int numNodes = query.numNodes();
-    const int total = query.total();
-*/
+    BulletVector::iterator iter = bullets_.begin();
+
+    while (iter != bullets_.end())
+    {
+        Bullet* const p = *iter;
+
+        p->life -= deltaTime;
+
+        if (p->life <= 0.0f)
+        {
+            p->visual->parent()->detachChild(p->visual);
+
+            delete p->visual;
+            delete p;
+
+            iter = bullets_.erase(iter);
+        }
+        else
+        {
+            p->shape.center += p->velocity;
+            p->visual->setTranslation(p->shape.center);
+
+            static PointLitGeometryQuery query;
+            query.reset();
+            query.init(p->shape);
+            rootNode_->accept(&query);
+
+            // TODO: would go boom if this would destroy all intersecting
+            // mesh nodes and the mesh node list contains a child and a
+            // parent and the parent is deleted first...
+
+            // HACK: the visual is always intersecting the bullet
+            MeshNode* firstIntersection = 0;
+
+            for (int i = 0; i < query.numMeshNodes(); ++i)
+            {
+                MeshNode* const meshNode = query.meshNode(i);
+
+                if (meshNode != p->visual)
+                {
+                    firstIntersection = meshNode;
+                    break;
+                }
+            }
+
+            if (firstIntersection != 0)
+            {
+                // TODO: destroys only the first (random) intersection
+
+                firstIntersection->parent()->detachChild(firstIntersection);
+                delete firstIntersection;
+
+                p->visual->parent()->detachChild(p->visual);
+
+                delete p->visual;
+                delete p;
+
+                iter = bullets_.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+        }
+    }
+
     return;
 
     const float kx = 75.0f;
@@ -874,18 +955,19 @@ void GameProgram::test()
 
     const float scaling = 17.5f;
 
-    // TODO: quick & dirty
-    static VertexBuffer vertexBuffer(
+    VertexBuffer* const boxVertexBuffer = new VertexBuffer(
         sizeof(Mesh::Vertex),
         boxMesh->numVertices(),
         boxMesh->vertices(),
         VertexBuffer::Usage::Static
     );
 
+    vertexBufferManager_.loadResource("box", boxVertexBuffer);
+
     MeshNode* prototype = new MeshNode();
     prototype->setScaling(scaling);
     prototype->setMesh(boxMesh);
-    prototype->setVertexBuffer(&vertexBuffer);
+    prototype->setVertexBuffer(boxVertexBuffer);
     prototype->updateModelExtents();
 
     const int count = 10;
@@ -951,36 +1033,86 @@ void GameProgram::test()
 
     const float angleStep = Math::pi() * 2.0 / 5.0;
     const float heightStep = 75.0f;
+    const float radius = 150.0f;
+    const float range = 150.0f;
 
-    PointLightNode* p = new PointLightNode();
-    p->setTranslation(Vector3(150.0f * Math::cos(0 * angleStep), -2 * heightStep, 150.0f * Math::sin(0 * angleStep)));
-    p->setLightColor(Vector3(1.00f, 0.25f, 0.25f));
-    p->setLightRange(150.0f);
-    rootNode_->attachChild(p);
+    PointLightNode* pointLightNode = new PointLightNode();
+    pointLightNode->setTranslation(Vector3(radius * Math::cos(0 * angleStep), -2 * heightStep, radius * Math::sin(0 * angleStep)));
+    pointLightNode->setLightColor(Vector3(1.00f, 0.25f, 0.25f));
+    pointLightNode->setLightRange(range);
 
-    p = new PointLightNode();
-    p->setTranslation(Vector3(150.0f * Math::cos(1 * angleStep), -1 * heightStep, 150.0f * Math::sin(1 * angleStep)));
-    p->setLightColor(Vector3(0.75f, 0.75f, 0.25f));
-    p->setLightRange(150.0f);
-    rootNode_->attachChild(p);
+    MeshNode* const pointLightMesh = new MeshNode();
+    pointLightMesh->setScaling(1.0f);
+    pointLightMesh->setMesh(boxMesh);
+    pointLightMesh->setVertexBuffer(boxVertexBuffer);
+    pointLightMesh->updateModelExtents();
+    pointLightMesh->setEffect(createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(0.0f, 0.0f, 0.0f),
+        Vector3(0.0f, 0.0f, 0.0f),
+        pointLightNode->lightColor(),
+        Vector3(0.0f, 0.0f, 0.0f),
+        128.0f)
+    );
 
-    p = new PointLightNode();
-    p->setTranslation(Vector3(150.0f * Math::cos(2 * angleStep), 0 * heightStep, 150.0f * Math::sin(2 * angleStep)));
-    p->setLightColor(Vector3(0.25f, 1.00f, 0.25f));
-    p->setLightRange(150.0f);
-    rootNode_->attachChild(p);
+    pointLightNode->attachChild(pointLightMesh);
+    rootNode_->attachChild(pointLightNode);
 
-    p = new PointLightNode();
-    p->setTranslation(Vector3(150.0f * Math::cos(3 * angleStep), 1 * heightStep, 150.0f * Math::sin(3 * angleStep)));
-    p->setLightColor(Vector3(0.25f, 0.75f, 0.75f));
-    p->setLightRange(150.0f);
-    rootNode_->attachChild(p);
+    pointLightNode = pointLightNode->clone();
+    pointLightNode->setTranslation(Vector3(radius * Math::cos(1 * angleStep), -1 * heightStep, radius * Math::sin(1 * angleStep)));
+    pointLightNode->setLightColor(Vector3(0.75f, 0.75f, 0.25f));
+    pointLightNode->setLightRange(range);
+    static_cast<MeshNode*>(pointLightNode->child(0))->setEffect(createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(0.0f, 0.0f, 0.0f),
+        Vector3(0.0f, 0.0f, 0.0f),
+        pointLightNode->lightColor(),
+        Vector3(0.0f, 0.0f, 0.0f),
+        128.0f)
+    );
+    rootNode_->attachChild(pointLightNode);
 
-    p = new PointLightNode();
-    p->setTranslation(Vector3(150.0f * Math::cos(4 * angleStep), 2 * heightStep, 150.0f * Math::sin(4 * angleStep)));
-    p->setLightColor(Vector3(0.25f, 0.25f, 1.00f));
-    p->setLightRange(150.0f);
-    rootNode_->attachChild(p);
+    pointLightNode = pointLightNode->clone();
+    pointLightNode->setTranslation(Vector3(radius * Math::cos(2 * angleStep), 0 * heightStep, radius * Math::sin(2 * angleStep)));
+    pointLightNode->setLightColor(Vector3(0.25f, 1.00f, 0.25f));
+    pointLightNode->setLightRange(range);
+    static_cast<MeshNode*>(pointLightNode->child(0))->setEffect(createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(0.0f, 0.0f, 0.0f),
+        Vector3(0.0f, 0.0f, 0.0f),
+        pointLightNode->lightColor(),
+        Vector3(0.0f, 0.0f, 0.0f),
+        128.0f)
+    );
+    rootNode_->attachChild(pointLightNode);
+
+    pointLightNode = pointLightNode->clone();
+    pointLightNode->setTranslation(Vector3(radius * Math::cos(3 * angleStep), 1 * heightStep, radius * Math::sin(3 * angleStep)));
+    pointLightNode->setLightColor(Vector3(0.25f, 0.75f, 0.75f));
+    pointLightNode->setLightRange(range);
+    static_cast<MeshNode*>(pointLightNode->child(0))->setEffect(createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(0.0f, 0.0f, 0.0f),
+        Vector3(0.0f, 0.0f, 0.0f),
+        pointLightNode->lightColor(),
+        Vector3(0.0f, 0.0f, 0.0f),
+        128.0f)
+    );
+    rootNode_->attachChild(pointLightNode);
+
+    pointLightNode = pointLightNode->clone();
+    pointLightNode->setTranslation(Vector3(radius * Math::cos(4 * angleStep), 2 * heightStep, radius * Math::sin(4 * angleStep)));
+    pointLightNode->setLightColor(Vector3(0.25f, 0.25f, 1.00f));
+    pointLightNode->setLightRange(range);
+    static_cast<MeshNode*>(pointLightNode->child(0))->setEffect(createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(0.0f, 0.0f, 0.0f),
+        Vector3(0.0f, 0.0f, 0.0f),
+        pointLightNode->lightColor(),
+        Vector3(0.0f, 0.0f, 0.0f),
+        128.0f)
+    );
+    rootNode_->attachChild(pointLightNode);
 
     // TODO: test ModelReader
 
@@ -997,10 +1129,9 @@ GameProgram::~GameProgram()
     delete camera_;
 
     delete extentsVertexFormat_;
-    delete litMeshVertexFormat_;
+    delete meshVertexFormat_;
     delete particleVertexFormat_;
     delete shadowVertexFormat_;
-    delete unlitMeshVertexFormat_;
 
     delete shadowVertexBuffer_;
 

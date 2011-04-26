@@ -67,8 +67,15 @@ VertexBuffer* MeshNode::vertexBuffer() const
 
 void MeshNode::setEffect(Effect* const effect)
 {
+    if (effect_ == effect)
+    {
+        // nothing to do
+        return;
+    }
+
     // TODO: the effect should be reference counted
-    GRAPHICS_RUNTIME_ASSERT(effect_ == 0);
+
+    delete effect_;
     effect_ = effect;
 }
 
