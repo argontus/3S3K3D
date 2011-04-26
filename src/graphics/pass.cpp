@@ -18,6 +18,7 @@ Pass::Pass(const std::string& name, const int numParameters)
 :   name_(name),
     blendState_(0),
     depthState_(0),
+    rasterizerState_(0),
     stencilState_(0),
     program_(0),
     parameters_(static_cast<size_t>(numParameters), 0) // fill with null ptrs
@@ -29,6 +30,7 @@ Pass::Pass(const Pass& other)
 :   name_(other.name_),
     blendState_(other.blendState_),
     depthState_(other.depthState_),
+    rasterizerState_(other.rasterizerState_),
     stencilState_(other.stencilState_),
     program_(other.program_),
     parameters_(other.parameters_.size(), 0) // fill with null ptrs
@@ -64,6 +66,7 @@ void Pass::bind(Device* const device) const
     GRAPHICS_RUNTIME_ASSERT(device != 0);
     GRAPHICS_RUNTIME_ASSERT(blendState_ != 0);
     GRAPHICS_RUNTIME_ASSERT(depthState_ != 0);
+    GRAPHICS_RUNTIME_ASSERT(rasterizerState_ != 0);
     GRAPHICS_RUNTIME_ASSERT(stencilState_ != 0);
     GRAPHICS_RUNTIME_ASSERT(program_ != 0);
 
@@ -75,9 +78,8 @@ void Pass::bind(Device* const device) const
 
     device->setBlendState(blendState_);
     device->setDepthState(depthState_);
+    device->setRasterizerState(rasterizerState_);
     device->setStencilState(stencilState_);
-    // TODO: set the remaining render states
-
     device->setProgram(program_);
 
     for (size_t i = 0; i < parameters_.size(); ++i)
@@ -104,6 +106,16 @@ void Pass::setDepthState(const DepthState* const depthState)
 const DepthState* Pass::depthState() const
 {
     return depthState_;
+}
+
+void Pass::setRasterizerState(const RasterizerState* const rasterizerState)
+{
+    rasterizerState_ = rasterizerState;
+}
+
+const RasterizerState* Pass::rasterizerState() const
+{
+    return rasterizerState_;
 }
 
 void Pass::setStencilState(const StencilState* const stencilState)

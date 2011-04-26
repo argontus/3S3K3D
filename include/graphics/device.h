@@ -11,10 +11,10 @@
 // no forward declarations, just include everything
 
 #include <graphics/blendstate.h>
-#include <graphics/cullstate.h>
 #include <graphics/depthstate.h>
 #include <graphics/indexbuffer.h>
 #include <graphics/program.h>
+#include <graphics/rasterizerstate.h>
 #include <graphics/rectanglei.h>
 #include <graphics/stencilstate.h>
 #include <graphics/texture.h>
@@ -58,7 +58,7 @@ public:
      */
     Device(int width, int height);
 
-    // TODO: fill mode management, framebuffer management, viewport management
+    // TODO: framebuffer management, viewport management
 
     // this must be called if the default framebuffer is resized
     // width and height must be > 0
@@ -98,11 +98,11 @@ public:
     void setBlendState(const BlendState* blendState);
     const BlendState* blendState() const;
 
-    void setCullState(const CullState* cullState);
-    const CullState* cullState() const;
-
     void setDepthState(const DepthState* depthState);
     const DepthState* depthState() const;
+
+    void setRasterizerState(const RasterizerState* rasterizerState);
+    const RasterizerState* rasterizerState() const;
 
     // these are probably not needed
     // TODO: void setScissorState(const ScissorState* scissorState); ?
@@ -110,6 +110,8 @@ public:
 
     void setStencilState(const StencilState* stencilState);
     const StencilState* stencilState() const;
+
+    // TODO: texture unit specific sampler state management
 
     // there must be an active program when this function is called
     // index must be between [0, numTextureUnits())
@@ -130,18 +132,6 @@ public:
      * @return Number of active texture units.
      */
     int numActiveTextureUnits() const;
-
-    /**
-     * Specify whether red, green, blue and alpha can or cannot be written into
-     * the framebuffer.
-     *
-     * @param r Enable red component writes?
-     * @param g Enable green component writes?
-     * @param b Enable blue component writes?
-     * @param a Enable alpha component writes?
-     */
-    void setColorMask(bool r, bool g, bool b, bool a);
-    // TODO: void getColorMask(bool* r, bool* g, bool* b, bool* a); ?
 
     /**
      * Sets the color buffer clear value.
@@ -234,17 +224,16 @@ private:
     int defaultWidth_;  ///< Width of the default framebuffer in pixels.
     int defaultHeight_; ///< Height of the default framebuffer in pixels.
 
-    // TODO: make these pointers to const?
-    Program* program_;                  ///< Active program.
-    VertexFormat* vertexFormat_;        ///< Active vertex format.
-    VertexBuffer* vertexBuffer_;        ///< Active vertex buffer.
-    IndexBuffer* indexBuffer_;          ///< Active index buffer.
-    GLenum indexBufferType_;            ///< Index buffer element type.
-    const BlendState* blendState_;      ///< Active blend state.
-    const CullState* cullState_;        ///< Active cull state.
-    const DepthState* depthState_;      ///< Active depth state.
-    const StencilState* stencilState_;  ///< Active stencil state.
-    std::vector<Texture*> textures_;    ///< Active textures.
+    Program* program_;                          ///< Active program.
+    VertexFormat* vertexFormat_;                ///< Active vertex format.
+    VertexBuffer* vertexBuffer_;                ///< Active vertex buffer.
+    IndexBuffer* indexBuffer_;                  ///< Active index buffer.
+    GLenum indexBufferType_;                    ///< Index buffer element type.
+    const BlendState* blendState_;              ///< Active blend state.
+    const DepthState* depthState_;              ///< Active depth state.
+    const RasterizerState* rasterizerState_;    ///< Active rasterizer state.
+    const StencilState* stencilState_;          ///< Active stencil state.
+    std::vector<Texture*> textures_;            ///< Active textures.
 
     // prevent copying
     Device(const Device&);

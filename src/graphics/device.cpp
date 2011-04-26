@@ -189,25 +189,6 @@ GLenum blendFunc(const BlendState::DstFactor::Enum dstFactor)
     }
 }
 
-GLenum cullFace(const CullState::CullFace::Enum face)
-{
-    // TODO: optimize by using a lookup table or by setting the enumeration
-    // values to corresponding OpenGL enumeration values?
-
-    switch (face)
-    {
-        case CullState::CullFace::Back:
-            return GL_BACK;
-
-        case CullState::CullFace::Front:
-            return GL_FRONT;
-
-        default:
-            GRAPHICS_RUNTIME_ASSERT(false);
-            return 0;
-    }
-}
-
 GLenum depthFunc(const DepthState::CompareFunc::Enum compareFunc)
 {
     // TODO: optimize by using a lookup table or by setting the enumeration
@@ -396,8 +377,8 @@ Device::Device(const int width, const int height)
     indexBuffer_(0),
     indexBufferType_(0),
     blendState_(0),
-    cullState_(0),
     depthState_(0),
+    rasterizerState_(0),
     stencilState_(0),
     textures_(static_cast<size_t>(numTextureUnits()), 0) // fill with null ptrs
 {
@@ -406,6 +387,7 @@ Device::Device(const int width, const int height)
 
     setBlendState(BlendState::disabled());
     setDepthState(DepthState::disabled());
+    setRasterizerState(RasterizerState::cullClockwise());
     setStencilState(StencilState::disabled());
 }
 
@@ -581,42 +563,6 @@ const BlendState* Device::blendState() const
     return blendState_;
 }
 
-void Device::setCullState(const CullState* const cullState)
-{
-    // TODO: cull mode goes to rasterizer state
-
-    if (cullState_ == cullState)
-    {
-        // TODO: this assumes that the active cull state has not been modified,
-        // is this assumption ok?
-
-        // nothing to do
-        return;
-    }
-
-    if (cullState == 0)
-    {
-        // disable culling
-        glDisable(GL_CULL_FACE);
-    }
-    else
-    {
-        // enable culling
-        glEnable(GL_CULL_FACE);
-
-        // specify which polygon faces should be culled, this assumes that CCW
-        // polygons are interpreted as front facing
-        glCullFace(cullFace(cullState->cullFace));
-    }
-
-    cullState_ = cullState;
-}
-
-const CullState* Device::cullState() const
-{
-    return cullState_;
-}
-
 void Device::setDepthState(const DepthState* const depthState)
 {
     GRAPHICS_RUNTIME_ASSERT(depthState != 0);
@@ -655,6 +601,69 @@ void Device::setDepthState(const DepthState* const depthState)
 const DepthState* Device::depthState() const
 {
     return depthState_;
+}
+
+void Device::setRasterizerState(const RasterizerState* const rasterizerState)
+{
+    GRAPHICS_RUNTIME_ASSERT(rasterizerState != 0);
+
+    if (rasterizerState_ == rasterizerState)
+    {
+        // TODO: this assumes that the active stencil test state has not been
+        // modified, is this assumption ok?
+
+        // nothing to do
+        return;
+    }
+
+    // this is the default, set it just in case someone has modified it with a
+    // direct OpenGL function call
+    glFrontFace(GL_CCW);
+
+    // set cull mode
+    switch (rasterizerState->cullMode)
+    {
+        case RasterizerState::CullMode::CullClockwise:
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+            break;
+
+        case RasterizerState::CullMode::CullCounterClockwise:
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT);
+            break;
+
+        case RasterizerState::CullMode::CullNone:
+            glDisable(GL_CULL_FACE);
+            break;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            break;
+    }
+
+    // set fill mode
+    switch (rasterizerState->fillMode)
+    {
+        case RasterizerState::FillMode::Solid:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            break;
+
+        case RasterizerState::FillMode::WireFrame:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            break;
+
+        default:
+            GRAPHICS_RUNTIME_ASSERT(false);
+            break;
+    }
+
+    rasterizerState_ = rasterizerState;
+}
+
+const RasterizerState* Device::rasterizerState() const
+{
+    return rasterizerState_;
 }
 
 void Device::setStencilState(const StencilState* const stencilState)
@@ -785,15 +794,6 @@ int Device::numActiveTextureUnits() const
     }
 
     return count;
-}
-
-void Device::setColorMask(
-    const bool r,
-    const bool g,
-    const bool b,
-    const bool a)
-{
-    glColorMask(r, g, b, a);
 }
 
 void Device::setClearColor(const Color4& clearColor)

@@ -14,6 +14,7 @@ class DepthState;
 class Device;
 class Parameter;
 class Program;
+class RasterizerState;
 class StencilState;
 
 // TODO: has a lot in common with Effect and Technique classes
@@ -36,10 +37,11 @@ public:
     void setDepthState(const DepthState* depthState);
     const DepthState* depthState() const;
 
+    void setRasterizerState(const RasterizerState* rasterizerState);
+    const RasterizerState* rasterizerState() const;
+
     void setStencilState(const StencilState* stencilState);
     const StencilState* stencilState() const;
-
-    // TODO: remaining render states
 
     void setProgram(Program* program);
     Program* program() const;
@@ -60,6 +62,7 @@ private:
     std::string name_;
     const BlendState* blendState_;
     const DepthState* depthState_;
+    const RasterizerState* rasterizerState_;
     const StencilState* stencilState_;
     Program* program_;
     std::vector<Parameter*> parameters_;

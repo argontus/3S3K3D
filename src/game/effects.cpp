@@ -10,6 +10,7 @@
 #include <graphics/effect.h>
 #include <graphics/pass.h>
 #include <graphics/programmanager.h>
+#include <graphics/rasterizerstate.h>
 #include <graphics/runtimeassert.h>
 #include <graphics/stencilstate.h>
 #include <graphics/technique.h>
@@ -34,6 +35,7 @@ Effect* createExtentsEffect(ProgramManager* const programMgr)
     technique->setPass(0, pass);
     pass->setBlendState(BlendState::disabled());
     pass->setDepthState(DepthState::lessEqual());
+    pass->setRasterizerState(RasterizerState::wireFrame());
     pass->setStencilState(StencilState::disabled());
     pass->setProgram(programMgr->load("data/shaders/extents.vs", "data/shaders/extents.fs"));
     pass->setParameter(0, new Mat4Parameter("modelViewMatrix", Matrix4x4::identity()));
@@ -47,6 +49,13 @@ Effect* createShadowEffect(ProgramManager* const programMgr)
     GRAPHICS_RUNTIME_ASSERT(programMgr != 0);
 
     // TODO: needs rasterizer state
+
+    // workaround in the absence of color masks
+    static BlendState blendState;
+    blendState.setEquation(BlendState::Equation::Add);
+    blendState.setSrcFactor(BlendState::SrcFactor::Zero);
+    blendState.setDstFactor(BlendState::DstFactor::One);
+    blendState.enabled = true;
 
     // stencil test settings for the depth fail shadow volume algorithm
     static StencilState stencilState;
@@ -67,8 +76,10 @@ Effect* createShadowEffect(ProgramManager* const programMgr)
 
     Pass* pass = new Pass("pass0", 2);
     singlePassTechnique->setPass(0, pass);
-    pass->setBlendState(BlendState::disabled());
+    //pass->setBlendState(BlendState::disabled());
+    pass->setBlendState(&blendState);
     pass->setDepthState(DepthState::lessEqualReadOnly());
+    pass->setRasterizerState(RasterizerState::cullNone());
     pass->setStencilState(&stencilState);
     pass->setProgram(programMgr->load("data/shaders/shadow.vs", "data/shaders/shadow.fs"));
     pass->setParameter(0, new Mat4Parameter("modelViewMatrix", Matrix4x4::identity()));
@@ -81,6 +92,7 @@ Effect* createShadowEffect(ProgramManager* const programMgr)
     wireframeTechnique->setPass(0, pass);
     pass->setBlendState(BlendState::disabled());
     pass->setDepthState(DepthState::lessEqualReadOnly());
+    pass->setRasterizerState(RasterizerState::wireFrame());
     pass->setStencilState(StencilState::disabled());
     pass->setProgram(programMgr->load("data/shaders/shadow.vs", "data/shaders/shadow.fs"));
     pass->setParameter(0, new Mat4Parameter("modelViewMatrix", Matrix4x4::identity()));
@@ -125,6 +137,7 @@ Effect* createDGNSTextureMeshEffect(
     ambientLightTechnique->setPass(0, pass);
     pass->setBlendState(BlendState::disabled());
     pass->setDepthState(DepthState::lessEqual());
+    pass->setRasterizerState(RasterizerState::cullClockwise());
     pass->setStencilState(StencilState::disabled());
     pass->setProgram(programMgr->load("data/shaders/mesh/dgns_texture/ambient_light.vs", "data/shaders/mesh/dgns_texture/ambient_light.fs"));
     pass->setParameter(0, new Mat4Parameter("modelViewMatrix", Matrix4x4::identity()));
@@ -141,6 +154,7 @@ Effect* createDGNSTextureMeshEffect(
     pointLightTechnique->setPass(0, pass);
     pass->setBlendState(BlendState::additive());
     pass->setDepthState(DepthState::lessEqualReadOnly());
+    pass->setRasterizerState(RasterizerState::cullClockwise());
     pass->setStencilState(&stencilState);
     pass->setProgram(programMgr->load("data/shaders/mesh/dgns_texture/point_light.vs", "data/shaders/mesh/dgns_texture/point_light.fs"));
     pass->setParameter(0, new Mat4Parameter("modelViewMatrix", Matrix4x4::identity()));
@@ -189,6 +203,7 @@ Effect* createNoTextureMeshEffect(
     ambientLightTechnique->setPass(0, pass);
     pass->setBlendState(BlendState::disabled());
     pass->setDepthState(DepthState::lessEqual());
+    pass->setRasterizerState(RasterizerState::cullClockwise());
     pass->setStencilState(StencilState::disabled());
     pass->setProgram(programMgr->load("data/shaders/mesh/no_texture/ambient_light.vs", "data/shaders/mesh/no_texture/ambient_light.fs"));
     pass->setParameter(0, new Mat4Parameter("modelViewMatrix", Matrix4x4::identity()));
@@ -205,6 +220,7 @@ Effect* createNoTextureMeshEffect(
     pointLightTechnique->setPass(0, pass);
     pass->setBlendState(BlendState::additive());
     pass->setDepthState(DepthState::lessEqualReadOnly());
+    pass->setRasterizerState(RasterizerState::cullClockwise());
     pass->setStencilState(&stencilState);
     pass->setProgram(programMgr->load("data/shaders/mesh/no_texture/point_light.vs", "data/shaders/mesh/no_texture/point_light.fs"));
     pass->setParameter(0, new Mat4Parameter("modelViewMatrix", Matrix4x4::identity()));

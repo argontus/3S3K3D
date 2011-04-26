@@ -286,15 +286,10 @@ int GameProgram::execute()
 
 void GameProgram::render()
 {
-    // TODO: get rid of all direct OpenGL calls
-
-    glEnable(GL_CULL_FACE);
-
     // TODO: make sure the stencil writemasks are ~0
     // HACK: make sure depth buffer write mask is GL_TRUE
     device_->setDepthState(DepthState::lessEqual());
 
-    device_->setColorMask(true, true, true, true);
     device_->clearBuffers(true, true, true);
     //renderer_->setProjectionMatrix(camera_->projectionMatrix());
 
@@ -498,6 +493,13 @@ void GameProgram::render()
 
     // begin shadow pass ------------------------------------------------------
 
+    // load the shadow geometry to a vertex buffer
+    shadowVertexBuffer_->update(
+        shadowVertexBuffer_->elementSize(),
+        shadowVertices.size(),
+        &shadowVertices[0]
+    );
+
     // TODO: make sure the stencil buffer writemasks are ~0
     // clear stencil buffer
     device_->clearBuffers(false, false, true);
@@ -509,24 +511,7 @@ void GameProgram::render()
 
     device_->setVertexFormat(shadowVertexFormat_);
     device_->setVertexBuffer(shadowVertexBuffer_);
-
-    // load the shadow geometry to a vertex buffer
-    shadowVertexBuffer_->update(
-        shadowVertexBuffer_->elementSize(),
-        shadowVertices.size(),
-        &shadowVertices[0]
-    );
-
-    // disable color buffer writes
-    device_->setColorMask(false, false, false, false);
-
-    glDisable(GL_CULL_FACE);
     device_->drawPrimitives(Device::PrimitiveType::Triangles);
-    //glDrawArrays(GL_TRIANGLES, 0, shadowVertices.size());
-    glEnable(GL_CULL_FACE);
-
-    device_->setColorMask(true, true, true, true);
-
     device_->setVertexBuffer(0);
     device_->setVertexFormat(0);
 
@@ -540,15 +525,7 @@ void GameProgram::render()
 
         device_->setVertexFormat(shadowVertexFormat_);
         device_->setVertexBuffer(shadowVertexBuffer_);
-
-        // render shadow volumes
-        glDisable(GL_CULL_FACE);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         device_->drawPrimitives(Device::PrimitiveType::Triangles);
-        //glDrawArrays(GL_TRIANGLES, 0, shadowVertices.size());
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glEnable(GL_CULL_FACE);
-
         device_->setVertexBuffer(0);
         device_->setVertexFormat(0);
     }
@@ -658,11 +635,13 @@ void GameProgram::render()
     //renderer_->setTexture(0, textureManager_.getResource("particle"));
     //renderer_->setTexture(0, textureManager_.getResource("particle"), "texture0");
 
+    // TODO: no direct OpenGL function calls!
     glEnable(GL_POINT_SPRITE);  // TODO: this is deprecated
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     device_->drawPrimitives(Device::PrimitiveType::Points);
 
+    // TODO: no direct OpenGL function calls!
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glDisable(GL_POINT_SPRITE); // TODO: this is deprecated
 
