@@ -515,32 +515,20 @@ void GameProgram::render()
 
     // begin shadow pass ------------------------------------------------------
 
-    // load the shadow geometry to a vertex buffer
-    shadowVertexBuffer_->update(
-        shadowVertexBuffer_->elementSize(),
-        shadowVertices.size(),
-        &shadowVertices[0]
-    );
-
-    // TODO: make sure the stencil buffer writemasks are ~0
-    // clear stencil buffer
-    device_->clearBuffers(false, false, true);
-
-    Pass* const pass = shadowEffect_->technique("singlePass")->pass(0);
-    pass->parameter("modelViewMatrix")->setValue(drawParams.viewMatrix);
-    pass->parameter("projectionMatrix")->setValue(drawParams.projectionMatrix);
-    pass->bind(drawParams.device);
-
-    device_->setVertexFormat(shadowVertexFormat_);
-    device_->setVertexBuffer(shadowVertexBuffer_);
-    device_->drawPrimitives(Device::PrimitiveType::Triangles);
-    device_->setVertexBuffer(0);
-    device_->setVertexFormat(0);
-
-    //if (drawShadowVolumes_ && lightIndex == 0)
-    if (drawShadowVolumes_)
+    if (shadowVertices.empty() == false)
     {
-        Pass* const pass = shadowEffect_->technique("wireframe")->pass(0);
+        // load the shadow geometry to a vertex buffer
+        shadowVertexBuffer_->update(
+            shadowVertexBuffer_->elementSize(),
+            shadowVertices.size(),
+            &shadowVertices[0]
+        );
+
+        // TODO: make sure the stencil buffer writemasks are ~0
+        // clear stencil buffer
+        device_->clearBuffers(false, false, true);
+
+        Pass* const pass = shadowEffect_->technique("singlePass")->pass(0);
         pass->parameter("modelViewMatrix")->setValue(drawParams.viewMatrix);
         pass->parameter("projectionMatrix")->setValue(drawParams.projectionMatrix);
         pass->bind(drawParams.device);
@@ -550,6 +538,21 @@ void GameProgram::render()
         device_->drawPrimitives(Device::PrimitiveType::Triangles);
         device_->setVertexBuffer(0);
         device_->setVertexFormat(0);
+
+        //if (drawShadowVolumes_ && lightIndex == 0)
+        if (drawShadowVolumes_)
+        {
+            Pass* const pass = shadowEffect_->technique("wireframe")->pass(0);
+            pass->parameter("modelViewMatrix")->setValue(drawParams.viewMatrix);
+            pass->parameter("projectionMatrix")->setValue(drawParams.projectionMatrix);
+            pass->bind(drawParams.device);
+
+            device_->setVertexFormat(shadowVertexFormat_);
+            device_->setVertexBuffer(shadowVertexBuffer_);
+            device_->drawPrimitives(Device::PrimitiveType::Triangles);
+            device_->setVertexBuffer(0);
+            device_->setVertexFormat(0);
+        }
     }
 
     // end shadow pass --------------------------------------------------------
@@ -830,7 +833,7 @@ void GameProgram::tick( const float deltaTime )
         }
     }
 
-    //return;
+    return;
 
     const float kx = 75.0f;
     const float ky = 37.5f;
@@ -958,10 +961,6 @@ void GameProgram::test()
     Mesh* const boxMesh = createBox(0.5f, 0.5f, 0.5f);
     meshManager_.loadResource("box", boxMesh);
 
-    Node* groupNode = new Node();
-
-    const float scaling = 17.5f;
-
     VertexBuffer* const boxVertexBuffer = new VertexBuffer(
         sizeof(Mesh::Vertex),
         boxMesh->numVertices(),
@@ -978,7 +977,7 @@ void GameProgram::test()
     const float angleStep = Math::pi() * 2.0 / 5.0;
     const float heightStep = 75.0f;
     const float radius = 150.0f;
-    const float range = 175.0f;
+    const float range = 200.0f;
 
     PointLightNode* pointLightNode = new PointLightNode();
     pointLightNode->setTranslation(Vector3(radius * Math::cos(0 * angleStep), -2 * heightStep, radius * Math::sin(0 * angleStep)));
@@ -1060,6 +1059,13 @@ void GameProgram::test()
 
     rootNode_->attachChild(lightGroup);
 
+
+
+    // create some boxes
+/*
+    Node* groupNode = new Node();
+    const float scaling = 17.5f;
+
     MeshNode* prototype = new MeshNode();
     prototype->setScaling(scaling);
     prototype->setMesh(boxMesh);
@@ -1124,11 +1130,31 @@ void GameProgram::test()
         groupNode->setTranslation(Vector3(0.0f, displacement + i * offset, 0.0f));
         rootNode_->attachChild(groupNode);
     }
+*/
 
-    // TODO: test ModelReader
 
-    //camera_->setTranslation(Vector3(150.0f, -75.0f, 0.0f));
-    //camera_->setRotation(Matrix3x3::yRotation(Math::pi() / 2.0));
+    // load a model
+
+    Effect* const effect = createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(1.0f, 1.0f, 1.0f),
+        Vector3(1.0f, 1.0f, 1.0f),
+        Vector3(0.0f, 0.0f, 0.0f),
+        Vector3(1.0f, 1.0f, 1.0f),
+        128.0f
+    );
+
+    ModelReader modelReader(&meshManager_, &vertexBufferManager_);
+    Node* const model = modelReader.read("data/models/tank.3DS", *effect);
+    //model->setTranslation(Vector3(-300.0f, 0.0f, 0.0f));
+    model->setRotation(Matrix3x3::xRotation(-Math::pi() / 2.0f));
+    model->setScaling(1.0f);
+    rootNode_->attachChild(model);
+
+    delete effect;
+
+
+
     camera_->setTranslation(Vector3(-75.0f - 37.5f / 2.0f, 0.0f, 150.0f));
     camera_->setRotation(Matrix3x3::identity());
 }
