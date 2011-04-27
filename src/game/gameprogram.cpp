@@ -245,7 +245,7 @@ int GameProgram::execute()
             bullet->life = 2.0f;
             bullet->shape.center = t.translation;
             bullet->shape.radius = 2.0f;
-            bullet->velocity = -7.5f * t.rotation.row(2);
+            bullet->velocity = -250.0f * t.rotation.row(2);
 
             MeshNode* const bulletMesh = new MeshNode;
             bulletMesh->setScaling(bullet->shape.radius);
@@ -337,7 +337,7 @@ void GameProgram::render()
 
     // begin ambient render pass
 
-    const Vector3 ambientLightColor(0.1f, 0.1f, 0.1f);
+    const Vector3 ambientLightColor(0.25f, 0.25f, 0.25f);
 
     for (int i = 0; i < visibleGeometryQuery.numMeshNodes(); ++i)
     {
@@ -593,10 +593,15 @@ void GameProgram::render()
 
     } // for each light
 
-//    if (rotateLights)
-//    {
-//        lightRotation = Math::mod(lightRotation + deltaTime * 0.075f, 2.0f * Math::pi());
-//    }
+    static float lightRotation = 0.0f;
+
+    if (rotateLights)
+    {
+        lightRotation = Math::mod(lightRotation + deltaTime * 0.075f, 2.0f * Math::pi());
+
+        // child(0) should be the lights group
+        rootNode_->child(0)->setRotation(Matrix3x3::yRotation(lightRotation));
+    }
 /*
     // quick & dirty box rotation for testing the extents updates with lazy
     // evaluation
@@ -776,7 +781,7 @@ void GameProgram::tick( const float deltaTime )
         }
         else
         {
-            p->shape.center += p->velocity;
+            p->shape.center += p->velocity * deltaTime;
             p->visual->setTranslation(p->shape.center);
 
             static PointLitGeometryQuery query;
@@ -787,6 +792,8 @@ void GameProgram::tick( const float deltaTime )
             // TODO: would go boom if this would destroy all intersecting
             // mesh nodes and the mesh node list contains a child and a
             // parent and the parent is deleted first...
+
+            // TODO: goes boom if bullet visuals intersect
 
             // HACK: the visual is always intersecting the bullet
             MeshNode* firstIntersection = 0;
@@ -964,6 +971,95 @@ void GameProgram::test()
 
     vertexBufferManager_.loadResource("box", boxVertexBuffer);
 
+    // add some point lights
+
+    Node* const lightGroup = new Node;
+
+    const float angleStep = Math::pi() * 2.0 / 5.0;
+    const float heightStep = 75.0f;
+    const float radius = 150.0f;
+    const float range = 175.0f;
+
+    PointLightNode* pointLightNode = new PointLightNode();
+    pointLightNode->setTranslation(Vector3(radius * Math::cos(0 * angleStep), -2 * heightStep, radius * Math::sin(0 * angleStep)));
+    pointLightNode->setLightColor(Vector3(1.00f, 0.25f, 0.25f));
+    pointLightNode->setLightRange(range);
+
+    MeshNode* const pointLightMesh = new MeshNode();
+    pointLightMesh->setScaling(1.0f);
+    pointLightMesh->setMesh(boxMesh);
+    pointLightMesh->setVertexBuffer(boxVertexBuffer);
+    pointLightMesh->updateModelExtents();
+    pointLightMesh->setEffect(createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(0.0f, 0.0f, 0.0f),
+        Vector3(0.0f, 0.0f, 0.0f),
+        pointLightNode->lightColor(),
+        Vector3(0.0f, 0.0f, 0.0f),
+        128.0f)
+    );
+
+    pointLightNode->attachChild(pointLightMesh);
+    lightGroup->attachChild(pointLightNode);
+/*
+    pointLightNode = pointLightNode->clone();
+    pointLightNode->setTranslation(Vector3(radius * Math::cos(1 * angleStep), -1 * heightStep, radius * Math::sin(1 * angleStep)));
+    pointLightNode->setLightColor(Vector3(0.75f, 0.75f, 0.25f));
+    pointLightNode->setLightRange(range);
+    static_cast<MeshNode*>(pointLightNode->child(0))->setEffect(createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(0.0f, 0.0f, 0.0f),
+        Vector3(0.0f, 0.0f, 0.0f),
+        pointLightNode->lightColor(),
+        Vector3(0.0f, 0.0f, 0.0f),
+        128.0f)
+    );
+    lightGroup->attachChild(pointLightNode);
+*/
+    pointLightNode = pointLightNode->clone();
+    pointLightNode->setTranslation(Vector3(radius * Math::cos(2 * angleStep), 0 * heightStep, radius * Math::sin(2 * angleStep)));
+    pointLightNode->setLightColor(Vector3(0.25f, 1.00f, 0.25f));
+    pointLightNode->setLightRange(range);
+    static_cast<MeshNode*>(pointLightNode->child(0))->setEffect(createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(0.0f, 0.0f, 0.0f),
+        Vector3(0.0f, 0.0f, 0.0f),
+        pointLightNode->lightColor(),
+        Vector3(0.0f, 0.0f, 0.0f),
+        128.0f)
+    );
+    lightGroup->attachChild(pointLightNode);
+/*
+    pointLightNode = pointLightNode->clone();
+    pointLightNode->setTranslation(Vector3(radius * Math::cos(3 * angleStep), 1 * heightStep, radius * Math::sin(3 * angleStep)));
+    pointLightNode->setLightColor(Vector3(0.25f, 0.75f, 0.75f));
+    pointLightNode->setLightRange(range);
+    static_cast<MeshNode*>(pointLightNode->child(0))->setEffect(createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(0.0f, 0.0f, 0.0f),
+        Vector3(0.0f, 0.0f, 0.0f),
+        pointLightNode->lightColor(),
+        Vector3(0.0f, 0.0f, 0.0f),
+        128.0f)
+    );
+    lightGroup->attachChild(pointLightNode);
+*/
+    pointLightNode = pointLightNode->clone();
+    pointLightNode->setTranslation(Vector3(radius * Math::cos(4 * angleStep), 2 * heightStep, radius * Math::sin(4 * angleStep)));
+    pointLightNode->setLightColor(Vector3(0.25f, 0.25f, 1.00f));
+    pointLightNode->setLightRange(range);
+    static_cast<MeshNode*>(pointLightNode->child(0))->setEffect(createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(0.0f, 0.0f, 0.0f),
+        Vector3(0.0f, 0.0f, 0.0f),
+        pointLightNode->lightColor(),
+        Vector3(0.0f, 0.0f, 0.0f),
+        128.0f)
+    );
+    lightGroup->attachChild(pointLightNode);
+
+    rootNode_->attachChild(lightGroup);
+
     MeshNode* prototype = new MeshNode();
     prototype->setScaling(scaling);
     prototype->setMesh(boxMesh);
@@ -1028,91 +1124,6 @@ void GameProgram::test()
         groupNode->setTranslation(Vector3(0.0f, displacement + i * offset, 0.0f));
         rootNode_->attachChild(groupNode);
     }
-
-    // add some point lights
-
-    const float angleStep = Math::pi() * 2.0 / 5.0;
-    const float heightStep = 75.0f;
-    const float radius = 150.0f;
-    const float range = 150.0f;
-
-    PointLightNode* pointLightNode = new PointLightNode();
-    pointLightNode->setTranslation(Vector3(radius * Math::cos(0 * angleStep), -2 * heightStep, radius * Math::sin(0 * angleStep)));
-    pointLightNode->setLightColor(Vector3(1.00f, 0.25f, 0.25f));
-    pointLightNode->setLightRange(range);
-
-    MeshNode* const pointLightMesh = new MeshNode();
-    pointLightMesh->setScaling(1.0f);
-    pointLightMesh->setMesh(boxMesh);
-    pointLightMesh->setVertexBuffer(boxVertexBuffer);
-    pointLightMesh->updateModelExtents();
-    pointLightMesh->setEffect(createNoTextureMeshEffect(
-        &programManager_,
-        Vector3(0.0f, 0.0f, 0.0f),
-        Vector3(0.0f, 0.0f, 0.0f),
-        pointLightNode->lightColor(),
-        Vector3(0.0f, 0.0f, 0.0f),
-        128.0f)
-    );
-
-    pointLightNode->attachChild(pointLightMesh);
-    rootNode_->attachChild(pointLightNode);
-
-    pointLightNode = pointLightNode->clone();
-    pointLightNode->setTranslation(Vector3(radius * Math::cos(1 * angleStep), -1 * heightStep, radius * Math::sin(1 * angleStep)));
-    pointLightNode->setLightColor(Vector3(0.75f, 0.75f, 0.25f));
-    pointLightNode->setLightRange(range);
-    static_cast<MeshNode*>(pointLightNode->child(0))->setEffect(createNoTextureMeshEffect(
-        &programManager_,
-        Vector3(0.0f, 0.0f, 0.0f),
-        Vector3(0.0f, 0.0f, 0.0f),
-        pointLightNode->lightColor(),
-        Vector3(0.0f, 0.0f, 0.0f),
-        128.0f)
-    );
-    rootNode_->attachChild(pointLightNode);
-
-    pointLightNode = pointLightNode->clone();
-    pointLightNode->setTranslation(Vector3(radius * Math::cos(2 * angleStep), 0 * heightStep, radius * Math::sin(2 * angleStep)));
-    pointLightNode->setLightColor(Vector3(0.25f, 1.00f, 0.25f));
-    pointLightNode->setLightRange(range);
-    static_cast<MeshNode*>(pointLightNode->child(0))->setEffect(createNoTextureMeshEffect(
-        &programManager_,
-        Vector3(0.0f, 0.0f, 0.0f),
-        Vector3(0.0f, 0.0f, 0.0f),
-        pointLightNode->lightColor(),
-        Vector3(0.0f, 0.0f, 0.0f),
-        128.0f)
-    );
-    rootNode_->attachChild(pointLightNode);
-
-    pointLightNode = pointLightNode->clone();
-    pointLightNode->setTranslation(Vector3(radius * Math::cos(3 * angleStep), 1 * heightStep, radius * Math::sin(3 * angleStep)));
-    pointLightNode->setLightColor(Vector3(0.25f, 0.75f, 0.75f));
-    pointLightNode->setLightRange(range);
-    static_cast<MeshNode*>(pointLightNode->child(0))->setEffect(createNoTextureMeshEffect(
-        &programManager_,
-        Vector3(0.0f, 0.0f, 0.0f),
-        Vector3(0.0f, 0.0f, 0.0f),
-        pointLightNode->lightColor(),
-        Vector3(0.0f, 0.0f, 0.0f),
-        128.0f)
-    );
-    rootNode_->attachChild(pointLightNode);
-
-    pointLightNode = pointLightNode->clone();
-    pointLightNode->setTranslation(Vector3(radius * Math::cos(4 * angleStep), 2 * heightStep, radius * Math::sin(4 * angleStep)));
-    pointLightNode->setLightColor(Vector3(0.25f, 0.25f, 1.00f));
-    pointLightNode->setLightRange(range);
-    static_cast<MeshNode*>(pointLightNode->child(0))->setEffect(createNoTextureMeshEffect(
-        &programManager_,
-        Vector3(0.0f, 0.0f, 0.0f),
-        Vector3(0.0f, 0.0f, 0.0f),
-        pointLightNode->lightColor(),
-        Vector3(0.0f, 0.0f, 0.0f),
-        128.0f)
-    );
-    rootNode_->attachChild(pointLightNode);
 
     // TODO: test ModelReader
 
