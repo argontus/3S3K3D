@@ -1135,6 +1135,8 @@ void GameProgram::test()
 
     // load a model
 
+    ModelReader modelReader(&meshManager_, &vertexBufferManager_);
+
     Effect* const effect = createNoTextureMeshEffect(
         &programManager_,
         Vector3(1.0f, 1.0f, 1.0f),
@@ -1144,11 +1146,16 @@ void GameProgram::test()
         128.0f
     );
 
-    ModelReader modelReader(&meshManager_, &vertexBufferManager_);
     Node* const model = modelReader.read("data/models/tank.3DS", *effect);
-    //model->setTranslation(Vector3(-300.0f, 0.0f, 0.0f));
+    model->setTranslation(Vector3(0.0f, 25.0f, 0.0f));
     model->setRotation(Matrix3x3::xRotation(-Math::pi() / 2.0f));
     model->setScaling(1.0f);
+
+//    Node* const model = modelReader.read("data/models/ionic_temple.3DS", *effect);
+//    model->setTranslation(Vector3(0.0f, -175.0f, 0.0f));
+//    model->setRotation(Matrix3x3::xRotation(Math::pi()));
+//    model->setScaling(20.0f);
+
     rootNode_->attachChild(model);
 
     delete effect;

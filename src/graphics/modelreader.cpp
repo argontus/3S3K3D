@@ -61,9 +61,12 @@ Node* ModelReader::read(const std::string& path, const Effect& effect)
         {
             const std::string name = meshPrefix_ + file->meshes[i]->name;
             Mesh* const mesh = meshManager_->getResource(name);
+            VertexBuffer* const vertexBuffer = vertexBufferManager_->getResource(name);
 
-            MeshNode* const meshNode = new MeshNode();
+            MeshNode* const meshNode = new MeshNode;
             meshNode->setMesh(mesh);
+            meshNode->setVertexBuffer(vertexBuffer);
+            meshNode->setEffect(effect_->clone());
             meshNode->updateModelExtents();
 
             group->attachChild(meshNode);
