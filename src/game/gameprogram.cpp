@@ -830,7 +830,7 @@ void GameProgram::tick( const float deltaTime )
         }
     }
 
-    return;
+    //return;
 
     const float kx = 75.0f;
     const float ky = 37.5f;

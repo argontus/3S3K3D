@@ -24,8 +24,6 @@ Effect* createExtentsEffect(ProgramManager* const programMgr)
 {
     GRAPHICS_RUNTIME_ASSERT(programMgr != 0);
 
-    // TODO: needs rasterizer state
-
     Effect* const effect = new Effect("extentsEffect", 1);
 
     Technique* const technique = new Technique("default", 1);
@@ -47,8 +45,6 @@ Effect* createExtentsEffect(ProgramManager* const programMgr)
 Effect* createShadowEffect(ProgramManager* const programMgr)
 {
     GRAPHICS_RUNTIME_ASSERT(programMgr != 0);
-
-    // TODO: needs rasterizer state
 
     // workaround in the absence of color masks
     static BlendState blendState;
@@ -115,8 +111,6 @@ Effect* createDGNSTextureMeshEffect(
     GRAPHICS_RUNTIME_ASSERT(normalMap != 0);
     GRAPHICS_RUNTIME_ASSERT(specularMap != 0);
 
-    // TODO: needs rasterizer state
-
     // stencil test passes if the stencil value equals zero
     static StencilState stencilState;
     stencilState.setCompareFunc(StencilState::CompareFunc::Equal);
@@ -180,8 +174,6 @@ Effect* createNoTextureMeshEffect(
     const float specularExponent)
 {
     GRAPHICS_RUNTIME_ASSERT(programMgr != 0);
-
-    // TODO: needs rasterizer state
 
     // stencil test passes if the stencil value equals zero
     static StencilState stencilState;
