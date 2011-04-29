@@ -63,6 +63,7 @@ struct Bullet
     float life;
     Sphere shape;
     Vector3 velocity;
+    Vector4 color;
 };
 
 /**

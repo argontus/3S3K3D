@@ -11,6 +11,7 @@
 #include <geometry/extents3.h>
 #include <geometry/transform3.h>
 
+class NodeController;
 class NodeVisitor;
 
 // TODO: rename this to group node?
@@ -21,6 +22,15 @@ class NodeVisitor;
 class Node
 {
 public:
+    struct UpdateMessage
+    {
+        enum Enum
+        {
+            None,
+            KillMe
+        };
+    };
+
     /**
      * Destructor. This node must be detached from its parent node before the
      * destructor is called.
@@ -48,7 +58,7 @@ public:
     // queries
     void accept(NodeVisitor* visitor);
 
-    // TODO: updates, controller management
+    virtual UpdateMessage::Enum update(float dt);
 
     /**
      * @name Parent Node Queries
@@ -127,6 +137,9 @@ public:
      */
     bool hasChildren() const;
     //@}
+
+    // TODO: comments and more controller management functions if needed
+    void attachController(NodeController* p);
 
     /**
      * @name Transform Management
@@ -374,6 +387,9 @@ private:
      * leave this object in an invalid state.
      */
     void deleteChildren();
+
+    void deleteControllers();
+    void updateChildren(float dt);
     //@}
 
     /**
@@ -425,8 +441,11 @@ private:
     // the implementation uses lazy evaluation for updating worldTransform_,
     // subtreeExtents_ and extents_
 
+    typedef std::vector<Node*> NodeVector;
+    typedef std::vector<NodeController*> ControllerVector;
+
     Node* parent_;                      ///< Parent node.
-    std::vector<Node*> children_;       ///< Child nodes.
+    NodeVector children_;               ///< Child nodes.
 
     mutable bool worldTransformValid_;  ///< Is world transform valid?
     mutable Transform3 worldTransform_; ///< World transform.
@@ -442,6 +461,8 @@ private:
 
     bool subtreeVisible_;               ///< Is this subtree visible?
     bool visible_;                      ///< Is this node visible?
+
+    ControllerVector controllers_;      ///< Attached controllers.
 
     // hide the assignment operator
     Node& operator =(const Node&);

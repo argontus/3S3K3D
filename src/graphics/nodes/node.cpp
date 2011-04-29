@@ -8,6 +8,7 @@
 #include <geometry/matrix4x4.h>
 
 #include <graphics/runtimeassert.h>
+#include <graphics/nodecontrollers/nodecontroller.h>
 #include <graphics/nodevisitors/nodevisitor.h>
 
 Node::~Node()
@@ -17,6 +18,8 @@ Node::~Node()
 
     // this will recrsively delete all descendant nodes
     deleteChildren();
+
+    deleteControllers();
 }
 
 Node::Node()
@@ -33,7 +36,8 @@ Node::Node()
     extents_(),
     modelExtents_(),
     subtreeVisible_(true),
-    visible_(true)
+    visible_(true),
+    controllers_()
 {
     // ...
 }
@@ -62,6 +66,36 @@ void Node::accept(NodeVisitor* const visitor)
 
     // TODO: try these as an optimization when FSP can be compared
     //visitor->popState();
+}
+
+Node::UpdateMessage::Enum Node::update(const float dt)
+{
+    ControllerVector::iterator i = controllers_.begin();
+
+    while (i != controllers_.end())
+    {
+        NodeController* const p = *i;
+        const NodeController::UpdateMessage::Enum msg = p->update(this, dt);
+
+        if (msg == NodeController::UpdateMessage::Die)
+        {
+            return UpdateMessage::KillMe;
+        }
+
+        if (msg == NodeController::UpdateMessage::KillMe)
+        {
+            delete p;
+            i = controllers_.erase(i);
+        }
+        else
+        {
+            GRAPHICS_RUNTIME_ASSERT(msg == NodeController::UpdateMessage::None);
+            ++i;
+        }
+    }
+
+    updateChildren(dt);
+    return UpdateMessage::None;
 }
 
 Node* Node::parent() const
@@ -132,6 +166,12 @@ int Node::numChildren() const
 bool Node::hasChildren() const
 {
     return children_.empty() == false;
+}
+
+void Node::attachController(NodeController* const p)
+{
+    GRAPHICS_RUNTIME_ASSERT(p != 0);
+    controllers_.push_back(p);
 }
 
 const Transform3 Node::worldTransform() const
@@ -316,7 +356,8 @@ Node::Node(const Node& other)
     extents_(),
     modelExtents_(other.modelExtents_),
     subtreeVisible_(other.subtreeVisible_),
-    visible_(other.visible_)
+    visible_(other.visible_),
+    controllers_()
 {
     try
     {
@@ -325,12 +366,19 @@ Node::Node(const Node& other)
         {
             attachChild(other.children_[i]->clone());
         }
+
+        // clone and attach all controllers
+        for (size_t i = 0; i < other.controllers_.size(); ++i)
+        {
+            attachController(other.controllers_[i]->clone());
+        }
     }
     catch (...)
     {
-        // deallocate the nodes we had allocated before an exception was thrown
-        // and rethrow
+        // deallocate any nodes and controllers we had allocated before an
+        // exception was thrown and rethrow
         deleteChildren();
+        deleteControllers();
         throw;
     }
 }
@@ -356,6 +404,38 @@ void Node::deleteChildren()
     {
         children_[i]->parent_ = 0;
         delete children_[i];
+    }
+}
+
+void Node::deleteControllers()
+{
+    // deallocate attached controllers
+    for (size_t i = 0; i < controllers_.size(); ++i)
+    {
+        delete controllers_[i];
+    }
+}
+
+void Node::updateChildren(const float dt)
+{
+    NodeVector::iterator i = children_.begin();
+
+    while (i != children_.end())
+    {
+        Node* const p = *i;
+        UpdateMessage::Enum msg = p->update(dt);
+
+        if (msg == UpdateMessage::KillMe)
+        {
+            p->parent_ = 0;
+            delete p;
+            i = children_.erase(i);
+        }
+        else
+        {
+            GRAPHICS_RUNTIME_ASSERT(msg == UpdateMessage::None);
+            ++i;
+        }
     }
 }
 

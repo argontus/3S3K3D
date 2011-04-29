@@ -7,6 +7,8 @@
 
 #include "effects.h"
 
+#include <cstdlib>
+
 #include <geometry/linesegment3.h>
 #include <geometry/math.h>
 
@@ -22,6 +24,9 @@
 #include <graphics/pass.h>
 #include <graphics/technique.h>
 #include <graphics/parameters/parameter.h>
+
+#include <graphics/nodecontrollers/lightfadeoutcontroller.h>
+#include <graphics/nodecontrollers/suicidecontroller.h>
 
 #include <graphics/nodevisitors/pointlitgeometryquery.h>
 #include <graphics/nodevisitors/segmentmeshintersectionquery.h>
@@ -338,8 +343,12 @@ int GameProgram::execute()
                 spawnOffset = 4.0f * t.rotation.row(0) - 3.0f * t.rotation.row(1);
             }
 
+            const float direction = 2.0f * Math::pi() * std::rand() / RAND_MAX;
+            const float length = 0.025f * std::rand() / RAND_MAX;
+            const Vector3 velocityOffset = length * Vector3(Math::cos(direction), Math::sin(direction), 0.0f) * t.rotation;
+
             // ignore multibarrel emitting
-            //spawnOffset = Vector3::zero();
+            spawnOffset = Vector3::zero();
 
             Bullet* const bullet = new Bullet;
             bullet->active = true;
@@ -347,7 +356,16 @@ int GameProgram::execute()
             bullet->shape.center = t.translation + spawnOffset;
             bullet->shape.radius = 2.0f;
             //bullet->velocity = -1000.0f * t.rotation.row(2);
-            bullet->velocity = -500.0f * t.rotation.row(2);
+            bullet->velocity = -500.0f * (t.rotation.row(2) + velocityOffset);
+
+            if (mouse.mouseButtonIsDown(Mouse::MOUSEBUTTON_RIGHT))
+            {
+                bullet->color = Vector4(0.25f, 1.0f, 0.5f, 1.0f);
+            }
+            else
+            {
+                bullet->color = Vector4(1.0f, 0.5f, 0.25f, 1.0f);
+            }
 
             bullets_.push_back(bullet);
         }
@@ -701,12 +719,12 @@ void GameProgram::render()
     // begin quick & dirty billboard sprite test ------------------------------
 
     const Matrix3x3 cameraRotation = camera_->worldTransform().rotation;
-    const Vector4 particleColor(1.0f, 0.5f, 0.25f, 1.0f);
 
     for (size_t i = 0; i < bullets_.size(); ++i)
     {
         const Vector3 center = bullets_[i]->shape.center;
         const float radius = bullets_[i]->shape.radius;
+        const Vector4 particleColor = bullets_[i]->color;
 
         const Vector3 xOffset = cameraRotation.row(0) * radius * 0.5f;
         const Vector3 yOffset = cameraRotation.row(1) * radius * 0.5f;
@@ -837,8 +855,13 @@ void GameProgram::drawExtents(const Extents3& extents, const DrawParams& params)
     device_->setVertexFormat(0);
 }
 
-void GameProgram::tick( const float deltaTime )
+void GameProgram::tick(const float dt)
 {
+    // update scene
+    rootNode_->update(dt);
+
+
+
     // update bullets
 
     BulletVector::iterator iter = bullets_.begin();
@@ -853,7 +876,7 @@ void GameProgram::tick( const float deltaTime )
             continue;
         }
 
-        p->life -= deltaTime;
+        p->life -= dt;
 
         if (p->life <= 0.0f)
         {
@@ -868,12 +891,12 @@ void GameProgram::tick( const float deltaTime )
             const Vector3 gravity(0.0f, -50.0f, 0.0f);
 
             const Vector3 startPoint = p->shape.center;
-            const Vector3 endPoint = startPoint + p->velocity * deltaTime;
-            //const Vector3 endPoint = startPoint + normalize(startPoint + p->velocity * deltaTime - startPoint);
+            const Vector3 endPoint = startPoint + p->velocity * dt;
+            //const Vector3 endPoint = startPoint + normalize(startPoint + p->velocity * dt - startPoint);
             const LineSegment3 segment(startPoint, endPoint);
 
             p->shape.center = endPoint;
-            p->velocity += gravity * deltaTime;
+            p->velocity += gravity * dt;
 
             static SegmentMeshIntersectionQuery query;
             query.init(segment);
@@ -906,21 +929,31 @@ void GameProgram::tick( const float deltaTime )
             if (query.meshNode() != 0)
             {
                 MeshNode* const meshNode = query.meshNode();
-/*
-                meshNode->parent()->detachChild(meshNode);
-                delete meshNode;
-*/
-                const Vector3 direction = normalize(endPoint - startPoint);
-                const Vector3 offset = -0.1f * direction;
 
-                const Vector3 worldSpaceIntersection = mix(startPoint, endPoint, query.tEnter()) + offset;
-                const Vector3 modelSpaceIntersection = transformByInverse(worldSpaceIntersection, meshNode->worldTransform());
+                // HACK: bullets either destroy or stick based on their color
+                if (p->color.y > 0.75f)
+                {
+                    meshNode->parent()->detachChild(meshNode);
+                    delete meshNode;
+                }
+                else
+                {
+                    const Vector3 direction = normalize(endPoint - startPoint);
+                    const Vector3 offset = -0.1f * direction;
 
-                PointLightNode* const pointLightNode = new PointLightNode();
-                pointLightNode->setTranslation(modelSpaceIntersection);
-                pointLightNode->setLightColor(Vector3(1.00f, 0.5f, 0.25f));
-                pointLightNode->setLightRange(5.0f);
-                meshNode->attachChild(pointLightNode);
+                    const Vector3 worldSpaceIntersection = mix(startPoint, endPoint, query.tEnter()) + offset;
+                    const Vector3 modelSpaceIntersection = transformByInverse(worldSpaceIntersection, meshNode->worldTransform());
+
+                    const Vector3 lightColor = Vector3(p->color.x, p->color.y, p->color.z);
+
+                    PointLightNode* const pointLightNode = new PointLightNode();
+                    pointLightNode->setTranslation(modelSpaceIntersection);
+                    pointLightNode->setLightColor(lightColor);
+                    pointLightNode->setLightRange(5.0f);
+                    pointLightNode->attachController(new LightFadeOutController(5.0f, lightColor));
+                    //pointLightNode->attachController(new SuicideController(1.0f));
+                    meshNode->attachChild(pointLightNode);
+                }
 
                 delete p;
                 iter = bullets_.erase(iter);
@@ -976,7 +1009,7 @@ void GameProgram::tick( const float deltaTime )
     static int frame = 0;
     static float t = 0.0f;
 
-    t += deltaTime;
+    t += dt;
 
     while (t > frameTime)
     {

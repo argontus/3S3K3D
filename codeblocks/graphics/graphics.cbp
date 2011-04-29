@@ -49,6 +49,9 @@
 		<Unit filename="..\..\include\graphics\indexbuffer.h" />
 		<Unit filename="..\..\include\graphics\mesh.h" />
 		<Unit filename="..\..\include\graphics\modelreader.h" />
+		<Unit filename="..\..\include\graphics\nodecontrollers\lightfadeoutcontroller.h" />
+		<Unit filename="..\..\include\graphics\nodecontrollers\nodecontroller.h" />
+		<Unit filename="..\..\include\graphics\nodecontrollers\suicidecontroller.h" />
 		<Unit filename="..\..\include\graphics\nodes\cameranode.h" />
 		<Unit filename="..\..\include\graphics\nodes\meshnode.h" />
 		<Unit filename="..\..\include\graphics\nodes\node.h" />
@@ -101,6 +104,8 @@
 		<Unit filename="..\..\src\graphics\indexbuffer.cpp" />
 		<Unit filename="..\..\src\graphics\mesh.cpp" />
 		<Unit filename="..\..\src\graphics\modelreader.cpp" />
+		<Unit filename="..\..\src\graphics\nodecontrollers\lightfadeoutcontroller.cpp" />
+		<Unit filename="..\..\src\graphics\nodecontrollers\suicidecontroller.cpp" />
 		<Unit filename="..\..\src\graphics\nodes\cameranode.cpp" />
 		<Unit filename="..\..\src\graphics\nodes\meshnode.cpp" />
 		<Unit filename="..\..\src\graphics\nodes\node.cpp" />
