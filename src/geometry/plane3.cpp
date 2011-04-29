@@ -5,6 +5,7 @@
 
 #include <geometry/plane3.h>
 
+#include <geometry/line3.h>
 #include <geometry/math.h>
 
 Plane3::Plane3()
@@ -38,6 +39,24 @@ void Plane3::swap(Plane3& other)
 {
     normal.swap(other.normal);
     Math::swap(constant, other.constant);
+}
+
+bool intersect(const Plane3& plane, const Line3& line, float* const t)
+{
+    const float divisor = dot(line.direction, plane.normal);
+
+    // TODO: use tolerances instead of absolute values?
+    if (divisor == 0.0f)
+    {
+        return false;
+    }
+
+    if (t != 0)
+    {
+        *t = -separation(plane, line.point) / divisor;
+    }
+
+    return true;
 }
 
 float separation(const Plane3& x, const Vector3& q)

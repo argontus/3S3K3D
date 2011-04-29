@@ -7,8 +7,9 @@
 
 #include "effects.h"
 
-// TODO: REALLY quick & dirty
+#include <geometry/linesegment3.h>
 #include <geometry/math.h>
+
 #include <graphics/nodes/cameranode.h>
 #include <graphics/nodes/meshnode.h>
 #include <graphics/nodes/pointlightnode.h>
@@ -23,9 +24,82 @@
 #include <graphics/parameters/parameter.h>
 
 #include <graphics/nodevisitors/pointlitgeometryquery.h>
+#include <graphics/nodevisitors/segmentmeshintersectionquery.h>
 #include <graphics/nodevisitors/visibleextentsquery.h>
 #include <graphics/nodevisitors/visiblegeometryquery.h>
 #include <graphics/nodevisitors/visiblelightsquery.h>
+
+void constructOctTree(Node*, int, int);
+
+void subdivide(
+    Node* const subtree,
+    const Extents3& subdivisionExtents,
+    const int maxDivisions,
+    const int minNodeCount)
+{
+    GRAPHICS_RUNTIME_ASSERT(minNodeCount > 0);
+
+    std::vector<Node*> enclosedNodes;
+
+    for (int i = 0; i < subtree->numChildren(); ++i)
+    {
+        Node* const child = subtree->child(i);
+        const Extents3 childExtents = child->subtreeExtents();
+
+        if (subdivisionExtents.contains(childExtents))
+        {
+            enclosedNodes.push_back(child);
+        }
+    }
+
+    if (static_cast<int>(enclosedNodes.size()) >= minNodeCount)
+    {
+        Node* const subdivision = new Node;
+
+        for (size_t i = 0; i < enclosedNodes.size(); ++i)
+        {
+            subtree->detachChild(enclosedNodes[i]);
+            subdivision->attachChild(enclosedNodes[i]);
+        }
+
+        subtree->attachChild(subdivision);
+    }
+
+    // recursion
+    for (int i = 0; i < subtree->numChildren(); ++i)
+    {
+        constructOctTree(subtree->child(i), maxDivisions - 1, minNodeCount);
+    }
+}
+
+// automatic oct-tree construction, makes an oct-tree bounding volume hierarchy
+// of a subtree
+void constructOctTree(
+    Node* const subtree,
+    const int maxDivisions,
+    const int minNodeCount)
+{
+    GRAPHICS_RUNTIME_ASSERT(minNodeCount > 0);
+
+    if (maxDivisions == 0)
+    {
+        return;
+    }
+
+    const Extents3 extents = subtree->subtreeExtents();
+    const Vector3 min = extents.min;
+    const Vector3 max = extents.max;
+    const Vector3 mid = (min + max) / 2.0f;
+
+    subdivide(subtree, Extents3(Vector3(min.x, min.y, min.z), Vector3(mid.x, mid.y, mid.z)), maxDivisions, minNodeCount);
+    subdivide(subtree, Extents3(Vector3(mid.x, min.y, min.z), Vector3(max.x, mid.y, mid.z)), maxDivisions, minNodeCount);
+    subdivide(subtree, Extents3(Vector3(mid.x, mid.y, min.z), Vector3(max.x, max.y, mid.z)), maxDivisions, minNodeCount);
+    subdivide(subtree, Extents3(Vector3(min.x, mid.y, min.z), Vector3(mid.x, max.y, mid.z)), maxDivisions, minNodeCount);
+    subdivide(subtree, Extents3(Vector3(min.x, min.y, mid.z), Vector3(mid.x, mid.y, max.z)), maxDivisions, minNodeCount);
+    subdivide(subtree, Extents3(Vector3(mid.x, min.y, mid.z), Vector3(max.x, mid.y, max.z)), maxDivisions, minNodeCount);
+    subdivide(subtree, Extents3(Vector3(mid.x, mid.y, mid.z), Vector3(max.x, max.y, max.z)), maxDivisions, minNodeCount);
+    subdivide(subtree, Extents3(Vector3(min.x, mid.y, mid.z), Vector3(mid.x, max.y, max.z)), maxDivisions, minNodeCount);
+}
 
 GameProgram::GameProgram()
 :   configuration(),
@@ -35,7 +109,7 @@ GameProgram::GameProgram()
     testObject(NULL),
     camera_(0),
     rootNode_(0),
-    drawShadows_(true),
+    drawShadows_(false),
     drawExtents_(false),
     drawShadowVolumes_(false),
     rotateLights(false),
@@ -50,7 +124,8 @@ GameProgram::GameProgram()
     dgnsTextureMeshEffect_(0),
     noTextureMeshEffect_(0),
     extentsEffect_(0),
-    shadowEffect_(0)
+    shadowEffect_(0),
+    particleEffect_(0)
 {
     running         = true;
     deltaTicks      = 0;
@@ -237,33 +312,42 @@ int GameProgram::execute()
             mouseBoundToScreen = !mouseBoundToScreen;
         }
 
-        if (keyboard.keyWasPressedInThisFrame(Keyboard::KEY_SPACE))
+        static float fireDelay = 0.0f;
+        static int barrel = 0;
+
+        if (fireDelay > 0.0f)
         {
+            fireDelay -= deltaTime;
+        }
+
+        if (keyboard.keyIsDown(Keyboard::KEY_SPACE) && fireDelay <= 0.0f)
+        {
+            //fireDelay = 1.0f / 30.0f;
+            fireDelay = 1.0f / 50.0f;
+            barrel = (barrel + 1) % 2;
+
             const Transform3 t = camera_->worldTransform();
+            Vector3 spawnOffset;
+
+            if (barrel == 0)
+            {
+                spawnOffset = -4.0f * t.rotation.row(0) - 3.0f * t.rotation.row(1);
+            }
+            else
+            {
+                spawnOffset = 4.0f * t.rotation.row(0) - 3.0f * t.rotation.row(1);
+            }
+
+            // ignore multibarrel emitting
+            //spawnOffset = Vector3::zero();
 
             Bullet* const bullet = new Bullet;
+            bullet->active = true;
             bullet->life = 2.0f;
-            bullet->shape.center = t.translation;
+            bullet->shape.center = t.translation + spawnOffset;
             bullet->shape.radius = 2.0f;
-            bullet->velocity = -250.0f * t.rotation.row(2);
-
-            MeshNode* const bulletMesh = new MeshNode;
-            bulletMesh->setScaling(bullet->shape.radius);
-            bulletMesh->setMesh(meshManager_.getResource("box"));
-            bulletMesh->setVertexBuffer(vertexBufferManager_.getResource("box"));
-            bulletMesh->updateModelExtents();
-            bulletMesh->setEffect(createNoTextureMeshEffect(
-                &programManager_,
-                Vector3(0.0f, 0.0f, 0.0f),
-                Vector3(0.0f, 0.0f, 0.0f),
-                Vector3(1.0f, 1.0f, 1.0f),
-                Vector3(0.0f, 0.0f, 0.0f),
-                128.0f)
-            );
-
-            rootNode_->attachChild(bulletMesh);
-
-            bullet->visual = bulletMesh;
+            //bullet->velocity = -1000.0f * t.rotation.row(2);
+            bullet->velocity = -500.0f * t.rotation.row(2);
 
             bullets_.push_back(bullet);
         }
@@ -312,7 +396,7 @@ void GameProgram::render()
     // HACK: make sure depth buffer write mask is GL_TRUE
     device_->setDepthState(DepthState::lessEqual());
 
-    device_->clearBuffers(true, true, true);
+    device_->clear(true, true, true);
     //renderer_->setProjectionMatrix(camera_->projectionMatrix());
 
 
@@ -526,7 +610,7 @@ void GameProgram::render()
 
         // TODO: make sure the stencil buffer writemasks are ~0
         // clear stencil buffer
-        device_->clearBuffers(false, false, true);
+        device_->clear(false, false, true);
 
         Pass* const pass = shadowEffect_->technique("singlePass")->pass(0);
         pass->parameter("modelViewMatrix")->setValue(drawParams.viewMatrix);
@@ -603,7 +687,8 @@ void GameProgram::render()
         lightRotation = Math::mod(lightRotation + deltaTime * 0.075f, 2.0f * Math::pi());
 
         // child(0) should be the lights group
-        rootNode_->child(0)->setRotation(Matrix3x3::yRotation(lightRotation));
+        //rootNode_->child(0)->setRotation(Matrix3x3::yRotation(lightRotation));
+        rootNode_->setRotation(Matrix3x3::yRotation(lightRotation));
     }
 /*
     // quick & dirty box rotation for testing the extents updates with lazy
@@ -613,77 +698,68 @@ void GameProgram::render()
         rootNode_->child(i)->rotateBy(Matrix3x3::yRotation(-0.0025f * (i * i + 1) * deltaTime));
     }
 */
-/*
-    // begin quick & dirty point sprite test ----------------------------------
+    // begin quick & dirty billboard sprite test ------------------------------
 
-    program = programManager_.load("data/shaders/particle.vs", "data/shaders/particle.fs");
+    const Matrix3x3 cameraRotation = camera_->worldTransform().rotation;
+    const Vector4 particleColor(1.0f, 0.5f, 0.25f, 1.0f);
 
-    float components[numLights * 8];
-
-    for (int i = 0; i < numLights; ++i)
+    for (size_t i = 0; i < bullets_.size(); ++i)
     {
-        float* const data = components + i * 8;
+        const Vector3 center = bullets_[i]->shape.center;
+        const float radius = bullets_[i]->shape.radius;
 
-        // position
-        data[0] = worldLightPositions[i].x;
-        data[1] = worldLightPositions[i].y;
-        data[2] = worldLightPositions[i].z;
+        const Vector3 xOffset = cameraRotation.row(0) * radius * 0.5f;
+        const Vector3 yOffset = cameraRotation.row(1) * radius * 0.5f;
 
-        // color
-        data[3] = lightColors[i].r;
-        data[4] = lightColors[i].g;
-        data[5] = lightColors[i].b;
-        data[6] = 1.0f;
+        ParticleVertex vertices[] = {
+            ParticleVertex(center - xOffset - yOffset, particleColor, Vector2(0.0f, 0.0f)),
+            ParticleVertex(center + xOffset - yOffset, particleColor, Vector2(1.0f, 0.0f)),
+            ParticleVertex(center + xOffset + yOffset, particleColor, Vector2(1.0f, 1.0f)),
+            ParticleVertex(center - xOffset + yOffset, particleColor, Vector2(0.0f, 1.0f))
+        };
 
-        // size
-        data[7] = 4.0f;
+        GLshort indices[] = {
+            0, 1, 2,
+            0, 2, 3
+        };
+
+        VertexFormat particleVertexFormat(3);
+        particleVertexFormat.setAttribute(0, VertexAttribute::Type::Float3, "position");
+        particleVertexFormat.setAttribute(1, VertexAttribute::Type::Float4, "color");
+        particleVertexFormat.setAttribute(2, VertexAttribute::Type::Float2, "texCoord");
+        particleVertexFormat.compile();
+
+        VertexBuffer particleVertexBuffer(
+            sizeof(vertices[0]),
+            sizeof(vertices) / sizeof(vertices[0]),
+            vertices,
+            VertexBuffer::Usage::Static
+        );
+
+        IndexBuffer particleIndexBuffer(
+            IndexBuffer::Format::UnsignedShort,
+            sizeof(indices) / sizeof(indices[0]),
+            indices,
+            IndexBuffer::Usage::Static
+        );
+
+        Pass* const pass = particleEffect_->technique(0)->pass(0);
+        pass->parameter("viewProjectionMatrix")->setValue(drawParams.viewMatrix * drawParams.projectionMatrix);
+        pass->bind(drawParams.device);
+
+        drawParams.device->setVertexFormat(&particleVertexFormat);
+        drawParams.device->setVertexBuffer(&particleVertexBuffer);
+        drawParams.device->setIndexBuffer(&particleIndexBuffer);
+        drawParams.device->drawPrimitives(Device::PrimitiveType::Triangles);
+
+        // TODO: are these needed?
+        drawParams.device->setIndexBuffer(0);
+        drawParams.device->setVertexBuffer(0);
+        drawParams.device->setVertexFormat(0);
     }
 
-    VertexBuffer vertexBuffer(
-        sizeof(float) * 8,
-        sizeof(components) / (sizeof(float) * 8),
-        components,
-        VertexBuffer::Usage::Static
-    );
+    // end quick & dirty billboard sprite test --------------------------------
 
-    BlendState blendState;
-    blendState.setEquation(BlendState::Equation::Add);
-    blendState.setSrcFactor(BlendState::SrcFactor::SrcAlpha);
-    blendState.setDstFactor(BlendState::DstFactor::One);
-
-    DepthState depthState;
-    depthState.writeEnabled = false;
-    depthState.compareFunc = DepthState::CompareFunc::Less;
-
-    //renderer_->setModelViewMatrix(drawParams.viewMatrix);
-
-    device_->setProgram(program);
-    device_->setVertexFormat(particleVertexFormat_);
-    device_->setVertexBuffer(&vertexBuffer);
-    device_->setBlendState(&blendState);
-    device_->setDepthState(&depthState);
-    //renderer_->setTexture(0, textureManager_.getResource("particle"));
-    //renderer_->setTexture(0, textureManager_.getResource("particle"), "texture0");
-
-    // TODO: no direct OpenGL function calls!
-    glEnable(GL_POINT_SPRITE);  // TODO: this is deprecated
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-
-    device_->drawPrimitives(Device::PrimitiveType::Points);
-
-    // TODO: no direct OpenGL function calls!
-    glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glDisable(GL_POINT_SPRITE); // TODO: this is deprecated
-
-    //renderer_->setTexture(0, 0, 0);
-    //device_->setDepthState(0);
-    //device_->setBlendState(0);
-    device_->setVertexBuffer(0);
-    device_->setVertexFormat(0);
-    device_->setProgram(0);
-
-    // end quick & dirty point sprite test ------------------------------------
-*/
     if (drawExtents_)
     {
         visibleExtentsQuery.init(*camera_);
@@ -771,22 +847,38 @@ void GameProgram::tick( const float deltaTime )
     {
         Bullet* const p = *iter;
 
+        if (p->active == false)
+        {
+            ++iter;
+            continue;
+        }
+
         p->life -= deltaTime;
 
         if (p->life <= 0.0f)
         {
-            p->visual->parent()->detachChild(p->visual);
+            // TODO: it would be more accurate to test collisions for the
+            // remaining lifetime
 
-            delete p->visual;
             delete p;
-
             iter = bullets_.erase(iter);
         }
         else
         {
-            p->shape.center += p->velocity * deltaTime;
-            p->visual->setTranslation(p->shape.center);
+            const Vector3 gravity(0.0f, -50.0f, 0.0f);
 
+            const Vector3 startPoint = p->shape.center;
+            const Vector3 endPoint = startPoint + p->velocity * deltaTime;
+            //const Vector3 endPoint = startPoint + normalize(startPoint + p->velocity * deltaTime - startPoint);
+            const LineSegment3 segment(startPoint, endPoint);
+
+            p->shape.center = endPoint;
+            p->velocity += gravity * deltaTime;
+
+            static SegmentMeshIntersectionQuery query;
+            query.init(segment);
+            rootNode_->accept(&query);
+/*
             static PointLitGeometryQuery query;
             query.reset();
             query.init(p->shape);
@@ -796,35 +888,46 @@ void GameProgram::tick( const float deltaTime )
             // mesh nodes and the mesh node list contains a child and a
             // parent and the parent is deleted first...
 
-            // TODO: goes boom if bullet visuals intersect
-
-            // HACK: the visual is always intersecting the bullet
-            MeshNode* firstIntersection = 0;
-
-            for (int i = 0; i < query.numMeshNodes(); ++i)
-            {
-                MeshNode* const meshNode = query.meshNode(i);
-
-                if (meshNode != p->visual)
-                {
-                    firstIntersection = meshNode;
-                    break;
-                }
-            }
-
-            if (firstIntersection != 0)
+            if (query.numMeshNodes() > 0)
             {
                 // TODO: destroys only the first (random) intersection
-
+                MeshNode* const firstIntersection = query.meshNode(0);
                 firstIntersection->parent()->detachChild(firstIntersection);
                 delete firstIntersection;
 
-                p->visual->parent()->detachChild(p->visual);
-
-                delete p->visual;
                 delete p;
-
                 iter = bullets_.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+*/
+            if (query.meshNode() != 0)
+            {
+                MeshNode* const meshNode = query.meshNode();
+/*
+                meshNode->parent()->detachChild(meshNode);
+                delete meshNode;
+*/
+                const Vector3 direction = normalize(endPoint - startPoint);
+                const Vector3 offset = -0.1f * direction;
+
+                const Vector3 worldSpaceIntersection = mix(startPoint, endPoint, query.tEnter()) + offset;
+                const Vector3 modelSpaceIntersection = transformByInverse(worldSpaceIntersection, meshNode->worldTransform());
+
+                PointLightNode* const pointLightNode = new PointLightNode();
+                pointLightNode->setTranslation(modelSpaceIntersection);
+                pointLightNode->setLightColor(Vector3(1.00f, 0.5f, 0.25f));
+                pointLightNode->setLightRange(5.0f);
+                meshNode->attachChild(pointLightNode);
+
+                delete p;
+                iter = bullets_.erase(iter);
+
+//                p->active = false;
+//                p->shape.center = worldSpaceIntersection;
+//                ++iter;
             }
             else
             {
@@ -1062,79 +1165,70 @@ void GameProgram::test()
 
 
     // create some boxes
-/*
-    Node* groupNode = new Node();
-    const float scaling = 17.5f;
 
-    MeshNode* prototype = new MeshNode();
-    prototype->setScaling(scaling);
-    prototype->setMesh(boxMesh);
-    prototype->setVertexBuffer(boxVertexBuffer);
-    prototype->updateModelExtents();
+    Node* boxGroup = new Node;
+    const float scaling = 17.5f;
 
     const int count = 10;
     //const float offset = 2.5f * scaling;
     const float offset = 2.5f * 15.0f;
     const float displacement = -(offset * (count - 1)) / 2.0f;
 
-    for (int i = 0; i < count; ++i)
+    for (int x = 0; x < count; ++x)
     {
-        for (int j = 0; j < count; ++j)
+        for (int y = 0; y < count; ++y)
         {
-            MeshNode* const meshNode = prototype->clone();
-
-            // test the visibility flags
-            //meshNode->setVisible(i != j);
-
-            if (i == 0 && j == 0)
+            for (int z = 0; z < count; ++z)
             {
-                meshNode->setEffect(createNoTextureMeshEffect(
-                    &programManager_,
-                    Vector3(1.0f, 1.0f, 1.0f),
-                    Vector3(1.0f, 1.0f, 1.0f),
-                    Vector3(0.75f, 0.0f, 0.0f),
-                    Vector3(1.0f, 1.0f, 1.0f),
-                    128.0f)
-                );
-            }
-            else
-            {
-                const int fix = j % 2;
+                MeshNode* const meshNode = new MeshNode();
+                meshNode->setScaling(scaling);
+                meshNode->setMesh(boxMesh);
+                meshNode->setVertexBuffer(boxVertexBuffer);
+                meshNode->updateModelExtents();
 
-                if ((j * count + i + fix) % 2 == 0)
+                if (x == 0 && y == 0)
                 {
-                    meshNode->setEffect(noTextureMeshEffect_->clone());
+                    meshNode->setEffect(createNoTextureMeshEffect(
+                        &programManager_,
+                        Vector3(1.0f, 1.0f, 1.0f),
+                        Vector3(1.0f, 1.0f, 1.0f),
+                        Vector3(0.75f, 0.0f, 0.0f),
+                        Vector3(1.0f, 1.0f, 1.0f),
+                        128.0f)
+                    );
                 }
                 else
                 {
-                    meshNode->setEffect(dgnsTextureMeshEffect_->clone());
+                    const int fix = y % 2 + z % 2;
+
+                    if ((y * count + x + fix) % 2 == 0)
+                    {
+                        meshNode->setEffect(noTextureMeshEffect_->clone());
+                    }
+                    else
+                    {
+                        meshNode->setEffect(dgnsTextureMeshEffect_->clone());
+                    }
                 }
+
+                meshNode->setTranslation(Vector3(
+                    displacement + x * offset,
+                    displacement + y * offset,
+                    displacement + z * offset
+                ));
+
+                boxGroup->attachChild(meshNode);
             }
-
-            meshNode->setTranslation(Vector3(displacement + i * offset, 0.0f, displacement + j * offset));
-            groupNode->attachChild(meshNode);
         }
     }
 
-    for (int i = 0; i < count; ++i)
-    {
-        if (i != 0)
-        {
-            groupNode = groupNode->clone();
-        }
+    constructOctTree(boxGroup, -1, 2);
+    rootNode_->attachChild(boxGroup);
 
-        // test the visibility flags
-        //groupNode->setVisible(false);
-        //groupNode->setSubtreeVisible(i % 2 == 0);
-
-        groupNode->setTranslation(Vector3(0.0f, displacement + i * offset, 0.0f));
-        rootNode_->attachChild(groupNode);
-    }
-*/
 
 
     // load a model
-
+/*
     ModelReader modelReader(&meshManager_, &vertexBufferManager_);
 
     Effect* const effect = createNoTextureMeshEffect(
@@ -1147,7 +1241,7 @@ void GameProgram::test()
     );
 
     Node* const model = modelReader.read("data/models/tank.3DS", *effect);
-    model->setTranslation(Vector3(0.0f, 25.0f, 0.0f));
+    model->setTranslation(Vector3(-350.0f, 25.0f, 0.0f));
     model->setRotation(Matrix3x3::xRotation(-Math::pi() / 2.0f));
     model->setScaling(1.0f);
 
@@ -1156,10 +1250,54 @@ void GameProgram::test()
 //    model->setRotation(Matrix3x3::xRotation(Math::pi()));
 //    model->setScaling(20.0f);
 
+//    Node* const model = modelReader.read("data/models/ship2.3DS", *effect);
+//    model->setTranslation(Vector3(0.0f, 0.0f, 0.0f));
+//    model->setRotation(Matrix3x3::xRotation(Math::pi() / 2.0f));
+//    model->setScaling(2.0f);
+
+    constructOctTree(model, -1, 2);
     rootNode_->attachChild(model);
 
     delete effect;
+*/
 
+/*
+    Mesh* const triangleMesh = new Mesh(1);
+    triangleMesh->vertex(0).position = Vector3(0.0f, 0.0f, 0.0f);
+    triangleMesh->vertex(1).position = Vector3(1.0f, 0.0f, 0.0f);
+    triangleMesh->vertex(2).position = Vector3(0.0f, 1.0f, 0.0f);
+    triangleMesh->generateNormalsAndTangents();
+
+    meshManager_.loadResource("triangle", triangleMesh);
+
+    VertexBuffer* const triangleVertexBuffer = new VertexBuffer(
+        sizeof(Mesh::Vertex),
+        triangleMesh->numVertices(),
+        triangleMesh->vertices(),
+        VertexBuffer::Usage::Static
+    );
+
+    vertexBufferManager_.loadResource("triangle", triangleVertexBuffer);
+
+    MeshNode* const meshNode = new MeshNode();
+    meshNode->setRotation(Matrix3x3::yRotation(Math::pi() / 4.0f));
+    meshNode->setScaling(50.0f);
+    meshNode->setMesh(boxMesh);
+    meshNode->setVertexBuffer(boxVertexBuffer);
+    //meshNode->setMesh(triangleMesh);
+    //meshNode->setVertexBuffer(triangleVertexBuffer);
+    meshNode->updateModelExtents();
+    meshNode->setEffect(createNoTextureMeshEffect(
+        &programManager_,
+        Vector3(1.0f, 1.0f, 1.0f),
+        Vector3(1.0f, 1.0f, 1.0f),
+        Vector3(0.75f, 0.0f, 0.0f),
+        Vector3(1.0f, 1.0f, 1.0f),
+        128.0f
+    ));
+    //lightGroup->attachChild(meshNode);
+    rootNode_->attachChild(meshNode);
+*/
 
 
     camera_->setTranslation(Vector3(-75.0f - 37.5f / 2.0f, 0.0f, 150.0f));
@@ -1183,6 +1321,7 @@ GameProgram::~GameProgram()
     delete noTextureMeshEffect_;
     delete extentsEffect_;
     delete shadowEffect_;
+    delete particleEffect_;
 }
 
 void GameProgram::initEffects()
@@ -1207,4 +1346,9 @@ void GameProgram::initEffects()
 
     extentsEffect_ = createExtentsEffect(&programManager_);
     shadowEffect_ = createShadowEffect(&programManager_);
+
+    particleEffect_ = createParticleEffect(
+        &programManager_,
+        textureManager_.getResource("particle")
+    );
 }

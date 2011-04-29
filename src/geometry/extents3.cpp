@@ -6,7 +6,9 @@
 #include <geometry/extents3.h>
 
 #include <geometry/interval.h>
+#include <geometry/line3.h>
 #include <geometry/math.h>
+#include <geometry/plane3.h>
 #include <geometry/sphere.h>
 #include <geometry/transform3.h>
 
@@ -74,6 +76,16 @@ bool Extents3::isEmpty() const
     return max.x < min.x || max.y < min.y || max.z < min.z;
 }
 
+bool Extents3::contains(const Extents3& other) const
+{
+    return min.x <= other.min.x
+    &&     min.y <= other.min.y
+    &&     min.z <= other.min.z
+    &&     max.x >= other.max.x
+    &&     max.y >= other.max.y
+    &&     max.z >= other.max.z;
+}
+
 void Extents3::swap(Extents3& other)
 {
     min.swap(other.min);
@@ -102,6 +114,74 @@ bool intersect(const Extents3& a, const Sphere& b)
     const float sqrRadius = b.radius * b.radius;
 
     return sqrDistance(closestPoint(a, b.center), b.center) <= sqrRadius;
+}
+
+bool intersect(
+    const Extents3& extents,
+    const Line3& line,
+    float* const tEnterOut,
+    float* const tLeaveOut)
+{
+    float tEnter = -Math::infinity();
+    float tLeave = Math::infinity();
+
+    const Plane3 planes[] = {
+        Plane3(Vector3(-1.0f,  0.0f,  0.0f), extents.min),
+        Plane3(Vector3( 1.0f,  0.0f,  0.0f), extents.max),
+        Plane3(Vector3( 0.0f, -1.0f,  0.0f), extents.min),
+        Plane3(Vector3( 0.0f,  1.0f,  0.0f), extents.max),
+        Plane3(Vector3( 0.0f,  0.0f, -1.0f), extents.min),
+        Plane3(Vector3( 0.0f,  0.0f,  1.0f), extents.max)
+    };
+
+    float t;
+
+    for (int i = 0; i < 6; ++i)
+    {
+        if (intersect(planes[i], line, &t))
+        {
+            if (dot(line.direction, planes[i].normal) < 0.0f)
+            {
+                // entering
+                if (t > tEnter)
+                {
+                    tEnter = t;
+                }
+            }
+            else
+            {
+                // leaving
+                if (t < tLeave)
+                {
+                    tLeave = t;
+                }
+            }
+        }
+        else
+        {
+            if (separation(planes[i], line.point) > 0.0f)
+            {
+                return false;
+            }
+        }
+    }
+
+    if (tLeave < tEnter)
+    {
+        return false;
+    }
+
+    if (tEnterOut != 0)
+    {
+        *tEnterOut = tEnter;
+    }
+
+    if (tLeaveOut != 0)
+    {
+        *tLeaveOut = tLeave;
+    }
+
+    return true;
 }
 
 const Vector3 closestPoint(const Extents3& x, const Vector3& q)

@@ -64,6 +64,7 @@
 		<Unit filename="..\..\include\geometry\staticassert.h" />
 		<Unit filename="..\..\include\geometry\transform2.h" />
 		<Unit filename="..\..\include\geometry\transform3.h" />
+		<Unit filename="..\..\include\geometry\triangle3.h" />
 		<Unit filename="..\..\include\geometry\vector2.h" />
 		<Unit filename="..\..\include\geometry\vector3.h" />
 		<Unit filename="..\..\include\geometry\vector4.h" />
@@ -90,6 +91,7 @@
 		<Unit filename="..\..\src\geometry\sphere.cpp" />
 		<Unit filename="..\..\src\geometry\transform2.cpp" />
 		<Unit filename="..\..\src\geometry\transform3.cpp" />
+		<Unit filename="..\..\src\geometry\triangle3.cpp" />
 		<Unit filename="..\..\src\geometry\vector2.cpp" />
 		<Unit filename="..\..\src\geometry\vector3.cpp" />
 		<Unit filename="..\..\src\geometry\vector4.cpp" />

@@ -68,6 +68,14 @@ bool Extents2::isEmpty() const
     return max.x < min.x || max.y < min.y;
 }
 
+bool Extents2::contains(const Extents2& other) const
+{
+    return min.x <= other.min.x
+    &&     min.y <= other.min.y
+    &&     max.x >= other.max.x
+    &&     max.y >= other.max.y;
+}
+
 void Extents2::swap(Extents2& other)
 {
     min.swap(other.min);

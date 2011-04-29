@@ -820,10 +820,7 @@ void Device::setClearStencil(const uint32_t clearStencil)
     glClearStencil(clearStencil);
 }
 
-void Device::clearBuffers(
-    const bool color,
-    const bool depth,
-    const bool stencil)
+void Device::clear(const bool color, const bool depth, const bool stencil)
 {
     // glClear is affected by various settings, including the scissor test and
     // the buffer writemasks. If a buffer is not present, then a glClear
@@ -831,7 +828,7 @@ void Device::clearBuffers(
     glClear(clearMask(color, depth, stencil));
 }
 
-void Device::clearBuffers(
+void Device::clear(
     const bool color,
     const bool depth,
     const bool stencil,

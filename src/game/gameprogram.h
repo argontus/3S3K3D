@@ -15,6 +15,7 @@
 
 #include "sound/mixer.h"
 
+#include <geometry/vector4.h>
 #include <geometry/sphere.h>
 
 #include <graphics/resourcemanager.h>
@@ -22,6 +23,24 @@
 #include <graphics/mesh.h>
 #include <graphics/texture.h>
 #include <graphics/vertexbuffer.h>
+
+struct ParticleVertex
+{
+    ParticleVertex(
+        const Vector3& position,
+        const Vector4& color,
+        const Vector2& texCoord)
+    :   position(position),
+        color(color),
+        texCoord(texCoord)
+    {
+        // ...
+    }
+
+    Vector3 position;
+    Vector4 color;
+    Vector2 texCoord;
+};
 
 class Device;
 class Effect;
@@ -40,10 +59,10 @@ typedef ResourceManager<VertexBuffer> VertexBufferManager;
 
 struct Bullet
 {
+    bool active;
     float life;
     Sphere shape;
     Vector3 velocity;
-    Node* visual;
 };
 
 /**
@@ -174,6 +193,7 @@ private:
     Effect* noTextureMeshEffect_;
     Effect* extentsEffect_;
     Effect* shadowEffect_;
+    Effect* particleEffect_;
 
     // TODO: guess who
     typedef std::vector<Bullet*> BulletVector;

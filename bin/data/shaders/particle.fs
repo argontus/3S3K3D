@@ -1,13 +1,14 @@
 #version 150
 
-uniform sampler2D texture0; // particle texture
+uniform sampler2D particleTexture;
 
-in vec4 color_;             // particle color
+in vec4 color_;
+in vec2 texCoord_;
 
-out vec4 fragColor;         // fragment color
+out vec4 fragColor;
 
 void main()
 {
-    fragColor = color_ * texture(texture0, gl_PointCoord);
-    //fragColor = max(color_ * texture(texture0, gl_PointCoord), 1.0);
+    fragColor = color_ * texture(particleTexture, texCoord_);
+    gl_FragDepth = gl_FragCoord.z;
 }

@@ -160,8 +160,8 @@ public:
     void setClearStencil(uint32_t clearStencil);
     // TODO: uint32_t clearStencil() const; ?
 
-    // TODO: the active scissor state and buffer writemasks affect this
-    // operation, document it
+    // TODO: this should ignore color, depth and stencil buffer writemasks
+    // TODO: use a bitmask instead of 3 boolean values?
     /**
      * Clears the specified buffers to their clear values. If a buffer is not
      * present, then a clear operation directed at that buffer has no effect.
@@ -174,10 +174,10 @@ public:
      * @see setClearDepth(float)
      * @see setClearStencil(uint32_t)
      */
-    void clearBuffers(bool color, bool depth, bool stencil);
+    void clear(bool color, bool depth, bool stencil);
 
-    // TODO: the active scissor state and buffer writemasks affect this
-    // operation, document it
+    // TODO: this should ignore color, depth and stencil buffer writemasks
+    // TODO: use a bitmask instead of 3 boolean values?
     /**
      * Clears a specified area of the specified buffers to their clear values.
      * <code>area</code> is given in right handed coordinate system, i.e.,
@@ -197,7 +197,7 @@ public:
      * @see setClearDepth(float)
      * @see setClearStencil(uint32_t)
      */
-    void clearBuffers(
+    void clear(
         bool color,
         bool depth,
         bool stencil,
@@ -214,7 +214,9 @@ public:
     // the specified range [offset, offset + count) must be valid
     void drawPrimitives(PrimitiveType::Enum type, int offset, int count);
 
-    // TODO: drawPrimitives function that takes a pointer to vertex data in
+    // TODO: separate functions for indexed primitives
+
+    // TODO: drawUserPrimitives function that takes a pointer to vertex data in
     // client memory?
 
 private:

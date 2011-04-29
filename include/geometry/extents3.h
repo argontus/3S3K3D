@@ -9,6 +9,7 @@
 #include <geometry/vector3.h>
 
 class Interval;
+class Line3;
 class Sphere;
 class Transform3;
 
@@ -87,6 +88,16 @@ public:
     bool isEmpty() const;
 
     /**
+     * Tests if <code>*this</code> contains <code>other</code>.
+     *
+     * @param other The extents to test.
+     *
+     * @return <code>true</code>, if <code>*this</code> contains
+     * <code>other</code>, <code>false</code> otherwise.
+     */
+    bool contains(const Extents3& other) const;
+
+    /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
      *
      * @param other The object to swap contents with.
@@ -120,6 +131,13 @@ bool intersect(const Extents3& a, const Extents3& b);
  * is <code>false</code>.
  */
 bool intersect(const Extents3& a, const Sphere& b);
+
+// TODO: comments
+bool intersect(
+    const Extents3& extents,
+    const Line3& line,
+    float* tEnterOut,
+    float* tLeaveOut);
 
 /**
  * Calculates the point on or in extents <code>x</code> that is closest to

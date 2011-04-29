@@ -87,6 +87,16 @@ public:
     bool isEmpty() const;
 
     /**
+     * Tests if <code>*this</code> contains <code>other</code>.
+     *
+     * @param other The extents to test.
+     *
+     * @return <code>true</code>, if <code>*this</code> contains
+     * <code>other</code>, <code>false</code> otherwise.
+     */
+    bool contains(const Extents2& other) const;
+
+    /**
      * Exchanges the contents of <code>*this</code> and <code>other</code>.
      *
      * @param other The object to swap contents with.

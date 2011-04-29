@@ -8,6 +8,8 @@
 
 #include <geometry/vector3.h>
 
+class Line3;
+
 /**
  * Describes a 3D plane equation.
  */
@@ -65,6 +67,9 @@ public:
      */
     float constant;
 };
+
+// TODO: comments
+bool intersect(const Plane3& plane, const Line3& line, float* t);
 
 /**
  * Calculates the separation between plane <code>x</code> and point

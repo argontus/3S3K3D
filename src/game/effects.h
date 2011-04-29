@@ -15,6 +15,10 @@ class Texture;
 Effect* createExtentsEffect(ProgramManager* programMgr);
 Effect* createShadowEffect(ProgramManager* programMgr);
 
+Effect* createParticleEffect(
+    ProgramManager* programMgr,
+    Texture* particleTexture);
+
 Effect* createDGNSTextureMeshEffect(
     ProgramManager* programMgr,
     Texture* diffuseMap,

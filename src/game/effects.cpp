@@ -97,6 +97,31 @@ Effect* createShadowEffect(ProgramManager* const programMgr)
     return effect;
 }
 
+Effect* createParticleEffect(
+    ProgramManager* const programMgr,
+    Texture* const particleTexture)
+{
+    GRAPHICS_RUNTIME_ASSERT(programMgr != 0);
+    GRAPHICS_RUNTIME_ASSERT(particleTexture != 0);
+
+    Effect* const effect = new Effect("particleEffect", 1);
+
+    Technique* const technique = new Technique("default", 1);
+    effect->setTechnique(0, technique);
+
+    Pass* pass = new Pass("pass0", 2);
+    technique->setPass(0, pass);
+    pass->setBlendState(BlendState::additiveBlend());
+    pass->setDepthState(DepthState::lessEqualReadOnly());
+    pass->setRasterizerState(RasterizerState::cullClockwise());
+    pass->setStencilState(StencilState::disabled());
+    pass->setProgram(programMgr->load("data/shaders/particle.vs", "data/shaders/particle.fs"));
+    pass->setParameter(0, new Mat4Parameter("viewProjectionMatrix", Matrix4x4::identity()));
+    pass->setParameter(1, new Sampler2DParameter("particleTexture", 0, particleTexture));
+
+    return effect;
+}
+
 Effect* createDGNSTextureMeshEffect(
     ProgramManager* const programMgr,
     Texture* const diffuseMap,
@@ -196,6 +221,7 @@ Effect* createNoTextureMeshEffect(
     pass->setBlendState(BlendState::disabled());
     pass->setDepthState(DepthState::lessEqual());
     pass->setRasterizerState(RasterizerState::cullClockwise());
+    //pass->setRasterizerState(RasterizerState::wireFrame());
     pass->setStencilState(StencilState::disabled());
     pass->setProgram(programMgr->load("data/shaders/mesh/no_texture/ambient_light.vs", "data/shaders/mesh/no_texture/ambient_light.fs"));
     pass->setParameter(0, new Mat4Parameter("modelViewMatrix", Matrix4x4::identity()));
@@ -213,6 +239,7 @@ Effect* createNoTextureMeshEffect(
     pass->setBlendState(BlendState::additive());
     pass->setDepthState(DepthState::lessEqualReadOnly());
     pass->setRasterizerState(RasterizerState::cullClockwise());
+    //pass->setRasterizerState(RasterizerState::wireFrame());
     pass->setStencilState(&stencilState);
     pass->setProgram(programMgr->load("data/shaders/mesh/no_texture/point_light.vs", "data/shaders/mesh/no_texture/point_light.fs"));
     pass->setParameter(0, new Mat4Parameter("modelViewMatrix", Matrix4x4::identity()));
